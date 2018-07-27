@@ -47,7 +47,7 @@ defmodule Haytni.MixProject do
   end
 
   defp description() do
-    "TODO"
+    "A flexible authentication (and more) solution for Phoenix"
   end
 
   defp package() do
