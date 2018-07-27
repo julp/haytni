@@ -48,8 +48,8 @@ config :haytni,
 These are the mandatory options. See options of each plugin for full customizations.
 
 Run `mix haytni.install` which has the following options (command arguments):
-* `--table <table>` (defaults: users): the name of your table (used to generate migrations)
-* `--plugin Module1 --plugin Module2 ... --plugin ModuleN`: the names of the (Elixir) modules/plugins to enable
+* `--table <table>` (default: `"users"`): the name of your table (used to generate migrations)
+* `--plugin Module1 --plugin Module2 ... --plugin ModuleN` (default: value of `config :haytni, plugins: [...]`): the names of the (Elixir) modules/plugins to enable
 
 Change *your_app*/lib/*your_app*_web/router.ex
 
@@ -80,7 +80,6 @@ end
 Change *your_app*/lib/*your_app*/user.ex
 
 ```elixir
-TODO: migration to generate a new user schema?
 defmodule YouApp.User do
   require Haytni # <= add this line
 
@@ -213,7 +212,7 @@ Configuration:
 
 Routes:
 
-* `registration_path` (actions: new/create, edit/update, delete)
+* `registration_path` (actions: new/create, edit/update)
 
 ### Rememberable
 
@@ -243,7 +242,7 @@ Fields:
 
 Configuration:
 
-* ~~`reconfirmable` (default: `true`): TODO~~
+* `reconfirmable` (default: `true`): if `true`, on an email change, the user has to confirm its new address
 * `confirmation_keys` (default: `~W[email]a`): the key(s) to be matched before sending a new confirmation
 * `confirm_within` (default: `{3, :day}`): delay after which confirmation token is considered as expired (ie the user has to ask for a new one)
 
