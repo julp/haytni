@@ -1,0 +1,15 @@
+<%%= if Map.has_key?(@changeset.data, :referer) do %>
+  <%%= hidden_input @f, :referer %>
+<%% end %>
+<%%= for field <- @keys do %>
+  <div class="form-group">
+    <%= ~s'<%= label @f, Gettext.dgettext(#{inspect web_module}.Gettext, "fields", to_string(field)), class: "control-label" %\x3E' %>
+    <%%= case field do %>
+      <%% :email -> %>
+        <%%= email_input @f, field, class: "form-control", required: "" %>
+      <%% _ -> %>
+        <%%= text_input @f, field, class: "form-control", required: "" %>
+    <%% end %>
+    <%%= error_tag @f, field %>
+  </div>
+<%% end %>

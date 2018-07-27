@@ -1,0 +1,7 @@
+Hi <%%= @user.unconfirmed_email %>,
+
+In order to actually change the email address linked to your account to <%%= @user.unconfirmed_email %> we ask you to confirm the action by activating the following link:
+
+<%%= confirmation_url(<%= inspect web_module %>.Endpoint, :show, confirmation_token: @user.confirmation_token) %>
+
+To do so, copy the link above then paste it in your browser.

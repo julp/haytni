@@ -1,0 +1,5 @@
+<p>Welcome <%%= @user.email %>,</p>
+
+<p>You can confirm your account email through the link below:</p>
+
+<p><%%= link "Confirm my account", to: confirmation_url(<%= inspect web_module %>.Endpoint, :show, confirmation_token: @user.confirmation_token) %></p>

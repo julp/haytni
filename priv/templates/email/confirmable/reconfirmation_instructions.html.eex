@@ -1,0 +1,5 @@
+<p>Hi <%%= @user.unconfirmed_email %>,</p>
+
+<p>In order to actually change the email address linked to your account to <%%= @user.unconfirmed_email %> we ask you to confirm the action by activating the link below:</p>
+
+<p><%%= link "Confirm my account", to: confirmation_url(<%= inspect web_module %>.Endpoint, :show, confirmation_token: @user.confirmation_token) %></p>

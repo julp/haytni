@@ -1,0 +1,5 @@
+Welcome <%%= @user.email %>,
+
+You can confirm your account email by copying/pasting the link below in your browser:
+
+<%%= confirmation_url(<%= inspect web_module %>.Endpoint, :show, confirmation_token: @user.confirmation_token) %>

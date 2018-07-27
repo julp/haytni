@@ -1,0 +1,13 @@
+<h2><%%= dgettext("haytni", "Forgot your password?") %></h2>
+
+<%%= form_for @changeset, password_path(@conn, :create), [as: :password], fn f -> %>
+
+  <%= ~s'<%= render #{inspect web_module}.Haytni.SharedView, "keys.html", changeset: @changeset, f: f, keys: Haytni.RecoverablePlugin.reset_password_keys() %\x3E' %>
+
+  <div class="form-group">
+    <%%= submit dgettext("haytni", "Send me reset password instructions") %>
+  </div>
+
+  <%= ~s'<%= render #{inspect web_module}.Haytni.SharedView, "links.html", assigns %\x3E' %>
+
+<%% end %>
