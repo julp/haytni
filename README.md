@@ -144,7 +144,7 @@ config :haytni,
 See Bamboo's doc
 ```
 
-~~Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc) and published on [HexDocs](https://hexdocs.pm). Once published, the docs can be found at [https://hexdocs.pm/haytni](https://hexdocs.pm/haytni).~~
+Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc) and published on [HexDocs](https://hexdocs.pm). Once published, the docs can be found at [https://hexdocs.pm/haytni](https://hexdocs.pm/haytni).
 
 General configuration:
 
