@@ -41,7 +41,7 @@ config :haytni,
   plugins: [
     # ...
     YourApp.BanPlugin
-  ],
+  ]
 ```
 
 (the part to turn it on or off in your admin panel is not shown - its just a form/checkbox with a separate *changeset* function)
