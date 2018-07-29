@@ -4,6 +4,7 @@ defmodule Haytni.MixProject do
   def project do
     [
       app: :haytni,
+      docs: docs(),
       version: "0.0.1",
       elixir: "~> 1.6",
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
@@ -55,6 +56,75 @@ defmodule Haytni.MixProject do
       files: ["lib", "priv", "mix.exs", "README*"],
       licenses: ["BSD"],
       links: %{"GitHub" => "https://github.com/julp/haytni"}
+    ]
+  end
+
+  defp docs do
+    [
+      extras: extras(),
+      groups_for_extras: groups_for_extras(),
+      groups_for_modules: groups_for_modules()
+    ]
+  end
+
+  defp extras do
+    Path.wildcard("guides/**/*.md")
+  end
+
+  defp groups_for_extras do
+    [
+      Installation: "guides/installation.md",
+      "How to": ~R"guides/howto/.*\.md",
+    ]
+  end
+
+  defp groups_for_modules do
+    [
+      #Haytni
+      #Haytni.Mail
+      #Haytni.Plugin
+      #Haytni.Gettext
+      #Haytni.Token
+      #Haytni.Users
+      #HaytniWeb.Shared
+      Plugins: [
+        Haytni.AuthenticablePlugin,
+        Haytni.ConfirmablePlugin,
+        Haytni.LockablePlugin,
+        Haytni.RecoverablePlugin,
+        Haytni.RegisterablePlugin,
+        Haytni.RememberablePlugin,
+      ],
+      Plugs: [
+        Haytni.CurrentUserPlug,
+        Haytni.ViewAndLayoutPlug,
+      ],
+      Authenticable: [
+        Haytni.AuthenticablePlugin,
+        Haytni.Session,
+      ],
+      Confirmable: [
+        Haytni.ConfirmablePlugin,
+        Haytni.ConfirmableEmail,
+        Haytni.Confirmation,
+      ],
+      Lockable: [
+        Haytni.LockablePlugin,
+        Haytni.LockableEmail,
+        Haytni.Unlockable.Request,
+      ],
+      Recoverable: [
+        Haytni.RecoverablePlugin,
+        Haytni.Recoverable.PasswordChange,
+        Haytni.Recoverable.ResetRequest,
+        Haytni.RecoverableEmail,
+      ],
+      Registerable: [
+        Haytni.RegisterablePlugin,
+      ],
+      Rememberable: [
+        Haytni.RememberablePlugin,
+      ],
     ]
   end
 end

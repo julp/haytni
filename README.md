@@ -29,7 +29,8 @@ by adding `haytni` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:haytni, "~> 0.0.1"}
+    {:haytni, "~> 0.0.1"},
+    # ...
   ]
 end
 ```
@@ -138,11 +139,7 @@ config :haytni,
   mailer: YourApp.Mailer # <= add this line
 ```
 
-*your_app*/config/prod.exs
-
-```elixir
-See Bamboo's doc
-```
+*your_app*/config/prod.exs: [see Bamboo's documentation](https://hexdocs.pm/bamboo/readme.html)
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc) and published on [HexDocs](https://hexdocs.pm). Once published, the docs can be found at [https://hexdocs.pm/haytni](https://hexdocs.pm/haytni).
 
