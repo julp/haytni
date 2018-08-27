@@ -42,7 +42,8 @@ Configure Haytni *your_app*/config/config.exs
 ```
 config :haytni,
   repo: YourApp.Repo,
-  schema: YourApp.User
+  schema: YourApp.User,
+  #mailer: YourApp.Mailer # see below
 ```
 
 
