@@ -1,4 +1,4 @@
-<h2><%= dgettext("haytni", "Change your password") %></h2>
+<h2><%= Haytni.Gettext.dgettext("haytni", "Change your password") %></h2>
 
 <%= form_for @changeset, password_path(@conn, :update), [as: :password, method: :patch], fn f -> %>
 
@@ -6,21 +6,21 @@
   <%= error_tag f, :reset_password_token %>
 
   <div class="form-group">
-    <%= label f, :password, dgettext("haytni", "New password") %><br />
-    <%= password_input f, :password, autofocus: true, autocomplete: "new-password", required: "", placeholder: dgettext("haytni", "your new password") %>
+    <%= label f, :password, Haytni.Gettext.dgettext("haytni", "New password") %><br />
+    <%= password_input f, :password, autofocus: true, autocomplete: "new-password", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "your new password") %>
     <%= error_tag f, :password %>
   </div>
   <small id="passwordHelpBlock" class="form-text text-muted">
-    <%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: @minimum_password_length, maximum_password_length: @maximum_password_length) %>
+    <%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: @minimum_password_length, maximum_password_length: @maximum_password_length) %>
   </small>
 
   <div class="form-group">
-    <%= label f, :password_confirmation, dgettext("haytni", "Confirm new password") %><br />
-    <%= password_input f, :password_confirmation, autocomplete: "off", required: "", placeholder: dgettext("haytni", "your new password") %>
+    <%= label f, :password_confirmation, Haytni.Gettext.dgettext("haytni", "Confirm new password") %><br />
+    <%= password_input f, :password_confirmation, autocomplete: "off", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "your new password") %>
     <%= error_tag f, :password_confirmation %>
   </div>
 
   <div class="form-group">
-    <%= submit dgettext("haytni", "Change my password") %>
+    <%= submit Haytni.Gettext.dgettext("haytni", "Change my password") %>
   </div>
 <% end %>

@@ -154,3 +154,173 @@ msgstr ""
 #: lib/haytni_web/controllers/lockable/unlock_controller.ex:61
 msgid "Check your emails, a new key to unlock your account has been sent.\n\nYou may need to look at the spams folder.\n"
 msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/unlock/new.html.eex:1
+#: /usr/home/julp/elixir/haytni/priv/templates/unlock/new.html.eex:8
+msgid "Resend unlock instructions"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:4
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:4
+msgid "Email"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:5
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:5
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:10
+msgid "your email"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:10
+msgid "Currently waiting confirmation for: %{email}"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:15
+#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:9
+msgid "New password"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:16
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:24
+#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:10
+#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:19
+msgid "your new password"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:20
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:20
+#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:14
+msgid "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long."
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:23
+#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:18
+msgid "Confirm new password"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:29
+msgid "Current password"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:30
+msgid "your current password"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:34
+msgid "Required only if you change your email and/or your current password."
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:38
+msgid "Update"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:39
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:30
+#: /usr/home/julp/elixir/haytni/priv/templates/session/new.html.eex:27
+#: /usr/home/julp/elixir/haytni/priv/templates/confirmation/new.html.eex:9
+msgid "Cancel"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:9
+msgid "Confirm email"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:15
+#: /usr/home/julp/elixir/haytni/priv/templates/session/new.html.eex:12
+msgid "Password"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:16
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:24
+msgid "your password"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:23
+msgid "Confirm password"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:29
+#: /usr/home/julp/elixir/haytni/priv/templates/shared/links.html.eex:6
+msgid "Sign up"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/session/new.html.eex:5
+msgid "Warning: at the next failed attempt, the account will be locked"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/session/new.html.eex:20
+msgid "Remember Me?"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/session/new.html.eex:26
+msgid "Sign In"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/confirmation/new.html.eex:1
+#: /usr/home/julp/elixir/haytni/priv/templates/confirmation/new.html.eex:8
+msgid "Resend confirmation instructions"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/shared/message.html.eex:8
+msgid "Back"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/shared/links.html.eex:3
+msgid "Sign in"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/shared/links.html.eex:9
+#: /usr/home/julp/elixir/haytni/priv/templates/password/new.html.eex:1
+msgid "Forgot your password?"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/shared/links.html.eex:12
+msgid "Didn't receive confirmation instructions?"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/shared/links.html.eex:15
+msgid "Didn't receive unlock instructions?"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:1
+msgid "Change your password"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:24
+msgid "Change my password"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/password/new.html.eex:8
+msgid "Send me reset password instructions"
+msgstr ""
+

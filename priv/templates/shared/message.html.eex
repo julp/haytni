@@ -5,5 +5,5 @@
 <%%= if assigns[:next_step_link_href] do %>
   <%%= link @next_step_link_text, to: @next_step_link_href, class: "button" %>
 <%% else %>
-  <%%= link dgettext("haytni", "Back"), to: assigns[:back_link] || "/", class: "button" %>
+  <%%= link Haytni.Gettext.dgettext("haytni", "Back"), to: assigns[:back_link] || "/", class: "button" %>
 <%% end %>

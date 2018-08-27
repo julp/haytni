@@ -1,11 +1,11 @@
-<h2><%%= dgettext("haytni", "Resend unlock instructions") %></h2>
+<h2><%%= Haytni.Gettext.dgettext("haytni", "Resend unlock instructions") %></h2>
 
 <%%= form_for @changeset, unlock_path(@conn, :create), [as: :unlock], fn f -> %>
 
   <%= ~s'<%= render #{inspect web_module}.Haytni.SharedView, "keys.html", changeset: @changeset, f: f, keys: Haytni.LockablePlugin.unlock_keys() %\x3E' %>
 
   <div class="form-group">
-    <%%= submit dgettext("haytni", "Resend unlock instructions") %>
+    <%%= submit Haytni.Gettext.dgettext("haytni", "Resend unlock instructions") %>
   </div>
 
   <%= ~s'<%= render #{inspect web_module}.Haytni.SharedView, "links.html", assigns %\x3E' %>

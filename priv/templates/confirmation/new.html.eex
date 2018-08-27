@@ -1,12 +1,12 @@
-<h2><%%= dgettext("haytni", "Resend confirmation instructions") %></h2>
+<h2><%%= Haytni.Gettext.dgettext("haytni", "Resend confirmation instructions") %></h2>
 
 <%%= form_for @changeset, confirmation_path(@conn, :create), [as: :confirmation], fn f  -> %>
 
   <%= ~s'<%= render #{inspect web_module}.Haytni.SharedView, "keys.html", changeset: @changeset, f: f, keys: Haytni.ConfirmablePlugin.confirmation_keys() %\x3E' %>
 
   <div class="form-group">
-    <%%= submit dgettext("haytni", "Resend confirmation instructions"), class: "btn btn-primary" %>
-    <%%= link dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
+    <%%= submit Haytni.Gettext.dgettext("haytni", "Resend confirmation instructions"), class: "btn btn-primary" %>
+    <%%= link Haytni.Gettext.dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
   </div>
 
   <%= ~s'<%= render #{inspect web_module}.Haytni.SharedView, "links.html", assigns %\x3E' %>
