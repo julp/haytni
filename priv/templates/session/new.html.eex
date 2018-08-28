@@ -24,7 +24,6 @@
 
   <div class="form-group">
     <%%= submit Haytni.Gettext.dgettext("haytni", "Sign In"), class: "btn btn-primary" %>
-    <%%= link Haytni.Gettext.dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
   </div>
 
   <%= ~s'<%= render #{inspect web_module}.Haytni.SharedView, "links.html", assigns %\x3E' %>
