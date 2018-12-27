@@ -31,9 +31,9 @@ defmodule Haytni.RememberablePlugin do
       #domain:
       #max_age:
       #path:
-      http_only: true
+      http_only: true,
       #secure:
-      #extra:
+      extra: "Samesite=Strict",
     ]
   ]
 
