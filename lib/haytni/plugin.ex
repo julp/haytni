@@ -26,7 +26,7 @@ defmodule Haytni.Plugin do
   @callback routes(scope :: atom, options :: Keyword.t) :: Macro.t
 
   @doc ~S"""
-  Returns a list of files to be (un)installed by the mix taks haytni.(un)install
+  Returns a list of files to be (un)installed by the mix tasks haytni.(un)install
 
   # TODO: format of the list
   """
