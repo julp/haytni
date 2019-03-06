@@ -21,6 +21,8 @@ Plugins:
 * lockable (`Haytni.LockablePlugin`): automatic lock an account after a number of failed attempts to sign in
 * ~~trackable (``): register users's connections (IP + when)~~
 
+Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc) and published on [HexDocs](https://hexdocs.pm). Once published, the docs can be found at [https://hexdocs.pm/haytni](https://hexdocs.pm/haytni).
+
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
@@ -100,23 +102,22 @@ end
 
 ### Emails
 
-For plugins which send emails (confirmable, lockable, recoverable):
+For plugins which send emails (Confirmable, Lockable and Recoverable):
 
-*your_app*/lib/*your_app*/mailer.ex
-lib/mailer.ex
+Create *your_app*/lib/mailer.ex as follows:
 
 ```elixir
 defmodule YourApp.Mailer do
   use Bamboo.Mailer, otp_app: :your_app
 
-  def from, do: {"xxx.com", "noreply.xxx.com"}
+  def from, do: {"mydomain.com", "noreply.mydomain.com"}
 end
 ```
 
 Add to *your_app*/lib/*your_app*_web/router.ex
 
 ```elixir
-  if Mix.env == :dev do
+  if Mix.env() == :dev do
     Application.ensure_started(:bamboo)
     if Version.compare(Application.spec(:bamboo, :vsn) |> to_string, "0.8.0") == :lt do
       # Bamboo > 0.8
@@ -128,21 +129,17 @@ Add to *your_app*/lib/*your_app*_web/router.ex
   end
 ```
 
-Configure email sending:
-
-*your_app*/config/dev.exs
+Configure email sending in *your_app*/config/dev.exs:
 
 ```elixir
 config :yourapp, YourApp.Mailer,
   adapter: Bamboo.LocalAdapter
 
 config :haytni,
-  mailer: YourApp.Mailer # <= add this line
+  mailer: YourApp.Mailer # <= add/change this line
 ```
 
-*your_app*/config/prod.exs: [see Bamboo's documentation](https://hexdocs.pm/bamboo/readme.html)
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc) and published on [HexDocs](https://hexdocs.pm). Once published, the docs can be found at [https://hexdocs.pm/haytni](https://hexdocs.pm/haytni).
+For production (*your_app*/config/prod.exs): [see Bamboo's documentation](https://hexdocs.pm/bamboo/readme.html)
 
 General configuration:
 
@@ -187,7 +184,7 @@ defmodule YourApp.User do
     |> Haytni.validate_create_registration()
   end
 
-  # called when a user try to edit its own account (logic is completely different)
+  # called when a user try to edit its own account (logic is completely different from registration)
   def update_registration_changeset(%__MODULE__{} = struct, params) do
     struct
     |> cast(params, ~W[email password current_password]a)
