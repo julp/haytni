@@ -38,9 +38,9 @@ defmodule Haytni.MixProject do
           {:bcrypt_elixir, "~> 0.12"}
         end
       ),
-      {:ecto, "~> 2.0"},
-      {:phoenix, "~> 1.3"},
-      #{:phoenix_ecto, "~> 3.0"},
+      {:ecto_sql, "~> 3.0"},
+      {:phoenix, "~> 1.4"},
+      #{:phoenix_ecto, "~> 4.0"},
       {:phoenix_html, "~> 2.11"},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:bamboo, "~> 0.8"} # required by plugins: confirmable, lockable and recoverable

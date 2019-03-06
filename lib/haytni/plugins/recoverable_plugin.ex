@@ -37,7 +37,7 @@ defmodule Haytni.RecoverablePlugin do
       # HTML
       {:eex, "views/password_view.ex", Path.join([web_path(), "views", "haytni", "password_view.ex"])},
       {:eex, "templates/password/new.html.eex", Path.join([web_path(), "templates", "haytni", "password", "new.html.eex"])},
-      {:text, "templates/password/edit.html.eex", Path.join([web_path(), "templates", "haytni", "password", "edit.html.eex"])},
+      {:eex, "templates/password/edit.html.eex", Path.join([web_path(), "templates", "haytni", "password", "edit.html.eex"])},
       # email
       {:eex, "views/email/recoverable_view.ex", Path.join([web_path(), "views", "haytni", "email", "recoverable_view.ex"])},
       {:eex, "templates/email/recoverable/reset_password_instructions.text.eex", Path.join([web_path(), "templates", "haytni", "email", "recoverable", "reset_password_instructions.text.eex"])},

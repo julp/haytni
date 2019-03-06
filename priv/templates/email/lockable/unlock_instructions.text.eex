@@ -4,4 +4,4 @@ Your account has been locked due to an excessive number of unsuccessful sign in 
 
 You can unlock your account by copying/pasting the link below in your browser:
 
-<%%= unlock_url(<%= inspect web_module %>.Endpoint, :show, unlock_token: @user.unlock_token) %>
+<%%= <%= inspect web_module %>.Router.Helpers.unlock_url(<%= inspect web_module %>.Endpoint, :show, unlock_token: @user.unlock_token) %>

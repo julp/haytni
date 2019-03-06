@@ -37,7 +37,7 @@ defmodule Haytni.AuthenticablePlugin do
       # TODO: put shared stuffs elsewhere
       {:eex, "views/shared_view.ex", Path.join([web_path(), "views", "haytni", "shared_view.ex"])},
       {:eex, "templates/shared/keys.html.eex", Path.join([web_path(), "templates", "haytni", "shared", "keys.html.eex"])},
-      {:text, "templates/shared/links.html.eex", Path.join([web_path(), "templates", "haytni", "shared", "links.html.eex"])},
+      {:eex, "templates/shared/links.html.eex", Path.join([web_path(), "templates", "haytni", "shared", "links.html.eex"])},
       {:eex, "templates/shared/message.html.eex", Path.join([web_path(), "templates", "haytni", "shared", "message.html.eex"])}
     ]
   end

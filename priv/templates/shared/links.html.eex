@@ -1,18 +1,18 @@
 <div class="form-group">
-  <%= if Haytni.plugin_enabled?(Haytni.AuthenticablePlugin) && HaytniWeb.Authenticable.SessionController != Phoenix.Controller.controller_module(@conn) do %>
-    <%= link Haytni.Gettext.dgettext("haytni", "Sign in"), to: session_path(@conn, :new) %><br />
+  <%%= if Haytni.plugin_enabled?(Haytni.AuthenticablePlugin) && HaytniWeb.Authenticable.SessionController != Phoenix.Controller.controller_module(@conn) do %>
+    <%%= link Haytni.Gettext.dgettext("haytni", "Sign in"), to: <%= inspect web_module %>.Router.Helpers.session_path(@conn, :new) %><br />
   <% end %>
-  <%= if Haytni.plugin_enabled?(Haytni.RegisterablePlugin) && HaytniWeb.Registerable.RegistrationController != Phoenix.Controller.controller_module(@conn) do %>
-    <%= link Haytni.Gettext.dgettext("haytni", "Sign up"), to: registration_path(@conn, :new) %><br />
+  <%%= if Haytni.plugin_enabled?(Haytni.RegisterablePlugin) && HaytniWeb.Registerable.RegistrationController != Phoenix.Controller.controller_module(@conn) do %>
+    <%%= link Haytni.Gettext.dgettext("haytni", "Sign up"), to: <%= inspect web_module %>.Router.Helpers.registration_path(@conn, :new) %><br />
   <% end %>
-  <%= if Haytni.plugin_enabled?(Haytni.RecoverablePlugin) && HaytniWeb.Recoverable.PasswordController != Phoenix.Controller.controller_module(@conn) do %>
-    <%= link Haytni.Gettext.dgettext("haytni", "Forgot your password?"), to: password_path(@conn, :new) %><br />
+  <%%= if Haytni.plugin_enabled?(Haytni.RecoverablePlugin) && HaytniWeb.Recoverable.PasswordController != Phoenix.Controller.controller_module(@conn) do %>
+    <%%= link Haytni.Gettext.dgettext("haytni", "Forgot your password?"), to: <%= inspect web_module %>.Router.Helpers.password_path(@conn, :new) %><br />
   <% end %>
-  <%= if Haytni.plugin_enabled?(Haytni.ConfirmablePlugin) && HaytniWeb.Confirmable.ConfirmationController != Phoenix.Controller.controller_module(@conn) do %>
-    <%= link Haytni.Gettext.dgettext("haytni", "Didn't receive confirmation instructions?"), to: confirmation_path(@conn, :new) %><br />
+  <%%= if Haytni.plugin_enabled?(Haytni.ConfirmablePlugin) && HaytniWeb.Confirmable.ConfirmationController != Phoenix.Controller.controller_module(@conn) do %>
+    <%%= link Haytni.Gettext.dgettext("haytni", "Didn't receive confirmation instructions?"), to: <%= inspect web_module %>.Router.Helpers.confirmation_path(@conn, :new) %><br />
   <% end %>
-  <%= if Haytni.plugin_enabled?(Haytni.LockablePlugin) && Haytni.LockablePlugin.email_strategy_enabled? && HaytniWeb.Lockable.UnlockController != Phoenix.Controller.controller_module(@conn) do %>
-    <%= link Haytni.Gettext.dgettext("haytni", "Didn't receive unlock instructions?"), to: unlock_path(@conn, :new) %><br />
+  <%%= if Haytni.plugin_enabled?(Haytni.LockablePlugin) && Haytni.LockablePlugin.email_strategy_enabled? && HaytniWeb.Lockable.UnlockController != Phoenix.Controller.controller_module(@conn) do %>
+    <%%= link Haytni.Gettext.dgettext("haytni", "Didn't receive unlock instructions?"), to: <%= inspect web_module %>.Router.Helpers.unlock_path(@conn, :new) %><br />
   <% end %>
   <%#=
     for {value, href} <- Haytni.shared_links(@TODO), into: [] do
