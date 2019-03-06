@@ -7,7 +7,7 @@ defmodule Haytni.MixProject do
       docs: docs(),
       version: "0.0.1",
       elixir: "~> 1.6",
-      compilers: ~W[phoenix gettext]a ++ Mix.compilers,
+      compilers: ~W[phoenix gettext]a ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
