@@ -31,7 +31,7 @@ by adding `haytni` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:haytni, "~> 0.0.1"},
+    {:haytni, "~> 0.0.2"},
     # ...
   ]
 end
