@@ -97,7 +97,7 @@ defmodule Haytni.RecoverablePlugin do
         {:error, :no_match}
       user = %_{} ->
         user
-        |> Haytni.update_user_with!(reset_password_token: new_token(), reset_password_sent_at: DateTime.utc_now())
+        |> Haytni.update_user_with!(reset_password_token: new_token(), reset_password_sent_at: Haytni.now())
         |> send_reset_password_instructions_mail_to_user()
     end
   end

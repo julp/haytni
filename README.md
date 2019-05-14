@@ -19,7 +19,7 @@ Plugins:
 * confirmable (`Haytni.ConfirmablePlugin`): accounts have to be validated by email
 * recoverable (`Haytni.RecoverablePlugin`): recover for a forgotten password
 * lockable (`Haytni.LockablePlugin`): automatic lock an account after a number of failed attempts to sign in
-* ~~trackable (``): register users's connections (IP + when)~~
+* trackable (`Haytni.TrackablePlugin`, only for PostgreSQL): register users's connections (IP + when)
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc) and published on [HexDocs](https://hexdocs.pm). Once published, the docs can be found at [https://hexdocs.pm/haytni](https://hexdocs.pm/haytni).
 
@@ -283,6 +283,18 @@ Configuration:
 Routes:
 
 * `unlock_path` (actions: new/create, show)
+
+### Trackable (PostgreSQL only)
+
+Fields:
+
+* `current_sign_in_at` (datetime@utc, nullable, default: `NULL`): the date/time of the last login of a user (`NULL` if he never used its account)
+* `last_sign_in_at` (datetime@utc, nullable, default: `NULL`): the date/time of its previous login (`NULL` if the user signs in less than twice)
+
+Configuration: none
+
+Routes: none
+
 
 ## Quick recap
 

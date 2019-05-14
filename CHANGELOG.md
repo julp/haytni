@@ -1,6 +1,9 @@
 ?.?.?
 
-- fix compatibility with ecto 3.0.0: `Multi.run` now passes Repo as first argument to the callback
+- fix compatibility with ecto 3.0.0:
+  + utc_datetime (Ecto type) fails with microseconds
+  + `Multi.run` now passes Repo as first argument to the callback
+- introduced new Trackable plugin (PostgreSQL specific)
 - [Rememberable] fix pattern match, "remember me" feature was ignored
 
 0.0.2

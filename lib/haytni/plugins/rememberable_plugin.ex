@@ -92,7 +92,7 @@ end
       remember_token = remember_token_length()
       |> Haytni.Token.generate()
       keyword = keyword
-      |> Keyword.put(:remember_created_at, DateTime.utc_now() |> DateTime.truncate(:second))
+      |> Keyword.put(:remember_created_at, Haytni.now())
       |> Keyword.put(:remember_token, remember_token)
       {remember_token, keyword}
     else

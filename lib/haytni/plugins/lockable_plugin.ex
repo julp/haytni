@@ -89,7 +89,7 @@ defmodule Haytni.LockablePlugin do
         |> send_unlock_instructions_mail_to_user()
       end
       keywords
-      |> Keyword.put(:locked_at, DateTime.utc_now())
+      |> Keyword.put(:locked_at, Haytni.now())
       |> Keyword.put(:unlock_token, token)
     else
       Keyword.put(keywords, :failed_attempts, user.failed_attempts + 1)

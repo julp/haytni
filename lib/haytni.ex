@@ -376,4 +376,14 @@ defmodule Haytni do
     end)
     |> Map.put(:action, :insert)
   end
+
+  @doc ~S"""
+  Helper to return the current UTC datetime as expected by `:utc_datetime` type of Ecto
+  (meaning a %DateTime{} without microseconds).
+  """
+  @spec now() :: DateTime.t
+  def now do
+    DateTime.utc_now()
+    |> DateTime.truncate(:second)
+  end
 end

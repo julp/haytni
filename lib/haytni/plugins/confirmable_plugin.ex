@@ -160,7 +160,7 @@ defmodule Haytni.ConfirmablePlugin do
         if confirmation_token_expired?(user) do
           {:error, dgettext("haytni", "The given confirmation token is expired, request a new one.")}
         else
-          Haytni.update_user_with!(user, confirm_handle_reconfirmation(user, confirmation_token: nil, confirmed_at: DateTime.utc_now()))
+          Haytni.update_user_with!(user, confirm_handle_reconfirmation(user, confirmation_token: nil, confirmed_at: Haytni.now()))
         end
     end
   end
@@ -172,7 +172,7 @@ defmodule Haytni.ConfirmablePlugin do
 
   @spec new_confirmation() :: Keyword.t
   defp new_confirmation do
-    [confirmation_sent_at: DateTime.utc_now(), confirmation_token: new_token()]
+    [confirmation_sent_at: Haytni.now(), confirmation_token: new_token()]
   end
 
   @spec new_token() :: String.t
