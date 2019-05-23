@@ -119,12 +119,16 @@ Add to *your_app*/lib/*your_app*_web/router.ex
 ```elixir
   if Mix.env() == :dev do
     Application.ensure_started(:bamboo)
-    if Version.compare(Application.spec(:bamboo, :vsn) |> to_string, "0.8.0") == :lt do
-      # Bamboo > 0.8
-      forward "/sent_emails", Bamboo.SentEmailViewerPlug
-    else
-      # Bamboo <= 0.8
-      forward "/sent_emails", Bamboo.EmailPreviewPlug
+    Application.spec(:bamboo, :vsn)
+    |> to_string()
+    |> Version.compare("0.8.0")
+    |> case do
+      :lt ->
+        # Bamboo > 0.8
+        forward "/sent_emails", Bamboo.SentEmailViewerPlug
+      _ ->
+        # Bamboo <= 0.8
+        forward "/sent_emails", Bamboo.EmailPreviewPlug
     end
   end
 ```

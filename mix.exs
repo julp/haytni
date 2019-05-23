@@ -32,10 +32,15 @@ defmodule Haytni.MixProject do
       {:argon2_elixir, "~> 1.2"},
       {:pbkdf2_elixir, "~> 0.12"},
       (
-        if :erlang.system_info(:otp_release) |> to_string |> String.to_integer > 19 do
-          {:bcrypt_elixir, "~> 1.0"}
-        else
-          {:bcrypt_elixir, "~> 0.12"}
+        :erlang.system_info(:otp_release)
+        |> to_string()
+        |> String.to_integer()
+        |> Kernel.>(19)
+        |> case do
+          true ->
+            {:bcrypt_elixir, "~> 1.0"}
+          false ->
+            {:bcrypt_elixir, "~> 0.12"}
         end
       ),
       {:ecto_sql, "~> 3.0"},
