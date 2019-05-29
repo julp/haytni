@@ -84,7 +84,7 @@ defmodule Haytni.ConfirmablePlugin do
 
   defp handle_reconfirmable_for_multi(multi, true) do
     multi
-    |> Ecto.Multi.run(:send_reconfirmation_instructions, fn %{user: user} ->
+    |> Ecto.Multi.run(:send_reconfirmation_instructions, fn _repo, %{user: user} ->
       send_reconfirmation_instructions(user)
       {:ok, :success}
     end)
@@ -95,7 +95,7 @@ defmodule Haytni.ConfirmablePlugin do
   def on_email_change(multi, changeset) do
     multi = multi
     |> handle_reconfirmable_for_multi(reconfirmable())
-    |> Ecto.Multi.run(:send_notice_about_email_change, fn %{user: user, old_email: old_email} ->
+    |> Ecto.Multi.run(:send_notice_about_email_change, fn _repo, %{user: user, old_email: old_email} ->
       send_notice_about_email_change(user, old_email)
       {:ok, :success}
     end)
@@ -120,7 +120,7 @@ defmodule Haytni.ConfirmablePlugin do
 
   @impl Haytni.Plugin
   def on_registration(multi = %Ecto.Multi{}) do
-    Ecto.Multi.run(multi, :send_confirmation_instructions, fn %{user: user} ->
+    Ecto.Multi.run(multi, :send_confirmation_instructions, fn _repo, %{user: user} ->
       send_confirmation_instructions(user)
       {:ok, :success}
     end)

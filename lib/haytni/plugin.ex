@@ -110,13 +110,13 @@ defmodule Haytni.Plugin do
   Remember to comply to `Ecto.Multi` functions. In particular `Ecto.Multi.run`: the function
   called by it have to return `{:ok, your value}` or `{:error, your value}`. Also note that
   the inserted user will be passed to the function called by `Ecto.Multi.run` as the `:user`
-  key to the map received by the last one as its (only) argument.
+  key to the map received by the last one as argument.
 
   The following example illustrate how to send a welcome mail:
 
       def on_registration(multi = %Ecto.Multi{}) do
         multi
-        |> Ecto.Multi.run(:send_welcome_email, fn %{user: user} ->
+        |> Ecto.Multi.run(:send_welcome_email, fn _repo, %{user: user} ->
           send_welcome_email_to(user)
           {:ok, :success}
         end)

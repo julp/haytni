@@ -217,10 +217,10 @@ defmodule Haytni do
   @spec handle_email_change(multi :: Ecto.Multi.t, changeset :: Ecto.Changeset.t) :: Ecto.Multi.t
   defp handle_email_change(multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{changes: %{email: new_email}}) do
     multi = multi
-    |> Ecto.Multi.run(:new_email, fn %{} ->
+    |> Ecto.Multi.run(:new_email, fn _repo, %{} ->
       {:ok, new_email}
     end)
-    |> Ecto.Multi.run(:old_email, fn %{} ->
+    |> Ecto.Multi.run(:old_email, fn _repo, %{} ->
       {:ok, changeset.data.email}
     end)
     plugins()
