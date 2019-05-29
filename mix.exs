@@ -58,7 +58,7 @@ defmodule Haytni.MixProject do
 
   defp package() do
     [
-      files: ["lib", "priv", "mix.exs", "README*"],
+      files: ["lib", "priv", "mix.exs", "README*", "CHANGELOG*"],
       licenses: ["BSD"],
       links: %{"GitHub" => "https://github.com/julp/haytni"}
     ]
