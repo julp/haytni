@@ -87,12 +87,12 @@ end
 
   @impl Haytni.Plugin
   # The checkbox "remember me" is checked (present in params)
-  def on_successful_authentification(conn = %Plug.Conn{params: %{"remember" => _}}, user = %_{}, keyword) do
+  def on_successful_authentification(conn = %Plug.Conn{params: %{"session" => %{"remember" => _}}}, user = %_{}, keyword) do
     {remember_token, keyword} = if rememberable_token_expired?(user) do
       remember_token = remember_token_length()
       |> Haytni.Token.generate()
       keyword = keyword
-      |> Keyword.put(:remember_created_at, DateTime.utc_now())
+      |> Keyword.put(:remember_created_at, DateTime.utc_now() |> DateTime.truncate(:second))
       |> Keyword.put(:remember_token, remember_token)
       {remember_token, keyword}
     else
