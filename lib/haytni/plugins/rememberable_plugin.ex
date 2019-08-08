@@ -15,7 +15,7 @@ defmodule Haytni.RememberablePlugin do
     * `remember_salt` (default: `""`): the salt to (de)cipher the token stored in the (signed) cookie
     * `remember_token_length` (default: 16): the length of the token (before being ciphered)
     * `remember_cookie_name` (default: `"remember_token"`): the name of the cookie holding the token for automatic sign in
-    * `remember_cookie_options` (default: `[http_only: true]`): to set custom options of the cookie (options are: *domain*, *max_age*, *path*, *http_only*, *secure* and *extra*, see documentation of Plug.Conn.put_resp_cookie/4)
+    * `remember_cookie_options` (default: `[http_only: true, extra: "Samesite=Strict"]`): to set custom options of the cookie (options are: *domain*, *max_age*, *path*, *http_only*, *secure* and *extra*, see documentation of Plug.Conn.put_resp_cookie/4)
 
   Routes: none
   """
