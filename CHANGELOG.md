@@ -1,5 +1,6 @@
 ?.?.?
 
+- fix Mix.Project unavailable at runtime (application deployed without being recompiled)
 - fix compatibility with ecto 3.0.0:
   + utc_datetime (Ecto type) fails with microseconds
   + `Multi.run` now passes Repo as first argument to the callback
