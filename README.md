@@ -43,6 +43,7 @@ Configure Haytni *your_app*/config/config.exs
 
 ```
 config :haytni,
+  otp_app: :your_app,
   repo: YourApp.Repo,
   schema: YourApp.User,
   #mailer: YourApp.Mailer # see below

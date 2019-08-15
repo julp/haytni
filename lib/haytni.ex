@@ -52,8 +52,7 @@ defmodule Haytni do
   end
 
   defp otp_app do
-    Mix.Project.config
-    |> Keyword.fetch!(:app)
+    Application.fetch_env!(@application, :otp_app)
   end
 
   defp app_base(app) do
