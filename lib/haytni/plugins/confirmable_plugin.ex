@@ -234,7 +234,8 @@ defmodule Haytni.ConfirmablePlugin do
   def resend_confirmation_instructions(confirmation) do
     clauses = confirmation_keys()
     |> Enum.into(Keyword.new(), fn key -> {key, Map.fetch!(confirmation, key)} end)
-    user = if reconfirmable() && :email in confirmation_keys() do
+
+    if reconfirmable() && :email in confirmation_keys() do
       import Ecto.Query
       # if reconfirmable and email is used as key to resend confirmation then rewrite:
       # email = ?
@@ -247,7 +248,7 @@ defmodule Haytni.ConfirmablePlugin do
     else
       Haytni.Users.get_user_by(clauses)
     end
-    case user do
+    |> case do
       nil ->
         {:error, :no_match}
       %_{confirmation_token: nil} ->
