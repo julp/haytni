@@ -124,7 +124,7 @@ Add to *your_app*/lib/*your_app*_web/router.ex
     |> to_string()
     |> Version.compare("0.8.0")
     |> case do
-      :lt ->
+      :gt ->
         # Bamboo > 0.8
         forward "/sent_emails", Bamboo.SentEmailViewerPlug
       _ ->
