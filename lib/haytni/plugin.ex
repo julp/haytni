@@ -16,7 +16,7 @@ defmodule Haytni.Plugin do
   @callback validate_update_registration(changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
 
   @doc ~S"""
-  Returns the `Ecto.Schema.field/1`s as a quoted fragment to be injected in application's Router
+  Returns the `Ecto.Schema.field/1`s as a quoted fragment to be injected in your user schema
   """
   @callback fields() :: Macro.t
 
