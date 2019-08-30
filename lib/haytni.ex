@@ -83,6 +83,10 @@ defmodule Haytni do
     Module.concat([Haytni.web_module(), :Endpoint])
   end
 
+  def fetch_env!(key) do
+    Application.fetch_env!(@application, key)
+  end
+
   def fetch_config(key, default \\ nil) do
     case Application.get_env(@application, key, default) do
       {:system, variable} ->
@@ -116,7 +120,7 @@ defmodule Haytni do
         mailer: YourApp.Mailer
   """
   def mailer do
-    Application.fetch_env!(@application, :mailer)
+    fetch_env!(:mailer)
   end
 
   @doc ~S"""
@@ -126,7 +130,7 @@ defmodule Haytni do
         schema: YourApp.User
   """
   def schema do
-    Application.fetch_env!(@application, :schema)
+    fetch_env!(:schema)
   end
 
   @doc ~S"""
@@ -136,7 +140,7 @@ defmodule Haytni do
         schema: YourApp.Repo
   """
   def repo do
-    Application.fetch_env!(@application, :repo)
+    fetch_env!(:repo)
   end
 
   # Returns the first non-falsy (`nil` in particular) resulting of calling *fun* for each element of *list* or *default* if all elements of *list* returned a falsy value.
