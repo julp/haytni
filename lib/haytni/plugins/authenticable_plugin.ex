@@ -24,6 +24,11 @@ defmodule Haytni.AuthenticablePlugin do
   use Haytni.Plugin
   use Haytni.Config, [
     authentication_keys: ~W[email]a,
+    # NOTE/TODO: have a library like password_* functions from PHP
+    # to allow you to change at any time of algorithm between bcrypt,
+    # argon2 and pbkdf2
+    password_check_fun: &Bcrypt.check_pass/2,
+    password_hash_fun: &Bcrypt.hash_pwd_salt/1,
   ]
 
   @impl Haytni.Plugin
@@ -136,7 +141,7 @@ end
 
   @spec check_password(user :: struct, password :: String.t) :: {:ok, struct} | {:error, String.t}
   defp check_password(user, password) do
-    Comeonin.Bcrypt.check_pass(user, password)
+    password_check_fun().(user, password)
   end
 
   @doc ~S"""
@@ -146,7 +151,7 @@ end
   """
   @spec hash_password(password :: String.t) :: String.t
   def hash_password(password) do
-    Comeonin.Bcrypt.hashpwsalt(password)
+    password_hash_fun().(password)
   end
 
 if false do

@@ -6,6 +6,7 @@
   + `Multi.run` now passes Repo as first argument to the callback
 - introduced new Trackable plugin (PostgreSQL specific)
 - [Rememberable] fix pattern match, "remember me" feature was ignored
+- [Authenticable] add `password_hash_fun` and `password_check_fun` options to use something else than bcrypt for passwords
 
 0.0.2
 

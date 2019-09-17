@@ -165,7 +165,14 @@ Fields:
 Configuration:
 
 * `authentication_keys` (default: `~W[email]a`): the key(s), in addition to the password, requested to login. You can redefine it to `~W[name]a`, for example, to ask the username instead of its email address.
-* TODO: hashing algorithm/method (default: `bcrypt`)
+* password hashing algorithm (default: bcrypt):
+    + `password_hash_fun` (default: `&Bcrypt.hash_pwd_salt/1`): the function called to hash a password
+    + `password_check_fun` (default: `&Bcrypt.check_pass/2`): function called to check if a password matches its hash
+
+To use:
+
+* `pbkdf2` add `{:pbkdf2_elixir, "~> 1.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Pbkdf2.hash_pwd_salt/1` and `password_check_fun` to `&Pbkdf2.check_pass/2` in config/config.exs
+* `argon2` add `{:argon2_elixir, "~> 2.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Argon2.hash_pwd_salt/1` and `password_check_fun` to ` &Argon2.check_pass/2` in config/config.exs
 
 Routes:
 

@@ -28,21 +28,9 @@ defmodule Haytni.MixProject do
   defp deps do
     [
       {:gettext, ">= 0.0.0"},
-      {:comeonin, "~> 4.0"},
-      {:argon2_elixir, "~> 1.2"},
-      {:pbkdf2_elixir, "~> 0.12"},
-      (
-        :erlang.system_info(:otp_release)
-        |> to_string()
-        |> String.to_integer()
-        |> Kernel.>(19)
-        |> case do
-          true ->
-            {:bcrypt_elixir, "~> 1.0"}
-          false ->
-            {:bcrypt_elixir, "~> 0.12"}
-        end
-      ),
+      {:bcrypt_elixir, "~> 2.0"}, # implies erlang > 20
+      #{:argon2_elixir, "~> 2.0"},
+      #{:pbkdf2_elixir, "~> 1.0"},
       {:ecto_sql, "~> 3.0"},
       {:phoenix, "~> 1.4"},
       {:phoenix_html, "~> 2.11"},
