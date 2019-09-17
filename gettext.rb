@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+# Do not run directly this script but gettext.sh instead.
+# The purpose of this script is to extract the strings to
+# translate from the files of priv/**/* which
+# `mix gettext.extract` doesn't even parse
+
 require 'open3'
 
 Match = Struct.new(:file, :line)
