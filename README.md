@@ -120,38 +120,42 @@ Add to *your_app*/lib/*your_app*_web/router.ex
 ```elixir
   if Mix.env() == :dev do
     Application.ensure_started(:bamboo)
-    Application.spec(:bamboo, :vsn)
-    |> to_string()
-    |> Version.compare("0.8.0")
-    |> case do
-      :gt ->
-        # Bamboo > 0.8
-        forward "/sent_emails", Bamboo.SentEmailViewerPlug
-      _ ->
-        # Bamboo <= 0.8
-        forward "/sent_emails", Bamboo.EmailPreviewPlug
-    end
+
+    forward "/sent_emails", Bamboo.SentEmailViewerPlug
   end
 ```
 
 Configure email sending in *your_app*/config/dev.exs:
 
 ```elixir
-config :yourapp, YourApp.Mailer,
+config :your_app, YourApp.Mailer,
   adapter: Bamboo.LocalAdapter
 
 config :haytni,
   mailer: YourApp.Mailer # <= add/change this line
 ```
 
-For production (*your_app*/config/prod.exs): [see Bamboo's documentation](https://hexdocs.pm/bamboo/readme.html)
+For production (*your_app*/config/prod.exs), if you pass by your own SMTP server:
+
+```elixir
+config :your_app, YourApp.Mailer,
+  adapter: Bamboo.SMTPAdapter,
+  server: "localhost", # the SMTP server is on the same host
+  hostname: "www.domain.com",
+  port: 25,
+  tls: :never,
+  no_mx_lookups: false,
+  auth: :never
+```
+
+And add `{:bamboo_smtp, "~> 1.7.0", only: :prod}` to `deps` in your mix.exs file. [See Bamboo's documentation for details and other methods to send emails](https://hexdocs.pm/bamboo/readme.html)
 
 General configuration:
 
 * `layout` (default: `false` for none): the layout to apply to Haytni's templates
 * `plugins` (default: `[Haytni.AuthenticablePlugin, Haytni.RegisterablePlugin, Haytni.RememberablePlugin, Haytni.ConfirmablePlugin, Haytni.LockablePlugin, Haytni.RecoverablePlugin]`): a list of `Haytni.Plugin` modules to use
 
-**Warning:** plugins order matters (in some case). Example: for correct handling of "automatic" authentification (find_user callback), Authenticable must appears before Rememberable in order to give precedence to the current session on the remember me cookie.
+**Warning:** plugins order matters (in some case). Example: for correct handling of "automatic" authentification (find_user callback), Authenticable must appears before Rememberable in order to give precedence to the current session over the remember me cookie.
 
 ## Plugins
 
