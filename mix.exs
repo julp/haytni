@@ -34,7 +34,7 @@ defmodule Haytni.MixProject do
       {:ecto_sql, "~> 3.0"},
       {:phoenix, "~> 1.4"},
       {:phoenix_html, "~> 2.11"},
-      {:ecto_network, "~> 1.0.0"}, # required by plugin: trackable
+      {:ecto_network, "~> 1.1.0"}, # required by plugin: trackable
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       # jason is "optional" to phoenix
       {:jason, "~> 1.0"},
