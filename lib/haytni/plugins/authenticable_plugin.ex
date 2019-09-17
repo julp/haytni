@@ -129,13 +129,17 @@ end
     |> Enum.into(Keyword.new(), fn key -> {key, Map.fetch!(session, key)} end)
 
     user = Haytni.Users.get_user_by(clauses)
-    result = check_password(user, session.password)
-    case result do
-      {:ok, _user} ->
-        Haytni.login(conn, user)
-      {:error, _message} ->
-        Haytni.authentification_failed(user)
-        result
+    if user do
+      check_password(user, session.password)
+      |> case do
+        {:ok, _user} ->
+          Haytni.login(conn, user)
+        {:error, _message} ->
+          Haytni.authentification_failed(user)
+          {:error, dgettext("haytni", "Incorrect password. Did you forget it?")}
+      end
+    else
+      {:error, dgettext("haytni", "User not found. Do you want to register?")}
     end
   end
 

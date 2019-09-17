@@ -34,7 +34,7 @@ defmodule HaytniWeb.Authenticable.SessionController do
             |> redirect()
           {:error, message} ->
             conn
-            |> put_flash(:error, message) # ou ajouter une(des) erreur(s) aux changeset ?
+            |> put_flash(:error, message)
             |> render_new(Session.change_session(session))
         end
       {:error, changeset} ->
