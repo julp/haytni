@@ -28,3 +28,9 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env()}.exs"
+
+# Can't build without this and it looks for Poison by default
+config :phoenix, :json_library, Jason
+
+# Can't build without this neither
+config :haytni, schema: nil
