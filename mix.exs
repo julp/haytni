@@ -36,8 +36,8 @@ defmodule Haytni.MixProject do
       {:phoenix_html, "~> 2.11"},
       {:ecto_network, "~> 1.1.0"}, # required by plugin: trackable
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
-      # jason is "optional" to phoenix
-      {:jason, "~> 1.0"},
+      # jason is "optional" to phoenix and bamboo
+      {:jason, "~> 1.1"},
       {:bamboo, "~> 1.3"} # required by plugins: confirmable, lockable and recoverable
     ]
   end
