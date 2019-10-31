@@ -82,7 +82,7 @@ msgid "account is pending confirmation, please check your emails."
 msgstr "compte en attente d'une confirmation, vérifiez vos emails."
 
 #, elixir-format
-#: lib/haytni/plugins/authenticable_plugin.ex:95
+#: lib/haytni/plugins/authenticable_plugin.ex:98
 msgid "password mismatch"
 msgstr "mot de passe est erroné"
 
@@ -158,13 +158,8 @@ msgstr "Vérifiez vos emails : une nouvelle clé vous a été envoyée afin de d
 
 #, elixir-format
 #: lib/haytni/plugins/authenticable_plugin.ex:142
-msgid "Incorrect password. Did you forget it?"
-msgstr "Mot de passe incorrect. L'avez-vous oublié ?"
-
-#, elixir-format
-#: lib/haytni/plugins/authenticable_plugin.ex:139
-msgid "User not found. Do you want to register?"
-msgstr "Aucun utilisateur trouvé. Souhaitez-vous vous enregistrer ?"
+msgid "Invalid combination of credentials"
+msgstr "Combinaison incorrecte d'informations d'identification"
 
 #, elixir-format
 #: usr/home/julp/elixir/haytni/priv/templates/shared/message.html.eex:8

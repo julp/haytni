@@ -171,7 +171,7 @@ Configuration:
 * `authentication_keys` (default: `~W[email]a`): the key(s), in addition to the password, requested to login. You can redefine it to `~W[name]a`, for example, to ask the username instead of its email address.
 * password hashing algorithm (default: bcrypt):
     + `password_hash_fun` (default: `&Bcrypt.hash_pwd_salt/1`): the function called to hash a password
-    + `password_check_fun` (default: `&Bcrypt.check_pass/2`): function called to check if a password matches its hash
+    + `password_check_fun` (default: `&Bcrypt.check_pass/3`): function called to check if a password matches its hash
 
 To use:
 

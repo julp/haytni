@@ -10,7 +10,10 @@ defmodule Haytni.AuthenticablePlugin do
   Configuration:
 
     * `authentication_keys` (default: `~W[email]a`): the key(s), in addition to the password, requested to login. You can redefine it to `~W[name]a`, for example, to ask the username instead of its email address.
-    * TODO: hashing algorithm/method (default: `bcrypt`)
+    * password hashing algorithm (default: bcrypt):
+      + `password_hash_fun` (default: `&Bcrypt.hash_pwd_salt/1`): the function to hash a password
+      + `password_check_fun` (default: `&Bcrypt.check_pass/3`): the function to check if a password matches its hash
+
 
   Routes:
 
@@ -27,7 +30,7 @@ defmodule Haytni.AuthenticablePlugin do
     # NOTE/TODO: have a library like password_* functions from PHP
     # to allow you to change at any time of algorithm between bcrypt,
     # argon2 and pbkdf2
-    password_check_fun: &Bcrypt.check_pass/2,
+    password_check_fun: &Bcrypt.check_pass/3,
     password_hash_fun: &Bcrypt.hash_pwd_salt/1,
   ]
 
@@ -129,23 +132,20 @@ end
     |> Enum.into(Keyword.new(), fn key -> {key, Map.fetch!(session, key)} end)
 
     user = Haytni.Users.get_user_by(clauses)
-    if user do
-      check_password(user, session.password)
-      |> case do
-        {:ok, _user} ->
-          Haytni.login(conn, user)
-        {:error, _message} ->
-          Haytni.authentification_failed(user)
-          {:error, dgettext("haytni", "Incorrect password. Did you forget it?")}
-      end
-    else
-      {:error, dgettext("haytni", "User not found. Do you want to register?")}
+    user
+    |> check_password(session.password, hide_user: true)
+    |> case do
+      {:ok, user} ->
+        Haytni.login(conn, user)
+      {:error, _message} ->
+        Haytni.authentification_failed(user)
+        {:error, dgettext("haytni", "Invalid combination of credentials")}
     end
   end
 
-  @spec check_password(user :: struct, password :: String.t) :: {:ok, struct} | {:error, String.t}
-  defp check_password(user, password) do
-    password_check_fun().(user, password)
+  @spec check_password(user :: struct, password :: String.t, options :: Keyword.t) :: {:ok, struct} | {:error, String.t}
+  defp check_password(user, password, options \\ []) do
+    password_check_fun().(user, password, options)
   end
 
   @doc ~S"""
