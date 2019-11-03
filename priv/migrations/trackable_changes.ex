@@ -2,6 +2,10 @@ defmodule Haytni.Migrations.TrackableChanges do
   use Ecto.Migration
 
   def change do
+    create_if_not_exists table(<%= inspect table %>) do
+      # NOP
+    end
+
     alter table(<%= inspect table %>) do
       add :current_sign_in_at, :utc_datetime, default: nil
       add :last_sign_in_at, :utc_datetime, default: nil

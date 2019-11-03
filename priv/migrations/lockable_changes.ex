@@ -2,6 +2,10 @@ defmodule Haytni.Migrations.LockableChanges do
   use Ecto.Migration
 
   def change do
+    create_if_not_exists table(<%= inspect table %>) do
+      # NOP
+    end
+
     alter table(<%= inspect table %>) do
       add :locked_at, :utc_datetime, default: nil
       add :failed_attempts, :integer, default: 0, null: false
