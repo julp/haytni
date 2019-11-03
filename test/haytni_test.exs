@@ -5,7 +5,7 @@ defmodule HaytniTest do
   setup do
     #Application.put_env(:haytni, :plugins, [])
     on_exit fn ->
-      #
+      nil
     end
   end
 

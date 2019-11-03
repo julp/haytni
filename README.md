@@ -41,7 +41,7 @@ Run `mix deps.get`.
 
 Configure Haytni *your_app*/config/config.exs
 
-```
+```elixir
 config :haytni,
   otp_app: :your_app,
   repo: YourApp.Repo,
@@ -49,6 +49,15 @@ config :haytni,
   #mailer: YourApp.Mailer # see below
 ```
 
+For testing, you may also want to add the following settings to *your_app*/config/test.exs :
+
+```elixir
+config :bcrypt_elixir,
+  log_rounds: 4
+
+config :your_app, YourApp.Mailer,
+  adapter: Bamboo.TestAdapter
+```
 
 These are the mandatory options. See options of each plugin for full customizations.
 

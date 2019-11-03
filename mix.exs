@@ -13,7 +13,14 @@ defmodule Haytni.MixProject do
       package: package(),
       deps: deps(),
       name: "Haytni",
-      source_url: "https://github.com/julp/haytni"
+      source_url: "https://github.com/julp/haytni",
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -38,7 +45,8 @@ defmodule Haytni.MixProject do
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       # jason is "optional" to phoenix and bamboo
       {:jason, "~> 1.1"},
-      {:bamboo, "~> 1.3"} # required by plugins: confirmable, lockable and recoverable
+      {:bamboo, "~> 1.3"}, # required by plugins: confirmable, lockable and recoverable
+      {:excoveralls, "~> 0.10", only: :test},
     ]
   end
 
