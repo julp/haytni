@@ -4,7 +4,6 @@ Application.ensure_all_started(:haytni)
 require EEx
 
 ~W[
-  haytni_test.exs
   support/haytnitest_web.ex
   support/haytnitest_web/router.ex
   support/haytnitest_web/endpoint.ex
@@ -23,12 +22,7 @@ require EEx
   end
 )
 
-if true do
-  {:ok, _pid} = HaytniTest.Application.start(:unused, :unused)
-else
-  {:ok, _pid} = HaytniTestWeb.Endpoint.start_link()
-  {:ok, _pid} = Haytni.repo().start_link()
-end
+{:ok, _pid} = HaytniTest.Application.start(:unused, :unused)
 
 path = "#{__DIR__}/../priv/migrations/"
 path
@@ -61,21 +55,3 @@ output
 
 Process.flag(:trap_exit, true)
 Ecto.Adapters.SQL.Sandbox.mode(Haytni.repo(), :manual)
-
-assigns = %{
-  user: %{email: "test@test.com", confirmation_token: "abcdef"}
-}
-
-IO.puts("\n==============================\n")
-
-#HaytniTestWeb.Haytni.Email.ConfirmableView.render("test.html", assigns)
-#|> IO.inspect()
-
-#Phoenix.View.render_to_string(HaytniTestWeb.Haytni.Email.ConfirmableView, "test.html", assigns)
-#|> IO.inspect()
-
-HaytniTestWeb.Haytni.Email.ConfirmableView.render("confirmation_instructions.text", assigns)
-|> IO.inspect()
-
-Phoenix.View.render_to_string(HaytniTestWeb.Haytni.Email.ConfirmableView, "confirmation_instructions.text", assigns)
-|> IO.inspect()
