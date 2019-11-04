@@ -1,5 +1,8 @@
 import Config
 
+config :logger,
+  level: :error
+
 config :bcrypt_elixir,
   log_rounds: 4
 
