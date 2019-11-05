@@ -25,7 +25,7 @@ defmodule Haytni.Users do
 
   Returns `nil` if no result was found. If the struct in the queryable has no or more than one primary key, it will raise an argument error.
   """
-  @spec get_user(id :: term) :: Ecto.Schema.t | nil | no_return
+  @spec get_user(id :: term) :: Haytni.user | nil | no_return
   def get_user(id) do
     repo = repo()
     schema()
@@ -35,7 +35,7 @@ defmodule Haytni.Users do
   @doc ~S"""
   Same as `get_user/1` but raises `Ecto.NoResultsError` if no user was found.
   """
-  @spec get_user!(id :: term) :: Ecto.Schema.t | no_return
+  @spec get_user!(id :: term) :: Haytni.user | no_return
   def get_user!(id) do
     repo = repo()
     schema()
@@ -47,7 +47,7 @@ defmodule Haytni.Users do
 
   Returns `nil` if no one matches.
   """
-  @spec get_user_by(clauses :: Keyword.t | map) :: Ecto.Schema.t | nil
+  @spec get_user_by(clauses :: Keyword.t | map) :: Haytni.user | nil
   def get_user_by(clauses) do
     schema()
     |> repo().get_by(clauses)
@@ -59,7 +59,7 @@ if false do
 
     * `:with` - the changeset/2 function, in the form `{module, function}`, to build the changeset from params. Defaults to `{schema(), :changeset}`
   """
-  @spec create_user(attrs :: map, opts :: Keyword.t) :: {:ok, Ecto.Schema.t} | {:error, Ecto.Changeset.t}
+  @spec create_user(attrs :: map, opts :: Keyword.t) :: {:ok, Haytni.user} | {:error, Ecto.Changeset.t}
   def create_user(attrs = %{}, opts \\ []) do
     {m, f} = Keyword.get(opts, :with, {schema(), :changeset})
     apply(m, f, [struct(), attrs])
@@ -71,7 +71,7 @@ if false do
 
     * `:with` - the changeset/2 function, in the form `{module, function}`, to build the changeset from params. Defaults to `{schema(), :changeset}`
   """
-  @spec update_user(user :: struct, attrs :: map, opts :: Keyword.t) :: {:ok, Ecto.Schema.t} | {:error, Ecto.Changeset.t}
+  @spec update_user(user :: Haytni.user, attrs :: map, opts :: Keyword.t) :: {:ok, Haytni.user} | {:error, Ecto.Changeset.t}
   def update_user(user = %_{}, attrs = %{}, opts \\ []) do
     {m, f} = Keyword.get(opts, :with, {schema(), :changeset})
     apply(m, f, [user, attrs])

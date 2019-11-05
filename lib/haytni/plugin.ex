@@ -30,7 +30,7 @@ defmodule Haytni.Plugin do
 
   # TODO: format of the list
   """
-  @callback files_to_install() :: []
+  @callback files_to_install() :: [{:eex | :text, String.t, String.t}]
 
   @doc ~S"""
   Extract (early) the user from the HTTP request (http authentification, cookies/session, ...).

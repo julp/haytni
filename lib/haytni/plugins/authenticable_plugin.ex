@@ -143,7 +143,7 @@ end
     end
   end
 
-  @spec check_password(user :: struct, password :: String.t, options :: Keyword.t) :: {:ok, struct} | {:error, String.t}
+  @spec check_password(user :: Haytni.user, password :: String.t, options :: Keyword.t) :: {:ok, Haytni.user} | {:error, String.t}
   defp check_password(user, password, options \\ []) do
     password_check_fun().(user, password, options)
   end

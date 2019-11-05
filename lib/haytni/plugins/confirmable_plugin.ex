@@ -129,7 +129,7 @@ defmodule Haytni.ConfirmablePlugin do
   @doc ~S"""
   Has the given user been confirmed?
   """
-  @spec confirmed?(user :: struct) :: boolean
+  @spec confirmed?(user :: Haytni.user) :: boolean
   def confirmed?(%_{confirmed_at: confirmed_at}) do
     confirmed_at != nil
   end
@@ -151,7 +151,7 @@ defmodule Haytni.ConfirmablePlugin do
 
   Raises if the user could not be updated.
   """
-  @spec confirm(token :: String.t) :: struct | {:error, String.t} | no_return
+  @spec confirm(token :: String.t) :: Haytni.user | {:error, String.t} | no_return
   def confirm(token) do
     case Haytni.Users.get_user_by(confirmation_token: token) do # AND confirmed_at IS NOT NULL?
       nil ->
@@ -165,7 +165,7 @@ defmodule Haytni.ConfirmablePlugin do
     end
   end
 
-  @spec confirmation_token_expired?(user :: struct) :: boolean
+  @spec confirmation_token_expired?(user :: Haytni.user) :: boolean
   defp confirmation_token_expired?(user) do
     DateTime.diff(DateTime.utc_now(), user.confirmation_sent_at) >= Haytni.duration(confirm_within())
   end
@@ -181,7 +181,7 @@ defmodule Haytni.ConfirmablePlugin do
     |> Haytni.Token.generate()
   end
 
-  @spec send_confirmation_instructions(user :: struct) :: {:ok, struct}
+  @spec send_confirmation_instructions(user :: Haytni.user) :: {:ok, Haytni.user}
   defp send_confirmation_instructions(user) do
     #Task.start(
       #fn ->
@@ -192,14 +192,14 @@ defmodule Haytni.ConfirmablePlugin do
     {:ok, user}
   end
 
-  @spec send_reconfirmation_instructions(user :: struct) :: {:ok, struct}
+  @spec send_reconfirmation_instructions(user :: Haytni.user) :: {:ok, Haytni.user}
   defp send_reconfirmation_instructions(user) do
     Haytni.ConfirmableEmail.reconfirmation_email(user)
     |> Haytni.mailer().deliver_later()
     {:ok, user}
   end
 
-  @spec send_notice_about_email_change(user :: struct, old_email :: String.t) :: Bamboo.Email.t
+  @spec send_notice_about_email_change(user :: Haytni.user, old_email :: String.t) :: Bamboo.Email.t
   defp send_notice_about_email_change(user = %_{}, old_email) do
     Haytni.ConfirmableEmail.email_changed(user, old_email)
     |> Haytni.mailer().deliver_later()
@@ -230,7 +230,7 @@ defmodule Haytni.ConfirmablePlugin do
 
   Raises if user couldn't be updated.
   """
-  @spec resend_confirmation_instructions(confirmation :: Haytni.Confirmation.t) :: {:ok, struct} | {:error, :no_match | :already_confirmed} | no_return
+  @spec resend_confirmation_instructions(confirmation :: Haytni.Confirmation.t) :: {:ok, Haytni.user} | {:error, :no_match | :already_confirmed} | no_return
   def resend_confirmation_instructions(confirmation) do
     clauses = confirmation_keys()
     |> Enum.into(Keyword.new(), fn key -> {key, Map.fetch!(confirmation, key)} end)

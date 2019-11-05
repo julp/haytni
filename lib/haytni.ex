@@ -5,6 +5,8 @@ defmodule Haytni do
 
   @application :haytni
 
+  @type user :: struct
+
   @doc ~S"""
   Convert a duration of the form `{number, unit}` to seconds.
 
@@ -178,7 +180,7 @@ defmodule Haytni do
   Used by plug to extract the current user (if any) from the HTTP
   request (meaning from headers, cookies or session)
   """
-  @spec find_user(conn :: Plug.Conn.t) :: {Plug.Conn.t, struct | nil}
+  @spec find_user(conn :: Plug.Conn.t) :: {Plug.Conn.t, Haytni.user | nil}
   def find_user(conn = %Plug.Conn{}) do
     result = {conn, user} = find_user(plugins(), conn)
     if user do
@@ -222,7 +224,7 @@ defmodule Haytni do
     |> repo().transaction()
   end
 
-  @spec handle_email_change(multi :: Ecto.Multi.t, changeset :: Ecto.Changeset.t) :: Ecto.Multi.t
+  @spec handle_email_change(multi :: Ecto.Multi.t, changeset :: Ecto.Changeset.t) :: {Ecto.Multi.t, Ecto.Changeset.t}
   defp handle_email_change(multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{changes: %{email: new_email}}) do
     multi = multi
     |> Ecto.Multi.run(:new_email, fn _repo, %{} ->
@@ -249,7 +251,7 @@ defmodule Haytni do
     * the previous email as `:old_email`
     * `:new_email`: the new email
   """
-  @spec update_registration(user :: struct, attrs :: map, options :: Keyword.t) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
+  @spec update_registration(user :: Haytni.user, attrs :: map, options :: Keyword.t) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
   def update_registration(user = %_{}, attrs = %{}, options \\ []) do
     changeset = user
     |> schema().update_registration_changeset(attrs)
@@ -294,7 +296,7 @@ defmodule Haytni do
   @doc ~S"""
   To be called on (manual) login
   """
-  @spec login(conn :: Plug.Conn.t, user :: struct) :: {:ok, Plug.Conn.t} | {:error, String.t}
+  @spec login(conn :: Plug.Conn.t, user :: Haytni.user) :: {:ok, Plug.Conn.t} | {:error, String.t}
   def login(conn = %Plug.Conn{}, user = %_{}) do
     case map_while(plugins(), false, &(&1.invalid?(user))) do
       error = {:error, _message} ->
@@ -312,7 +314,7 @@ defmodule Haytni do
 
   If *user* is `nil`, nothing is done.
   """
-  @spec authentification_failed(user :: struct | nil) :: nil
+  @spec authentification_failed(user :: Haytni.user | nil) :: nil
   def authentification_failed(user = nil) do
     # NOP, for convenience
     user
@@ -355,7 +357,7 @@ defmodule Haytni do
 
   NOTE: for internal use, there isn't any validation. Do **NOT** inject values from controller's *params*!
   """
-  @spec update_user_with(user :: struct, changes :: Keyword.t) :: {:ok, struct} | {:error, Ecto.Changeset.t}
+  @spec update_user_with(user :: Haytni.user, changes :: Keyword.t) :: {:ok, Haytni.user} | {:error, Ecto.Changeset.t}
   def update_user_with(user = %_{}, changes) do
     user_and_changes_to_changeset(user, changes)
     |> Haytni.repo().update()
@@ -364,7 +366,7 @@ defmodule Haytni do
   @doc ~S"""
   Same as `update_user_with/2` but returns the updated *user* struct or raises if *changes* are invalid.
   """
-  @spec update_user_with!(user :: struct, changes :: Keyword.t) :: struct | no_return
+  @spec update_user_with!(user :: Haytni.user, changes :: Keyword.t) :: Haytni.user | no_return
   def update_user_with!(user = %_{}, changes) do
     user_and_changes_to_changeset(user, changes)
     |> Haytni.repo().update!()

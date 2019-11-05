@@ -46,6 +46,7 @@ defmodule Haytni.MixProject do
       # jason is "optional" to phoenix and bamboo
       {:jason, "~> 1.1"},
       {:bamboo, "~> 1.3"}, # required by plugins: confirmable, lockable and recoverable
+      {:dialyxir, "~> 1.0.0-rc.7", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
     ]
   end

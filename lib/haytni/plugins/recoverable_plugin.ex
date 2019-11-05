@@ -68,14 +68,14 @@ defmodule Haytni.RecoverablePlugin do
     |> Haytni.Token.generate()
   end
 
-  @spec send_reset_password_instructions_mail_to_user(user :: struct) :: Bamboo.Email.t
+  @spec send_reset_password_instructions_mail_to_user(user :: Haytni.user) :: {:ok, Haytni.user}
   defp send_reset_password_instructions_mail_to_user(user) do
     Haytni.RecoverableEmail.reset_password_email(user)
     |> Haytni.mailer().deliver_later()
     {:ok, user}
   end
 
-  @spec reset_password_token_expired?(user :: struct) :: boolean
+  @spec reset_password_token_expired?(user :: Haytni.user) :: boolean
   defp reset_password_token_expired?(user) do
     DateTime.diff(DateTime.utc_now(), user.reset_password_sent_at) >= Haytni.duration(reset_password_within())
   end
@@ -88,7 +88,7 @@ defmodule Haytni.RecoverablePlugin do
   Raises if user couldn't be updated.
   """
   # step 1/2: send a token by mail
-  @spec send_reset_password_instructions(request :: Haytni.Recoverable.ResetRequest.t) :: {:ok, struct} | {:error, :no_match}
+  @spec send_reset_password_instructions(request :: Haytni.Recoverable.ResetRequest.t) :: {:ok, Haytni.user} | {:error, :no_match}
   def send_reset_password_instructions(request) do # request = %ResetRequest{}
     clauses = reset_password_keys()
     |> Enum.into(Keyword.new(), fn key -> {key, Map.fetch!(request, key)} end)
@@ -110,7 +110,7 @@ defmodule Haytni.RecoverablePlugin do
   Also raises if user couldn't be updated.
   """
   # step 2/2: update password
-  @spec recover(token :: String.t, new_password :: String.t) :: struct | {:error, String.t} | no_return
+  @spec recover(token :: String.t, new_password :: String.t) :: Haytni.user | {:error, String.t} | no_return
   def recover(token, new_password) do
     case Haytni.Users.get_user_by(reset_password_token: token) do
       nil ->

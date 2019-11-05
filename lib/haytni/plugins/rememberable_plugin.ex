@@ -61,7 +61,7 @@ defmodule Haytni.RememberablePlugin do
   end
 
 if false do
-  @spec authentificate_by_token(token :: String.t) :: {:ok, struct} | {:error, atom}
+  @spec authentificate_by_token(token :: String.t) :: {:ok, Haytni.user} | {:error, atom}
   defp authentificate_by_token(token) do
     Haytni.Users.get_user_by(token: token)
   end
@@ -108,7 +108,7 @@ end
     {conn, user, keyword}
   end
 
-  @spec rememberable_token_expired?(user :: struct) :: boolean
+  @spec rememberable_token_expired?(user :: Haytni.user) :: boolean
   defp rememberable_token_expired?(user) do
     DateTime.diff(DateTime.utc_now(), user.remember_created_at) >= Haytni.duration(remember_for())
   end

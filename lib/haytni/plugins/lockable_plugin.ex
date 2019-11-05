@@ -27,6 +27,8 @@ defmodule Haytni.LockablePlugin do
     * `unlock_path` (actions: new/create, show)
   """
 
+  @typep unlock_strategy :: :both | :email | :time | :none
+
   #import Plug.Conn
   import Haytni.Gettext
 
@@ -38,6 +40,17 @@ defmodule Haytni.LockablePlugin do
     unlock_keys: ~W[email]a,
     unlock_token_length: 32
   ]
+
+if false do
+  # TODO: for use in tests instead to be repeated and hardcoded
+  def available_strategies do
+    ~W[both email none time]a
+  end
+
+  def email_strategies do
+    ~W[both email]a
+  end
+end
 
   @impl Haytni.Plugin
   def files_to_install do
@@ -73,7 +86,7 @@ defmodule Haytni.LockablePlugin do
 
   @impl Haytni.Plugin
   def invalid?(user = %_{}) do
-    if locked?(user) do
+    if locked?(user, unlock_strategy()) do
       {:error, dgettext("haytni", "account is locked due to an excessive number of unsuccessful sign in attempts, please check your emails.")}
     else
       false
@@ -82,9 +95,10 @@ defmodule Haytni.LockablePlugin do
 
   @impl Haytni.Plugin
   def on_failed_authentification(user = %_{}, keywords) do
-    if user.failed_attempts + 1 >= maximum_attempts() && !locked?(user)  do
+    strategy = unlock_strategy()
+    if user.failed_attempts + 1 >= maximum_attempts() && !locked?(user, strategy)  do
       token = new_token()
-      if unlock_strategy() in ~W[both email]a do
+      if strategy in ~W[both email]a do
         %{user | unlock_token: token}
         |> send_unlock_instructions_mail_to_user()
       end
@@ -105,14 +119,14 @@ defmodule Haytni.LockablePlugin do
   @doc ~S"""
   Returns `true` if *user* account is currently locked.
   """
-  @spec locked?(user :: struct) :: boolean
-  def locked?(user = %_{}) do
-    user.locked_at != nil && !lock_expired?(user)
+  @spec locked?(user :: Haytni.user, strategy :: unlock_strategy) :: boolean
+  def locked?(user = %_{}, strategy) do
+    user.locked_at != nil && !lock_expired?(user, strategy)
   end
 
-  @spec lock_expired?(user :: struct) :: boolean
-  defp lock_expired?(user) do
-    unlock_strategy() in ~W[both time]a && DateTime.diff(DateTime.utc_now(), user.locked_at) >= Haytni.duration(unlock_in())
+  @spec lock_expired?(user :: Haytni.user, strategy :: unlock_strategy) :: boolean
+  def lock_expired?(user, strategy) do
+    strategy in ~W[both time]a && DateTime.diff(DateTime.utc_now(), user.locked_at) >= Haytni.duration(unlock_in())
   end
 
   defp new_token do
@@ -120,7 +134,7 @@ defmodule Haytni.LockablePlugin do
     |> Haytni.Token.generate()
   end
 
-  @spec send_unlock_instructions_mail_to_user(user :: struct) :: {:ok, struct}
+  @spec send_unlock_instructions_mail_to_user(user :: Haytni.user) :: {:ok, Haytni.user}
   defp send_unlock_instructions_mail_to_user(user) do
     if email_strategy_enabled?() do
       Haytni.LockableEmail.unlock_instructions_email(user)
@@ -132,7 +146,7 @@ defmodule Haytni.LockablePlugin do
   @doc ~S"""
   Returns `true` if it's the last attempt before account locking in case of a new sign-in failure
   """
-  @spec last_attempt?(user :: struct) :: boolean
+  @spec last_attempt?(user :: Haytni.user) :: boolean
   def last_attempt?(user = %_{}) do
     user.failed_attempts == maximum_attempts() - 1
   end
@@ -152,7 +166,7 @@ defmodule Haytni.LockablePlugin do
 
   Also raises if updating user fails.
   """
-  @spec unlock(token :: String.t) :: struct | {:error, String.t} | no_return
+  @spec unlock(token :: String.t) :: Haytni.user | {:error, String.t} | no_return
   def unlock(token) do
     if email_strategy_enabled?() do
       case Haytni.Users.get_user_by(unlock_token: token) do
@@ -176,7 +190,7 @@ defmodule Haytni.LockablePlugin do
     * `{:error, :not_locked}` if the account is not currently locked
     * `{:ok, user}` if successful
   """
-  @spec resend_unlock_instructions(request :: Haytni.Unlockable.Request.t) :: {:ok, struct} | {:error, :no_match | :not_locked | :email_strategy_disabled}
+  @spec resend_unlock_instructions(request :: Haytni.Unlockable.Request.t) :: {:ok, Haytni.user} | {:error, :no_match | :not_locked | :email_strategy_disabled}
   def resend_unlock_instructions(request) do # request = %Haytni.Unlockable.Request{}
     if email_strategy_enabled?() do
       clauses = unlock_keys()
