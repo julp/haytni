@@ -1,4 +1,4 @@
-defmodule Haytni.AuthentificateTest do
+defmodule Haytni.Authenticable.AuthentificateTest do
   use HaytniWeb.ConnCase, async: true
 
   describe "Haytni.AuthenticablePlugin.authentificate/2" do

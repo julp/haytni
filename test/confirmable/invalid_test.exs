@@ -12,7 +12,7 @@ defmodule Haytni.Confirmable.InvalidTest do
       user = %HaytniTest.User{confirmed_at: nil}
 
       assert {:error, reason} = Haytni.ConfirmablePlugin.invalid?(user)
-      assert reason =~ ~R/check your emails/i
+      assert reason =~ ~R/confirm/i
     end
   end
 end

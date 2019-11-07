@@ -38,7 +38,7 @@ defmodule HaytniTestWeb do
       use Phoenix.HTML
 
       alias HaytniTestWeb.Router.Helpers, as: Routes
-      #import HaytniTestWeb.ErrorHelpers
+      import HaytniTestWeb.ErrorHelpers
     end
   end
 

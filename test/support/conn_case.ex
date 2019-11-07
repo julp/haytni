@@ -23,7 +23,7 @@ defmodule HaytniWeb.ConnCase do
       alias HaytniTest.Router.Helpers, as: Routes
 
       # The default endpoint for testing
-      @endpoint HaytniTest.Endpoint
+      @endpoint HaytniTestWeb.Endpoint
     end
   end
 

@@ -5,6 +5,7 @@ defmodule HaytniTest.User do
 
   schema "users" do
     Haytni.fields()
+    field :dummy, :boolean, default: false
   end
 
   @attributes ~W[email password]a

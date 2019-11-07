@@ -69,6 +69,7 @@ end
 
   @impl Haytni.Plugin
   def find_user(conn = %Plug.Conn{}) do
+    conn = Plug.Conn.fetch_cookies(conn)
     token = Map.get(conn.cookies, remember_cookie_name())
     if token do
       case Phoenix.Token.verify(conn, remember_salt(), token, max_age: Haytni.duration(remember_for())) do
@@ -98,8 +99,7 @@ end
     else
       {user.remember_token, keyword}
     end
-    token = Phoenix.Token.sign(conn, remember_salt(), remember_token)
-    conn = put_resp_cookie(conn, remember_cookie_name(), token, remember_cookie_options_with_max_age())
+    conn = add_rememberme_cookie(conn, remember_token)
     {conn, user, keyword}
   end
 
@@ -111,6 +111,16 @@ end
   @spec rememberable_token_expired?(user :: Haytni.user) :: boolean
   defp rememberable_token_expired?(user) do
     DateTime.diff(DateTime.utc_now(), user.remember_created_at) >= Haytni.duration(remember_for())
+  end
+
+  @doc ~S"""
+  Sign *remember_token* then set it as a cookie
+  """
+  def add_rememberme_cookie(conn = %Plug.Conn{}, remember_token) do
+    signed_token = Phoenix.Token.sign(conn, remember_salt(), remember_token)
+
+    conn
+    |> put_resp_cookie(remember_cookie_name(), signed_token, remember_cookie_options_with_max_age())
   end
 
   defp remove_rememberme_cookie(conn = %Plug.Conn{}) do

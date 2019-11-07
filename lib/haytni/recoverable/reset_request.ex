@@ -1,6 +1,8 @@
 defmodule Haytni.Recoverable.ResetRequest do
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   defstruct Haytni.RecoverablePlugin.reset_password_keys()
 
   def changeset(%__MODULE__{} = struct, params \\ %{}) do

@@ -37,7 +37,7 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
 
             assert %{locked_at: at, unlock_token: token} = result_as_map
 
-            refute is_nil(at)
+            assert %DateTime{} = at
             assert is_binary(token)
           end
         )

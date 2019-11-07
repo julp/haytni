@@ -11,10 +11,12 @@ require EEx
   support/haytnitest/mailer.ex
   support/haytnitest/application.ex
   support/haytnitest/repo.ex
+  support/data_case.ex
   support/conn_case.ex
   support/test_helpers.ex
-  authenticable/authentificate_test.exs
-  registerable/registerable_test.exs
+  support/haytnitest_web/views/error_helpers.ex
+  support/haytnitest_web/views/error_view.ex
+  support/haytnitest_web/gettext.ex
 ]
 |> Enum.each(
   fn file ->

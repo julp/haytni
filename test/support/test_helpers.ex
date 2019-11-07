@@ -22,6 +22,13 @@ defmodule Haytni.TestHelpers do
     user
   end
 
+  @spec add_rememberme_cookie(conn :: Plug.Conn.t, token :: String.t) :: Plug.Conn.t
+  def add_rememberme_cookie(conn = %Plug.Conn{}, token) do
+    conn
+    |> Phoenix.ConnTest.put_req_cookie(Haytni.RememberablePlugin.remember_cookie_name(), token)
+  end
+
+  @spec create_session(email :: String.t, password :: String.t) :: Haytni.Session.t
   def create_session(email, password) do
     {:ok, session} = Haytni.Session.create_session(%{email: email, password: password})
 
@@ -34,6 +41,7 @@ defmodule Haytni.TestHelpers do
   def seconds_ago(seconds) do
     DateTime.utc_now()
     |> DateTime.add(-seconds, :second)
+    |> DateTime.truncate(:second)
   end
 
   @doc """
@@ -46,6 +54,7 @@ defmodule Haytni.TestHelpers do
     iex> #{__MODULE__}.contains(~W[a c]a, ~W[a b]a)
     false
   """
+  @spec contains(a :: [atom], b :: [atom]) :: boolean
   def contains(a, b)
     when is_list(a) and is_list(b)
   do
@@ -57,6 +66,7 @@ defmodule Haytni.TestHelpers do
     )
   end
 
+  @spec lock_user!(user :: Haytni.user, unlock_token :: String.t) :: Haytni.user
   def lock_user!(user = %_{}, unlock_token) do
     user
     |> Ecto.Changeset.change(unlock_token: unlock_token, locked_at: ~U[1970-01-01 00:00:00Z], failed_attempts: 100)

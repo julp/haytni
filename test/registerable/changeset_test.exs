@@ -1,8 +1,6 @@
 defmodule Haytni.Registerable.RegisterableTest do
   use ExUnit.Case, async: true
 
-  #import Ecto.Changeset
-
   @types %{untouched: :string, email: :string}
 
   test "stripping whitespace from selected inputs" do

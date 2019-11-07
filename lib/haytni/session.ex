@@ -1,6 +1,8 @@
 defmodule Haytni.Session do
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   defstruct Haytni.AuthenticablePlugin.authentication_keys() ++ (if Haytni.RememberablePlugin.enabled?, do: ~W[remember]a, else: []) ++ ~W[password]a
 
   defp add_authentication_keys(map) do

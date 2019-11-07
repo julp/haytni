@@ -1,6 +1,8 @@
 defmodule Haytni.Unlockable.Request do
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   defstruct ~W[referer]a ++ Haytni.LockablePlugin.unlock_keys()
 
   def changeset(%__MODULE__{} = struct, params \\ %{}) do

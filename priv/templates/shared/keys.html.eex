@@ -3,7 +3,7 @@
 <%% end %>
 <%%= for field <- @keys do %>
   <div class="form-group">
-    <%= ~s'<%= label @f, Gettext.dgettext(#{inspect web_module}.Gettext, "fields", to_string(field)), class: "control-label" %\x3E' %>
+    <%%= label @f, Gettext.dgettext(<%= inspect web_module %>.Gettext, "fields", to_string(field)), class: "control-label" %>
     <%%= case field do %>
       <%% :email -> %>
         <%%= email_input @f, field, class: "form-control", required: "" %>

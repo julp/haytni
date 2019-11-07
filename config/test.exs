@@ -23,7 +23,16 @@ config :haytni,
   otp_app: :haytni_test,
   repo: HaytniTest.Repo,
   schema: HaytniTest.User,
-  mailer: HaytniTest.Mailer
+  mailer: HaytniTest.Mailer,
+  plugins: [
+      Haytni.AuthenticablePlugin,
+      Haytni.RegisterablePlugin,
+      Haytni.RememberablePlugin,
+      Haytni.ConfirmablePlugin,
+      Haytni.LockablePlugin,
+      Haytni.RecoverablePlugin,
+      Haytni.TrackablePlugin,
+    ]
 
 config :haytni, HaytniTest.Mailer,
   adapter: Bamboo.TestAdapter

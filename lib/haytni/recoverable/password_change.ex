@@ -1,6 +1,11 @@
 defmodule Haytni.Recoverable.PasswordChange do
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{
+    password: String.t,
+    reset_password_token: String.t,
+  }
+
   defstruct ~W[reset_password_token password]a
 
   @types %{reset_password_token: :string, password: :string}

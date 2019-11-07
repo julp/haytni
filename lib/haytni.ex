@@ -106,7 +106,7 @@ defmodule Haytni do
       Haytni.RememberablePlugin,
       Haytni.ConfirmablePlugin,
       Haytni.LockablePlugin,
-      Haytni.RecoverablePlugin
+      Haytni.RecoverablePlugin,
     ]
   ]
 

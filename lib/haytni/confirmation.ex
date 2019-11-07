@@ -1,6 +1,8 @@
 defmodule Haytni.Confirmation do
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   defstruct ~W[referer]a ++ Haytni.ConfirmablePlugin.confirmation_keys()
 
   def changeset(%__MODULE__{} = struct, params \\ %{}) do

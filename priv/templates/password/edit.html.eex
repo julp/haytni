@@ -23,4 +23,4 @@
   <div class="form-group">
     <%%= submit Haytni.Gettext.dgettext("haytni", "Change my password") %>
   </div>
-<% end %>
+<%% end %>
