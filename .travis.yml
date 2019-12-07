@@ -1,0 +1,17 @@
+language: elixir
+elixir:
+  - 1.9
+otp_release:
+  - 22.0
+env:
+  global:
+    - MIX_ENV=test
+    - ELIXIR_ASSERT_TIMEOUT=2000
+services:
+  - postgresql
+before_script:
+  - psql -U postgres -c "CREATE USER haytni WITH PASSWORD 'haytni';"
+  - psql -U postgres -c 'CREATE DATABASE haytni_test OWNER haytni;'
+  - sudo sed -i "\$a listen_addresses = ''\nunix_socket_directories = '/tmp'" `psql -U postgres -t -P format=unaligned -c 'SHOW config_file;'`
+  - sudo service postgresql restart
+  - mix ecto.create
