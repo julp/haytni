@@ -1,3 +1,3 @@
 <p>Hello <%%= @old_email_address %>!</p>
 
-<p>We're contacting you to let you know that the email address linked to your account is being changed to <%%= if Haytni.ConfirmablePlugin.reconfirmable(), do: @user.unconfirmed_email, else: @user.email %>.</p>
+<p>We're contacting you to let you know that the email address linked to your account is being changed to <%%= if @config.reconfirmable, do: @user.unconfirmed_email, else: @user.email %>.</p>

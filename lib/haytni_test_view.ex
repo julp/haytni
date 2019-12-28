@@ -1,6 +1,8 @@
 defmodule HaytniTestView do
+  @moduledoc false
+
   defmacro embed_templates_for_tests(path) do
-    if Application.fetch_env!(:haytni, :otp_app) == :haytni_test and Code.ensure_compiled?(Mix) and Mix.env() == :test do
+    if Enum.take(Module.split(__CALLER__.module), 2) == ~W[HaytniTestWeb Haytni] and Code.ensure_compiled?(Mix) and Mix.env() == :test do
       quote bind_quoted: [path: path] do
         require EEx
 

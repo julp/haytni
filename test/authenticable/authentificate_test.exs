@@ -1,37 +1,53 @@
 defmodule Haytni.Authenticable.AuthentificateTest do
   use HaytniWeb.ConnCase, async: true
 
-  describe "Haytni.AuthenticablePlugin.authentificate/2" do
+  @spec create_session(email :: String.t, password :: String.t) :: %{String.t => String.t}
+  defp create_session(email, password) do
+    %{"email" => email, "password" => password}
+  end
+
+  describe "Haytni.AuthenticablePlugin.authenticate/4" do
     @pass "123456"
 
-    setup %{conn: conn} do
-      #plugins = Haytni.plugins()
-      #Application.put_env(:haytni, :plugins, [Haytni.AuthenticablePlugin])
-      #on_exit fn ->
-        #Application.put_env(:haytni, :plugins, plugins)
-      #end
+    setup do
+      config = HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin)
+      user = #HaytniTestWeb.Haytni.fetch_config(Haytni.ConfirmablePlugin)
+      Haytni.ConfirmablePlugin.reset_confirmation_attributes()
+      |> Keyword.put(:password, @pass)
+      |> user_fixture()
 
-      {:ok, conn: conn, user: user_fixture(password: @pass)}
+      {:ok, config: config, user: user}
     end
 
-    test "returns user with correct password", %{conn: conn, user: user} do
+    test "returns user with correct password", %{conn: conn, config: config, user: user} do
       session = create_session(user.email, @pass)
 
-      # TODO: confirmable invalids authentification
-      assert {:ok, user_found} = Haytni.AuthenticablePlugin.authentificate(conn, session)
-      assert user_found.id == user.id
+      assert {:ok, new_conn} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, session)
+      assert new_conn.assigns.current_user.id == user.id
     end
 
-    test "returns unauthorized error with invalid password", %{conn: conn, user: user} do
+    test "returns error with empty credentials", %{conn: conn, config: config} do
+      session = create_session("", "")
+
+      assert {:error, changeset} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, session)
+      refute is_nil(changeset.action)
+      assert %{email: [empty_message()], password: [empty_message()]} == Haytni.DataCase.errors_on(changeset)
+    end
+
+    test "returns unauthorized error with invalid password", %{conn: conn, config: config, user: user} do
       session = create_session(user.email, "badpass")
 
-      assert {:error, _reason} = Haytni.AuthenticablePlugin.authentificate(conn, session)
+      assert {:error, changeset} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, session)
+      refute is_nil(changeset.action)
+      assert %{base: [Haytni.AuthenticablePlugin.invalid_credentials_message()]} == Haytni.DataCase.errors_on(changeset)
     end
 
-    test "returns not found error with no matching user for email", %{conn: conn} do
+    test "returns not found error with no matching user for email", %{conn: conn, config: config} do
       session = create_session("nomatch", @pass)
 
-      assert {:error, _reason} = Haytni.AuthenticablePlugin.authentificate(conn, session)
+      assert {:error, changeset} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, session)
+      refute is_nil(changeset.action)
+      assert %{base: [Haytni.AuthenticablePlugin.invalid_credentials_message()]} == Haytni.DataCase.errors_on(changeset)
     end
   end
 end

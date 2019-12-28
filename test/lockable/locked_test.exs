@@ -1,52 +1,52 @@
 defmodule Haytni.Lockable.LockedTest do
-  use HaytniWeb.ConnCase, async: true
+  use Haytni.DataCase, async: true
 
   alias HaytniTest.User
 
   @delay 8
   describe "Haytni.LockablePlugin.locked?/2" do
     setup do
+      config = Haytni.LockablePlugin.build_config()
+
       unlocked = %User{locked_at: nil}
-      expired = %User{locked_at: seconds_ago(Haytni.duration(Haytni.LockablePlugin.unlock_in()) + @delay)}
-      unexpired = %User{locked_at: seconds_ago(Haytni.duration(Haytni.LockablePlugin.unlock_in()) - @delay)}
+      expired = %User{locked_at: seconds_ago(config.unlock_in - @delay)}
+      unexpired = %User{locked_at: seconds_ago(config.unlock_in + @delay)}
 
-      {:ok, unlocked: unlocked, expired: expired, unexpired: unexpired}
+      {:ok, config: config, unlocked: unlocked, expired: expired, unexpired: unexpired}
     end
 
-    test "ensures non-locked account is not invalid (strategy: none)", %{unlocked: unlocked} do
-      refute Haytni.LockablePlugin.locked?(unlocked, :none)
+    for strategy <- Haytni.LockablePlugin.Config.available_strategies() do
+      test "ensures non-locked account is not invalid (strategy: #{strategy})", %{config: config, unlocked: unlocked} do
+        refute Haytni.LockablePlugin.locked?(unlocked, config)
+      end
     end
 
-    test "ensures locked account is invalid (strategy: none)", %{expired: expired, unexpired: unexpired} do
-      assert Haytni.LockablePlugin.locked?(expired, :none)
-      assert Haytni.LockablePlugin.locked?(unexpired, :none)
+    test "ensures locked account is invalid (strategy: none)", %{config: config, expired: expired, unexpired: unexpired} do
+      config = %{config | unlock_strategy: :none}
+
+      assert Haytni.LockablePlugin.locked?(expired, config)
+      assert Haytni.LockablePlugin.locked?(unexpired, config)
     end
 
-    test "ensures non-locked account is not invalid (strategy: time)", %{unlocked: unlocked} do
-      refute Haytni.LockablePlugin.locked?(unlocked, :time)
+    test "ensures locked account is invalid (strategy: time)", %{config: config, expired: expired, unexpired: unexpired} do
+      config = %{config | unlock_strategy: :time}
+
+      assert Haytni.LockablePlugin.locked?(expired, config)
+      refute Haytni.LockablePlugin.locked?(unexpired, config)
     end
 
-    test "ensures locked account is invalid (strategy: time)", %{expired: expired, unexpired: unexpired} do
-      refute Haytni.LockablePlugin.locked?(expired, :time)
-      assert Haytni.LockablePlugin.locked?(unexpired, :time)
+    test "ensures locked account is invalid (strategy: email)", %{config: config, expired: expired, unexpired: unexpired} do
+      config = %{config | unlock_strategy: :email}
+
+      assert Haytni.LockablePlugin.locked?(expired, config)
+      assert Haytni.LockablePlugin.locked?(unexpired, config)
     end
 
-    test "ensures non-locked account is not invalid (strategy: email)", %{unlocked: unlocked} do
-      refute Haytni.LockablePlugin.locked?(unlocked, :email)
-    end
+    test "ensures locked account is invalid (strategy: both)", %{config: config, expired: expired, unexpired: unexpired} do
+      config = %{config | unlock_strategy: :both}
 
-    test "ensures locked account is invalid (strategy: email)", %{expired: expired, unexpired: unexpired} do
-      assert Haytni.LockablePlugin.locked?(expired, :email)
-      assert Haytni.LockablePlugin.locked?(unexpired, :email)
-    end
-
-    test "ensures non-locked account is not invalid (strategy: both)", %{unlocked: unlocked} do
-      refute Haytni.LockablePlugin.locked?(unlocked, :both)
-    end
-
-    test "ensures locked account is invalid (strategy: both)", %{expired: expired, unexpired: unexpired} do
-      refute Haytni.LockablePlugin.locked?(expired, :both)
-      assert Haytni.LockablePlugin.locked?(unexpired, :both)
+      assert Haytni.LockablePlugin.locked?(expired, config)
+      refute Haytni.LockablePlugin.locked?(unexpired, config)
     end
   end
 end

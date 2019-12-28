@@ -20,6 +20,12 @@ defmodule Haytni.ConfirmablePlugin do
     * `confirmation_keys` (default: `~W[email]a`): the key(s) to be matched before sending a new confirmation
     * `confirm_within` (default: `{3, :day}`): delay after which confirmation token is considered as expired (ie the user has to ask for a new one)
 
+          config :haytni, Haytni.ConfirmablePlugin,
+            reconfirmable: true,
+            confirm_within: {3, :day},
+            confirmation_keys: ~W[email]a,
+            confirmation_token_length: 32
+
   Routes:
 
     * `confirmation_path` (actions: show, new/create)
@@ -27,13 +33,24 @@ defmodule Haytni.ConfirmablePlugin do
 
   import Haytni.Gettext
 
+  defmodule Config do
+    defstruct reconfirmable: true, confirm_within: {3, :day}, confirmation_token_length: 32, confirmation_keys: ~W[email]a
+
+    @type t :: %__MODULE__{
+      reconfirmable: boolean,
+      confirm_within: Haytni.duration,
+      confirmation_keys: [atom],
+      confirmation_token_length: pos_integer,
+    }
+  end
+
   use Haytni.Plugin
-  use Haytni.Config, [
-    reconfirmable: true,
-    confirm_within: {3, :day},
-    confirmation_token_length: 32,
-    confirmation_keys: ~W[email]a
-  ]
+
+  @impl Haytni.Plugin
+  def build_config(options \\ %{}) do
+    %Haytni.ConfirmablePlugin.Config{}
+    |> Haytni.Helpers.merge_config(options, ~W[confirm_within]a)
+  end
 
   @impl Haytni.Plugin
   def files_to_install do
@@ -52,12 +69,12 @@ defmodule Haytni.ConfirmablePlugin do
       {:eex, "templates/email/confirmable/reconfirmation_instructions.text.eex", Path.join([web_path(), "templates", "haytni", "email", "confirmable", "reconfirmation_instructions.text.eex"])},
       {:eex, "templates/email/confirmable/reconfirmation_instructions.html.eex", Path.join([web_path(), "templates", "haytni", "email", "confirmable", "reconfirmation_instructions.html.eex"])},
       # migration
-      {:eex, "migrations/confirmable_changes.ex", Path.join([web_path(), "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_confirmable_changes.ex"])} # TODO: less "hacky"
+      {:eex, "migrations/0-confirmable_changes.ex", Path.join([web_path(), "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_confirmable_changes.ex"])}, # TODO: less "hacky"
     ]
   end
 
   @impl Haytni.Plugin
-  def fields do
+  def fields(_module) do
     quote do
       field :confirmed_at, :utc_datetime, default: nil # NULLABLE
       field :unconfirmed_email, :string, default: nil # NULLABLE # TODO: UNIQUE?
@@ -67,42 +84,62 @@ defmodule Haytni.ConfirmablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(_scope, _options) do
+  def routes(_options) do
     quote do
       resources "/confirmation", HaytniWeb.Confirmable.ConfirmationController, singleton: true, only: ~W[show new create]a
     end
   end
 
+  @doc ~S"""
+  The translated string to display when account is on pending (re)confirmation.
+  """
+  @spec pending_confirmation_message() :: String.t
+  def pending_confirmation_message do
+    dgettext("haytni", "account is pending confirmation, please check your emails.")
+  end
+
   @impl Haytni.Plugin
-  def invalid?(user = %_{}) do
+  def invalid?(user = %_{}, _config) do
     if confirmed?(user) do
       false
     else
-      {:error, dgettext("haytni", "account is pending confirmation, please check your emails.")}
+      {:error, pending_confirmation_message()}
     end
   end
 
-  defp handle_reconfirmable_for_multi(multi, true) do
-    multi
-    |> Ecto.Multi.run(:send_reconfirmation_instructions, fn _repo, %{user: user} ->
-      send_reconfirmation_instructions(user)
-      {:ok, :success}
-    end)
+  defp handle_reconfirmable_for_multi(multi, module, config) do
+    if config.reconfirmable do
+      multi
+      |> Ecto.Multi.run(
+        :send_reconfirmation_instructions,
+        fn _repo, %{user: user} ->
+          send_reconfirmation_instructions(user, module, config)
+          {:ok, :success}
+        end
+      )
+    else
+      multi
+    end
   end
-  defp handle_reconfirmable_for_multi(multi, _), do: multi
 
   @impl Haytni.Plugin
-  def on_email_change(multi, changeset) do
+  def on_email_change(multi, changeset, module, config) do
     multi = multi
-    |> handle_reconfirmable_for_multi(reconfirmable())
-    |> Ecto.Multi.run(:send_notice_about_email_change, fn _repo, %{user: user, old_email: old_email} ->
-      send_notice_about_email_change(user, old_email)
-      {:ok, :success}
-    end)
+    |> handle_reconfirmable_for_multi(module, config)
+    |> Ecto.Multi.run(
+      :send_notice_about_email_change,
+      fn _repo, %{user: user, old_email: old_email} ->
+        send_notice_about_email_change(user, old_email, module, config)
+        {:ok, :success}
+      end
+    )
 
-    changeset = if reconfirmable() do
+    changeset = if config.reconfirmable do
+      changes = config
+      |> new_confirmation_attributes()
+
       changeset
-      |> Ecto.Changeset.change(new_confirmation())
+      |> Ecto.Changeset.change(changes)
       |> Ecto.Changeset.put_change(:unconfirmed_email, Ecto.Changeset.get_change(changeset, :email))
       |> Ecto.Changeset.delete_change(:email)
     else
@@ -113,15 +150,18 @@ defmodule Haytni.ConfirmablePlugin do
   end
 
   @impl Haytni.Plugin
-  def validate_create_registration(changeset = %Ecto.Changeset{}) do
+  def validate_create_registration(changeset = %Ecto.Changeset{}, config) do
+    changes = config
+    |> new_confirmation_attributes()
+
     changeset
-    |> Ecto.Changeset.change(new_confirmation())
+    |> Ecto.Changeset.change(changes)
   end
 
   @impl Haytni.Plugin
-  def on_registration(multi = %Ecto.Multi{}) do
+  def on_registration(multi = %Ecto.Multi{}, module, config) do
     Ecto.Multi.run(multi, :send_confirmation_instructions, fn _repo, %{user: user} ->
-      send_confirmation_instructions(user)
+      send_confirmation_instructions(user, module, config)
       {:ok, :success}
     end)
   end
@@ -134,89 +174,133 @@ defmodule Haytni.ConfirmablePlugin do
     confirmed_at != nil
   end
 
-  defp confirm_handle_reconfirmation(_user = %{unconfirmed_email: nil}, changes) do
+  defp confirm_handle_reconfirmation(_user = %_{unconfirmed_email: nil}, changes) do
     changes
   end
 
-  defp confirm_handle_reconfirmation(user = %{unconfirmed_email: _}, changes) do
+  defp confirm_handle_reconfirmation(user = %_{unconfirmed_email: _}, changes) do
     changes
     |> Keyword.put(:email, user.unconfirmed_email)
     |> Keyword.put(:unconfirmed_email, nil)
   end
 
   @doc ~S"""
-  Confirms an account from its (confirmation) token.
-
-  Returns `{:error, reason}` if token is expired or invalid else the (updated) user.
-
-  Raises if the user could not be updated.
+  The translated string to display when (re)confirmation token is invalid (meaning matches no one)
   """
-  @spec confirm(token :: String.t) :: Haytni.user | {:error, String.t} | no_return
-  def confirm(token) do
-    case Haytni.Users.get_user_by(confirmation_token: token) do # AND confirmed_at IS NOT NULL?
+  @spec invalid_token_message() :: String.t
+  def invalid_token_message do
+    dgettext("haytni", "The given confirmation token is invalid.")
+  end
+
+  @doc ~S"""
+  The translated string to display when (re)confirmation is expired
+  """
+  @spec expired_token_message() :: String.t
+  def expired_token_message do
+    dgettext("haytni", "The given confirmation token is expired, request a new one.")
+  end
+
+  @doc ~S"""
+  Confirms an account from its (re)confirmation *token*.
+
+  Returns `{:error, reason}` if token is expired or invalid else the (updated) user as `{:ok, user}`.
+  """
+  @spec confirm(module :: module, config :: Config.t, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
+  def confirm(module, config, token) do
+    case Haytni.get_user_by(module, confirmation_token: token) do # AND confirmed_at IS NOT NULL?
       nil ->
-        {:error, dgettext("haytni", "The given confirmation token is invalid.")}
+        {:error, invalid_token_message()}
       user = %_{} ->
-        if confirmation_token_expired?(user) do
-          {:error, dgettext("haytni", "The given confirmation token is expired, request a new one.")}
+        if confirmation_token_expired?(user, config) do
+          {:error, expired_token_message()}
         else
-          Haytni.update_user_with!(user, confirm_handle_reconfirmation(user, confirmation_token: nil, confirmed_at: Haytni.now()))
+          Haytni.update_user_with(module, user, confirm_handle_reconfirmation(user, reset_confirmation_attributes()))
         end
     end
   end
 
-  @spec confirmation_token_expired?(user :: Haytni.user) :: boolean
-  defp confirmation_token_expired?(user) do
-    DateTime.diff(DateTime.utc_now(), user.confirmation_sent_at) >= Haytni.duration(confirm_within())
+  @spec confirmation_token_expired?(user :: Haytni.user, config :: Config.t) :: boolean
+  defp confirmation_token_expired?(user, config) do
+    DateTime.diff(DateTime.utc_now(), user.confirmation_sent_at) >= config.confirm_within
   end
 
-  @spec new_confirmation() :: Keyword.t
-  defp new_confirmation do
-    [confirmation_sent_at: Haytni.now(), confirmation_token: new_token()]
+  @doc ~S"""
+  The (database) attributes as a keyword-list (field name: new value) to update a user as a confirmed account
+  """
+  @spec reset_confirmation_attributes() :: Keyword.t
+  def reset_confirmation_attributes do
+    [
+      confirmation_token: nil,
+      confirmed_at: Haytni.Helpers.now(),
+    ]
   end
 
-  @spec new_token() :: String.t
-  defp new_token do
-    confirmation_token_length()
-    |> Haytni.Token.generate()
+  @doc ~S"""
+  The (database) attributes as a keyword-list to update a user as an account to be confirmed
+  """
+  @spec new_confirmation_attributes(Config.t) :: Keyword.t
+  def new_confirmation_attributes(config) do
+    [
+      confirmation_sent_at: Haytni.Helpers.now(),
+      confirmation_token: Haytni.Token.generate(config.confirmation_token_length),
+    ]
   end
 
-  @spec send_confirmation_instructions(user :: Haytni.user) :: {:ok, Haytni.user}
-  defp send_confirmation_instructions(user) do
+  @spec send_confirmation_instructions(user :: Haytni.user, module :: module, config :: Haytni.config) :: {:ok, Haytni.user}
+  defp send_confirmation_instructions(user, module, config) do
     #Task.start(
       #fn ->
-        Haytni.ConfirmableEmail.confirmation_email(user)
-        |> Haytni.mailer().deliver_later()
+        Haytni.ConfirmableEmail.confirmation_email(user, module, config)
+        |> module.mailer().deliver_later()
       #end
     #)
+
     {:ok, user}
   end
 
-  @spec send_reconfirmation_instructions(user :: Haytni.user) :: {:ok, Haytni.user}
-  defp send_reconfirmation_instructions(user) do
-    Haytni.ConfirmableEmail.reconfirmation_email(user)
-    |> Haytni.mailer().deliver_later()
+  @spec send_reconfirmation_instructions(user :: Haytni.user, module :: module, config :: Haytni.config) :: {:ok, Haytni.user}
+  defp send_reconfirmation_instructions(user, module, config) do
+    Haytni.ConfirmableEmail.reconfirmation_email(user, module, config)
+    |> module.mailer().deliver_later()
+
     {:ok, user}
   end
 
-  @spec send_notice_about_email_change(user :: Haytni.user, old_email :: String.t) :: Bamboo.Email.t
-  defp send_notice_about_email_change(user = %_{}, old_email) do
-    Haytni.ConfirmableEmail.email_changed(user, old_email)
-    |> Haytni.mailer().deliver_later()
+  @spec send_notice_about_email_change(user :: Haytni.user, old_email :: String.t, module :: module, config :: Config.t) :: Bamboo.Email.t
+  defp send_notice_about_email_change(user = %_{}, old_email, module, config) do
+    Haytni.ConfirmableEmail.email_changed(user, old_email, module, config)
+    |> module.mailer().deliver_later()
   end
 
-  defp resend_handle_reconfirmation(user = %_{unconfirmed_email: nil}) do
+  defp resend_handle_reconfirmation(user = %_{unconfirmed_email: nil}, module, config) do
     user
-    |> send_confirmation_instructions()
+    |> send_confirmation_instructions(module, config)
   end
 
-  defp resend_handle_reconfirmation(user = %_{}) do
-    #if reconfirmable() do
+  defp resend_handle_reconfirmation(user = %_{}, module, config) do
+    #if config.reconfirmable do
       user
-      |> send_reconfirmation_instructions()
+      |> send_reconfirmation_instructions(module, config)
     #else
       #{:error, :reconfirmable_disabled}
     #end
+  end
+
+  @doc ~S"""
+  This function converts the parameters received by the controller to request a new confirmation token sent by email to an `%Ecto.Changeset{}`,
+  a convenient to perform basic validations, any intermediate handling and casting.
+  """
+  @spec confirmation_request_changeset(config :: Config.t, confirmation_params :: %{optional(String.t) => String.t}) :: Ecto.Changeset.t
+  def confirmation_request_changeset(config, confirmation_params \\ %{}) do
+    Haytni.Helpers.to_changeset(confirmation_params, [:referer | config.confirmation_keys], config.confirmation_keys)
+  end
+
+  @doc ~S"""
+  The translated string to display when the account is already confirmed.
+  """
+  @spec alreay_confirmed_message() :: String.t
+  def alreay_confirmed_message do
+    dgettext("haytni", "This account has already been confirmed")
   end
 
   @doc ~S"""
@@ -224,43 +308,50 @@ defmodule Haytni.ConfirmablePlugin do
 
   Returns:
 
-    * `{:error, :no_match}` if there is no account matching `confirmation_keys`
-    * `{:error, :already_confirmed}` if the account is not pending confirmation
+    * `{:error, changeset}` if there is no account matching `config.confirmation_keys` or if the account is not pending confirmation (`changeset.errors` will be set according)
     * `{:ok, user}` if successful
 
   Raises if user couldn't be updated.
   """
-  @spec resend_confirmation_instructions(confirmation :: Haytni.Confirmation.t) :: {:ok, Haytni.user} | {:error, :no_match | :already_confirmed} | no_return
-  def resend_confirmation_instructions(confirmation) do
-    clauses = confirmation_keys()
-    |> Enum.into(Keyword.new(), fn key -> {key, Map.fetch!(confirmation, key)} end)
+  @spec resend_confirmation_instructions(module :: module, config :: Config.t, confirmation_params :: %{optional(String.t) => String.t}) :: {:ok, Haytni.user} | {:error, Ecto.Changeset.t} | no_return
+  def resend_confirmation_instructions(module, config, confirmation_params = %{}) do
+    changeset = confirmation_request_changeset(config, confirmation_params)
 
-    if reconfirmable() && :email in confirmation_keys() do
-      import Ecto.Query
-      # if reconfirmable and email is used as key to resend confirmation then rewrite:
-      # email = ?
-      # to:
-      # ? IN(email, unconfirmed_email)
-      Haytni.schema()
-      |> from(where: ^Keyword.delete(clauses, :email))
-      |> where(fragment("? IN(email, unconfirmed_email)", type(^confirmation.email, :string)))
-      |> Haytni.repo().one()
-    else
-      Haytni.Users.get_user_by(clauses)
-    end
+    changeset
+    |> Ecto.Changeset.apply_action(:insert)
     |> case do
-      nil ->
-        {:error, :no_match}
-      %_{confirmation_token: nil} ->
-        {:error, :already_confirmed}
-      user = %_{} ->
-        if confirmation_token_expired?(user) do
-          user
-          |> Haytni.update_user_with!(new_confirmation())
+      {:ok, sanitized_params} ->
+        sanitized_params = Map.delete(sanitized_params, :referer)
+        if config.reconfirmable and :email in config.confirmation_keys do
+          import Ecto.Query
+          # if config.reconfirmable and email is used as key to resend confirmation then rewrite:
+          # email = ?
+          # to:
+          # ? IN(email, unconfirmed_email)
+          module.schema()
+          |> from(where: ^Enum.to_list(Map.delete(sanitized_params, :email)))
+          |> where(fragment("? IN(email, unconfirmed_email)", type(^sanitized_params.email, :string)))
+          |> module.repo().one()
         else
-          user
+          Haytni.get_user_by(module, sanitized_params)
         end
-        |> resend_handle_reconfirmation()
+        |> case do
+          nil ->
+            Haytni.Helpers.mark_changeset_keys_as_unmatched(changeset, config.confirmation_keys)
+          %_{confirmation_token: nil} ->
+              #Haytni.Helpers.apply_base_error(changeset, alreay_confirmed_message())
+              Haytni.Helpers.mark_changeset_keys_with_error(changeset, config.confirmation_keys, alreay_confirmed_message())
+          user = %_{} ->
+            # TODO: use Ecto.Multi?
+            if confirmation_token_expired?(user, config) do
+              Haytni.update_user_with!(module, user, new_confirmation_attributes(config)) # NOTE: this line implies no_return in spec
+            else
+              user
+            end
+            |> resend_handle_reconfirmation(module, config)
+        end
+      error = {:error, %Ecto.Changeset{}} ->
+        error
     end
   end
 end

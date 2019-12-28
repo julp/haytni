@@ -1,11 +1,18 @@
 defmodule HaytniTest.User do
   use Ecto.Schema
-  require Haytni
+  require HaytniTestWeb.Haytni
   import Ecto.Changeset
 
   schema "users" do
-    Haytni.fields()
+    HaytniTestWeb.Haytni.fields()
     field :dummy, :boolean, default: false
+    field :lastname, :string
+    field :firstname, :string
+  end
+
+  def changeset(struct, params) do
+    struct
+    |> cast(params, [])
   end
 
   @attributes ~W[email password]a
@@ -13,12 +20,12 @@ defmodule HaytniTest.User do
     struct
     |> cast(params, @attributes)
     |> validate_required(@attributes)
-    |> Haytni.validate_create_registration()
+    |> HaytniTestWeb.Haytni.validate_create_registration()
   end
 
   def update_registration_changeset(%__MODULE__{} = struct, params) do
     struct
     |> cast(params, ~W[email password current_password]a)
-    |> Haytni.validate_update_registration()
+    |> HaytniTestWeb.Haytni.validate_update_registration()
   end
 end

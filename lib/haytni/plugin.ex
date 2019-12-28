@@ -4,41 +4,69 @@ defmodule Haytni.Plugin do
   """
 
   @doc ~S"""
+  Run at compile time before embedding plugin options once for all. It is a good place to realize some pre-computations.
+  """
+  @callback build_config(options :: any) :: any
+
+  @doc ~S"""
   This callback let you do any kind of change or additionnal validation on the changeset
   when a user is registering.
   """
-  @callback validate_create_registration(changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
+  @callback validate_create_registration(changeset :: Ecto.Changeset.t, config :: Haytni.config) :: Ecto.Changeset.t
 
   @doc ~S"""
   Same as `validate_create_registration` but registration's edition as logic between the two
   may be completely different.
   """
-  @callback validate_update_registration(changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
+  @callback validate_update_registration(changeset :: Ecto.Changeset.t, config :: Haytni.config) :: Ecto.Changeset.t
+
+  @doc ~S"""
+  Performs validations of user's password. It is a convenient way to enforce your password policy.
+
+  Apply any custom validation(s) to the input `%Ecto.Changeset{}` before returning it.
+  """
+  @callback validate_password(changeset :: Ecto.Changeset.t, config :: Haytni.config) :: Ecto.Changeset.t
 
   @doc ~S"""
   Returns the `Ecto.Schema.field/1`s as a quoted fragment to be injected in your user schema
   """
-  @callback fields() :: Macro.t
+  @callback fields(module :: module) :: Macro.t
 
   @doc ~S"""
   Returns the routes as a quoted fragment to be injected in application's Router
   """
-  @callback routes(scope :: atom, options :: Keyword.t) :: Macro.t
+  @callback routes(options :: Keyword.t) :: Macro.t
 
   @doc ~S"""
   Returns a list of files to be (un)installed by the mix tasks haytni.(un)install
 
-  # TODO: format of the list
+  Each file is a 3-elements tuple of the form:
+
+    {*format*, path relative to priv/ of the file to install, path where to install the file}
+
+  Format is one of the following *atom*:
+
+    * `:eex`: the file is an Eex template from which the content is evaluated before being copied
+      where the following bindings are set:
+      + scope (*atom*, default: `:user`): unsued for now
+      + table (*String.t*, default: `"users"`): the name of the users table
+      + otp_app (*atom*): inferred, the name of the current OTP application
+      + base_module (*module*): inferred, the name of the base non-web module of your Phoenix
+        application (the *YourApp* in this documentation)
+      + web_module (*module*): inferred, the name of the base web module of your Phoenix application
+        (*YourAppWeb* all over this documentation)
+      + plugins (*[module]*): the list of the enabled modules
+    * `:text`: to copy the file as is
   """
   @callback files_to_install() :: [{:eex | :text, String.t, String.t}]
 
   @doc ~S"""
-  Extract (early) the user from the HTTP request (http authentification, cookies/session, ...).
+  Extract the user from the HTTP request (http authentication, cookies, ...).
 
   Returns a tuple of the form `{conn, user}` with user being `nil` if no user could be found at
   this early stage.
   """
-  @callback find_user(conn :: Plug.Conn.t) :: {Plug.Conn.t, struct | nil}
+  @callback find_user(conn :: Plug.Conn.t, module :: module, config :: Haytni.config) :: {Plug.Conn.t, Haytni.user | nil}
 
   @doc ~S"""
   Check if the user is in a valid state. This callback is intended to let know others plugins
@@ -49,25 +77,27 @@ defmodule Haytni.Plugin do
 
   For example, you may want to have some kind of ban plugin. This is the way to decline the login:
 
-      def invalid?(%{banned: true}), do: {:error, :banned} # or: {:error, dgettext("myapp", "you're banned")}
-      def invalid?(%{banned: _}), do: false
+      def invalid?(%User{banned: true}, _config), do: {:error, :banned} # or: {:error, dgettext("myapp", "you're banned")}
+      def invalid?(%User{banned: _}, _config), do: false
   """
-  @callback invalid?(user :: struct) :: false | {:error, atom}
+  @callback invalid?(user :: Haytni.user, config :: Haytni.config) :: false | {:error, atom}
 
   @doc ~S"""
   This callback is invoked when a user (manually) log out. Its purpose is mainly to do some cleanup
   like removing a cookie.
   """
-  @callback on_logout(conn :: Plug.Conn.t) :: Plug.Conn.t # TODO: or {Plug.Conn.t, Keyword.t} to update the user ?
+  @callback on_logout(conn :: Plug.Conn.t, config :: Haytni.config) :: Plug.Conn.t # TODO: or {Plug.Conn.t, Keyword.t} to update the user ?
 
   @doc ~S"""
-  Invoked when an authentification failed (wrong password). It receives the concerned account
-  and a Keyword to return after updating it if any change have to be done to this user.
+  Invoked when an authentication failed (wrong password). It receives the concerned account
+  (as it is before calling any on_failed_authentication callback) and a Ecto.Multi where
+  to add any additionnal treatment and a Keyword to return after updating it if any change
+  have to be done to this user.
 
   For example, you can use it as follows to count the number of failed attempts to login:
 
-      def on_failed_authentification(user = %_{}, keyword) do
-        Keyword.put(keyword, :failed_attempts, user.failed_attempts + 1)
+      def on_failed_authentication(user = %_{}, multi, keyword, _module, _config) do
+        {multi, Keyword.put(keyword, :failed_attempts, user.failed_attempts + 1)}
       end
 
   Note: we choose to use and pass *keyword* as an accumulator to let the possibility to plugins
@@ -75,21 +105,21 @@ defmodule Haytni.Plugin do
   Even if `Keyword` allows a same key to be defined several times, you'll probably don't want it
   to happen as the last defined value for a given key will (silently) override the others.
   """
-  @callback on_failed_authentification(user :: struct | nil, keywords :: Keyword.t) :: Keyword.t
+  @callback on_failed_authentication(user :: Haytni.user | nil, multi :: Ecto.Multi.t, keywords :: Keyword.t, module :: module, config :: Haytni.config) :: {Ecto.Multi.t, Keyword.t}
 
   @doc ~S"""
-  Invoked when an authentification is successful. Like `on_failed_authentification/2`, it receives
+  Invoked when an authentication is successful. Like `on_failed_authentification/3`, it receives
   the current user and a Keyword to return after updating it if you want to bring any change to this
   user to the database.
 
-  To continue our example with a failed attempts counter, on a successful authentification it may be
+  To continue our example with a failed attempts counter, on a successful authentication it may be
   a good idea to reset it in this scenario:
 
-      def on_successful_authentification(conn = %Plug.Conn{}, user = %_{}, keywords) do
-        {conn, user, Keyword.put(keywords, :failed_attempts, 0)}
+      def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi, keywords, _config) do
+        {conn, multi, Keyword.put(keywords, :failed_attempts, 0)}
       end
   """
-  @callback on_successful_authentification(conn :: Plug.Conn.t, user :: struct, keywords :: Keyword.t) :: {Plug.Conn.t, struct, Keyword.t}
+  @callback on_successful_authentication(conn :: Plug.Conn.t, user :: Haytni.user, multi :: Ecto.Multi.t, keywords :: Keyword.t, config :: Haytni.config) :: {Plug.Conn.t, Ecto.Multi.t, Keyword.t}
 
   @doc ~S"""
   This callback is invoked when a user is editing its registration and change its email address.
@@ -101,7 +131,7 @@ defmodule Haytni.Plugin do
   This callback is called **before** updating the user but the actions added to *multi* will be
   run **after** its update.
   """
-  @callback on_email_change(multi :: Ecto.Multi.t, changeset :: Ecto.Changeset.t) :: {Ecto.Multi.t, Ecto.Changeset.t}
+  @callback on_email_change(multi :: Ecto.Multi.t, changeset :: Ecto.Changeset.t, module :: module, config :: Haytni.config) :: {Ecto.Multi.t, Ecto.Changeset.t}
 
   @doc ~S"""
   Invoked to accomplish a task right after user's registration (insert). This callback allows you
@@ -114,7 +144,7 @@ defmodule Haytni.Plugin do
 
   The following example illustrate how to send a welcome mail:
 
-      def on_registration(multi = %Ecto.Multi{}) do
+      def on_registration(multi = %Ecto.Multi{}, _module, _config) do
         multi
         |> Ecto.Multi.run(:send_welcome_email, fn _repo, %{user: user} ->
           send_welcome_email_to(user)
@@ -122,25 +152,25 @@ defmodule Haytni.Plugin do
         end)
       end
   """
-  @callback on_registration(multi :: Ecto.Multi.t) :: Ecto.Multi.t
+  @callback on_registration(multi :: Ecto.Multi.t, module :: module, config :: Haytni.config) :: Ecto.Multi.t
 
 if false do
   @callback shared_links(atom :: atom) :: []
 end
 
-  #@callback on_session_start(conn :: Plug.Conn.t, user :: struct) :: Plug.Conn.t
+  #@callback on_session_start(conn :: Plug.Conn.t, user :: Haytni.user) :: Plug.Conn.t
 
   defmacro __using__(_options) do
     quote do
       import unquote(__MODULE__)
       @behaviour unquote(__MODULE__)
 
-      def fields do
+      def fields(_module) do
         quote do
         end
       end
 
-      def routes(_scope, _options) do
+      def routes(_options) do
         quote do
         end
       end
@@ -148,31 +178,37 @@ end
 if false do
       def shared_links(_), do: []
 end
-      def invalid?(_user = %_{}), do: false
-      def find_user(conn = %Plug.Conn{}), do: {conn, nil}
-      def on_failed_authentification(_user = %_{}, keywords), do: keywords
+      # NOTE: return a truthy value by default if options/config is not used at all
+      # by the plugin to avoid to execute the second part of the || operator
+      def build_config(_options), do: true
+      def invalid?(_user = %_{}, _config), do: false
+      def find_user(conn = %Plug.Conn{}, _module, _config), do: {conn, nil}
+      def on_failed_authentication(_user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config), do: {multi, keywords}
       def files_to_install(), do: []
-      def on_logout(conn = %Plug.Conn{}), do: conn
-      def on_registration(multi = %Ecto.Multi{}), do: multi
-      def validate_create_registration(changeset = %Ecto.Changeset{}), do: changeset
-      def validate_update_registration(changeset = %Ecto.Changeset{}), do: changeset
-      def on_email_change(multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}), do: {multi, changeset}
-      def on_successful_authentification(conn = %Plug.Conn{}, user = %_{}, keywords), do: {conn, user, keywords}
+      def on_logout(conn = %Plug.Conn{}, _config), do: conn
+      def on_registration(multi = %Ecto.Multi{}, _module, _config), do: multi
+      def validate_password(changeset = %Ecto.Changeset{}, _config), do: changeset
+      def validate_create_registration(changeset = %Ecto.Changeset{}, _config), do: changeset
+      def validate_update_registration(changeset = %Ecto.Changeset{}, _config), do: changeset
+      def on_email_change(multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}, _module, _config), do: {multi, changeset}
+      def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _config), do: {conn, multi, keywords}
 
       defoverridable [
-        fields: 0,
-        routes: 2,
-        invalid?: 1,
-        find_user: 1,
-        on_logout: 1,
+        build_config: 1,
+        fields: 1,
+        routes: 1,
+        invalid?: 2,
+        find_user: 3,
+        on_logout: 2,
         #shared_links: 1,
-        on_registration: 1,
-        on_email_change: 2,
+        on_registration: 3,
+        on_email_change: 4,
         files_to_install: 0,
-        on_failed_authentification: 2,
-        on_successful_authentification: 3,
-        validate_create_registration: 1,
-        validate_update_registration: 1
+        on_failed_authentication: 5,
+        on_successful_authentication: 5,
+        validate_password: 2,
+        validate_create_registration: 2,
+        validate_update_registration: 2,
       ]
     end
   end

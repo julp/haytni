@@ -2,24 +2,25 @@ defmodule HaytniWeb.Lockable.UnlockController do
   @moduledoc false
 
   use HaytniWeb, :controller
+  use HaytniWeb.Helpers, Haytni.LockablePlugin
   import Haytni.Gettext
 
-  alias Haytni.LockablePlugin
-  alias Haytni.Unlockable.Request
-
-  plug Haytni.ViewAndLayoutPlug, :UnlockView
+  @spec unlock_message() :: String.t
+  def unlock_message do
+    dgettext("haytni", "Your account has been unlocked.")
+  end
 
   # GET /unlock?unlock_token=<token>
   # Process the token to unlock an account (if valid)
-  def show(conn, %{"unlock_token" => unlock_token}) do
-    case LockablePlugin.unlock(unlock_token) do
+  def show(conn, %{"unlock_token" => unlock_token}, module, config) do
+    case Haytni.LockablePlugin.unlock(module, config, unlock_token) do
+      {:ok, _user} ->
+        conn
+        |> HaytniWeb.Shared.next_step_link(session_path(conn, module), dgettext("haytni", "I get it, continue to sign in"))
+        |> HaytniWeb.Shared.render_message(module, unlock_message())
       {:error, message} ->
         conn
-        |> HaytniWeb.Shared.render_message(message, :error)
-      _user = %_{} ->
-        conn
-        |> HaytniWeb.Shared.next_step_link(Haytni.router().session_path(conn, :new), dgettext("haytni", "I get it, continue to sign in"))
-        |> HaytniWeb.Shared.render_message(dgettext("haytni", "Your account has been unlocked."))
+        |> HaytniWeb.Shared.render_message(module, message, :error)
     end
   end
 
@@ -31,24 +32,11 @@ defmodule HaytniWeb.Lockable.UnlockController do
 
   # GET /unlock/new
   # To request a new key to unlock its account to be sent by mail
-  def new(conn, _params) do
+  def new(conn, _params, _module, config) do
     changeset = conn
-    |> HaytniWeb.Shared.add_referer_to_changeset(Request.change_request())
+    |> HaytniWeb.Shared.add_referer_to_changeset(Haytni.LockablePlugin.unlock_request_changeset(config))
     conn
     |> render_new(changeset)
-  end
-
-  # POST /unlock
-  # Handle the request for account unlocking
-  def create(conn, %{"unlock" => unlock_params}) do
-    case Request.create_request(unlock_params) do
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render_new(conn, changeset)
-      {:ok, request} ->
-        request
-        |> LockablePlugin.resend_unlock_instructions()
-        |> handle_unlock_request(conn, request)
-    end
   end
 
   @msgid ~S"""
@@ -56,21 +44,24 @@ defmodule HaytniWeb.Lockable.UnlockController do
 
   You may need to look at the spams folder.
   """
-  defp handle_unlock_request({:ok, _user}, conn, _request) do
-    conn
-    |> HaytniWeb.Shared.render_message(dgettext("haytni", @msgid))
+  @spec new_token_sent_message() :: String.t
+  def new_token_sent_message do
+    dgettext("haytni", @msgid)
   end
 
-  defp handle_unlock_request({:error, :not_locked}, conn, request) do
-    conn
-    |> HaytniWeb.Shared.back_link(request, Haytni.router().session_path(conn, :new))
-    |> HaytniWeb.Shared.render_message(dgettext("haytni", "This account is not currently locked"), :error)
+  # POST /unlock
+  # Handle the request for account unlocking
+  def create(conn, %{"unlock" => unlock_params}, module, config) do
+    case Haytni.LockablePlugin.resend_unlock_instructions(module, config, unlock_params) do
+      {:ok, _user} ->
+        conn
+        |> HaytniWeb.Shared.render_message(module, new_token_sent_message())
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render_new(conn, changeset)
+    end
   end
 
-  defp handle_unlock_request({:error, :no_match}, conn, request) do
-    changeset = request
-    |> Request.change_request()
-    |> Haytni.mark_changeset_keys_as_unmatched(LockablePlugin.unlock_keys())
-    render_new(conn, changeset)
+  defp session_path(conn, module) do
+    module.router().session_path(conn, :new)
   end
 end

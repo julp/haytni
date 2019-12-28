@@ -1,16 +1,28 @@
 defmodule Haytni.Rememberable.OnLogoutTest do
   use HaytniWeb.ConnCase, async: true
 
-  describe "Haytni.Rememberable.on_logout/1 (callback)" do
-    test "ensures rememberme cookie is removed (asked for removal to the client) on logout", %{conn: conn} do
-      conn = conn
-      |> add_rememberme_cookie("azerty")
-      |> Haytni.RememberablePlugin.on_logout()
+  defp do_test(%{conn: conn, config: config}) do
+    conn = conn
+    |> Haytni.RememberablePlugin.add_rememberme_cookie("azerty", config)
+    |> Haytni.RememberablePlugin.on_logout(config)
 
-      remember_cookie = Map.get(conn.resp_cookies, Haytni.RememberablePlugin.remember_cookie_name())
+    assert_cookie_deletion(conn, config.remember_cookie_name)
+  end
 
-      assert %{max_age: 0, universal_time: {{1970, 1, 1}, {0, 0, 0}}} = remember_cookie
-      refute Map.has_key?(remember_cookie, :value)
+  describe "Haytni.RememberablePlugin.on_logout/2 (callback)" do
+    setup do
+      {:ok, config: Haytni.RememberablePlugin.build_config()}
+    end
+
+    test "ensures rememberme cookie is removed (asked for removal to the client) on logout", params do
+      params
+      |> do_test()
+    end
+
+    test "ensures rememberme cookie is removed (asked for removal to the client) on logout even if it was customized", params do
+      params
+      |> update_in(~W[config]a, &(%{&1 | remember_cookie_name: "JSESSIONID"}))
+      |> do_test()
     end
   end
 end

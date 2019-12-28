@@ -8,8 +8,9 @@ defmodule Haytni.DataCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Haytni.DataCase
-      import Haytni.TestHelpers 
+      import unquote(__MODULE__)
+      import Haytni.TestHelpers
+      alias Haytni.TestHelpers.Params
     end
   end
 

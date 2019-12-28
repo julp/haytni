@@ -2,39 +2,27 @@ defmodule HaytniWeb.Registerable.RegistrationController do
   @moduledoc false
 
   use HaytniWeb, :controller
+  use HaytniWeb.Helpers, {Haytni.RegisterablePlugin, :with_current_user}
   import Haytni.Gettext
 
-  alias Haytni.Users
-
-  plug Haytni.ViewAndLayoutPlug, :RegistrationView
-
-  defp add_common_assigns(conn) do
-    min_pwd_len..max_pwd_len = Haytni.RegisterablePlugin.password_length()
+  defp render_new(conn, changeset = %Ecto.Changeset{}) do
     conn
-    |> assign(:minimum_password_length, min_pwd_len)
-    |> assign(:maximum_password_length, max_pwd_len)
-  end
-
-  defp render_new(conn, %Ecto.Changeset{} = changeset) do
-    conn
-    |> add_common_assigns()
     |> assign(:changeset, changeset)
     |> render("new.html")
   end
 
-  defp handle_signed_in!(conn = %Plug.Conn{}) do
+  defp handle_signed_in!(conn) do
     conn
     |> redirect(to: "/")
     |> halt()
   end
 
-  def new(conn, _params) do
-    case conn.assigns[:current_user] do
-      nil ->
-        render_new(conn, Users.change_user())
-      _current_user ->
-        handle_signed_in!(conn)
-    end
+  def new(conn, _params, nil, module, _config) do
+      render_new(conn, Haytni.change_user(module))
+  end
+
+  def new(conn, _params, _current_user, _module, _config) do
+    handle_signed_in!(conn)
   end
 
   @msgid ~S"""
@@ -42,61 +30,66 @@ defmodule HaytniWeb.Registerable.RegistrationController do
 
   Check your spam folder if necessary.
   """
-  def create(conn, %{"registration" => registration_params}) do
-    case conn.assigns[:current_user] do
-      nil ->
-        case Haytni.create_user(registration_params) do
-          {:ok, %{user: user}} ->
-            session_path = Haytni.router().session_path(conn, :new)
-            if Haytni.plugin_enabled?(Haytni.ConfirmablePlugin) do
-              conn
-              |> HaytniWeb.Shared.next_step_link(session_path, dgettext("haytni", "I have confirmed my account, continue to sign in"))
-              |> HaytniWeb.Shared.render_message(dgettext("haytni", @msgid, email: user.email))
-            else
-              conn
-              |> redirect(to: session_path)
-              |> halt()
-            end
-          {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} ->
-            render_new(conn, changeset)
-          # other error case: let it crash
+  @spec account_to_be_confirmed_message(user :: Haytni.user) :: String.t
+  def account_to_be_confirmed_message(user) do
+    dgettext("haytni", @msgid, email: user.email)
+  end
+
+  def create(conn, %{"registration" => registration_params}, nil, module, _config) do
+    case Haytni.create_user(module, registration_params) do
+      {:ok, %{user: user}} ->
+        session_path = module.router().session_path(conn, :new)
+        if Haytni.plugin_enabled?(module, Haytni.ConfirmablePlugin) do
+          conn
+          |> HaytniWeb.Shared.next_step_link(session_path, dgettext("haytni", "I have confirmed my account, continue to sign in"))
+          |> HaytniWeb.Shared.render_message(module, account_to_be_confirmed_message(user))
+        else
+          conn
+          |> redirect(to: session_path)
+          |> halt()
         end
-      _current_user ->
-        handle_signed_in!(conn)
+      {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} ->
+        render_new(conn, changeset)
+      # other error case: let it crash
     end
+  end
+
+  def create(conn, _params, _current_user, _module, _config) do
+    handle_signed_in!(conn)
   end
 
   defp render_edit(conn, %Ecto.Changeset{} = changeset) do
     conn
-    |> add_common_assigns()
     |> assign(:changeset, changeset)
     |> render("edit.html")
   end
 
-  def edit(conn, _params) do
-    case conn.assigns[:current_user] do
-      nil ->
-        handle_signed_in!(conn)
-      current_user ->
-        conn
-        |> render_edit(Users.change_user(current_user))
-    end
+  def edit(conn, _params, nil, _module, _config) do
+    handle_signed_in!(conn)
   end
 
-  def update(conn, %{"registration" => registration_params}) do
-    case conn.assigns[:current_user] do
-      nil ->
-        handle_signed_in!(conn)
-      current_user ->
-        case Haytni.update_registration(current_user, registration_params) do
-          {:ok, %{user: current_user}} ->
-            conn
-            |> put_flash(:info, dgettext("haytni", "Informations have been updated"))
-            |> render_edit(Users.change_user(current_user))
-          {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} ->
-            render_edit(conn, changeset)
-          # other error case: let it crash
-        end
+  def edit(conn, _params, current_user, module, _config) do
+    render_edit(conn, Haytni.change_user(module, current_user))
+  end
+
+  @spec successful_edition_message() :: String.t
+  def successful_edition_message do
+    dgettext("haytni", "Informations have been updated")
+  end
+
+  def update(conn, _params, nil, _module, _config) do
+    handle_signed_in!(conn)
+  end
+
+  def update(conn, %{"registration" => registration_params}, current_user, module, _config) do
+    case Haytni.update_registration(module, current_user, registration_params) do
+      {:ok, %{user: _current_user}} ->
+        conn
+        |> put_flash(:info, successful_edition_message())
+        |> render_edit(Haytni.change_user(module, current_user))
+      {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} ->
+        render_edit(conn, changeset)
+      # other error case: let it crash
     end
   end
 end

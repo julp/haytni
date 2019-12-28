@@ -6,57 +6,10 @@ defmodule Haytni do
   @application :haytni
 
   @type user :: struct
+  @type config :: any
+  @type duration :: pos_integer | {pos_integer, :second | :minute | :hour | :day | :week | :month | :year}
 
-  @doc ~S"""
-  Convert a duration of the form `{number, unit}` to seconds.
-
-  *unit* can be one of the following:
-  - :second
-  - :minute
-  - :hour
-  - :day
-  - :week
-  - :month
-  - :year
-  """
-  def duration(count)
-    when is_number(count)
-  do
-    count
-  end
-
-  def duration({count, :second}) do
-    count
-  end
-
-  def duration({count, :minute}) do
-    count * 60
-  end
-
-  def duration({count, :hour}) do
-    count * 60 * 60
-  end
-
-  def duration({count, :day}) do
-    count * 24 * 60 * 60
-  end
-
-  def duration({count, :week}) do
-    count * 7 * 24 * 60 * 60
-  end
-
-  def duration({count, :month}) do
-    count * 30 * 24 * 60 * 60
-  end
-
-  def duration({count, :year}) do
-    count * 365 * 24 * 60 * 60
-  end
-
-  defp otp_app do
-    Application.fetch_env!(@application, :otp_app)
-  end
-
+  @spec app_base(atom | module) :: String.t
   defp app_base(app) do
     case Application.get_env(app, :namespace, app) do
       ^app ->
@@ -69,87 +22,190 @@ defmodule Haytni do
     end
   end
 
-  def web_module do
-    otp_app()
-    |> app_base()
-    |> Kernel.<>("Web")
-  end
-
-  @spec router() :: module
-  def router do
-    Module.concat([Haytni.web_module(), :Router, :Helpers])
-  end
-
-  @spec endpoint() :: module
-  def endpoint do
-    Module.concat([Haytni.web_module(), :Endpoint])
-  end
-
-  def fetch_env!(key) do
+  defp fetch_env!(key) do
     Application.fetch_env!(@application, key)
   end
 
-  def fetch_config(key, default \\ nil) do
-    case Application.get_env(@application, key, default) do
-      {:system, variable} ->
-        System.get_env(variable)
-      value ->
-        value
+  defmacro __using__(options) do
+    otp_app = Keyword.fetch!(options, :otp_app)
+
+    web_module = otp_app
+    |> app_base()
+    |> Kernel.<>("Web")
+    |> String.to_atom()
+
+    quote do
+      import unquote(__MODULE__)
+
+      Module.register_attribute(__MODULE__, :plugins, accumulate: true)
+
+      @before_compile unquote(__MODULE__)
+
+      @spec otp_app() :: atom
+      def otp_app do
+        unquote(otp_app)
+      end
+
+      @spec web_module() :: atom
+      def web_module do
+        unquote(web_module)
+      end
+
+      @spec router() :: module
+      def router do
+        unquote(Module.concat([web_module, :Router, :Helpers]))
+      end
+
+      @spec endpoint() :: module
+      def endpoint do
+        unquote(Module.concat([web_module, :Endpoint]))
+      end
+
+      @spec schema() :: module
+      def schema do
+        unquote(fetch_env!(__CALLER__.module)[:schema])
+      end
+
+      @spec schema() :: module
+      def repo do
+        unquote(fetch_env!(__CALLER__.module)[:repo])
+      end
+
+      @spec mailer() :: module
+      def mailer do
+        unquote(fetch_env!(__CALLER__.module)[:mailer])
+      end
+
+      @spec layout() :: false | {module, atom}
+      def layout do
+        unquote(Keyword.get(fetch_env!(__CALLER__.module), :layout, false))
+      end
+
+      @spec scope() :: atom
+      def scope do
+        unquote(Keyword.get(fetch_env!(__CALLER__.module), :scope, :user))
+      end
+
+      def init(options), do: options
+
+      def call(conn, _options) do
+        scope = :"current_#{scope()}"
+        if Map.get(conn.assigns, scope) do
+          conn
+        else
+          {conn, user} = Haytni.find_user(__MODULE__, conn)
+          Plug.Conn.assign(conn, scope, user)
+        end
+        |> Plug.Conn.put_private(:haytni, __MODULE__)
+      end
+
+      defmacro routes(options \\ []) do
+        unquote(__MODULE__).routes(__MODULE__, options)
+      end
+
+      defmacro fields do
+        unquote(__MODULE__).fields(__MODULE__)
+      end
+
+      #def plugin_enabled?(module) do
+      #def create_user(attrs = %{}, options \\ []) do
+      #def update_registration(user = %_{}, attrs = %{}, options \\ []) do
+      #def authentication_failed(user = nil) do
+      #def authentication_failed(user = %_{}) do
+      #def update_user_with(user = %_{}, changes) do
+      #def update_user_with!(user = %_{}, changes) do
+
+      def validate_create_registration(changeset) do
+        unquote(__MODULE__).validate_create_registration(__MODULE__, changeset)
+      end
+
+      def validate_update_registration(changeset) do
+        unquote(__MODULE__).validate_update_registration(__MODULE__, changeset)
+      end
     end
   end
 
-  use Haytni.Config, [
-    layout: false,
-    plugins: [
-      Haytni.AuthenticablePlugin,
-      Haytni.RegisterablePlugin,
-      Haytni.RememberablePlugin,
-      Haytni.ConfirmablePlugin,
-      Haytni.LockablePlugin,
-      Haytni.RecoverablePlugin,
-    ]
-  ]
+  defmacro stack(module, options \\ []) do
+    quote do
+      Module.put_attribute(__MODULE__, :plugins, {unquote(module), unquote(Macro.escape(options))})
+    end
+  end
 
-  @spec plugin_enabled?(module :: module) :: boolean
-  def plugin_enabled?(module) do
-    module in plugins()
+  @doc false
+  defmacro __before_compile__(env) do
+    plugins_with_config = Module.get_attribute(env.module, :plugins)
+    |> Enum.map(
+      fn {plugin, options} ->
+        {plugin, Macro.escape(plugin.build_config(options))}
+      end
+    )
+
+    defs = plugins_with_config
+    |> Enum.map(
+      fn {plugin, config} ->
+        quote do
+          def fetch_config(unquote(plugin)) do
+            unquote(config)
+          end
+        end
+      end
+    )
+    quote do
+      # an "idea" to replace module + config arguments?
+      @spec __config__() :: %{
+        #required(:router) => module,
+        required(:mailer) => module,
+        #required(:web_module) => module,
+        required(:repo) => module,
+        required(:schema) => module,
+        #required(:opt_app) => atom,
+        required(:self) => module,
+        required(:layout) => any,
+        required(:plugins) => [module],
+      }
+      def __config__ do
+        %{
+          layout: false,
+          self: __MODULE__,
+          #otp_app: unquote(otp_app),
+          #web_module: unquote(web_module),
+          repo: unquote(fetch_env!(__CALLER__.module)[:repo]),
+          mailer: unquote(fetch_env!(__CALLER__.module)[:mailer]),
+          schema: unquote(fetch_env!(__CALLER__.module)[:schema]),
+          #router: unquote(Module.concat([web_module, :Router, :Helpers])),
+          plugins: unquote(Enum.map(plugins_with_config, &(elem(&1, 0)))),
+        }
+      end
+
+      @spec fetch_config(plugin :: module) :: any
+      unquote(defs)
+
+      @spec plugins() :: [module]
+      def plugins do
+        unquote(Enum.map(plugins_with_config, &(elem(&1, 0))))
+      end
+
+      @spec plugins_with_config() :: Keyword.t
+      def plugins_with_config do
+        unquote(plugins_with_config)
+      end
+    end
   end
 
   @doc ~S"""
-  Returns the mailer from application's configuration
-
-      config :your_app, :haytni,
-        mailer: YourApp.Mailer
+  Returns `true` if *plugin* is enabled in the *module* Haytni stack.
   """
-  def mailer do
-    fetch_env!(:mailer)
+  @spec plugin_enabled?(module :: module, plugin :: module) :: boolean
+  def plugin_enabled?(module, plugin) do
+    plugin in module.plugins()
   end
 
-  @doc ~S"""
-  Returns the user's schema from application's configuration
-
-      config :your_app, :haytni,
-        schema: YourApp.User
-  """
-  def schema do
-    fetch_env!(:schema)
-  end
-
-  @doc ~S"""
-  Returns the repo (implements Ecto.Repo) from application's configuration
-
-      config :your_app, :haytni,
-        schema: YourApp.Repo
-  """
-  def repo do
-    fetch_env!(:repo)
-  end
-
-  # Returns the first non-falsy (`nil` in particular) resulting of calling *fun* for each element of *list* or *default* if all elements of *list* returned a falsy value.
+  # Returns the first non-falsy (`nil` in particular) resulting of calling *fun/2* for each element of *list* or *default* if all elements of (keyword) *list* returned a falsy value.
+  @spec map_while(list :: Keyword.t, default :: any, fun :: (atom, any -> any)) :: any
   defp map_while(list, default, fun) do
     try do
-      for el <- list do
-        v = fun.(el)
+      for {k, v} <- list do
+        v = fun.(k, v)
         if v do
           throw v
         end
@@ -163,32 +219,49 @@ defmodule Haytni do
     end
   end
 
-  defp find_user([hd | tl], conn) do
-    result = {conn, user} = hd.find_user(conn)
+  defp find_user([{plugin, config} | tl], conn, module) do
+    result = {conn, user} = plugin.find_user(conn, module, config)
     if user do
       result
     else
-      find_user(tl, conn)
+      find_user(tl, conn, module)
     end
   end
 
-  defp find_user([], conn) do
+  defp find_user([], conn, _module) do
     {conn, nil}
   end
 
   @doc ~S"""
   Used by plug to extract the current user (if any) from the HTTP
-  request (meaning from headers, cookies or session)
+  request (meaning from headers, cookies, etc)
   """
-  @spec find_user(conn :: Plug.Conn.t) :: {Plug.Conn.t, Haytni.user | nil}
-  def find_user(conn = %Plug.Conn{}) do
-    result = {conn, user} = find_user(plugins(), conn)
+  @spec find_user(module :: module, conn :: Plug.Conn.t) :: {Plug.Conn.t, Haytni.user | nil}
+  def find_user(module, conn = %Plug.Conn{}) do
+    scope = :"#{module.scope()}_id"
+    {conn, user, from_session?} = case Plug.Conn.get_session(conn, scope) do
+      nil ->
+        find_user(module.plugins_with_config(), conn, module)
+        |> Tuple.append(false)
+      id ->
+        {conn, get_user(module, id), true}
+    end
     if user do
-      case map_while(plugins(), false, &(&1.invalid?(user))) do
+      module.plugins_with_config()
+      |> map_while(false, &(&1.invalid?(user, &2)))
+      |> case do
         {:error, _error} ->
           {conn, nil}
         false ->
-          result
+          if from_session? do
+            {conn, user}
+          else
+            {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user)
+            conn = conn
+            |> Plug.Conn.put_session(scope, user.id)
+            |> Plug.Conn.configure_session(renew: true)
+            {conn, user}
+          end
       end
     else
       {conn, nil}
@@ -209,9 +282,9 @@ defmodule Haytni do
 
   See `Ecto.Repo.insert/3` for *options*.
   """
-  @spec create_user(attrs :: map, options :: Keyword.t) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
-  def create_user(attrs = %{}, options \\ []) do
-    schema = schema()
+  @spec create_user(module :: module, attrs :: map, options :: Keyword.t) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
+  def create_user(module, attrs = %{}, options \\ []) do
+    schema = module.schema()
     changeset = schema
     |> struct()
     |> schema.create_registration_changeset(attrs)
@@ -219,13 +292,37 @@ defmodule Haytni do
     multi = Ecto.Multi.new()
     |> Ecto.Multi.insert(:user, changeset, options)
 
-    plugins()
-    |> Enum.reduce(multi, fn module, multi_as_acc -> module.on_registration(multi_as_acc) end)
-    |> repo().transaction()
+    module.plugins_with_config()
+    |> Enum.reduce(
+      multi,
+      fn {plugin, config}, multi_as_acc ->
+        plugin.on_registration(multi_as_acc, module, config)
+      end
+    )
+    |> module.repo().transaction()
   end
 
-  @spec handle_email_change(multi :: Ecto.Multi.t, changeset :: Ecto.Changeset.t) :: {Ecto.Multi.t, Ecto.Changeset.t}
-  defp handle_email_change(multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{changes: %{email: new_email}}) do
+  @doc ~S"""
+  Runs any custom password validations from the plugins (via their `validate_password/2` callback) of the *module* Haytni
+  stack. An `%Ecto.Changeset{}` is returned with the potential validation errors added by the plugins.
+
+  Do **NOT** call it from your own changeset/2 functions, it will be internally called when needed (by
+  `validate_create_registration/2` and `validate_update_registration/2` - among others). This function
+  is not intended to be used by end user.
+  """
+  @spec validate_password(module :: module, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
+  def validate_password(module, changeset) do
+    module.plugins_with_config()
+    |> Enum.reduce(
+      changeset,
+      fn {plugin, config}, changeset = %Ecto.Changeset{} ->
+          plugin.validate_password(changeset, config)
+      end
+    )
+  end
+
+  @spec handle_email_change(module :: module, multi :: Ecto.Multi.t, changeset :: Ecto.Changeset.t) :: {Ecto.Multi.t, Ecto.Changeset.t}
+  defp handle_email_change(module, multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{changes: %{email: new_email}}) do
     multi = multi
     |> Ecto.Multi.run(:new_email, fn _repo, %{} ->
       {:ok, new_email}
@@ -233,116 +330,164 @@ defmodule Haytni do
     |> Ecto.Multi.run(:old_email, fn _repo, %{} ->
       {:ok, changeset.data.email}
     end)
-    plugins()
-    |> Enum.reduce({multi, changeset}, fn module, {multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}} -> module.on_email_change(multi, changeset) end)
+    module.plugins_with_config()
+    |> Enum.reduce(
+      {multi, changeset},
+      fn {plugin, config}, {multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}} ->
+          plugin.on_email_change(multi, changeset, module, config)
+      end
+    )
   end
 
-  defp handle_email_change(multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}), do: {multi, changeset}
+  defp handle_email_change(_module, multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}), do: {multi, changeset}
+
+  @spec handle_password_change(module :: module, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
+  defp handle_password_change(module, changeset = %Ecto.Changeset{changes: %{password: _}}) do
+    validate_password(module, changeset)
+  end
+
+  defp handle_password_change(_module, changeset = %Ecto.Changeset{}), do: changeset
 
   @doc ~S"""
   Update user's registration, its own registration.
 
   Works exactly as `create_user`. The only difference is the additionnal parameter: the user to update as first one.
 
-  NOTE: the callbacks of `Ecto.Multi.run` added to the multi by the `on_email_change/2` callback will receive from the
+  NOTE: the callbacks of `Ecto.Multi.run` added to the multi by the `on_email_change/4` callback will receive from the
   `Map` they get as their (single) argument the following predefined elements:
 
     * the updated user as the `:user` key
     * the previous email as `:old_email`
     * `:new_email`: the new email
   """
-  @spec update_registration(user :: Haytni.user, attrs :: map, options :: Keyword.t) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
-  def update_registration(user = %_{}, attrs = %{}, options \\ []) do
+  @spec update_registration(module :: module, user :: Haytni.user, attrs :: map, options :: Keyword.t) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
+  def update_registration(module, user = %_{}, attrs = %{}, options \\ []) do
     changeset = user
-    |> schema().update_registration_changeset(attrs)
-    {multi = %Ecto.Multi{}, changes} = Ecto.Multi.new()
-    |> handle_email_change(changeset)
-    # update changeset with changes returned from plugins
-    changeset = Ecto.Changeset.change(changes)
+    |> module.schema().update_registration_changeset(attrs)
+    changeset = handle_password_change(module, changeset) # TODO: better to be done in RegisterablePlugin.validate_(update|create)_registration?
+    {multi = %Ecto.Multi{}, changeset} = handle_email_change(module, Ecto.Multi.new(), changeset) # TODO: better to be done in RegisterablePlugin.validate_(update|create)_registration?
     # create a multi to update user and merge into it the multi from plugins then execute it
     Ecto.Multi.new()
     |> Ecto.Multi.update(:user, changeset, options)
     |> Ecto.Multi.append(multi)
-    |> repo().transaction()
+    |> module.repo().transaction()
   end
 
   @doc ~S"""
   Injects the necessary routes for enabled plugins into your Router
+
+  Note that this function is invoked at compile time: you'll need to recompile your application
+  to reflect any change in your router.
   """
-  defmacro routes(options \\ []) do
-    scope = Keyword.get(options, :scope, :user)
-    plugins()
-    |> Enum.map(&(&1.routes(scope, options)))
+  def routes(module, options \\ []) do
+    module.plugins()
+    |> Enum.map(&(&1.routes(options)))
   end
 
   @doc ~S"""
   Injects `Ecto.Schema.field`s necessary to enabled plugins into your User schema
+
+  Note that this function is invoked at compile time: you'll need to recompile your application
+  to reflect any change related to fields injected in your user schema.
   """
-  defmacro fields do
-    plugins()
-    |> Enum.map(&(&1.fields()))
+  def fields(module) do
+    module.plugins()
+    |> Enum.map(&(&1.fields(module)))
   end
 
   @doc ~S"""
   Notifies plugins that current user is going to be logged out
   """
-  @spec logout(conn :: Plug.Conn.t) :: Plug.Conn.t
-  def logout(conn = %Plug.Conn{}) do
-    plugins()
+  @spec logout(conn :: Plug.Conn.t, module :: module, options :: Keyword.t) :: Plug.Conn.t
+  def logout(conn = %Plug.Conn{}, module, options \\ []) do
+    conn = module.plugins_with_config()
     |> Enum.reverse()
-    |> Enum.reduce(conn, fn module, conn -> module.on_logout(conn) end)
+    |> Enum.reduce(conn, fn {plugin, config}, conn -> plugin.on_logout(conn, config) end)
+
+    case Keyword.get(options, :scope) do
+      :all ->
+        Plug.Conn.configure_session(conn, drop: true)
+      _ ->
+        Plug.Conn.delete_session(conn, :"#{module.scope()}_id")
+    end
+  end
+
+  @spec on_successful_authentication(module :: module, conn :: Plug.Conn.t, user :: Haytni.user) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
+  defp on_successful_authentication(module, conn, user) do
+    {conn, multi, changes} = module.plugins_with_config()
+    |> Enum.reduce(
+      {conn, Ecto.Multi.new(), Keyword.new()},
+      fn {plugin, config}, {conn, multi, changes} ->
+        plugin.on_successful_authentication(conn, user, multi, changes, config)
+      end
+    )
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:conn, fn _repo, %{} -> {:ok, conn} end)
+    |> Ecto.Multi.update(:user, Ecto.Changeset.change(user, changes))
+    |> Ecto.Multi.append(multi)
+    |> module.repo().transaction()
   end
 
   @doc ~S"""
   To be called on (manual) login
   """
-  @spec login(conn :: Plug.Conn.t, user :: Haytni.user) :: {:ok, Plug.Conn.t} | {:error, String.t}
-  def login(conn = %Plug.Conn{}, user = %_{}) do
-    case map_while(plugins(), false, &(&1.invalid?(user))) do
+  @spec login(conn :: Plug.Conn.t, module :: module, user :: Haytni.user) :: {:ok, Plug.Conn.t} | {:error, String.t}
+  def login(conn = %Plug.Conn{}, module, user = %_{}) do
+    module.plugins_with_config()
+    |> map_while(false, &(&1.invalid?(user, &2)))
+    |> case do
       error = {:error, _message} ->
         error
       false ->
-        {conn, _user, keyword} = plugins()
-        |> Enum.reduce({conn, user, Keyword.new()}, fn module, {conn, user, keyword} -> module.on_successful_authentification(conn, user, keyword) end)
-        update_user_with!(user, keyword)
-        {:ok, Plug.Conn.assign(conn, :current_user, user)}
+        {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user)
+        {:ok, Plug.Conn.assign(conn, :"current_#{module.scope()}", user)}
     end
   end
 
   @doc ~S"""
-  Notifies plugins that the authentification failed for *user*.
+  Notifies plugins that the authentication failed for *user*.
 
   If *user* is `nil`, nothing is done.
   """
-  @spec authentification_failed(user :: Haytni.user | nil) :: nil
-  def authentification_failed(user = nil) do
+  @spec authentication_failed(module :: module, user :: Haytni.user | nil) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
+  def authentication_failed(_module, user = nil) do
     # NOP, for convenience
-    user
+    {:ok, %{user: user}}
   end
 
-  def authentification_failed(user = %_{}) do
-    changes = plugins()
-    |> Enum.reduce(Keyword.new(), fn plugin, keywords -> plugin.on_failed_authentification(user, keywords) end)
-    update_user_with!(user, changes)
+  def authentication_failed(module, user = %_{}) do
+    {multi, changes} = module.plugins_with_config()
+    |> Enum.reduce(
+      {Ecto.Multi.new(), Keyword.new()},
+      fn {plugin, config}, {multi, keywords} ->
+        plugin.on_failed_authentication(user, multi, keywords, module, config)
+      end
+    )
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.update(:user, Ecto.Changeset.change(user, changes))
+    |> Ecto.Multi.append(multi)
+    |> module.repo().transaction()
   end
 
   @doc ~S"""
   This function is a callback to be called from your `User.create_registration_changeset/2` so validations
   and others internal tasks can be done by plugins at user's registration.
   """
-  @spec validate_create_registration(changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
-  def validate_create_registration(changeset = %Ecto.Changeset{}) do
-    plugins()
-    |> Enum.reduce(changeset, fn module, changeset -> module.validate_create_registration(changeset) end)
+  @spec validate_create_registration(module :: module, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
+  def validate_create_registration(module, changeset = %Ecto.Changeset{}) do
+    module.plugins_with_config()
+    |> Enum.reduce(changeset, fn {plugin, config}, changeset -> plugin.validate_create_registration(changeset, config) end)
   end
 
   @doc ~S"""
   Same than `validate_update_registration/2` but at registration's edition.
   """
-  @spec validate_update_registration(changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
-  def validate_update_registration(changeset = %Ecto.Changeset{}) do
-    plugins()
-    |> Enum.reduce(changeset, fn module, changeset -> module.validate_update_registration(changeset) end)
+  @spec validate_update_registration(module :: module, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
+  def validate_update_registration(module, changeset = %Ecto.Changeset{}) do
+    module.plugins_with_config()
+    |> Enum.reduce(changeset, fn {plugin, config}, changeset -> plugin.validate_update_registration(changeset, config) end)
   end
 
   defp user_and_changes_to_changeset(user, changes) do
@@ -357,43 +502,80 @@ defmodule Haytni do
 
   NOTE: for internal use, there isn't any validation. Do **NOT** inject values from controller's *params*!
   """
-  @spec update_user_with(user :: Haytni.user, changes :: Keyword.t) :: {:ok, Haytni.user} | {:error, Ecto.Changeset.t}
-  def update_user_with(user = %_{}, changes) do
+  @spec update_user_with(module :: module, user :: Haytni.user, changes :: Keyword.t) :: {:ok, Haytni.user} | {:error, Ecto.Changeset.t}
+  def update_user_with(module, user = %_{}, changes) do
     user_and_changes_to_changeset(user, changes)
-    |> Haytni.repo().update()
+    |> module.repo().update()
   end
 
   @doc ~S"""
   Same as `update_user_with/2` but returns the updated *user* struct or raises if *changes* are invalid.
   """
-  @spec update_user_with!(user :: Haytni.user, changes :: Keyword.t) :: Haytni.user | no_return
-  def update_user_with!(user = %_{}, changes) do
+  @spec update_user_with!(module :: module, user :: Haytni.user, changes :: Keyword.t) :: Haytni.user | no_return
+  def update_user_with!(module, user = %_{}, changes) do
     user_and_changes_to_changeset(user, changes)
-    |> Haytni.repo().update!()
+    |> module.repo().update!()
   end
 
   @doc ~S"""
-  Helper for plugins to associate a mismatch error to fields given as *keys* of *changeset*.
+  Fetches a user from the *Ecto.Repo* specified in `config :haytni, YourApp.Haytni` as `repo` subkey via the
+  attributes specified by *clauses* as a map or a keyword-list.
 
-  Returns an `Ecto.Changeset.t` with proper errors set.
+  Returns `nil` if no user matches.
+
+  Example:
+
+      hulk = Haytni.get_user_by(YourApp.Haytni, first_name: "Robert", last_name: "Banner")
   """
-  @spec mark_changeset_keys_as_unmatched(changeset :: Ecto.Changeset.t, keys :: [atom]) :: Ecto.Changeset.t
-  def mark_changeset_keys_as_unmatched(changeset = %Ecto.Changeset{}, keys) do
-    import Haytni.Gettext
-
-    Enum.reduce(keys, changeset, fn field, changeset_as_acc ->
-      Ecto.Changeset.add_error(changeset_as_acc, field, dgettext("haytni", "doesn't match to any account"))
-    end)
-    |> Map.put(:action, :insert)
+  @spec get_user_by(module :: module, clauses :: Keyword.t | map) :: Haytni.user | nil
+  def get_user_by(module, clauses) do
+    module.repo().get_by(module.schema(), clauses)
   end
 
   @doc ~S"""
-  Helper to return the current UTC datetime as expected by `:utc_datetime` type of Ecto
-  (meaning a %DateTime{} without microseconds).
+  Fetchs a user from its id.
+
+  Returns `nil` if no user matches.
+
+  Example:
+
+      case Haytni.get_user_by(YourApp.Haytni, params["id"]) do
+        nil ->
+          # not found
+        user = %User{} ->
+          # do something of user
+      end
   """
-  @spec now() :: DateTime.t
-  def now do
-    DateTime.utc_now()
-    |> DateTime.truncate(:second)
+  @spec get_user(module :: module, id :: any) :: Haytni.user | nil
+  def get_user(module, id) do
+    module.repo().get(module.schema(), id)
+  end
+
+  @doc ~S"""
+  Creates an `%Ecto.Changeset{}` for a new user/account (registration)
+  """
+  @spec change_user(module :: module) :: Ecto.Changeset.t
+  def change_user(module) do
+    user = module.schema()
+    |> struct()
+    change_user(module, user)
+  end
+
+  @doc ~S"""
+  Creates an `%Ecto.Changeset{}` from a user (editing account)
+  """
+  @spec change_user(module :: module, user :: Haytni.user) :: Ecto.Changeset.t
+  def change_user(module, user) do
+    module.schema().changeset(user, %{})
+  end
+
+  @doc ~S"""
+  Extracts an Haytni stack (module) from a Plug connection
+
+  Raises if no Haytni's stack was defined (through the router).
+  """
+  @spec fetch_module_from_conn!(conn :: Plug.Conn.t) :: module
+  def fetch_module_from_conn!(conn = %Plug.Conn{}) do
+    Map.fetch!(conn.private, :haytni)
   end
 end

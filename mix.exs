@@ -1,11 +1,14 @@
 defmodule Haytni.MixProject do
   use Mix.Project
 
+  defp elixirc_paths(:test), do: ~W[lib test/support]
+  defp elixirc_paths(_), do: ~W[lib]
+
   def project do
     [
       app: :haytni,
       docs: docs(),
-      version: "0.0.2",
+      version: "0.6.0",
       elixir: "~> 1.9",
       compilers: ~W[phoenix gettext]a ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -14,6 +17,7 @@ defmodule Haytni.MixProject do
       deps: deps(),
       name: "Haytni",
       source_url: "https://github.com/julp/haytni",
+      elixirc_paths: elixirc_paths(Mix.env()),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
@@ -90,8 +94,6 @@ defmodule Haytni.MixProject do
       #Haytni.Plugin
       #Haytni.Gettext
       #Haytni.Token
-      #Haytni.Users
-      #HaytniWeb.Shared
       Plugins: [
         Haytni.AuthenticablePlugin,
         Haytni.ConfirmablePlugin,
@@ -99,36 +101,50 @@ defmodule Haytni.MixProject do
         Haytni.RecoverablePlugin,
         Haytni.RegisterablePlugin,
         Haytni.RememberablePlugin,
-      ],
-      Plugs: [
-        Haytni.CurrentUserPlug,
-        Haytni.ViewAndLayoutPlug,
+        Haytni.TrackablePlugin,
+        Haytni.PasswordPolicyPlugin,
       ],
       Authenticable: [
         Haytni.AuthenticablePlugin,
-        Haytni.Session,
+        Haytni.AuthenticablePlugin.Config,
       ],
       Confirmable: [
         Haytni.ConfirmablePlugin,
+        Haytni.ConfirmablePlugin.Config,
         Haytni.ConfirmableEmail,
-        Haytni.Confirmation,
       ],
       Lockable: [
         Haytni.LockablePlugin,
+        Haytni.LockablePlugin.Config,
         Haytni.LockableEmail,
-        Haytni.Unlockable.Request,
       ],
       Recoverable: [
         Haytni.RecoverablePlugin,
+        Haytni.RecoverablePlugin.Config,
         Haytni.Recoverable.PasswordChange,
-        Haytni.Recoverable.ResetRequest,
         Haytni.RecoverableEmail,
       ],
       Registerable: [
         Haytni.RegisterablePlugin,
+        Haytni.RegisterablePlugin.Config,
+      ],
+      PasswordPolicy: [
+        Haytni.PasswordPolicyPlugin,
+        Haytni.PasswordPolicyPlugin.Class,
+        Haytni.PasswordPolicyPlugin.Config,
       ],
       Rememberable: [
         Haytni.RememberablePlugin,
+        Haytni.RememberablePlugin.Config,
+      ],
+      Trackable: [
+        Haytni.TrackablePlugin,
+        Haytni.TrackablePlugin.Config,
+      ],
+      Helpers: [
+        Haytni.Helpers,
+        HaytniWeb.Helpers,
+        HaytniWeb.Shared,
       ],
     ]
   end

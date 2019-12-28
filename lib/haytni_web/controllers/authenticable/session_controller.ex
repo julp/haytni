@@ -2,10 +2,7 @@ defmodule HaytniWeb.Authenticable.SessionController do
   @moduledoc false
 
   use HaytniWeb, :controller
-
-  alias Haytni.Session
-
-  plug Haytni.ViewAndLayoutPlug, :SessionView
+  use HaytniWeb.Helpers, Haytni.AuthenticablePlugin
 
   defp redirect(conn) do
     conn
@@ -19,33 +16,24 @@ defmodule HaytniWeb.Authenticable.SessionController do
     |> render("new.html")
   end
 
-  def new(conn, _params) do
-    render_new(conn, Session.change_session())
+  def new(conn, _params, _module, config) do
+    render_new(conn, Haytni.AuthenticablePlugin.session_changeset(config))
   end
 
-  def create(conn, %{"session" => session_params}) do
-    case Session.create_session(session_params) do
-      {:ok, session} ->
-        case Haytni.AuthenticablePlugin.authentificate(conn, session) do
-          {:ok, conn} ->
-            conn
-            |> put_session(:user_id, conn.assigns.current_user.id)
-            |> configure_session(renew: true)
-            |> redirect()
-          {:error, message} ->
-            conn
-            |> put_flash(:error, message)
-            |> render_new(Session.change_session(session))
-        end
-      {:error, changeset} ->
-        render_new(conn, changeset)
+  def create(conn, %{"session" => session_params}, module, config) do
+    case Haytni.AuthenticablePlugin.authenticate(conn, module, config, session_params) do
+      {:ok, conn} ->
+        conn
+        |> redirect()
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> render_new(changeset)
     end
   end
 
-  def delete(conn, _params) do
+  def delete(conn, _params, module, _config) do
     conn
-    |> Haytni.logout()
-    |> configure_session(drop: true)
+    |> Haytni.logout(module)
     |> redirect()
   end
 end

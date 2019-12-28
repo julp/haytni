@@ -1,7 +1,7 @@
 defmodule Haytni.LockablePlugin do
   @moduledoc ~S"""
   This plugin locks an account after a specified number of failed sign-in attempts. User can unlock its account via email
-  or after a specified time period.
+  and/or after a specified time period.
 
   Fields:
 
@@ -22,35 +22,57 @@ defmodule Haytni.LockablePlugin do
       + `:both`: enables both strategies
       + `:none`: no unlock strategy. You should handle unlocking by yourself.
 
+            config :haytni, Haytni.LockablePlugin,
+              maximum_attempts: 20,
+              unlock_in: {1, :hour},
+              unlock_strategy: :both,
+              unlock_keys: ~W[email]a,
+              unlock_token_length: 32
+
   Routes:
 
     * `unlock_path` (actions: new/create, show)
   """
 
-  @typep unlock_strategy :: :both | :email | :time | :none
-
-  #import Plug.Conn
   import Haytni.Gettext
 
+  defmodule Config do
+    defstruct maximum_attempts: 20, unlock_in: {1, :hour}, unlock_strategy: :both, unlock_keys: ~W[email]a, unlock_token_length: 32
+
+    @type unlock_strategy :: :both | :email | :time | :none
+
+    @type t :: %__MODULE__{
+      maximum_attempts: pos_integer,
+      unlock_in: Haytni.duration,
+      unlock_strategy: unlock_strategy,
+      unlock_keys: [atom],
+      unlock_token_length: pos_integer,
+    }
+
+    @doc ~S"""
+    Returns all available strategies (all possible values for *unlock_strategy* parameter)
+    """
+    @spec available_strategies() :: [unlock_strategy]
+    def available_strategies do
+      ~W[both email none time]a
+    end
+
+    @doc ~S"""
+    Returns strategies involving sending emails
+    """
+    @spec email_strategies() :: [unlock_strategy]
+    def email_strategies do
+      ~W[both email]a
+    end
+  end
+
   use Haytni.Plugin
-  use Haytni.Config, [
-    maximum_attempts: 20,
-    unlock_in: {1, :hour},
-    unlock_strategy: :both,
-    unlock_keys: ~W[email]a,
-    unlock_token_length: 32
-  ]
 
-if false do
-  # TODO: for use in tests instead to be repeated and hardcoded
-  def available_strategies do
-    ~W[both email none time]a
+  @impl Haytni.Plugin
+  def build_config(options \\ %{}) do
+    %Haytni.LockablePlugin.Config{}
+    |> Haytni.Helpers.merge_config(options, ~W[unlock_in]a)
   end
-
-  def email_strategies do
-    ~W[both email]a
-  end
-end
 
   @impl Haytni.Plugin
   def files_to_install do
@@ -64,12 +86,12 @@ end
       {:eex, "templates/email/lockable/unlock_instructions.text.eex", Path.join([web_path(), "templates", "haytni", "email", "lockable", "unlock_instructions.text.eex"])},
       {:eex, "templates/email/lockable/unlock_instructions.html.eex", Path.join([web_path(), "templates", "haytni", "email", "lockable", "unlock_instructions.html.eex"])},
       # migration
-      {:eex, "migrations/lockable_changes.ex", Path.join([web_path(), "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_lockable_changes.ex"])} # TODO: less "hacky"
+      {:eex, "migrations/0-lockable_changes.ex", Path.join([web_path(), "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_lockable_changes.ex"])}, # TODO: less "hacky"
     ]
   end
 
   @impl Haytni.Plugin
-  def fields do
+  def fields(_module) do
     quote do
       field :failed_attempts, :integer, default: 0
       field :locked_at, :utc_datetime, default: nil # NULLABLE
@@ -78,67 +100,78 @@ end
   end
 
   @impl Haytni.Plugin
-  def routes(_scope, _options) do
+  def routes(_options) do
     quote do
       resources "/unlock", HaytniWeb.Lockable.UnlockController, as: :unlock, singleton: true, only: ~W[new create show]a
     end
   end
 
   @impl Haytni.Plugin
-  def invalid?(user = %_{}) do
-    if locked?(user, unlock_strategy()) do
+  def invalid?(user = %_{}, config) do
+    if locked?(user, config) do
       {:error, dgettext("haytni", "account is locked due to an excessive number of unsuccessful sign in attempts, please check your emails.")}
     else
       false
     end
   end
 
+  @doc ~S"""
+  The (database) attributes as a keyword-list to turn a user as a locked account
+  """
+  @spec lock_attributes(config :: Config.t) :: Keyword.t
+  def lock_attributes(config) do
+    [
+      locked_at: Haytni.Helpers.now(),
+      unlock_token: Haytni.Token.generate(config.unlock_token_length),
+    ]
+  end
+
   @impl Haytni.Plugin
-  def on_failed_authentification(user = %_{}, keywords) do
-    strategy = unlock_strategy()
-    if user.failed_attempts + 1 >= maximum_attempts() && !locked?(user, strategy)  do
-      token = new_token()
-      if strategy in ~W[both email]a do
-        %{user | unlock_token: token}
-        |> send_unlock_instructions_mail_to_user()
+  def on_failed_authentication(user = %_{}, multi, keywords, module, config) do
+    if user.failed_attempts + 1 >= config.maximum_attempts && !locked?(user, config) do
+      multi = if email_strategy_enabled?(config) do
+        Ecto.Multi.run(
+          multi,
+          :send_unlock_instructions,
+          fn _repo, %{user: user} ->
+            send_unlock_instructions_mail_to_user(user, module, config)
+            {:ok, :success}
+          end
+        )
+      else
+        multi
       end
-      keywords
-      |> Keyword.put(:locked_at, Haytni.now())
-      |> Keyword.put(:unlock_token, token)
+      {multi, Keyword.merge(keywords, lock_attributes(config))}
     else
-      Keyword.put(keywords, :failed_attempts, user.failed_attempts + 1)
+      # TODO: this is not really safe, better to append to the multi an UPDATE ... SET failed_attempts = failed_attempts + 1 ...
+      {multi, Keyword.put(keywords, :failed_attempts, user.failed_attempts + 1)}
     end
   end
 
   @impl Haytni.Plugin
-  def on_successful_authentification(conn = %Plug.Conn{}, user = %_{}, keywords) do
+  def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _config) do
     # reset failed_attempts
-    {conn, user, Keyword.put(keywords, :failed_attempts, 0)}
+    {conn, multi, Keyword.put(keywords, :failed_attempts, 0)}
   end
 
   @doc ~S"""
   Returns `true` if *user* account is currently locked.
   """
-  @spec locked?(user :: Haytni.user, strategy :: unlock_strategy) :: boolean
-  def locked?(user = %_{}, strategy) do
-    user.locked_at != nil && !lock_expired?(user, strategy)
+  @spec locked?(user :: Haytni.user, config :: Config.t) :: boolean
+  def locked?(user = %_{}, config) do
+    user.locked_at != nil && !lock_expired?(user, config)
   end
 
-  @spec lock_expired?(user :: Haytni.user, strategy :: unlock_strategy) :: boolean
-  def lock_expired?(user, strategy) do
-    strategy in ~W[both time]a && DateTime.diff(DateTime.utc_now(), user.locked_at) >= Haytni.duration(unlock_in())
+  @spec lock_expired?(user :: Haytni.user, config :: Config.t) :: boolean
+  defp lock_expired?(user, config) do
+    config.unlock_strategy in ~W[both time]a && DateTime.diff(DateTime.utc_now(), user.locked_at) >= config.unlock_in
   end
 
-  defp new_token do
-    unlock_token_length()
-    |> Haytni.Token.generate()
-  end
-
-  @spec send_unlock_instructions_mail_to_user(user :: Haytni.user) :: {:ok, Haytni.user}
-  defp send_unlock_instructions_mail_to_user(user) do
-    if email_strategy_enabled?() do
-      Haytni.LockableEmail.unlock_instructions_email(user)
-      |> Haytni.mailer().deliver_later()
+  @spec send_unlock_instructions_mail_to_user(user :: Haytni.user, module :: module, config :: Config.t) :: {:ok, Haytni.user}
+  defp send_unlock_instructions_mail_to_user(user, module, config) do
+    if email_strategy_enabled?(config) do
+      Haytni.LockableEmail.unlock_instructions_email(user, module, config)
+      |> module.mailer().deliver_later()
     end
     {:ok, user}
   end
@@ -146,38 +179,77 @@ end
   @doc ~S"""
   Returns `true` if it's the last attempt before account locking in case of a new sign-in failure
   """
-  @spec last_attempt?(user :: Haytni.user) :: boolean
-  def last_attempt?(user = %_{}) do
-    user.failed_attempts == maximum_attempts() - 1
+  @spec last_attempt?(user :: Haytni.user, config :: Config.t) :: boolean
+  def last_attempt?(user = %_{}, config = %Haytni.LockablePlugin.Config{}) do
+    user.failed_attempts == config.maximum_attempts - 1
   end
 
   @doc ~S"""
-  Returns `true` if `:email` (included in `:both`) is enabled
+  Returns `true` if `:email` strategy (included in `:both`) is enabled
   """
-  @spec email_strategy_enabled?() :: boolean
-  def email_strategy_enabled? do
-    unlock_strategy() in ~W[both email]a
+  @spec email_strategy_enabled?(config :: Config.t) :: boolean
+  def email_strategy_enabled?(config) do
+    config.unlock_strategy in Config.email_strategies()
   end
 
   @doc ~S"""
-  Unlock an account from a token.
-
-  Returns the user if the token exists and `{:error, message}` if not.
-
-  Also raises if updating user fails.
+  The translated string to display when email strategy is switched off for someone who
+  would want to request an unlock token or have previously received one by email.
   """
-  @spec unlock(token :: String.t) :: Haytni.user | {:error, String.t} | no_return
-  def unlock(token) do
-    if email_strategy_enabled?() do
-      case Haytni.Users.get_user_by(unlock_token: token) do
+  @spec email_strategy_disabled_message() :: String.t
+  def email_strategy_disabled_message do
+    dgettext("haytni", "Unlocking accounts through email is currently disabled.")
+  end
+
+  @doc ~S"""
+  The translated string to display when an unlock token is invalid (ie not associated to someone)
+  """
+  @spec invalid_token_message() :: String.t
+  def invalid_token_message do
+    dgettext("haytni", "The given unlock token is invalid.")
+  end
+
+  @doc ~S"""
+  The (database) attributes as a keyword-list to turn an account to unlocked state
+  """
+  @spec unlock_attributes() :: Keyword.t
+  def unlock_attributes do
+    [unlock_token: nil, failed_attempts: 0, locked_at: nil]
+  end
+
+  @doc ~S"""
+  Unlock an account from an unlock token.
+
+  Returns the user as `{:ok, user}` if the token exists and `{:error, message}` if not.
+  """
+  @spec unlock(module :: module, config :: Config.t, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
+  def unlock(module, config, token) do
+    if email_strategy_enabled?(config) do
+      case Haytni.get_user_by(module, unlock_token: token) do
         nil ->
-          {:error, dgettext("haytni", "The given unlock token is invalid.")}
+          {:error, invalid_token_message()}
         user = %_{} ->
-          Haytni.update_user_with!(user, unlock_token: nil, failed_attempts: 0, locked_at: nil)
+          Haytni.update_user_with(module, user, unlock_attributes())
       end
     else
-      {:error, dgettext("haytni", "Unlocking accounts through email is currently disabled.")}
+      {:error, email_strategy_disabled_message()}
     end
+  end
+
+  @doc ~S"""
+  Converts the "raw" parameters received by the controller to request a new token to unlock its account to an `%Ecto.Changeset{}`
+  """
+  @spec unlock_request_changeset(config :: Config.t, request_params :: %{String.t => String.t}) :: Ecto.Changeset.t
+  def unlock_request_changeset(config, request_params \\ %{}) do
+    Haytni.Helpers.to_changeset(request_params, [:referer | config.unlock_keys], config.unlock_keys)
+  end
+
+  @doc ~S"""
+  The translated string to display when a user request a token while he is not currently locked
+  """
+  @spec not_locked_message() :: String.t
+  def not_locked_message do
+    dgettext("haytni", "This account is not currently locked")
   end
 
   @doc ~S"""
@@ -186,26 +258,34 @@ end
   Returns:
 
     * `{:error, :email_strategy_disabled}` if `:email` strategy is disabled
-    * `{:error, :no_match}` if there is no such account matching `unlock_keys`
-    * `{:error, :not_locked}` if the account is not currently locked
+    * `{:error, changeset}` if there is no such account matching `config.unlock_keys` or if the account is not currently locked (`changeset.errors` is set consequently)
     * `{:ok, user}` if successful
   """
-  @spec resend_unlock_instructions(request :: Haytni.Unlockable.Request.t) :: {:ok, Haytni.user} | {:error, :no_match | :not_locked | :email_strategy_disabled}
-  def resend_unlock_instructions(request) do # request = %Haytni.Unlockable.Request{}
-    if email_strategy_enabled?() do
-      clauses = unlock_keys()
-      |> Enum.into(Keyword.new(), fn key -> {key, Map.fetch!(request, key)} end)
-      case Haytni.Users.get_user_by(clauses) do
-        nil ->
-          {:error, :no_match}
-        %_{unlock_token: nil} ->
-          {:error, :not_locked}
-        user = %_{} ->
-          user
-          |> send_unlock_instructions_mail_to_user()
-      end
-    else
-      {:error, :email_strategy_disabled}
+  @spec resend_unlock_instructions(module :: module, config :: Config.t, request_params :: %{optional(String.t) => String.t}) :: {:ok, Haytni.user} | {:error, Ecto.Changeset.t}
+  def resend_unlock_instructions(module, config, request_params = %{}) do
+    changeset = unlock_request_changeset(config, request_params)
+
+    changeset
+    |> Ecto.Changeset.apply_action(:insert)
+    |> case do
+      {:ok, sanitized_params} ->
+        if email_strategy_enabled?(config) do
+          sanitized_params = Map.delete(sanitized_params, :referer)
+          case Haytni.get_user_by(module, sanitized_params) do
+            nil ->
+              Haytni.Helpers.mark_changeset_keys_as_unmatched(changeset, config.unlock_keys)
+            %_{unlock_token: nil} ->
+                #Haytni.Helpers.apply_base_error(changeset, not_locked_message())
+                Haytni.Helpers.mark_changeset_keys_with_error(changeset, config.unlock_keys, not_locked_message())
+            user = %_{} ->
+              user
+              |> send_unlock_instructions_mail_to_user(module, config)
+          end
+        else
+          {:error, :email_strategy_disabled}
+        end
+      error = {:error, %Ecto.Changeset{}} ->
+        error
     end
   end
 end

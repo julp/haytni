@@ -2,8 +2,8 @@
 
 Create a migration to add a boolean field to your table:
 
-priv/repo/migrations/\`date '+%Y%m%d%H%m%s'\`_add_banned_field.ex
 ```elixir
+# priv/repo/migrations/`date '+%Y%m%d%H%m%s'`_add_banned_field.ex
 defmodule YourApp.AddBannedField do
   use Ecto.Migration
 
@@ -15,8 +15,10 @@ defmodule YourApp.AddBannedField do
 end
 ```
 
-lib/your_app/ban_plugin.ex
+Then write a plugin which implements the `fields/0` to inject the *banned* column we created earlier and `invalid?/2` callback to return an error:
+
 ```elixir
+# lib/your_app/haytni/ban_plugin.ex
 defmodule YourApp.BanPlugin do
   use Haytni.Plugin
   #import YourApp.Gettext
@@ -29,19 +31,22 @@ defmodule YourApp.BanPlugin do
   end
 
   @impl Haytni.Plugin
-  def invalid?(%_{banned: false}), do: false
-  def invalid?(%_{}), do: {:error, "you are persona non grata"} # better if you translate it with (d)gettext
+  def invalid?(%_{banned: false}, _config), do: false
+  def invalid?(%_{}, _config), do: {:error, "your account has been banned"} # better if you translate it with (d)gettext
 end
 ```
 
-Finally add it to *plugins* key in config/config.exs:
+Finally add `YourApp.BanPlugin` to your Haytni stack key in lib/haytni.ex:
+
 ```elixir
-config :haytni,
+# lib/your_app/haytni.ex
+defmodule YourApp.Haytni do
+  use Haytni, otp_app: :your_app
+
   # ...
-  plugins: [
-    # ...
-    YourApp.BanPlugin
-  ]
+
+  stack YourApp.BanPlugin
+end
 ```
 
 (the part to turn it on or off in your admin panel is not shown - its just a form/checkbox with a separate *changeset* function)

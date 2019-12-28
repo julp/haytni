@@ -1,42 +1,47 @@
 defmodule Haytni.Lockable.UnlockedTest do
-  use HaytniWeb.ConnCase, async: true
+  use Haytni.DataCase, async: true
 
-  alias HaytniTest.User
-
-  @unlock_token "ABCDE"
-  describe "Haytni.LockablePlugin.unlock/1" do
+  describe "Haytni.LockablePlugin.unlock/3" do
     setup do
       _unlocked = user_fixture() # to not just have an unlocked user in the database
 
-      locked = user_fixture()
-      |> lock_user!(@unlock_token)
-      #|> Ecto.Changeset.change(unlock_token: @unlock_token, locked_at: ~U[1970-01-01 00:00:00Z], failed_attempts: 100)
-      #|> Haytni().repo().update!()
+      locked = Haytni.LockablePlugin.build_config()
+      |> Haytni.LockablePlugin.lock_attributes()
+      |> user_fixture()
 
       {:ok, locked: locked}
     end
 
-    @strategies ~W[both]a
-    #@strategies ~W[none email time both]a # TODO: handle strategy
-    @email_strategies ~W[both email]a
-
-    for strategy <- @strategies do
+    for strategy <- Haytni.LockablePlugin.Config.available_strategies() do
       test "returns an error when token doesn't match anything (strategy: #{strategy})" do
-        assert {:error, _reason} = Haytni.LockablePlugin.unlock("not a match")
+        config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
+        reason = if Haytni.LockablePlugin.email_strategy_enabled?(config) do
+          Haytni.LockablePlugin.invalid_token_message()
+        else
+          # email strategy disabled supersedes invalidity
+          Haytni.LockablePlugin.email_strategy_disabled_message()
+        end
+
+        assert {:error, reason} == Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, "not a match")
       end
     end
 
-    for strategy <- @strategies -- @email_strategies do
-      test "returns error when strategy doesn't include email (strategy: #{strategy})" do
-        assert {:error, _reason} = Haytni.LockablePlugin.unlock(@unlock_token)
+    for strategy <- Haytni.LockablePlugin.Config.available_strategies() -- Haytni.LockablePlugin.Config.email_strategies() do
+      test "returns error when strategy doesn't include email (strategy: #{strategy})", %{locked: locked} do
+        config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
+
+        assert {:error, Haytni.LockablePlugin.email_strategy_disabled_message()} == Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, locked.unlock_token)
       end
     end
 
-    for strategy <- ~W[both]a do # TODO: s/~W[both]a/@email_strategies/
-      test "returns updated and unlocked user after unlock (strategy: #{strategy})", %{locked: %User{id: id}} do
-        assert updated_user = %User{id: ^id} = Haytni.LockablePlugin.unlock(@unlock_token)
+    for strategy <- Haytni.LockablePlugin.Config.email_strategies() do
+      test "returns updated and unlocked user after unlock (strategy: #{strategy})", %{locked: locked} do
+        config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
+
+        assert {:ok, updated_user} = Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, locked.unlock_token)
+        assert updated_user.id == locked.id
         # assert lock was reseted
-        assert updated_user.locked_at == nil
+        assert is_nil(updated_user.locked_at)
         assert updated_user.failed_attempts == 0
       end
     end

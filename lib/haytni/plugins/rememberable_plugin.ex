@@ -1,6 +1,6 @@
 defmodule Haytni.RememberablePlugin do
   @moduledoc ~S"""
-  This plugin makes artificialy last user's authentification by creating a cookie which stores a token for remembering the user.
+  This plugin makes artificialy last user's authentication by creating a cookie which stores a token for remembering the user.
 
   This cookie is cleared when user's manually logout.
 
@@ -17,36 +17,63 @@ defmodule Haytni.RememberablePlugin do
     * `remember_cookie_name` (default: `"remember_token"`): the name of the cookie holding the token for automatic sign in
     * `remember_cookie_options` (default: `[http_only: true, extra: "Samesite=Strict"]`): to set custom options of the cookie (options are: *domain*, *max_age*, *path*, *http_only*, *secure* and *extra*, see documentation of Plug.Conn.put_resp_cookie/4)
 
+          config :haytni, Haytni.RememberablePlugin,
+            remember_salt: "",
+            remember_for: {2, :week},
+            remember_token_length: 16,
+            remember_cookie_name: "remember_token",
+            remember_cookie_options: [
+              http_only: true,
+              extra: "Samesite=Strict",
+            ]
+
   Routes: none
   """
+
   import Plug.Conn
 
+  defmodule Config do
+    defstruct remember_salt: "",
+      remember_for: {2, :week},
+      remember_token_length: 16,
+      remember_cookie_name: "remember_token",
+      remember_cookie_options: [
+        #domain:
+        #max_age:
+        #path:
+        http_only: true,
+        #secure:
+        extra: "Samesite=Strict",
+      ]
+
+    @type t :: %__MODULE__{
+      remember_salt: String.t,
+      remember_for: Haytni.duration,
+      remember_token_length: pos_integer,
+      remember_cookie_name: String.t,
+      remember_cookie_options: Keyword.t,
+    }
+  end
+
   use Haytni.Plugin
-  use Haytni.Config, [
-    remember_salt: "",
-    remember_for: {2, :week},
-    remember_token_length: 16,
-    remember_cookie_name: "remember_token",
-    remember_cookie_options: [
-      #domain:
-      #max_age:
-      #path:
-      http_only: true,
-      #secure:
-      extra: "Samesite=Strict",
-    ]
-  ]
+
+  @impl Haytni.Plugin
+  def build_config(options \\ %{}) do
+    # TODO: generate a random remember_salt at compile time if it is nil/""?
+    %Haytni.RememberablePlugin.Config{}
+    |> Haytni.Helpers.merge_config(options, ~W[remember_for]a)
+  end
 
   @impl Haytni.Plugin
   def files_to_install do
     import Mix.Tasks.Haytni.Install, only: [web_path: 0, timestamp: 0]
     [
-      {:eex, "migrations/rememberable_changes.ex", Path.join([web_path(), "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_rememberable_changes.ex"])} # TODO: less "hacky"
+      {:eex, "migrations/0-rememberable_changes.ex", Path.join([web_path(), "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_rememberable_changes.ex"])}, # TODO: less "hacky"
     ]
   end
 
   @impl Haytni.Plugin
-  def fields do
+  def fields(_module) do
     quote do
       field :remember_token, :string, default: nil # NULLABLE, UNIQUE
       field :remember_created_at, :utc_datetime, default: nil # NULLABLE
@@ -54,88 +81,93 @@ defmodule Haytni.RememberablePlugin do
   end
 
   @doc ~S"""
-  Returns if this plugin is enabled.
+  Sign *remember_token*
   """
-  def enabled? do
-    __MODULE__ in Haytni.plugins()
+  @spec sign_token(conn :: Plug.Conn.t, remember_token :: String.t, config :: Config.t) :: String.t
+  def sign_token(conn = %Plug.Conn{}, remember_token, config) do
+    Phoenix.Token.sign(conn, config.remember_salt, remember_token)
   end
 
-if false do
-  @spec authentificate_by_token(token :: String.t) :: {:ok, Haytni.user} | {:error, atom}
-  defp authentificate_by_token(token) do
-    Haytni.Users.get_user_by(token: token)
+  @doc ~S"""
+  Fetches the rememberme token from its signature.
+
+  Returns the token as `{:ok, string}` but `{:error, :invalid}` if signature is corrupted in any way or `{:error, :missing}` if *signed_token* is `nil`
+  """
+  @spec verify_token(conn :: Plug.Conn.t, signed_token :: String.t | nil, config :: Config.t) :: {:ok, String.t} | {:error, :invalid | :missing}
+  def verify_token(conn, signed_token, config) do
+    Phoenix.Token.verify(conn, config.remember_salt, signed_token, max_age: config.remember_for)
   end
-end
 
   @impl Haytni.Plugin
-  def find_user(conn = %Plug.Conn{}) do
+  def find_user(conn = %Plug.Conn{}, module, config) do
     conn = Plug.Conn.fetch_cookies(conn)
-    token = Map.get(conn.cookies, remember_cookie_name())
-    if token do
-      case Phoenix.Token.verify(conn, remember_salt(), token, max_age: Haytni.duration(remember_for())) do
-        {:ok, remember_token} ->
-          # we shouldn't need
-          # AND remember_created_at <= NOW() + INTERVAL remember_for()
-          # as Phoenix.Token.verify discards expired token
-          {conn, Haytni.Users.get_user_by(remember_token: remember_token)}
-        _ ->
-          {remove_rememberme_cookie(conn), nil}
-      end
+    with(
+      {:ok, signed_token} <- Map.fetch(conn.cookies, config.remember_cookie_name),
+      {:ok, remember_token} <- verify_token(conn, signed_token, config),
+      user when not is_nil(user) <- Haytni.get_user_by(module, remember_token: remember_token)
+    ) do
+      {conn, user}
     else
-      {conn, nil}
+      _ ->
+        {remove_rememberme_cookie(conn, config), nil}
     end
   end
 
   @impl Haytni.Plugin
   # The checkbox "remember me" is checked (present in params)
-  def on_successful_authentification(conn = %Plug.Conn{params: %{"session" => %{"remember" => _}}}, user = %_{}, keyword) do
-    {remember_token, keyword} = if rememberable_token_expired?(user) do
-      remember_token = remember_token_length()
+  def on_successful_authentication(conn = %Plug.Conn{params: %{"session" => %{"remember" => _}}}, user = %_{}, multi = %Ecto.Multi{}, keyword, config) do
+    {remember_token, keyword} = if is_nil(user.remember_token) or rememberable_token_expired?(user, config) do
+      remember_token = config.remember_token_length
       |> Haytni.Token.generate()
+
       keyword = keyword
-      |> Keyword.put(:remember_created_at, Haytni.now())
+      |> Keyword.put(:remember_created_at, Haytni.Helpers.now())
       |> Keyword.put(:remember_token, remember_token)
+
       {remember_token, keyword}
     else
       {user.remember_token, keyword}
     end
-    conn = add_rememberme_cookie(conn, remember_token)
-    {conn, user, keyword}
+    conn = add_rememberme_cookie(conn, remember_token, config)
+    {conn, multi, keyword}
   end
 
   # The checkbox "remember me" is not checked (absent from params)
-  def on_successful_authentification(conn = %Plug.Conn{}, user = %_{}, keyword) do
-    {conn, user, keyword}
+  def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keyword, _config) do
+    {conn, multi, keyword}
   end
 
-  @spec rememberable_token_expired?(user :: Haytni.user) :: boolean
-  defp rememberable_token_expired?(user) do
-    DateTime.diff(DateTime.utc_now(), user.remember_created_at) >= Haytni.duration(remember_for())
+  @spec rememberable_token_expired?(user :: Haytni.user, config :: Config.t) :: boolean
+  defp rememberable_token_expired?(user, config) do
+    DateTime.diff(DateTime.utc_now(), user.remember_created_at) >= config.remember_for
   end
 
   @doc ~S"""
-  Sign *remember_token* then set it as a cookie
+  Sign *remember_token* then add it to *conn* response's cookies.
+
+  Returns the updated `%Plug.Conn{}` with our rememberme cookie
   """
-  def add_rememberme_cookie(conn = %Plug.Conn{}, remember_token) do
-    signed_token = Phoenix.Token.sign(conn, remember_salt(), remember_token)
+  @spec add_rememberme_cookie(conn :: Plug.Conn.t, remember_token :: String.t, config :: Config.t) :: Plug.Conn.t
+  def add_rememberme_cookie(conn = %Plug.Conn{}, remember_token, config) do
+    signed_token = sign_token(conn, remember_token, config)
 
     conn
-    |> put_resp_cookie(remember_cookie_name(), signed_token, remember_cookie_options_with_max_age())
+    |> put_resp_cookie(config.remember_cookie_name, signed_token, remember_cookie_options_with_max_age(config))
   end
 
-  defp remove_rememberme_cookie(conn = %Plug.Conn{}) do
-    conn
-    |> delete_resp_cookie(remember_cookie_name(), remember_cookie_options_with_max_age())
+  @spec remove_rememberme_cookie(conn :: Plug.Conn.t, config :: Config.t) :: Plug.Conn.t
+  defp remove_rememberme_cookie(conn = %Plug.Conn{}, config) do
+    delete_resp_cookie(conn, config.remember_cookie_name, remember_cookie_options_with_max_age(config))
   end
 
-  defp remember_cookie_options_with_max_age do
-    remember_cookie_options()
-    |> Keyword.put_new(:max_age, Haytni.duration(remember_for()))
+  @spec remember_cookie_options_with_max_age(config :: Config.t) :: Keyword.t
+  defp remember_cookie_options_with_max_age(config) do
+    config.remember_cookie_options
+    |> Keyword.put_new(:max_age, DateTime.to_unix(Haytni.Helpers.now()) + config.remember_for)
   end
 
   @impl Haytni.Plugin
-  def on_logout(conn = %Plug.Conn{}) do
-    conn
-    |> remove_rememberme_cookie()
+  def on_logout(conn = %Plug.Conn{}, config) do
+    remove_rememberme_cookie(conn, config)
   end
 end

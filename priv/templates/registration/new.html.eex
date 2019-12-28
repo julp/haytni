@@ -17,7 +17,8 @@
     <%%= error_tag f, :password %>
   </div>
   <small id="passwordHelpBlock" class="form-text text-muted">
-    <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: @minimum_password_length, maximum_password_length: @maximum_password_length) %>
+    <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
+    <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
   </small>
   <div class="form-group">
     <%%= label f, :password_confirmation, Haytni.Gettext.dgettext("haytni", "Confirm password"), class: "control-label" %>
@@ -30,6 +31,6 @@
     <%%= link Haytni.Gettext.dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
   </div>
 
-  <%= ~s'<%= render #{inspect web_module}.Haytni.SharedView, "links.html", assigns %\x3E' %>
+  <%%= render <%= inspect web_module %>.Haytni.SharedView, "links.html", assigns %>
 
 <%% end %>

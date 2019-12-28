@@ -7,12 +7,8 @@ defmodule Mix.Tasks.Haytni.Uninstall do
 
   def run(args) do
     {opts, _parsed, _unknown} = OptionParser.parse(args, switches: @switches)
-    case Keyword.get_values(opts, :plugin) do
-      [] ->
-        Haytni.plugins()
-      plugins ->
-        plugins
-    end
+
+    Keyword.get_values(opts, :plugin)
     |> Enum.map(&(Module.concat([&1])))
     |> Enum.reduce([], &(&1.files_to_install() ++ &2))
     |> rm_from()

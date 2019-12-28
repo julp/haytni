@@ -13,6 +13,7 @@ defmodule Haytni.Authenticable.RoutesTest do
       |> Enum.each(
         fn %{route: route, method: method, action: action, controller: controller} ->
           assert %{route: ^route, plug: ^controller, plug_opts: ^action} = Phoenix.Router.route_info(HaytniTestWeb.Router, method, route, "test.com")
+          assert %{route: "/admin" <> ^route, plug: ^controller, plug_opts: ^action} = Phoenix.Router.route_info(HaytniTestWeb.Router, method, "/admin" <> route, "test.com")
         end
       )
     end

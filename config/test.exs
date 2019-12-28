@@ -19,20 +19,18 @@ config :haytni, HaytniTest.Repo,
   socket_dir: "/tmp/",
   pool: Ecto.Adapters.SQL.Sandbox
 
-config :haytni,
-  otp_app: :haytni_test,
+config :haytni, HaytniTestWeb.Haytni,
+  layout: false,
   repo: HaytniTest.Repo,
   schema: HaytniTest.User,
-  mailer: HaytniTest.Mailer,
-  plugins: [
-      Haytni.AuthenticablePlugin,
-      Haytni.RegisterablePlugin,
-      Haytni.RememberablePlugin,
-      Haytni.ConfirmablePlugin,
-      Haytni.LockablePlugin,
-      Haytni.RecoverablePlugin,
-      Haytni.TrackablePlugin,
-    ]
+  mailer: HaytniTest.Mailer
+
+config :haytni, HaytniTestWeb.Haytni2,
+  layout: false,
+  scope: :admin,
+  repo: HaytniTest.Repo,
+  schema: HaytniTest.Admin,
+  mailer: HaytniTest.Mailer
 
 config :haytni, HaytniTest.Mailer,
   adapter: Bamboo.TestAdapter

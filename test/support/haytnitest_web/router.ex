@@ -1,18 +1,24 @@
 defmodule HaytniTestWeb.Router do
   use HaytniTestWeb, :router
-  require Haytni
+  require HaytniTestWeb.Haytni
+  require HaytniTestWeb.Haytni2
 
   pipeline :browser do
     plug :accepts, ~W[html]
     plug :fetch_session
     plug :fetch_flash
     plug :protect_from_forgery
-    plug Haytni.CurrentUserPlug
   end
 
   scope "/" do
-    pipe_through :browser
+    pipe_through [:browser, HaytniTestWeb.Haytni]
 
-    Haytni.routes()
+    HaytniTestWeb.Haytni.routes()
+  end
+
+  scope "/admin", as: :admin do
+    pipe_through [:browser, HaytniTestWeb.Haytni2]
+
+    HaytniTestWeb.Haytni2.routes()
   end
 end

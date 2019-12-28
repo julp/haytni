@@ -28,16 +28,18 @@ defmodule HaytniWeb.Shared do
   end
 
   @doc ~S"""
-  Add a back/cancel link for MessageView.
+  Add a back/cancel link for SharedView.
 
   NOTE: we do not use `"javascript:history.back()"` as default since this may be inappropriate with Content
   Security Policy (CSP). But user is free to use it by indicating it as value for *default*.
   """
   @spec back_link(conn :: Plug.Conn.t, struct :: struct, default :: String.t) :: Plug.Conn.t
   def back_link(conn = %Plug.Conn{}, struct = %_{}, default) do
-    back_link = with referer when not is_nil(referer) <- Map.get(struct, :referer),
-    host = Keyword.get(Module.concat([Haytni.web_module(), :Endpoint]).config(:url), :host, "localhost"),
-    %URI{host: ^host, scheme: scheme} when scheme in ~W[http https] <- URI.parse(referer) do
+    back_link = with(
+      referer when not is_nil(referer) <- Map.get(struct, :referer),
+      host = Keyword.get(Phoenix.Controller.endpoint_module(conn).config(:url), :host, "localhost"),
+      %URI{host: ^host, scheme: scheme} when scheme in ~W[http https] <- URI.parse(referer)
+    ) do
       referer
     else
       _ ->
@@ -48,7 +50,7 @@ defmodule HaytniWeb.Shared do
   end
 
   @doc ~S"""
-  Add a next step link for MessageView.
+  Add a next step link for SharedView.
   """
   @spec next_step_link(conn :: Plug.Conn.t, href :: String.t, text :: String.t) :: Plug.Conn.t
   def next_step_link(conn = %Plug.Conn{}, href, text) do
@@ -58,14 +60,14 @@ defmodule HaytniWeb.Shared do
   end
 
   @doc ~S"""
-  Set connection to render MessageView/message.html.
+  Set connection to render SharedView/message.html.
   """
-  @spec render_message(conn :: Plug.Conn.t, message :: String.t, type :: atom) :: Plug.Conn.t
-  def render_message(conn = %Plug.Conn{}, message, type \\ :info) do
+  @spec render_message(conn :: Plug.Conn.t, module :: module, message :: String.t, type :: atom) :: Plug.Conn.t
+  def render_message(conn = %Plug.Conn{}, module, message, type \\ :info) do
     conn
     |> assign(:type, type)
     |> assign(:message, message)
-    |> put_view(Module.concat([Haytni.web_module(), :Haytni, :SharedView]))
+    |> put_view(Module.concat([module.web_module(), :Haytni, :SharedView]))
     |> render("message.html")
   end
 end

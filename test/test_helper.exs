@@ -3,27 +3,6 @@ Application.ensure_all_started(:haytni)
 
 require EEx
 
-~W[
-  support/haytnitest_web.ex
-  support/haytnitest_web/router.ex
-  support/haytnitest_web/endpoint.ex
-  support/haytnitest/user.ex
-  support/haytnitest/mailer.ex
-  support/haytnitest/application.ex
-  support/haytnitest/repo.ex
-  support/data_case.ex
-  support/conn_case.ex
-  support/test_helpers.ex
-  support/haytnitest_web/views/error_helpers.ex
-  support/haytnitest_web/views/error_view.ex
-  support/haytnitest_web/gettext.ex
-]
-|> Enum.each(
-  fn file ->
-    Code.require_file(file, __DIR__)
-  end
-)
-
 {:ok, _pid} = HaytniTest.Application.start(:unused, :unused)
 
 path = "#{__DIR__}/../priv/migrations/"
@@ -36,15 +15,19 @@ path
 |> Enum.each(
   fn {file, number} ->
     [{module, _binary}] = "#{path}/#{file}"
-    |> EEx.eval_file(table: Haytni.schema().__schema__(:source))
+    |> EEx.eval_file(table: HaytniTestWeb.Haytni.schema().__schema__(:source), scope: HaytniTestWeb.Haytni.scope())
     |> Code.compile_string()
 
-    Ecto.Migrator.up(Haytni.repo(), number, module, log: false, all: true)
-
+    Ecto.Migrator.up(HaytniTestWeb.Haytni.repo(), number, module, log: false, all: true)
   end
 )
 
-{output, 0} = System.cmd("find", ["#{__DIR__}/../priv/views/", "-type", "f"])
+{output, 0} = case :os.type() do
+  {:unix, _family} ->
+    System.cmd("find", ["#{__DIR__}/../priv/views", "-type", "f"])
+  {:win32, _family} ->
+    System.cmd("dir", ["#{__DIR__}\\..\\priv\\views", "/b"])
+end
 output
 |> String.split("\n", trim: true)
 |> Stream.map(&String.trim/1)
@@ -56,4 +39,4 @@ output
 )
 
 Process.flag(:trap_exit, true)
-Ecto.Adapters.SQL.Sandbox.mode(Haytni.repo(), :manual)
+Ecto.Adapters.SQL.Sandbox.mode(HaytniTest.Repo, :manual)

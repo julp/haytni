@@ -11,7 +11,9 @@
     <%%= error_tag f, :password %>
   </div>
   <small id="passwordHelpBlock" class="form-text text-muted">
-    <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: @minimum_password_length, maximum_password_length: @maximum_password_length) %>
+    <%# TODO %>
+    <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
+    <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
   </small>
 
   <div class="form-group">
