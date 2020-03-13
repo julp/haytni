@@ -183,7 +183,7 @@ defmodule Haytni.TestHelpers do
     "does not match confirmation"
   end
 
-  @doc ~S"""
+  @doc """
   Returns `true` if *response* contains the HTML escaped string *text*
 
   Example:
@@ -228,7 +228,7 @@ defmodule Haytni.TestHelpers do
 
     cookie = Map.get(conn.resp_cookies, name)
 
-    # NOTE: keep in mind that when you want to delete a cookie, you (the serveur) send a Set-Cookie
+    # NOTE: keep in mind that when you want to delete a cookie, you (the server) send a Set-Cookie
     # header with the same name but without value and an expiration date in the past!
     assert %{max_age: 0, universal_time: {{1970, 1, 1}, {0, 0, 0}}} = cookie
     refute Map.has_key?(cookie, :value)
