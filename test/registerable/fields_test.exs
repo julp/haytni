@@ -7,7 +7,7 @@ defmodule Haytni.Registerable.FieldsTest do
     test "ensures User schema contains necessary fields" do
       user = %HaytniTest.User{}
 
-      assert contains(Map.keys(user), @fields)
+      assert contains?(Map.keys(user), @fields)
     end
   end
 end

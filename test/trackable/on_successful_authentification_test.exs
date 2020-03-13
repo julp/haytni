@@ -21,7 +21,7 @@ defmodule Haytni.Trackable.OnSuccessfulAuthentificationTest do
       assert [connection: {:insert, changeset = %Ecto.Changeset{}, []}] = Ecto.Multi.to_list(multi)
       #assert ip in changes?
 
-      assert contains(Keyword.keys(changes), ~W[last_sign_in_at current_sign_in_at]a)
+      assert contains?(Keyword.keys(changes), ~W[last_sign_in_at current_sign_in_at]a)
       assert changes[:last_sign_in_at] == user.current_sign_in_at
       #assert changes[:assert current_sign_in_at] ~ Haytni.Helpers.now()
 

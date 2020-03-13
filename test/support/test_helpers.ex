@@ -272,21 +272,18 @@ defmodule Haytni.TestHelpers do
   Returns true if the list *a* contains at least all elements from *b*
   (any extra elements in *a* are ignored)
 
-    iex> #{__MODULE__}.contains(~W[a b c]a, ~W[a b]a)
+    iex> #{__MODULE__}.contains?(~W[a b c]a, ~W[a b]a)
     true
 
-    iex> #{__MODULE__}.contains(~W[a c]a, ~W[a b]a)
+    iex> #{__MODULE__}.contains?(~W[a c]a, ~W[a b]a)
     false
   """
-  @spec contains(a :: [atom], b :: [atom]) :: boolean
-  def contains(a, b)
+  @spec contains?(a :: [atom], b :: [atom]) :: boolean
+  def contains?(a, b)
     when is_list(a) and is_list(b)
   do
     b
-    |> Enum.all?(
-      fn v ->
-        Enum.member?(a, v)
-      end
-    )
+    |> MapSet.new()
+    |> MapSet.subset?(MapSet.new(a))
   end
 end

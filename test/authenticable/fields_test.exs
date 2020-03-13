@@ -8,11 +8,11 @@ defmodule Haytni.Authenticable.FieldsTest do
     test "ensures User schema contains necessary fields" do
       user = %HaytniTest.User{}
 
-      assert contains(Map.keys(user), @struct_fields)
+      assert contains?(Map.keys(user), @struct_fields)
     end
 
     test "ensures User struct contains necessary fields" do
-      assert contains(HaytniTest.User.__schema__(:fields), @schema_fields)
+      assert contains?(HaytniTest.User.__schema__(:fields), @schema_fields)
     end
   end
 end
