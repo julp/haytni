@@ -1,5 +1,8 @@
 use Mix.Config
 
+config :haytni,
+  ecto_repos: [HaytniTest.Repo]
+
 config :logger,
   level: :error
 
