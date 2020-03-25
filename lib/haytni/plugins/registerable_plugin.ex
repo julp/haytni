@@ -49,7 +49,7 @@ defmodule Haytni.RegisterablePlugin do
             strip_whitespace_keys: ~W[email]a,
             case_insensitive_keys: ~W[email]a,
             email_regexp: ~R/^[^@\s]+@[^@\s]+$/,
-            email_index_name: "users_email_index"
+            email_index_name: :users_email_index
 
   Routes:
 
@@ -64,7 +64,7 @@ defmodule Haytni.RegisterablePlugin do
 
     @type t :: %__MODULE__{
       email_regexp: Regex.t,
-      email_index_name: String.t,
+      email_index_name: atom | String.t,
       strip_whitespace_keys: [atom],
       case_insensitive_keys: [atom],
     }
