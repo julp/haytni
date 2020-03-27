@@ -10,7 +10,7 @@ defmodule Haytni.DataCase do
       import Ecto.Query
       import unquote(__MODULE__)
       import Haytni.TestHelpers
-      alias Haytni.TestHelpers.Params
+      alias Haytni.Params
     end
   end
 

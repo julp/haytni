@@ -20,7 +20,7 @@ defmodule HaytniWeb.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
       import Haytni.TestHelpers
-      alias Haytni.TestHelpers.Params
+      alias Haytni.Params
       alias HaytniTestWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing

@@ -142,6 +142,7 @@ defmodule Haytni.MixProject do
         Haytni.TrackablePlugin.Config,
       ],
       Helpers: [
+        Haytni.Params,
         Haytni.Helpers,
         HaytniWeb.Helpers,
         HaytniWeb.Shared,
