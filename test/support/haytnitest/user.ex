@@ -20,6 +20,7 @@ defmodule HaytniTest.User do
     struct
     |> cast(params, @attributes)
     |> validate_required(@attributes)
+    |> HaytniTestWeb.Haytni.validate_password()
     |> HaytniTestWeb.Haytni.validate_create_registration()
   end
 

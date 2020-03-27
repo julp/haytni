@@ -87,7 +87,7 @@ end
 Change *your_app*/lib/*your_app*/user.ex
 
 ```elixir
-defmodule YouApp.User do
+defmodule YourApp.User do
   require YourApp.Haytni # <= add this line
 
   # ...
@@ -96,6 +96,23 @@ defmodule YouApp.User do
     # ...
 
     YourApp.Haytni.fields() # <= add this line
+  end
+
+  @attributes ~W[email password]a
+  def create_registration_changeset(%__MODULE__{} = struct, params) do
+    struct
+    |> cast(params, @attributes)
+    |> YourApp.Haytni.validate_password()
+    # ... (your custom validations) ...
+    |> YourApp.Haytni.validate_create_registration()
+  end
+
+  @attributes ~W[email password current_password]a
+  def update_registration_changeset(%__MODULE__{} = struct, params) do
+    struct
+    |> cast(params, @attributes)
+    # ... (your custom validations) ...
+    |> YourApp.Haytni.validate_update_registration()
   end
 
   # ...

@@ -9,7 +9,7 @@ defmodule Haytni.TestHelpers do
       %{
         email: "test#{id}@test.com",
         confirmation_sent_at: Haytni.Helpers.now(),
-        password: attrs[:password] || "notasecret",
+        password: attrs[:password] || "not so SECRET!",
       }
     )
     attrs = Map.put(attrs, :encrypted_password, config.password_hash_fun.(attrs.password))

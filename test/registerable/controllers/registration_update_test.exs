@@ -26,7 +26,7 @@ defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
     end
 
     test "checks successful edition", %{conn: conn, user: user} do
-      new_password = "0123456789"
+      new_password = "0123456789+abcdef+ABCDEF"
 
       new_conn = conn
       |> assign(:current_user, user)

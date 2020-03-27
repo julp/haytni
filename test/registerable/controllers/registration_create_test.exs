@@ -3,7 +3,7 @@ defmodule Haytni.Registerable.RegistrationCreateControllerTest do
 
   @email "i@am.nobody"
   defp registration_params(attrs \\ %{}) do
-    [email: @email, password: "0123456789"]
+    [email: @email, password: "0123456789!ABCDEF!abcdef"]
     |> Params.create(attrs)
     |> Params.confirm(~W[email password]a)
     |> Params.wrap(:registration)
