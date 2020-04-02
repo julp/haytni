@@ -16,13 +16,14 @@ defmodule Haytni.Helpers do
   - :month
   - :year
   """
-  @spec duration(duration :: Haytni.duration) :: pos_integer
+  @spec duration(duration :: pos_integer) :: pos_integer
   def duration(count)
     when is_number(count)
   do
     count
   end
 
+  @spec duration({pos_integer, unit :: Haytni.duration_unit}) :: pos_integer
   def duration({count, :second}) do
     count
   end

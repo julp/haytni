@@ -114,6 +114,7 @@ defmodule Haytni.RegisterablePlugin do
     |> strip_whitespace_changes(config)
     |> case_insensitive_changes(config)
     # email
+    #|> Ecto.Changeset.unsafe_validate_unique(:email)
     |> Ecto.Changeset.validate_format(:email, config.email_regexp)
     |> Ecto.Changeset.unique_constraint(:email, name: config.email_index_name)
   end
@@ -138,6 +139,8 @@ defmodule Haytni.RegisterablePlugin do
   end
 
   # registration edition helpers
+
+  # current password is needed/checked if at least one of the password or email is changed
   defp handle_current_password_requirement(changeset = %Ecto.Changeset{changes: %{email: _}}), do: add_validate_required_current_password(changeset)
   defp handle_current_password_requirement(changeset = %Ecto.Changeset{changes: %{password: _}}), do: add_validate_required_current_password(changeset)
   defp handle_current_password_requirement(changeset = %Ecto.Changeset{}), do: changeset

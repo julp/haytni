@@ -7,7 +7,8 @@ defmodule Haytni do
 
   @type user :: struct
   @type config :: any
-  @type duration :: pos_integer | {pos_integer, :second | :minute | :hour | :day | :week | :month | :year}
+  @type duration_unit :: :second | :minute | :hour | :day | :week | :month | :year
+  @type duration :: pos_integer | {pos_integer, duration_unit}
 
   @spec app_base(atom | module) :: String.t
   defp app_base(app) do
@@ -39,6 +40,7 @@ defmodule Haytni do
 
       Module.register_attribute(__MODULE__, :plugins, accumulate: true)
 
+      @behaviour Plug
       @before_compile unquote(__MODULE__)
 
       @spec otp_app() :: atom
@@ -86,8 +88,10 @@ defmodule Haytni do
         unquote(Keyword.get(fetch_env!(__CALLER__.module), :scope, :user))
       end
 
-      def init(options), do: options
+      @impl Plug
+      def init(_options), do: nil
 
+      @impl Plug
       def call(conn, _options) do
         scope = :"current_#{scope()}"
         if Map.get(conn.assigns, scope) do

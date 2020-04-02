@@ -28,7 +28,7 @@ defmodule Haytni.Params do
       value of *defaults* to set the final value
     * `nil` values from a struct are "safely" ignored
   """
-  @spec create(defaults :: Enumerable | struct, attrs :: Enumerable | struct) :: %{String.t => String.t}
+  @spec create(defaults :: Enumerable.t | struct, attrs :: Enumerable.t | struct) :: %{String.t => String.t} | no_return
   def create(defaults, attrs \\ %{}) do
     defaults = to_stringified_map(defaults)
     attrs = attrs
