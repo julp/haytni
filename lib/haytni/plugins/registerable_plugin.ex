@@ -21,6 +21,7 @@ defmodule Haytni.RegisterablePlugin do
         def create_registration_changeset(%__MODULE__{} = struct, params) do
           struct
           |> cast(params, ~W[email password]a) # add any field you'll may need (but only fields that user is allowed to define!)
+          |> YourApp.Haytni.validate_password()
           # add any custom validation here
           |> YourApp.Haytni.validate_create_registration()
         end
