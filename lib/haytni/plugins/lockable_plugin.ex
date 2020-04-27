@@ -22,7 +22,7 @@ defmodule Haytni.LockablePlugin do
       + `:both`: enables both strategies
       + `:none`: no unlock strategy. You should handle unlocking by yourself.
 
-            config :haytni, Haytni.LockablePlugin,
+            stack Haytni.LockablePlugin,
               maximum_attempts: 20,
               unlock_in: {1, :hour},
               unlock_strategy: :both,

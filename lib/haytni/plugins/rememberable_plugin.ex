@@ -17,7 +17,7 @@ defmodule Haytni.RememberablePlugin do
     * `remember_cookie_name` (default: `"remember_token"`): the name of the cookie holding the token for automatic sign in
     * `remember_cookie_options` (default: `[http_only: true, extra: "Samesite=Strict"]`): to set custom options of the cookie (options are: *domain*, *max_age*, *path*, *http_only*, *secure* and *extra*, see documentation of Plug.Conn.put_resp_cookie/4)
 
-          config :haytni, Haytni.RememberablePlugin,
+          stack Haytni.RememberablePlugin,
             remember_salt: "",
             remember_for: {2, :week},
             remember_token_length: 16,

@@ -10,7 +10,7 @@ defmodule Haytni.PasswordPolicyPlugin do
     * `password_length` (default: `6..128`): define min and max password length as an Elixir Range
     * `password_classes_to_match` (default: `2`): the minimum character classes between digit, lowercase, uppercase and others a password has to match to be accepted
 
-        config :haytni, Haytni.RegisterablePlugin,
+        stack Haytni.RegisterablePlugin,
           password_length: 6..128,
           password_classes_to_match: 2
 

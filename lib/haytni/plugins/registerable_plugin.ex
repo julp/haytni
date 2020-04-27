@@ -46,7 +46,7 @@ defmodule Haytni.RegisterablePlugin do
     * `strip_whitespace_keys` (default: `~W[email]a`): list of fields to automatically strip from whitespaces
     * `email_index_name` (default: `"users_email_index"`): the name of the unique index/constraint on email field
 
-          config :haytni, Haytni.RegisterablePlugin,
+          stack Haytni.RegisterablePlugin,
             strip_whitespace_keys: ~W[email]a,
             case_insensitive_keys: ~W[email]a,
             email_regexp: ~R/^[^@\s]+@[^@\s]+$/,

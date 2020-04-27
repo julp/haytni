@@ -20,7 +20,7 @@ defmodule Haytni.ConfirmablePlugin do
     * `confirmation_keys` (default: `~W[email]a`): the key(s) to be matched before sending a new confirmation
     * `confirm_within` (default: `{3, :day}`): delay after which confirmation token is considered as expired (ie the user has to ask for a new one)
 
-          config :haytni, Haytni.ConfirmablePlugin,
+          stack Haytni.ConfirmablePlugin,
             reconfirmable: true,
             confirm_within: {3, :day},
             confirmation_keys: ~W[email]a,

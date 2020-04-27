@@ -14,7 +14,7 @@ defmodule Haytni.RecoverablePlugin do
     * `reset_password_within` (default: `{6, :hour}`): the delay before the token expires
     * `reset_password_keys` (default: `~W[email]a`): the field(s) to be matched to send a reinitialization token
 
-          config :haytni, Haytni.RecoverablePlugin,
+          stack Haytni.RecoverablePlugin,
             reset_token_length: 32,
             reset_password_keys: ~W[email]a,
             reset_password_within: {6, :hour}
