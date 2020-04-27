@@ -73,7 +73,7 @@ defmodule Haytni.PasswordPolicyPlugin do
   def invalid_password_format_message(config) do
     dgettext(
       "haytni",
-      "password should contains at least %{count} character types among %{classes}",
+      "should contains at least %{count} character types among %{classes}",
       count: config.password_classes_to_match,
       classes: Enum.map(@classes, fn class -> Gettext.dgettext(Haytni.Gettext, "haytni", class.description) end)
         |> Enum.join(", ")
