@@ -45,8 +45,10 @@ defmodule Haytni.RegisterablePlugin do
     * `case_insensitive_keys` (default: `~W[email]a`): list of fields to automatically downcase on registration. May be unneeded depending on your database (eg: *citext* columns for PostgreSQL or columns with a collation suffixed by "\_ci" for MySQL)
     * `strip_whitespace_keys` (default: `~W[email]a`): list of fields to automatically strip from whitespaces
     * `email_index_name` (default: `"users_email_index"`): the name of the unique index/constraint on email field
+    * `registration_disabled?` (default: `false`): disable any new registration (existing users are still able to login, edit their profile, ...)
 
           stack Haytni.RegisterablePlugin,
+            registration_disabled?: false,
             strip_whitespace_keys: ~W[email]a,
             case_insensitive_keys: ~W[email]a,
             email_regexp: ~R/^[^@\s]+@[^@\s]+$/,
@@ -58,7 +60,8 @@ defmodule Haytni.RegisterablePlugin do
   """
 
   defmodule Config do
-    defstruct strip_whitespace_keys: ~W[email]a,
+    defstruct registration_disabled?: false,
+      strip_whitespace_keys: ~W[email]a,
       case_insensitive_keys: ~W[email]a,
       email_regexp: ~R/^[^@\s]+@[^@\s]+$/,
       email_index_name: "users_email_index"

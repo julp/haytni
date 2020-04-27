@@ -5,6 +5,15 @@ defmodule HaytniWeb.Registerable.RegistrationController do
   use HaytniWeb.Helpers, {Haytni.RegisterablePlugin, :with_current_user}
   import Haytni.Gettext
 
+  def registration_disabled_message do
+    dgettext("haytni", "Sorry, new registrations are currently closed")
+  end
+
+  defp render_new_when_disabled_registration(conn, module) do
+    conn
+    |> HaytniWeb.Shared.render_message(module, registration_disabled_message(), :error)
+  end
+
   defp render_new(conn, changeset = %Ecto.Changeset{}) do
     conn
     |> assign(:changeset, changeset)
@@ -17,8 +26,12 @@ defmodule HaytniWeb.Registerable.RegistrationController do
     |> halt()
   end
 
+  def new(conn, _params, nil, module, %{registration_disabled?: true}) do
+    render_new_when_disabled_registration(conn, module)
+  end
+
   def new(conn, _params, nil, module, _config) do
-      render_new(conn, Haytni.change_user(module))
+    render_new(conn, Haytni.change_user(module))
   end
 
   def new(conn, _params, _current_user, _module, _config) do
@@ -33,6 +46,10 @@ defmodule HaytniWeb.Registerable.RegistrationController do
   @spec account_to_be_confirmed_message(user :: Haytni.user) :: String.t
   def account_to_be_confirmed_message(user) do
     dgettext("haytni", @msgid, email: user.email)
+  end
+
+  def create(conn, _params, nil, module, %{registration_disabled?: true}) do
+    render_new_when_disabled_registration(conn, module)
   end
 
   def create(conn, %{"registration" => registration_params}, nil, module, _config) do

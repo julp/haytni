@@ -21,6 +21,7 @@
 - removed (unused) scope parameter of routes callback
 - session management (creation|removal) is moved from `Haytni.AuthenticablePlugin.find_user/3` and `HaytniWeb.Authenticable.SessionController.(create|delete)` to `Haytni.(find_user|logout)`
 - per plugin configuration to avoid conflicts and testing
+- [Registerable] added registration_disabled? parameter to disallow any new user registration
 
 
 0.0.2
