@@ -76,7 +76,7 @@ msgid "account is pending confirmation, please check your emails."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/authenticable_plugin.ex:127
+#: lib/haytni/plugins/authenticable_plugin.ex:112
 msgid "password mismatch"
 msgstr ""
 
@@ -96,7 +96,7 @@ msgid "This account has already been confirmed"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/helpers.ex:91
+#: lib/haytni/helpers.ex:92
 msgid "doesn't match to any account"
 msgstr ""
 
@@ -106,12 +106,12 @@ msgid "Unlocking accounts through email is currently disabled."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/controllers/registerable/registration_controller.ex:35
+#: lib/haytni_web/controllers/registerable/registration_controller.ex:48
 msgid "A final step is required before you fully dispose of your account: in order to confirm your address, an email has been sent to %{email}, which contains a link you need to activate. Once done, you will be able to login.\n\nCheck your spam folder if necessary.\n"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/controllers/registerable/registration_controller.ex:44
+#: lib/haytni_web/controllers/registerable/registration_controller.ex:61
 msgid "I have confirmed my account, continue to sign in"
 msgstr ""
 
@@ -121,7 +121,7 @@ msgid "I get it, continue to sign in"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/controllers/registerable/registration_controller.ex:77
+#: lib/haytni_web/controllers/registerable/registration_controller.ex:94
 msgid "Informations have been updated"
 msgstr ""
 
@@ -146,38 +146,48 @@ msgid "Check your emails, a new key to unlock your account has been sent.\n\nYou
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/authenticable_plugin.ex:163
+#: lib/haytni/plugins/authenticable_plugin.ex:148
 msgid "Invalid combination of credentials"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/recoverable_plugin.ex:172
+#: lib/haytni/plugins/recoverable_plugin.ex:173
 msgid "The given password recovery token is expired."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/recoverable_plugin.ex:164
+#: lib/haytni/plugins/recoverable_plugin.ex:165
 msgid "The given password recovery token is invalid."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/password_policy_plugin.ex:47
+#: lib/haytni/plugins/password_policy_plugin.ex:50
 msgid "a digit"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/password_policy_plugin.ex:48
+#: lib/haytni/plugins/password_policy_plugin.ex:51
 msgid "a lowercase letter"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/password_policy_plugin.ex:49
+#: lib/haytni/plugins/password_policy_plugin.ex:52
 msgid "a uppercase letter"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/password_policy_plugin.ex:50
+#: lib/haytni/plugins/password_policy_plugin.ex:53
 msgid "a different character"
+msgstr ""
+
+#, elixir-format
+#: lib/haytni/plugins/password_policy_plugin.ex:74
+msgid "should contains at least %{count} character types among %{classes}"
+msgstr ""
+
+#, elixir-format
+#: lib/haytni_web/controllers/registerable/registration_controller.ex:9
+msgid "Sorry, new registrations are currently closed"
 msgstr ""
 
 #, elixir-format
