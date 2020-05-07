@@ -56,7 +56,7 @@ defmodule Haytni.Recoverable.RecoverTest do
       assert is_nil(updated_user.reset_password_token)
       assert is_nil(updated_user.reset_password_sent_at)
       assert String.starts_with?(updated_user.encrypted_password, "$2b$")
-      assert HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin).password_check_fun.(updated_user, new_password, [])
+      assert {:ok, _user} = HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin).password_check_fun.(updated_user, new_password, [])
     end
 
     test "ensures new password respects minimal length", %{config: config, user: user} do
