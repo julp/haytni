@@ -193,7 +193,7 @@ defmodule Haytni.AuthenticablePlugin do
     * `hide_user` (boolean, default: `true`): if not `false`, protects against timing attacks
     * `hash_key` (atom, looks by default for a `password_hash` and `encrypted_password` key): the name of the key containing the hash in *user*
   """
-  @spec check_password(user :: Haytni.user, password :: String.t, config :: Config.t, options :: Keyword.t) :: {:ok, Haytni.user} | {:error, String.t}
+  @spec check_password(user :: Haytni.user | nil, password :: String.t, config :: Config.t, options :: Keyword.t) :: {:ok, Haytni.user} | {:error, String.t}
   def check_password(user, password, config, options \\ []) do
     config.password_check_fun.(user, password, options)
   end
