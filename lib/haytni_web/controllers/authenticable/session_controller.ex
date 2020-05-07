@@ -27,6 +27,7 @@ defmodule HaytniWeb.Authenticable.SessionController do
         |> redirect()
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
+        |> put_resp_header("x-suspicious-activity", "1")
         |> render_new(changeset)
     end
   end

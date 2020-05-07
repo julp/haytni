@@ -22,6 +22,7 @@
 - session management (creation|removal) is moved from `Haytni.AuthenticablePlugin.find_user/3` and `HaytniWeb.Authenticable.SessionController.(create|delete)` to `Haytni.(find_user|logout)`
 - per plugin configuration to avoid conflicts and testing
 - [Registerable] added registration_disabled? parameter to disallow any new user registration
+- set an HTTP header X-Suspicious-Activity: 1 (401 neither 403 status code are suitable for this) on authentication failure in order to offer the ability to a proxy to take action
 
 
 0.0.2
