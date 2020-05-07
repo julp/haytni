@@ -39,9 +39,16 @@ defmodule Haytni.MixProject do
   defp deps do
     [
       {:gettext, ">= 0.0.0"},
-      {:bcrypt_elixir, "~> 2.0"}, # implies erlang > 20
-      #{:argon2_elixir, "~> 2.0"},
-      #{:pbkdf2_elixir, "~> 1.0"},
+      if :inet.gethostname() == {:ok, 'freebsd'} do
+        {:expassword, path: "~/elixir/expassword/expassword"}
+      else
+        {:expassword, git: "https://github.com/julp/expassword.git", branch: "master"}
+      end,
+      if :inet.gethostname() == {:ok, 'freebsd'} do
+        {:bcrypt_elixir, path: "~/elixir/bcrypt_elixir", only: :test}
+      else
+        {:bcrypt_elixir, git: "https://github.com/julp/bcrypt_elixir.git", branch: "expassword", only: :test}
+      end,
       {:ecto_sql, "~> 3.0"},
       {:phoenix, "~> 1.4"},
       {:phoenix_ecto, "~> 4.0"},

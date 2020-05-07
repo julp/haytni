@@ -6,6 +6,9 @@ config :haytni,
 config :logger,
   level: :error
 
+config :expassword,
+  default: Bcrypt
+
 config :bcrypt_elixir,
   log_rounds: 4
 

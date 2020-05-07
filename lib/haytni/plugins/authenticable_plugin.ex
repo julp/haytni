@@ -10,19 +10,14 @@ defmodule Haytni.AuthenticablePlugin do
   Configuration:
 
     * `authentication_keys` (default: `~W[email]a`): the key(s), in addition to the password, requested to login. You can redefine it to `~W[name]a`, for example, to ask the username instead of its email address.
-    * password hashing algorithm (default: bcrypt):
-      + `password_hash_fun` (default: `&Bcrypt.hash_pwd_salt/1`): the function to hash a password
-      + `password_check_fun` (default: `&Bcrypt.check_pass/3`): the function to check if a password matches its hash
 
     To use:
 
-      * `pbkdf2` add `{:pbkdf2_elixir, "~> 1.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Pbkdf2.hash_pwd_salt/1` and `password_check_fun` to `&Pbkdf2.check_pass/2` in config/config.exs
-      * `argon2` add `{:argon2_elixir, "~> 2.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Argon2.hash_pwd_salt/1` and `password_check_fun` to ` &Argon2.check_pass/2` in config/config.exs
+      * `pbkdf2` add TODO in mix.exs and set TODO in config/config.exs
+      * `argon2` add TODO in mix.exs and set TODO in config/config.exs
 
             stack Haytni.AuthenticablePlugin,
-              authentication_keys: ~W[email]a,
-              password_check_fun: &Bcrypt.check_pass/3,
-              password_hash_fun: &Bcrypt.hash_pwd_salt/1
+              authentication_keys: ~W[email]a
 
   Routes:
 
@@ -32,17 +27,10 @@ defmodule Haytni.AuthenticablePlugin do
   import Haytni.Gettext
 
   defmodule Config do
-    defstruct authentication_keys: ~W[email]a,
-      # NOTE/TODO: have a library like password_* functions from PHP
-      # to allow you to change at any time of algorithm between bcrypt,
-      # argon2 and pbkdf2
-      password_check_fun: &Bcrypt.check_pass/3,
-      password_hash_fun: &Bcrypt.hash_pwd_salt/1
+    defstruct authentication_keys: ~W[email]a
 
     @type t :: %__MODULE__{
       authentication_keys: [atom],
-      password_check_fun: (struct, Comeonin.PasswordHash.password_hash, Comeonin.PasswordHash.opts -> {:ok, struct} | {:error, String.t}),
-      password_hash_fun: (Comeonin.PasswordHash.password -> Comeonin.PasswordHash.password_hash),
     }
   end
 
@@ -193,19 +181,35 @@ defmodule Haytni.AuthenticablePlugin do
     * `hide_user` (boolean, default: `true`): if not `false`, protects against timing attacks
     * `hash_key` (atom, looks by default for a `password_hash` and `encrypted_password` key): the name of the key containing the hash in *user*
   """
-  @spec check_password(user :: Haytni.user, password :: String.t, config :: Config.t, options :: Keyword.t) :: {:ok, Haytni.user} | {:error, String.t}
-  def check_password(user, password, config, options \\ []) do
-    config.password_check_fun.(user, password, options)
+  @spec check_password(user :: Haytni.user | nil, password :: String.t, config :: Config.t, options :: Keyword.t) :: {:ok, Haytni.user} | {:error, String.t}
+  # TODO: remove config parameter? (ie should we rely on Application.fetch_env(:expassword, ...) or Haytni defines its own?)
+  def check_password(user, password, config, options \\ [])
+
+  def check_password(nil, password, config, _options) do
+    hash_password(password, config) # for timing attacks
+    {:error, "invalid user-identifier"}
+  end
+
+  def check_password(user, password, _config, _options)
+    #when is_binary(password)
+  do
+    case ExPassword.verify?(password, user.encrypted_password) do
+      true ->
+        {:ok, user}
+      _ ->
+        {:error, "invalid password"}
+    end
   end
 
   @doc ~S"""
   Hashes a password.
 
-  Returns the hash of the password after having hashed it with `config.password_hash_fun`
+  Returns the hash of the password after having hashed it
   """
   @spec hash_password(password :: String.t, config :: Config.t) :: String.t
-  def hash_password(password, config) do
-    config.password_hash_fun.(password)
+  # TODO: remove config parameter? (ie should we rely on Application.fetch_env(:expassword, ...) or Haytni defines its own?)
+  def hash_password(password, _config) do
+    ExPassword.hash(:default, password)
   end
 
 if false do
