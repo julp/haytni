@@ -1,6 +1,6 @@
 # How to block disposable email addresses
 
-The file lib/*your_app*/haytni/forbidden_email_providers.txt will contain one provider by line to reject.
+The file lib/*your_app*/validations/forbidden_email_providers.txt will contain one provider (= what follows the `@` character) by line to reject.
 
 Example:
 
@@ -11,14 +11,12 @@ bar.com
 
 In the following implementation, the pattern "foo" wil be considered, comparatively to a regular expression (but we directly use pattern matching) to: `^foo.*` on the hostname part of the email address.
 
-Your plugin needs to implement both of the `validate_create_registration/2` and `validate_update_registration/2` callbacks.
-
-Add the following code to your resource (lib/*your_app*/user.ex)
+Create lib/*your_app*/validations/validations/email_provider_validation.ex with the following code:
 
 ```elixir
-# lib/your_app/haytni/refuse_disposable_email_plugin.ex
-defmodule YourApp.RefuseDisposableEmailPlugin do
-  use Haytni.Plugin
+# lib/your_app/validations/validations/email_provider_validation.ex
+defmodule YourApp.EmailProviderValidation do
+  import Ecto.Changeset
   #import YourApp.Gettext
 
   @external_resource providers_path = Path.join([__DIR__, "forbidden_email_providers.txt"])
@@ -32,37 +30,51 @@ defmodule YourApp.RefuseDisposableEmailPlugin do
 
   defp valid_email_provider?(_provider), do: true
 
-  defp validate_email_provider(changeset = %Ecto.Changeset{valid?: true,  changes: %{email: email}}) do
-    [_head, provider] = email
-    |> String.downcase()
-    |> String.split("@", parts: 2)
-
-    if valid_email_provider?(provider) do
-      changeset
-    else
-      add_error(changeset, :email, "disposable email addresses are not allowed") # better if you translate it with (d)gettext
+  def validate_email_provider(%Ecto.Changeset{valid?: true} = changeset, field)
+    when is_atom(field)
+  do
+    validate_change changeset, field, {:format, nil}, fn _, value ->
+      [_head, provider] = value
+      |> String.downcase()
+      |> String.split("@", parts: 2)
+      if valid_email_provider?(provider) do
+        []
+      else
+        [{field, {"%{provider} is not allowed", provider: provider, validation: :format}}] # better if you translate it with (d)gettext
+      end
     end
   end
 
-  defp validate_email_provider(changeset = %Ecto.Changeset{}) do
-    changeset
-  end
+  def validate_email_provider(%Ecto.Changeset{} = changeset, _field), do: changeset
+end
+```
+
+Then edit lib/*your_app*/user.ex to add to the end of the functions `validate_create_registration/2` and `validate_update_registration/2`, the following line: `|> YourApp.EmailProviderValidation.validate_email_provider(:email)`
+
+You can also write this functionnality as a plugin by implemenenting the `validate_create_registration/2` and `validate_update_registration/2` callbacks instead of modifying your lib/*your_app*/user.ex.
+
+If so:
+
+```elixir
+# lib/your_app/haytni/refuse_disposable_email_plugin.ex
+defmodule YourApp.RefuseDisposableEmailPlugin do
+  use Haytni.Plugin
 
   @impl Haytni.Plugin
   def validate_create_registration(changeset = %Ecto.Changeset{}, _config) do
     changeset
-    |> validate_email_provider()
+    |> YourApp.EmailProviderValidation(:email)
   end
 
   @impl Haytni.Plugin
   def validate_update_registration(changeset = %Ecto.Changeset{}, _config) do
     changeset
-    |> validate_email_provider()
+    |> YourApp.EmailProviderValidation(:email)
   end
 end
 ```
 
-Finally add `YourApp.RefuseDisposableEmailPlugin` to your Haytni stack key in lib/haytni.ex:
+And register `YourApp.RefuseDisposableEmailPlugin` to your Haytni stack in your lib/*your_app*/haytni.ex:
 
 ```elixir
 # lib/your_app/haytni.ex
@@ -74,3 +86,5 @@ defmodule YourApp.Haytni do
   stack YourApp.RefuseDisposableEmailPlugin
 end
 ```
+
+Note: this implementation does not check that the email address has a valid format, you need to check this point before (with `Ecto.Changeset.validate_format(changeset, :email, ~R/^[^@\s]+@[^@\s]+$/)` for example). Haytni already does it in RegisterablePlugin so, if you use it as a plugin, just call yours after RegisterablePlugin.

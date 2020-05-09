@@ -36,7 +36,7 @@ defmodule YourApp.BanPlugin do
 end
 ```
 
-Finally add `YourApp.BanPlugin` to your Haytni stack key in lib/haytni.ex:
+Finally add `YourApp.BanPlugin` to your Haytni stack key in lib/*your_app*/haytni.ex:
 
 ```elixir
 # lib/your_app/haytni.ex
