@@ -53,6 +53,8 @@ defmodule Haytni.MixProject do
       {:bamboo, "~> 1.3"}, # required by plugins: confirmable, lockable and recoverable
       {:dialyxir, "~> 1.0.0-rc.7", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
+      {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:sobelow, "~> 0.8", only: :test},
     ]
   end
 
