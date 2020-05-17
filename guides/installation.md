@@ -6,7 +6,7 @@ The package can be installed by adding `haytni` to your list of dependencies in 
 def deps do
   [
     # ...
-    {:haytni, "~> 0.0.6"},
+    {:haytni, "~> 0.6.0"},
   ]
 end
 ```
