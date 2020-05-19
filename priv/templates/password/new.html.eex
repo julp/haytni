@@ -1,6 +1,6 @@
 <h2><%%= Haytni.Gettext.dgettext("haytni", "Forgot your password?") %></h2>
 
-<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.password_path(@conn, :create), [as: :password], fn f -> %>
+<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :create), [as: :password], fn f -> %>
 
   <%%= render <%= inspect web_module %>.Haytni.SharedView, "keys.html", changeset: @changeset, f: f, keys: @config.reset_password_keys %>
 

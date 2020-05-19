@@ -1,7 +1,8 @@
 defmodule HaytniTestWeb.Router do
   use HaytniTestWeb, :router
   require HaytniTestWeb.Haytni
-  require HaytniTestWeb.Haytni2
+  require HaytniTestWeb.HaytniAdmin
+  require HaytniTestWeb.HaytniCustomRoutes
 
   pipeline :browser do
     plug :accepts, ~W[html]
@@ -16,9 +17,25 @@ defmodule HaytniTestWeb.Router do
     HaytniTestWeb.Haytni.routes()
   end
 
-  scope "/admin", as: :admin do
-    pipe_through [:browser, HaytniTestWeb.Haytni2]
+  scope "/CR", as: nil do
+    pipe_through [:browser, HaytniTestWeb.HaytniCustomRoutes]
 
-    HaytniTestWeb.Haytni2.routes()
+    HaytniTestWeb.HaytniCustomRoutes.routes(
+      login_path: "/login",
+      logout_path: "/logout",
+      logout_method: :get,
+      unlock_path: "/unblock",
+      password_path: "/secret",
+      confirmation_path: "/check",
+      registration_path: "/users",
+      new_registration_path: "/register",
+      edit_registration_path: "/profile"
+    )
+  end
+
+  scope "/admin", as: :admin do
+    pipe_through [:browser, HaytniTestWeb.HaytniAdmin]
+
+    HaytniTestWeb.HaytniAdmin.routes()
   end
 end

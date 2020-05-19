@@ -15,7 +15,7 @@ defmodule Haytni.LockableEmail.ResetPasswordEmailTest do
       assert String.contains?(email.text_body, hello_message)
       assert String.contains?(email.html_body, "<p>#{hello_message}</p>")
 
-      href = HaytniTestWeb.Router.Helpers.unlock_url(HaytniTestWeb.Endpoint, :show, unlock_token: user.unlock_token)
+      href = HaytniTestWeb.Router.Helpers.haytni_user_unlock_url(HaytniTestWeb.Endpoint, :show, unlock_token: user.unlock_token)
       assert String.contains?(email.text_body, href)
       assert String.contains?(email.html_body, "<a href=\"#{href}\">")
     end

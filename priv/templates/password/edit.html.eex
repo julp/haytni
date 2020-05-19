@@ -1,6 +1,6 @@
 <h2><%%= Haytni.Gettext.dgettext("haytni", "Change your password") %></h2>
 
-<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.password_path(@conn, :update), [as: :password, method: :patch], fn f -> %>
+<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :update), [as: :password, method: :patch], fn f -> %>
 
   <%%= hidden_input f, :reset_password_token %>
   <%%= error_tag f, :reset_password_token %>

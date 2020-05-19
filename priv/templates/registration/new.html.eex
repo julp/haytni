@@ -1,4 +1,4 @@
-<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.registration_path(@conn, :create), [as: :registration], fn f  -> %>
+<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :create), [as: :registration], fn f  -> %>
 
   <div class="form-group">
     <%%= label f, :email, Haytni.Gettext.dgettext("haytni", "Email"), class: "control-label" %>

@@ -8,7 +8,7 @@ defmodule Haytni.Recoverable.PasswordViewTest do
   setup %{conn: conn} do
     user_fixture(email: @email, firstname: @firstname, lastname: @lastname)
 
-    {:ok, conn: get(conn, Routes.password_path(conn, :new))}
+    {:ok, conn: get(conn, Routes.haytni_user_password_path(conn, :new))}
   end
 
   defp do_test(conn, config, params) do

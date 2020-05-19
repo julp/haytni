@@ -64,7 +64,7 @@ defmodule HaytniWeb.Recoverable.PasswordController do
     case Haytni.RecoverablePlugin.recover(module, config, password_params) do
       {:ok, _user} ->
         conn
-        |> HaytniWeb.Shared.next_step_link(module.router().session_path(conn, :new), dgettext("haytni", "Password changed, continue to sign in"))
+        |> HaytniWeb.Shared.next_step_link(HaytniWeb.Shared.session_path(conn, module), dgettext("haytni", "Password changed, continue to sign in"))
         |> HaytniWeb.Shared.render_message(module, password_changed_message())
       {:error, %Ecto.Changeset{} = changeset} ->
         render_edit(conn, changeset)

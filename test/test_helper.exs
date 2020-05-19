@@ -33,7 +33,7 @@ output
 |> Stream.map(&String.trim/1)
 |> Enum.each(
   fn file ->
-    [{_module, _binary}] = EEx.eval_file(file, web_module: HaytniTestWeb)
+    [{_module, _binary}] = EEx.eval_file(file, web_module: HaytniTestWeb, scope: HaytniTestWeb.Haytni.scope())
     |> Code.compile_string()
   end
 )

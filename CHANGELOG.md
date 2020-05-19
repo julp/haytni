@@ -1,5 +1,17 @@
 ?.?.?
 
+- [Authenticable] DELETE method can be overriden for logout by giving the option `logout_method: :get` to your YourApp.Haytni.routes/1 call
+- paths used to generate the routes created by plugins can be customized at your YourApp.Haytni.routes/1 call, see their respective documentation for further details
+- routes created for Haytni are now prefixed by `haytni_<scope>_` to avoid conflicts and permit the use of several Haytni stacks
+
+Upgrade notes:
+
+- to keep your Haytni templates (both html and mail), you have to apply the following replacements: `(session|registration|unlock|confirmation|password)_(url|path)` to `haytni_<scope>_\1_\2` (`<scope>` has to match the scope defined in your config/\*.exs files, default is `user`). You can use a command like this one to make the changes:
+
+```
+find lib/your_app_web/ test/ -type f \( -name "*.ex" -o -name "*.eex" -o -name "*.exs" \) -print0 | xargs -0 perl -pi -e 's/\b(session|registration|unlock|confirmation|password)_(url|path)/haytni_user_\1_\2/'
+```
+
 
 0.6.0
 
@@ -12,7 +24,7 @@
 - [Rememberable] fix wrong cookie expiration (cookie was created expired)
 - [Rememberable] fix error in `on_successful_authentication` when `remember_token` is `nil`
 - [Authenticable] add `password_hash_fun` and `password_check_fun` options to use something else than bcrypt for passwords
-- moved necessary calls to `Ecto.Changeset.validate_required/2` to [Registerable] instead of User schema `create_registration_changeset/2` and `update_registration_changeset/2` (this is his responsability)
+- moved necessary calls to `Ecto.Changeset.validate_required/2` to [Registerable] instead of User schema `create_registration_changeset/2` and `update_registration_changeset/2` (this is its responsability)
 - fix `Haytni.update_registration` trying to use an `%Ecto.Changeset{}` as second argument to `Ecto.Changeset.change/2`
 - fix some Ecto.Changeset errors were not shown because no action was applied to them
 - fix misspelled authenticat(e|ion)

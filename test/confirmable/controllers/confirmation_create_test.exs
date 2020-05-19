@@ -17,7 +17,7 @@ defmodule Haytni.Confirmable.ConfirmationCreateControllerTest do
       imploded_keys = Enum.join(keys, ", ")
 
       test "checks error on invalid reconfirmation request with #{imploded_keys} as key(s)", %{conn: conn} do
-        new_conn = post(conn, Routes.confirmation_path(conn, :create), confirmation_params())
+        new_conn = post(conn, Routes.haytni_user_confirmation_path(conn, :create), confirmation_params())
         assert contains_text?(html_response(new_conn, 200), Haytni.Helpers.no_match_message())
       end
 
@@ -27,7 +27,7 @@ defmodule Haytni.Confirmable.ConfirmationCreateControllerTest do
         |> Keyword.merge(email: "parker.peter@daily-bugle.com", first_name: "Peter", last_name: "Parker")
         |> user_fixture()
 
-        new_conn = post(conn, Routes.confirmation_path(conn, :create), confirmation_params(user))
+        new_conn = post(conn, Routes.haytni_user_confirmation_path(conn, :create), confirmation_params(user))
         assert contains_text?(html_response(new_conn, 200), HaytniWeb.Confirmable.ConfirmationController.confirmation_sent_message())
       end
     end

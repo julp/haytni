@@ -1,5 +1,8 @@
 defmodule Haytni.TestHelpers do
   alias Haytni.Params
+  import ExUnit.Assertions
+
+  @type falsy :: false | nil
 
   @spec fixture(attrs :: Enumerable, schema :: module) :: Haytni.user
   defp fixture(attrs, schema) do
@@ -21,6 +24,28 @@ defmodule Haytni.TestHelpers do
     |> HaytniTest.Repo.insert()
 
     user
+  end
+
+  @doc ~S"""
+  Ensures all given *routes* are handled by *router*
+
+  Example:
+
+      [
+        %{route: "/avatar/new", method: "GET", action: :new, controller: MyAppWeb.AvatarController},
+        %{route: "/avatar", method: "POST", action: :create, controller: MyAppWeb.AvatarController},
+        %{route: "/avatar", method: "DELETE", action: :delete, controller: MyAppWeb.AvatarController},
+      ]
+      |> check_routes(MyAppWeb.Router)
+  """
+  @spec check_routes(routes :: [%{route: String.t, method: String.t, action: atom, controller: module}], router :: module) :: :ok | no_return
+  def check_routes(routes, router) do
+    Enum.each(
+      routes,
+      fn %{route: route, method: method, action: action, controller: controller} ->
+        assert %{route: ^route, plug: ^controller, plug_opts: ^action} = Phoenix.Router.route_info(router, method, route, "test.com")
+      end
+    )
   end
 
   @doc ~S"""
@@ -140,10 +165,8 @@ defmodule Haytni.TestHelpers do
   @doc ~S"""
   Asserts the server requested the deletion of the cookie named *name* to the client in the HTTP response.
   """
-  @spec assert_cookie_deletion(conn :: Plug.Conn.t, name :: String.t) :: nil # TODO: return value?
+  @spec assert_cookie_deletion(conn :: Plug.Conn.t, name :: String.t) :: falsy | no_return
   def assert_cookie_deletion(conn, name) do
-    import ExUnit.Assertions
-
     cookie = Map.get(conn.resp_cookies, name)
 
     # NOTE: keep in mind that when you want to delete a cookie, you (the server) send a Set-Cookie
@@ -155,10 +178,8 @@ defmodule Haytni.TestHelpers do
   @doc ~S"""
   Refutes any presence of the cookie named *name*
   """
-  @spec refute_cookie_presence(conn :: Plug.Conn.t, name :: String.t) :: nil # TODO: return value?
+  @spec refute_cookie_presence(conn :: Plug.Conn.t, name :: String.t) :: falsy | no_return
   def refute_cookie_presence(conn, name) do
-    import ExUnit.Assertions
-
     refute Map.has_key?(conn.resp_cookies, name)
   end
 

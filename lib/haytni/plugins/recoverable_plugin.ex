@@ -1,5 +1,8 @@
 defmodule Haytni.RecoverablePlugin do
-  @moduledoc ~S"""
+  @default_password_path "/password"
+  @password_path_key :password_path
+
+  @moduledoc """
   This plugin allows the user to reset its password if he forgot it. To do so, its email addresse (default) is asked to him then an unique token is generated
   and send to its mailbox. This mail contains a link to activate where a new password will be requested to override the previous one.
 
@@ -21,7 +24,8 @@ defmodule Haytni.RecoverablePlugin do
 
   Routes:
 
-    * `password_path` (actions: new/create, edit/update)
+    * `haytni_<scope>_password_path` (actions: new/create, edit/update): default path is `#{inspect(@default_password_path)}` but you can customize it to whatever
+      you want by specifying the option `#{inspect(@password_path_key)}` to your YourApp.Haytni.routes/1 call in your router (eg: `YourApp.Haytni.routes(password_path: "/recover")`)
   """
 
   import Haytni.Gettext
@@ -70,9 +74,11 @@ defmodule Haytni.RecoverablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(_options) do
-    quote do
-      resources "/password", HaytniWeb.Recoverable.PasswordController, as: :password, singleton: true, only: ~W[new create edit update]a
+  def routes(prefix_name, options) do
+    prefix_name = :"#{prefix_name}_password"
+    password_path = Keyword.get(options, @password_path_key, @default_password_path)
+    quote bind_quoted: [prefix_name: prefix_name, password_path: password_path] do
+      resources password_path, HaytniWeb.Recoverable.PasswordController, singleton: true, only: ~W[new create edit update]a, as: prefix_name
     end
   end
 

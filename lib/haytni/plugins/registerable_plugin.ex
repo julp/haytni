@@ -1,5 +1,11 @@
 defmodule Haytni.RegisterablePlugin do
-  @moduledoc ~S"""
+  @default_email_regexp ~R/^[^@\s]+@[^@\s]+$/
+  @default_registration_path "/registration"
+  @registration_path_key :registration_path
+  @new_registration_path_key :new_registration_path
+  @edit_registration_path_key :edit_registration_path
+
+  @moduledoc """
   This plugin allows the user to register and edit their account.
 
   Change *your_app*/lib/*your_app*/user.ex to add two functions: `create_registration_changeset` and `update_registration_changeset`.
@@ -41,7 +47,7 @@ defmodule Haytni.RegisterablePlugin do
 
   Configuration:
 
-    * `email_regexp` (default: `~R/^[^@\s]+@[^@\s]+$/`): the `Regex` that an email at registration or profile edition needs to match
+    * `email_regexp` (default: `#{inspect(@default_email_regexp)}`): the `Regex` that an email at registration or profile edition needs to match
     * `case_insensitive_keys` (default: `~W[email]a`): list of fields to automatically downcase on registration. May be unneeded depending on your database (eg: *citext* columns for PostgreSQL or columns with a collation suffixed by "\_ci" for MySQL)
     * `strip_whitespace_keys` (default: `~W[email]a`): list of fields to automatically strip from whitespaces
     * `email_index_name` (default: `"users_email_index"`): the name of the unique index/constraint on email field
@@ -51,12 +57,15 @@ defmodule Haytni.RegisterablePlugin do
             registration_disabled?: false,
             strip_whitespace_keys: ~W[email]a,
             case_insensitive_keys: ~W[email]a,
-            email_regexp: ~R/^[^@\s]+@[^@\s]+$/,
+            email_regexp: #{inspect(@default_email_regexp)},
             email_index_name: :users_email_index
 
   Routes:
 
-    * `registration_path` (actions: new/create, edit/update, delete)
+    * `haytni_<scope>_registration_path` (actions: new/create, edit/update): paths used by the generated routes for this plugin can be customized on YourAppWeb.Haytni.routes/1 call in your router by the following options:
+      - #{@registration_path_key} (default: `#{inspect(@default_registration_path)}`): the base/default path for all the actions
+      - #{@new_registration_path_key} (default: `registration_path <> "/new"`): define this option to define a specific path for the *new* action (sign up/account creation)
+      - #{@edit_registration_path_key} (default: `registration_path <> "/edit"`): same for *edit* action (profile edition)
   """
 
   defmodule Config do
@@ -99,15 +108,23 @@ defmodule Haytni.RegisterablePlugin do
     end
   end
 
-  #@default_paths [registration: "/register", sign_up: "", edit: "", cancel: ""]
-
   @impl Haytni.Plugin
-  def routes(_options) do
-    #registration_path = @default_paths
-    #|> Keyword.merge(Keyword.get(options, :path_names, []))
-    #|> Keyword.fetch!(:registration)
-    quote do
-      resources "/registration", HaytniWeb.Registerable.RegistrationController, singleton: true, only: ~W[new create edit update]a
+  def routes(prefix_name, options) do
+    prefix_name = :"#{prefix_name}_registration"
+    registration_path = Keyword.get(options, @registration_path_key, @default_registration_path)
+    new_registration_path = Keyword.get(options, @new_registration_path_key, registration_path <> "/new")
+    edit_registration_path = Keyword.get(options, @edit_registration_path_key, registration_path <> "/edit")
+    #cancel_registration_path = Keyword.get(options, :cancel_registration_path)
+    quote bind_quoted: [prefix_name: prefix_name, registration_path: registration_path, new_registration_path: new_registration_path, edit_registration_path: edit_registration_path] do
+      #resources "/registration", HaytniWeb.Registerable.RegistrationController, singleton: true, only: ~W[new create edit update]a, as: prefix_name
+      get new_registration_path, HaytniWeb.Registerable.RegistrationController, :new, as: prefix_name
+      post registration_path, HaytniWeb.Registerable.RegistrationController, :create, as: prefix_name
+      get edit_registration_path, HaytniWeb.Registerable.RegistrationController, :edit, as: prefix_name
+      put registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: prefix_name
+      patch registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: prefix_name
+      #if cancel_registration_path do
+        #delete cancel_registration_path, HaytniWeb.Registerable.RegistrationController, :delete, as: prefix_name
+      #end
     end
   end
 

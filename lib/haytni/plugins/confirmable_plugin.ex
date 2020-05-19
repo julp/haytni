@@ -1,5 +1,8 @@
 defmodule Haytni.ConfirmablePlugin do
-  @moduledoc ~S"""
+  @default_confirmation_path "/confirmation"
+  @confirmation_path_key :confirmation_path
+
+  @moduledoc """
   This plugin ensure that email addresses given by users are valid by sending them an email containing an unique token that they have to
   return back in order to really be able to use (unlock) their account.
 
@@ -28,7 +31,8 @@ defmodule Haytni.ConfirmablePlugin do
 
   Routes:
 
-    * `confirmation_path` (actions: show, new/create)
+    * `haytni_<scope>_confirmation_path` (actions: show, new/create): default path is `#{inspect(@default_confirmation_path)}` but it can be redefined by the
+      `#{inspect(@confirmation_path_key)}` option when calling YourApp.Haytni.routes/1 from your own router (eg: `YourApp.Haytni.routes(confirmation_path: "/verification")`)
   """
 
   import Haytni.Gettext
@@ -84,9 +88,11 @@ defmodule Haytni.ConfirmablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(_options) do
-    quote do
-      resources "/confirmation", HaytniWeb.Confirmable.ConfirmationController, singleton: true, only: ~W[show new create]a
+  def routes(prefix_name, options) do
+    prefix_name = :"#{prefix_name}_confirmation"
+    confirmation_path = Keyword.get(options, @confirmation_path_key, @default_confirmation_path)
+    quote bind_quoted: [prefix_name: prefix_name, confirmation_path: confirmation_path] do
+      resources confirmation_path, HaytniWeb.Confirmable.ConfirmationController, singleton: true, only: ~W[show new create]a, as: prefix_name
     end
   end
 

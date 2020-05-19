@@ -28,9 +28,16 @@ config :haytni, HaytniTestWeb.Haytni,
   schema: HaytniTest.User,
   mailer: HaytniTest.Mailer
 
-config :haytni, HaytniTestWeb.Haytni2,
+config :haytni, HaytniTestWeb.HaytniAdmin,
   layout: false,
   scope: :admin,
+  repo: HaytniTest.Repo,
+  schema: HaytniTest.Admin,
+  mailer: HaytniTest.Mailer
+
+config :haytni, HaytniTestWeb.HaytniCustomRoutes,
+  layout: false,
+  scope: :cr,
   repo: HaytniTest.Repo,
   schema: HaytniTest.Admin,
   mailer: HaytniTest.Mailer

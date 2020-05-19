@@ -13,6 +13,14 @@ defmodule HaytniWeb.Shared do
   use HaytniWeb, :controller
 
   @doc ~S"""
+  Returns the path to the login page.
+  """
+  @spec session_path(conn :: Plug.Conn.t, module :: module) :: String.t
+  def session_path(conn, module) do
+    apply(module.router(), :"haytni_#{module.scope()}_session_path", [conn, :new])
+  end
+
+  @doc ~S"""
   Momorize the original HTTP referer by adding it to a changeset. Have to be called on `new` or `edit` action
   (not `create` nor `update`).
   """

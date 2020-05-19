@@ -1,4 +1,4 @@
-<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.session_path(@conn, :create), [as: :session], fn f -> %>
+<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_session_path(@conn, :create), [as: :session], fn f -> %>
 
 <% if false do %>
   <%%= if Haytni.plugin_enabled?(@module, Haytni.LockablePlugin) && Haytni.LockablePlugin.last_attempt?(TODO) do %>

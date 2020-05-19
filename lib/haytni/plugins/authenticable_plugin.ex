@@ -1,5 +1,11 @@
 defmodule Haytni.AuthenticablePlugin do
-  @moduledoc ~S"""
+  @default_login_path "/session"
+  @default_logout_method :delete
+  @login_path_key :login_path
+  @logout_path_key :logout_path
+  @logout_method_key :logout_method
+
+  @moduledoc """
   This is a base plugin as it handles basic informations of a user (which are email and hashed password) and their authentication.
 
   Fields:
@@ -26,7 +32,25 @@ defmodule Haytni.AuthenticablePlugin do
 
   Routes:
 
-    * `session_path` (actions: new/create)
+    * `haytni_<scope>_session_path` (actions: new/create, delete): the generated routes can be customized through the following parameters when you call YourAppWeb.Haytni.routes/1:
+      + #{@login_path_key} (default: `#{inspect(@default_login_path)}`): custom path assigned to the sign-in route
+      + #{@logout_path_key} (default: same value as *login_path*): the path for th sign out route
+      + #{@logout_method_key} (default: `#{inspect(@default_logout_method)}`): the HTTP method to use for the user to log out, in case where the default DELETE method were not well supported by your clients
+
+      ```elixir
+      # lib/your_app_web/router.ex
+      defmodule YourAppWeb.Router do
+        # ...
+        scope ... do
+          YourAppWeb.Haytni.routes(
+            #{@login_path_key}: "/login",
+            #{@logout_path_key}: "/logout",
+            #{@logout_method_key}: :get
+          )
+        end
+        # ...
+      end
+      ```
   """
 
   import Haytni.Gettext
@@ -81,9 +105,21 @@ defmodule Haytni.AuthenticablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(_options) do
-    quote do
-      resources "/session", HaytniWeb.Authenticable.SessionController, singleton: true, only: ~W[new create delete]a
+  def routes(prefix_name, options) do
+    prefix_name = :"#{prefix_name}_session"
+    login_path_set? = Keyword.has_key?(options, @login_path_key)
+    login_path = Keyword.get(options, @login_path_key, @default_login_path)
+    logout_path = Keyword.get(options, @logout_path_key, login_path)
+    logout_method = Keyword.get(options, @logout_method_key, @default_logout_method)
+    quote bind_quoted: [prefix_name: prefix_name, login_path_set?: login_path_set?, login_path: login_path, logout_path: logout_path, logout_method: logout_method] do
+      if login_path_set? do
+        get login_path, HaytniWeb.Authenticable.SessionController, :new, as: prefix_name
+        post login_path, HaytniWeb.Authenticable.SessionController, :create, as: prefix_name
+      else
+        # to keep old behaviour - GET "/session/new" for new and POST "/session" for create
+        resources login_path, HaytniWeb.Authenticable.SessionController, singleton: true, only: ~W[new create]a, as: prefix_name
+      end
+      match logout_method, logout_path, HaytniWeb.Authenticable.SessionController, :delete, as: prefix_name
     end
   end
 

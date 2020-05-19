@@ -17,7 +17,7 @@ defmodule Haytni.Lockable.UnlockCreateControllerTest do
       imploded_keys = Enum.join(keys, ", ")
 
       test "checks error on invalid unlock request with #{imploded_keys} as key(s)", %{conn: conn} do
-        new_conn = post(conn, Routes.unlock_path(conn, :create), unlock_params())
+        new_conn = post(conn, Routes.haytni_user_unlock_path(conn, :create), unlock_params())
         assert contains_text?(html_response(new_conn, 200), Haytni.Helpers.no_match_message())
       end
 
@@ -27,7 +27,7 @@ defmodule Haytni.Lockable.UnlockCreateControllerTest do
         |> Keyword.merge(email: "parker.peter@daily-bugle.com", first_name: "Peter", last_name: "Parker")
         |> user_fixture()
 
-        new_conn = post(conn, Routes.unlock_path(conn, :create), unlock_params(user))
+        new_conn = post(conn, Routes.haytni_user_unlock_path(conn, :create), unlock_params(user))
         assert contains_formatted_text?(html_response(new_conn, 200), HaytniWeb.Lockable.UnlockController.new_token_sent_message())
       end
     end

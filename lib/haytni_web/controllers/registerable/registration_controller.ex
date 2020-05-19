@@ -55,7 +55,7 @@ defmodule HaytniWeb.Registerable.RegistrationController do
   def create(conn, %{"registration" => registration_params}, nil, module, _config) do
     case Haytni.create_user(module, registration_params) do
       {:ok, %{user: user}} ->
-        session_path = module.router().session_path(conn, :new)
+        session_path = HaytniWeb.Shared.session_path(conn, module)
         if Haytni.plugin_enabled?(module, Haytni.ConfirmablePlugin) do
           conn
           |> HaytniWeb.Shared.next_step_link(session_path, dgettext("haytni", "I have confirmed my account, continue to sign in"))

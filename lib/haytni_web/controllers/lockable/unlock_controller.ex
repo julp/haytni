@@ -16,7 +16,7 @@ defmodule HaytniWeb.Lockable.UnlockController do
     case Haytni.LockablePlugin.unlock(module, config, unlock_token) do
       {:ok, _user} ->
         conn
-        |> HaytniWeb.Shared.next_step_link(session_path(conn, module), dgettext("haytni", "I get it, continue to sign in"))
+        |> HaytniWeb.Shared.next_step_link(HaytniWeb.Shared.session_path(conn, module), dgettext("haytni", "I get it, continue to sign in"))
         |> HaytniWeb.Shared.render_message(module, unlock_message())
       {:error, message} ->
         conn
@@ -59,9 +59,5 @@ defmodule HaytniWeb.Lockable.UnlockController do
       {:error, %Ecto.Changeset{} = changeset} ->
         render_new(conn, changeset)
     end
-  end
-
-  defp session_path(conn, module) do
-    module.router().session_path(conn, :new)
   end
 end

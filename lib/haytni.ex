@@ -386,8 +386,14 @@ defmodule Haytni do
   to reflect any change in your router.
   """
   def routes(module, options \\ []) do
+    as = case module.scope() do
+      nil ->
+        :haytni
+      scope ->
+        :"haytni_#{scope}"
+    end
     module.plugins()
-    |> Enum.map(&(&1.routes(options)))
+    |> Enum.map(&(&1.routes(as, options)))
   end
 
   @doc ~S"""

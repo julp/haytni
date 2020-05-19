@@ -17,7 +17,7 @@ defmodule Haytni.Recoverable.PasswordCreateControllerTest do
       imploded_keys = Enum.join(keys, ", ")
 
       test "checks error on invalid password recovery request with #{imploded_keys} as key(s)", %{conn: conn} do
-        new_conn = post(conn, Routes.password_path(conn, :create), recover_params())
+        new_conn = post(conn, Routes.haytni_user_password_path(conn, :create), recover_params())
         assert contains_text?(html_response(new_conn, 200), Haytni.Helpers.no_match_message())
       end
 
@@ -27,7 +27,7 @@ defmodule Haytni.Recoverable.PasswordCreateControllerTest do
         |> Keyword.merge(email: "parker.peter@daily-bugle.com", first_name: "Peter", last_name: "Parker")
         |> user_fixture()
 
-        new_conn = post(conn, Routes.password_path(conn, :create), recover_params(user))
+        new_conn = post(conn, Routes.haytni_user_password_path(conn, :create), recover_params(user))
         assert contains_formatted_text?(html_response(new_conn, 200), HaytniWeb.Recoverable.PasswordController.recovery_token_sent_message())
       end
     end

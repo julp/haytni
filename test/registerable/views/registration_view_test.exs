@@ -3,7 +3,7 @@ defmodule Haytni.Registerable.RegistrationViewTest do
   import Phoenix.View
 
   defp do_new(conn, params \\ %{}) do
-    conn = get(conn, Routes.registration_path(conn, :new))
+    conn = get(conn, Routes.haytni_user_registration_path(conn, :new))
     module = HaytniTestWeb.Haytni
     changeset = if map_size(params) == 0 do
       Haytni.change_user(module)
@@ -34,7 +34,7 @@ defmodule Haytni.Registerable.RegistrationViewTest do
 
   defp do_edit(conn, params \\ %{}) do
     user = user_fixture()
-    conn = get(conn, Routes.registration_path(conn, :edit))
+    conn = get(conn, Routes.haytni_user_registration_path(conn, :edit))
     module = HaytniTestWeb.Haytni
     changeset = if map_size(params) == 0 do
       Haytni.change_user(module, user)

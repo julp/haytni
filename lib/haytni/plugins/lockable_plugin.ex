@@ -1,5 +1,8 @@
 defmodule Haytni.LockablePlugin do
-  @moduledoc ~S"""
+  @default_unlock_path "/unlock"
+  @unlock_path_key :unlock_path
+
+  @moduledoc """
   This plugin locks an account after a specified number of failed sign-in attempts. User can unlock its account via email
   and/or after a specified time period.
 
@@ -31,7 +34,8 @@ defmodule Haytni.LockablePlugin do
 
   Routes:
 
-    * `unlock_path` (actions: new/create, show)
+    * `haytni_<scope>_unlock_path` (actions: new/create, show): default path is `#{inspect(@default_unlock_path)}` but you can override it by the
+      `#{inspect(@unlock_path_key)}` option when calling YourApp.Haytni.routes/1 from your router (eg: `YourApp.Haytni.routes(unlock_path: "/unblock")`)
   """
 
   import Haytni.Gettext
@@ -100,9 +104,11 @@ defmodule Haytni.LockablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(_options) do
-    quote do
-      resources "/unlock", HaytniWeb.Lockable.UnlockController, as: :unlock, singleton: true, only: ~W[new create show]a
+  def routes(prefix_name, options) do
+    prefix_name = :"#{prefix_name}_unlock"
+    unlock_path = Keyword.get(options, @unlock_path_key, @default_unlock_path)
+    quote bind_quoted: [prefix_name: prefix_name, unlock_path: unlock_path] do
+      resources unlock_path, HaytniWeb.Lockable.UnlockController, singleton: true, only: ~W[new create show]a, as: prefix_name
     end
   end
 

@@ -1,21 +1,26 @@
 defmodule Haytni.Authenticable.RoutesTest do
   use HaytniWeb.ConnCase, async: true
 
-  @routes [
-    %{route: "/session/new", method: "GET", action: :new, controller: HaytniWeb.Authenticable.SessionController},
-    %{route: "/session", method: "POST", action: :create, controller: HaytniWeb.Authenticable.SessionController},
-    %{route: "/session", method: "DELETE", action: :delete, controller: HaytniWeb.Authenticable.SessionController},
-  ]
+  defp expected_authenticable_routes(login_prefix, logout_prefix, logout_method) do
+    [
+      %{route: login_prefix <> (if login_prefix == logout_prefix, do: "/new", else: ""), method: "GET", action: :new, controller: HaytniWeb.Authenticable.SessionController},
+      %{route: login_prefix, method: "POST", action: :create, controller: HaytniWeb.Authenticable.SessionController},
+      %{route: logout_prefix, method: logout_method, action: :delete, controller: HaytniWeb.Authenticable.SessionController},
+    ]
+  end
 
   describe "Haytni.AuthenticablePlugin.routes/2 (callback)" do
     test "ensures authenticable routes are part of the router" do
-      @routes
-      |> Enum.each(
-        fn %{route: route, method: method, action: action, controller: controller} ->
-          assert %{route: ^route, plug: ^controller, plug_opts: ^action} = Phoenix.Router.route_info(HaytniTestWeb.Router, method, route, "test.com")
-          assert %{route: "/admin" <> ^route, plug: ^controller, plug_opts: ^action} = Phoenix.Router.route_info(HaytniTestWeb.Router, method, "/admin" <> route, "test.com")
-        end
-      )
+      expected_authenticable_routes("/session", "/session", "DELETE")
+      |> check_routes(HaytniTestWeb.Router)
+
+      expected_authenticable_routes("/admin/session", "/admin/session", "DELETE")
+      |> check_routes(HaytniTestWeb.Router)
+    end
+
+    test "checks customized routes for authenticable" do
+      expected_authenticable_routes("/CR/login", "/CR/logout", "GET")
+      |> check_routes(HaytniTestWeb.Router)
     end
   end
 end

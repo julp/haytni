@@ -1,22 +1,29 @@
 defmodule Haytni.Registerable.RoutesTest do
   use HaytniWeb.ConnCase, async: true
 
-  @routes [
-    %{route: "/registration/new", method: "GET", action: :new, controller: HaytniWeb.Registerable.RegistrationController},
-    %{route: "/registration", method: "POST", action: :create, controller: HaytniWeb.Registerable.RegistrationController},
-    %{route: "/registration/edit", method: "GET", action: :edit, controller: HaytniWeb.Registerable.RegistrationController},
-    %{route: "/registration", method: "PUT", action: :update, controller: HaytniWeb.Registerable.RegistrationController},
-    %{route: "/registration", method: "PATCH", action: :update, controller: HaytniWeb.Registerable.RegistrationController},
-  ]
+  defp expected_registerable_routes(prefix, new_prefix, edit_prefix) do
+    [
+      %{route: new_prefix, method: "GET", action: :new, controller: HaytniWeb.Registerable.RegistrationController},
+      %{route: prefix, method: "POST", action: :create, controller: HaytniWeb.Registerable.RegistrationController},
+      %{route: edit_prefix, method: "GET", action: :edit, controller: HaytniWeb.Registerable.RegistrationController},
+      %{route: prefix, method: "PUT", action: :update, controller: HaytniWeb.Registerable.RegistrationController},
+      %{route: prefix, method: "PATCH", action: :update, controller: HaytniWeb.Registerable.RegistrationController},
+    ]
+  end
+
+  defp expected_registerable_routes(prefix) do
+    expected_registerable_routes(prefix, prefix <> "/new", prefix <> "/edit")
+  end
 
   describe "Haytni.RegisterablePlugin.routes/2 (callback)" do
     test "ensures unlock routes are part of the router" do
-      @routes
-      |> Enum.each(
-        fn %{route: route, method: method, action: action, controller: controller} ->
-          assert %{route: ^route, plug: ^controller, plug_opts: ^action} = Phoenix.Router.route_info(HaytniTestWeb.Router, method, route, "test.com")
-        end
-      )
+      expected_registerable_routes("/registration")
+      |> check_routes(HaytniTestWeb.Router)
+    end
+
+    test "checks customized routes for registerable" do
+      expected_registerable_routes("/CR/users", "/CR/register", "/CR/profile")
+      |> check_routes(HaytniTestWeb.Router)
     end
   end
 end

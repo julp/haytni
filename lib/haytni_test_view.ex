@@ -21,7 +21,7 @@ defmodule HaytniTestView do
                 EEx.SmartEngine
             end
 
-            content = EEx.eval_file("#{path}/#{file}", web_module: HaytniTestWeb)
+            content = EEx.eval_file("#{path}/#{file}", web_module: HaytniTestWeb, scope: HaytniTestWeb.Haytni.scope())
             |> EEx.compile_string(engine: engine)
 
             def render(unquote(Path.basename(file, ".eex")), var!(assigns)) do
