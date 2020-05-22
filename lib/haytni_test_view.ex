@@ -10,6 +10,7 @@ defmodule HaytniTestView do
       quote bind_quoted: [path: path] do
         require EEx
 
+        scope = HaytniTestWeb.Haytni.scope()
         path
         |> File.ls!()
         |> Enum.each(
@@ -21,7 +22,7 @@ defmodule HaytniTestView do
                 EEx.SmartEngine
             end
 
-            content = EEx.eval_file("#{path}/#{file}", web_module: HaytniTestWeb, scope: HaytniTestWeb.Haytni.scope())
+            content = EEx.eval_file("#{path}/#{file}", web_module: HaytniTestWeb, scope: scope, camelized_scope: Phoenix.Naming.camelize(to_string(scope)))
             |> EEx.compile_string(engine: engine)
 
             def render(unquote(Path.basename(file, ".eex")), var!(assigns)) do

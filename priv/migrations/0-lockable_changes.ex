@@ -1,4 +1,4 @@
-defmodule Haytni.Migrations.LockableChanges do
+defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "LockableChanges"]) %> do
   use Ecto.Migration
 
   def change do

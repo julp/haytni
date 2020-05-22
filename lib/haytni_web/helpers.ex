@@ -1,6 +1,19 @@
 defmodule HaytniWeb.Helpers do
   @moduledoc false
 
+  def put_view(conn, module, view_suffix) do
+    view_module = Module.concat([module.web_module(), :Haytni, Phoenix.Naming.camelize(to_string(module.scope())), view_suffix])
+    |> Code.ensure_compiled()
+    |> case do
+      {:module, module} ->
+        module
+      _ ->
+        Module.concat([module.web_module(), :Haytni, view_suffix])
+    end
+    conn
+    |> Phoenix.Controller.put_view(view_module)
+  end
+
   defmacro __using__(options) do
     quote bind_quoted: [options: options] do
       view_suffix = __MODULE__
@@ -24,7 +37,7 @@ defmodule HaytniWeb.Helpers do
         |> assign(:module, module)
         |> assign(:config, config)
         |> put_layout(module.layout())
-        |> put_view(Module.concat([module.web_module(), :Haytni, unquote(view_suffix)]))
+        |> HaytniWeb.Helpers.put_view(module, unquote(view_suffix))
 
         args = [conn, conn.params, unquote_splicing(extra_args), module, config]
         apply(__MODULE__, action_name(conn), args)

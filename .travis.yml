@@ -1,3 +1,7 @@
+branches:
+  only:
+  - master
+  - travis
 language: elixir
 elixir:
   - 1.9

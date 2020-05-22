@@ -1,4 +1,4 @@
-defmodule Haytni.Migrations.TrackableChanges do
+defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "TrackableChanges"]) %> do
   use Ecto.Migration
 
   def change(table \\ <%= inspect table %>, scope \\ <%= inspect scope %>) do

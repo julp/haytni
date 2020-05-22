@@ -27,6 +27,17 @@ defmodule Haytni.TestHelpers do
   end
 
   @doc ~S"""
+  On the fly creation of an Elixir module from an EEx template
+  """
+  @spec onfly_module_from_eex(path :: String.t, binding :: Keyword.t) :: module
+  def onfly_module_from_eex(path, binding) do
+    [{module, _binary}] = path
+    |> EEx.eval_file(binding)
+    |> Code.compile_string()
+    module
+  end
+
+  @doc ~S"""
   Ensures all given *routes* are handled by *router*
 
   Example:
@@ -70,7 +81,7 @@ defmodule Haytni.TestHelpers do
   @doc ~S"""
   Same as `user_fixture/1` but returns a `%HaytniTest.Admin{}` instead of a `%HaytniTest.User{}`
   """
-  @spec user_fixture(attrs :: Enumerable) :: Haytni.user
+  @spec admin_fixture(attrs :: Enumerable) :: Haytni.user
   def admin_fixture(attrs \\ %{}) do
     fixture(attrs, HaytniTest.Admin)
   end

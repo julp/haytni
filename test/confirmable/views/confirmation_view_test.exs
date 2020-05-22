@@ -18,7 +18,7 @@ defmodule Haytni.Confirmable.ConfirmationViewTest do
       {:error, changeset} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, params)
       changeset
     end
-    content = render_to_string(HaytniTestWeb.Haytni.ConfirmationView, "new.html", conn: conn, changeset: changeset, config: config, module: HaytniTestWeb.Haytni)
+    content = render_to_string(HaytniTestWeb.Haytni.User.ConfirmationView, "new.html", conn: conn, changeset: changeset, config: config, module: HaytniTestWeb.Haytni)
 
     for key <- config.confirmation_keys do
       assert String.contains?(content, "name=\"confirmation[#{key}]\"")

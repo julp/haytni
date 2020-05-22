@@ -10,7 +10,7 @@
     <p><%%= elem(f.errors[:base], 0) %></p>
   <%% end %>
 
-  <%%= render <%= inspect web_module %>.Haytni.SharedView, "keys.html", changeset: @changeset, f: f, keys: @config.authentication_keys %>
+  <%%= render <%= inspect Module.concat([web_module, :Haytni, camelized_scope, "SharedView"]) %>, "keys.html", changeset: @changeset, f: f, keys: @config.authentication_keys %>
 
   <div class="form-group">
     <%%= label f, :password, Haytni.Gettext.dgettext("haytni", "Password"), class: "control-label" %>
@@ -30,6 +30,6 @@
     <%%= submit Haytni.Gettext.dgettext("haytni", "Sign In"), class: "btn btn-primary" %>
   </div>
 
-  <%%= render <%= inspect web_module %>.Haytni.SharedView, "links.html", assigns %>
+  <%%= render <%= inspect Module.concat([web_module, :Haytni, camelized_scope, "SharedView"]) %>, "links.html", assigns %>
 
 <%% end %>

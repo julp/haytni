@@ -1,4 +1,4 @@
-defmodule Haytni.Migrations.TestChanges do
+defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "TestChanges"]) %> do
   use Ecto.Migration
 
   def change do
@@ -14,7 +14,7 @@ defmodule Haytni.Migrations.TestChanges do
     end
 
     admin_table = HaytniTest.Admin.__schema__(:source)
-    Haytni.Migrations.AuthenticableCreation.change(admin_table)
-    Haytni.Migrations.TrackableChanges.change(admin_table, :admin)
+    <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "AuthenticableCreation"]) %>.change(admin_table)
+    <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "TrackableChanges"]) %>.change(admin_table, :admin)
   end
 end

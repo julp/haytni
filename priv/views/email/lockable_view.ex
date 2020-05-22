@@ -1,4 +1,4 @@
-defmodule <%= inspect web_module %>.Haytni.Email.LockableView do
+defmodule <%= inspect Module.concat([web_module, :Haytni, camelized_scope, "Email", "LockableView"]) %> do
   use <%= inspect web_module %>, :view
   require HaytniTestView
 

@@ -65,10 +65,11 @@ defmodule Haytni.RememberablePlugin do
   end
 
   @impl Haytni.Plugin
-  def files_to_install do
-    import Mix.Tasks.Haytni.Install, only: [web_path: 0, timestamp: 0]
+  def files_to_install(_base_path, web_path, scope) do
+    import Mix.Tasks.Haytni.Install, only: [timestamp: 0]
     [
-      {:eex, "migrations/0-rememberable_changes.ex", Path.join([web_path(), "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_rememberable_changes.ex"])}, # TODO: less "hacky"
+      # migration
+      {:eex, "migrations/0-rememberable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_rememberable_#{scope}_changes.ex"])}, # TODO: less "hacky"
     ]
   end
 

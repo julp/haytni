@@ -8,7 +8,7 @@ defmodule Haytni.ConfirmableEmail do
     mail
     |> assign(:user, user)
     |> from(module.mailer().from())
-    |> put_view(Module.concat([module.web_module(), :Haytni, :Email, :ConfirmableView]))
+    |> put_view(module, "Email.ConfirmableView")
   end
 
   @doc ~S"""

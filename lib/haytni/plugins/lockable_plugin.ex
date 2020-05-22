@@ -79,18 +79,18 @@ defmodule Haytni.LockablePlugin do
   end
 
   @impl Haytni.Plugin
-  def files_to_install do
-    import Mix.Tasks.Haytni.Install, only: [web_path: 0, timestamp: 0]
+  def files_to_install(_base_path, web_path, scope) do
+    import Mix.Tasks.Haytni.Install, only: [timestamp: 0]
     [
       # HTML
-      {:eex, "views/unlock_view.ex", Path.join([web_path(), "views", "haytni", "unlock_view.ex"])},
-      {:eex, "templates/unlock/new.html.eex", Path.join([web_path(), "templates", "haytni", "unlock", "new.html.eex"])},
+      {:eex, "views/unlock_view.ex", Path.join([web_path, "views", "haytni", scope, "unlock_view.ex"])},
+      {:eex, "templates/unlock/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "unlock", "new.html.eex"])},
       # email
-      {:eex, "views/email/lockable_view.ex", Path.join([web_path(), "views", "haytni", "email", "lockable_view.ex"])},
-      {:eex, "templates/email/lockable/unlock_instructions.text.eex", Path.join([web_path(), "templates", "haytni", "email", "lockable", "unlock_instructions.text.eex"])},
-      {:eex, "templates/email/lockable/unlock_instructions.html.eex", Path.join([web_path(), "templates", "haytni", "email", "lockable", "unlock_instructions.html.eex"])},
+      {:eex, "views/email/lockable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "lockable_view.ex"])},
+      {:eex, "templates/email/lockable/unlock_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "lockable", "unlock_instructions.text.eex"])},
+      {:eex, "templates/email/lockable/unlock_instructions.html.eex", Path.join([web_path, "templates", "haytni", scope, "email", "lockable", "unlock_instructions.html.eex"])},
       # migration
-      {:eex, "migrations/0-lockable_changes.ex", Path.join([web_path(), "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_lockable_changes.ex"])}, # TODO: less "hacky"
+      {:eex, "migrations/0-lockable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_lockable_#{scope}_changes.ex"])}, # TODO: less "hacky"
     ]
   end
 

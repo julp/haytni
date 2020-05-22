@@ -57,23 +57,23 @@ defmodule Haytni.ConfirmablePlugin do
   end
 
   @impl Haytni.Plugin
-  def files_to_install do
-    import Mix.Tasks.Haytni.Install, only: [web_path: 0, timestamp: 0]
+  def files_to_install(_base_path, web_path, scope) do
+    import Mix.Tasks.Haytni.Install, only: [timestamp: 0]
     [
       # HTML
-      {:eex, "views/confirmation_view.ex", Path.join([web_path(), "views", "haytni", "confirmation_view.ex"])},
-      {:eex, "templates/confirmation/new.html.eex", Path.join([web_path(), "templates", "haytni", "confirmation", "new.html.eex"])},
-      #{:text, "templates/confirmation/show.html.eex", Path.join([web_path(), "templates", "haytni", "confirmation", "show.html.eex"])},
+      {:eex, "views/confirmation_view.ex", Path.join([web_path, "views", "haytni", scope, "confirmation_view.ex"])},
+      {:eex, "templates/confirmation/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "new.html.eex"])},
+      #{:text, "templates/confirmation/show.html.eex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "show.html.eex"])},
       # email
-      {:eex, "views/email/confirmable_view.ex", Path.join([web_path(), "views", "haytni", "email", "confirmable_view.ex"])},
-      {:eex, "templates/email/confirmable/email_changed.text.eex", Path.join([web_path(), "templates", "haytni", "email", "confirmable", "email_changed.text.eex"])},
-      {:eex, "templates/email/confirmable/email_changed.html.eex", Path.join([web_path(), "templates", "haytni", "email", "confirmable", "email_changed.html.eex"])},
-      {:eex, "templates/email/confirmable/confirmation_instructions.text.eex", Path.join([web_path(), "templates", "haytni", "email", "confirmable", "confirmation_instructions.text.eex"])},
-      {:eex, "templates/email/confirmable/confirmation_instructions.html.eex", Path.join([web_path(), "templates", "haytni", "email", "confirmable", "confirmation_instructions.html.eex"])},
-      {:eex, "templates/email/confirmable/reconfirmation_instructions.text.eex", Path.join([web_path(), "templates", "haytni", "email", "confirmable", "reconfirmation_instructions.text.eex"])},
-      {:eex, "templates/email/confirmable/reconfirmation_instructions.html.eex", Path.join([web_path(), "templates", "haytni", "email", "confirmable", "reconfirmation_instructions.html.eex"])},
+      {:eex, "views/email/confirmable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "confirmable_view.ex"])},
+      {:eex, "templates/email/confirmable/email_changed.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "email_changed.text.eex"])},
+      {:eex, "templates/email/confirmable/email_changed.html.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "email_changed.html.eex"])},
+      {:eex, "templates/email/confirmable/confirmation_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "confirmation_instructions.text.eex"])},
+      {:eex, "templates/email/confirmable/confirmation_instructions.html.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "confirmation_instructions.html.eex"])},
+      {:eex, "templates/email/confirmable/reconfirmation_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "reconfirmation_instructions.text.eex"])},
+      {:eex, "templates/email/confirmable/reconfirmation_instructions.html.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "reconfirmation_instructions.html.eex"])},
       # migration
-      {:eex, "migrations/0-confirmable_changes.ex", Path.join([web_path(), "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_confirmable_changes.ex"])}, # TODO: less "hacky"
+      {:eex, "migrations/0-confirmable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_confirmable_#{scope}_changes.ex"])}, # TODO: less "hacky"
     ]
   end
 

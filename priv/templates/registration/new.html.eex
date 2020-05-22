@@ -31,6 +31,6 @@
     <%%= link Haytni.Gettext.dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
   </div>
 
-  <%%= render <%= inspect web_module %>.Haytni.SharedView, "links.html", assigns %>
+  <%%= render <%= inspect Module.concat([web_module, :Haytni, camelized_scope, "SharedView"]) %>, "links.html", assigns %>
 
 <%% end %>
