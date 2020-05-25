@@ -237,13 +237,17 @@ defmodule Haytni.TestHelpers do
     |> MapSet.subset?(MapSet.new(a))
   end
 
+  @doc ~S"""
+  Generates a random string composed of *len* letters (only
+  to be a valid component of a module name)
+  """
   # Borrowed to phoenix (phoenix/installer/test/mix_helper.exs)
   @spec random_string(len :: non_neg_integer) :: String.t
-  defp random_string(len) do
-    len
-    |> :crypto.strong_rand_bytes()
-    |> Base.encode64()
-    |> binary_part(0, len)
+  def random_string(len) do
+    'abcdefghijklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ'
+    |> Enum.shuffle()
+    |> Enum.take(len)
+    |> to_string()
   end
 
   @doc ~S"""
@@ -301,7 +305,8 @@ defmodule Haytni.TestHelpers do
   * a function of arity 1 to be called with the content of the file
   """
   # Borrowed to phoenix (phoenix/installer/test/mix_helper.exs)
-  @spec assert_file(file :: String.t, match :: [String.t | Regex.t] | String.t | Regex.t | (String.t -> any | no_return)) :: any | no_return
+  @type match :: [String.t | Regex.t] | String.t | Regex.t | (String.t -> any | no_return)
+  @spec assert_file(file :: String.t, match :: match) :: any | no_return
   def assert_file(file, match) do
     cond do
       is_list(match) ->
