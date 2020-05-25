@@ -96,7 +96,7 @@ defmodule Haytni.RegisterablePlugin do
     [
       {:eex, "views/registration_view.ex", Path.join([web_path, "views", "haytni", scope, "registration_view.ex"])},
       {:eex, "templates/registration/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "registration", "new.html.eex"])},
-      {:text, "templates/registration/edit.html.eex", Path.join([web_path, "templates", "haytni", scope, "registration", "edit.html.eex"])},
+      {:eex, "templates/registration/edit.html.eex", Path.join([web_path, "templates", "haytni", scope, "registration", "edit.html.eex"])},
     ]
   end
 
