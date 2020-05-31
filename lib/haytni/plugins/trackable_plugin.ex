@@ -58,7 +58,7 @@ defmodule Haytni.TrackablePlugin do
         end
 
         @attributes ~W[ip]a
-        def changeset(%__MODULE__{} = struct, params \\ %{}) do
+        def changeset(struct = %__MODULE__{}, params \\ %{}) do
           struct
           |> cast(params, @attributes)
           |> validate_required(@attributes)

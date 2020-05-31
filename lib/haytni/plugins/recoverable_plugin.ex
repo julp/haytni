@@ -197,16 +197,15 @@ defmodule Haytni.RecoverablePlugin do
     |> Ecto.Changeset.apply_action(:insert)
     |> case do
       {:ok, password_change} ->
-        case Haytni.get_user_by(module, [reset_password_token: password_change.reset_password_token]) do
-          nil ->
+        user = Haytni.get_user_by(module, [reset_password_token: password_change.reset_password_token])
+        cond do
+          is_nil(user) ->
             set_reset_token_error(changeset, invalid_token_message())
-          user = %_{} ->
-            if reset_password_token_expired?(user, config) do
-              # TODO: would be more convenient to directly regenerate and send (email) a new one?
-              set_reset_token_error(changeset, expired_token_message())
-            else
-              Haytni.update_user_with(module, user, new_password_attributes(module, password_change.password))
-            end
+          reset_password_token_expired?(user, config) ->
+            # TODO: would be more convenient to directly regenerate and send (email) a new one?
+            set_reset_token_error(changeset, expired_token_message())
+          true ->
+            Haytni.update_user_with(module, user, new_password_attributes(module, password_change.password))
         end
       error = {:error, %Ecto.Changeset{}} ->
         error

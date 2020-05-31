@@ -10,7 +10,7 @@ defmodule HaytniWeb.Authenticable.SessionController do
     |> halt()
   end
 
-  defp render_new(conn, %Ecto.Changeset{} = changeset) do
+  defp render_new(conn, changeset = %Ecto.Changeset{}) do
     conn
     |> assign(:changeset, changeset)
     |> render("new.html")
@@ -25,7 +25,7 @@ defmodule HaytniWeb.Authenticable.SessionController do
       {:ok, conn} ->
         conn
         |> redirect()
-      {:error, %Ecto.Changeset{} = changeset} ->
+      {:error, changeset = %Ecto.Changeset{}} ->
         conn
         |> put_resp_header("x-suspicious-activity", "1")
         |> render_new(changeset)

@@ -5,7 +5,7 @@ defmodule HaytniWeb.Recoverable.PasswordController do
   use HaytniWeb.Helpers, Haytni.RecoverablePlugin
   import Haytni.Gettext
 
-  defp render_new(conn, %Ecto.Changeset{} = changeset) do
+  defp render_new(conn, changeset = %Ecto.Changeset{}) do
     conn
     |> assign(:changeset, changeset)
     |> render("new.html")
@@ -35,12 +35,12 @@ defmodule HaytniWeb.Recoverable.PasswordController do
       {:ok, _user} ->
         conn
         |> HaytniWeb.Shared.render_message(module, recovery_token_sent_message())
-      {:error, %Ecto.Changeset{} = changeset} ->
+      {:error, changeset = %Ecto.Changeset{}} ->
         render_new(conn, changeset)
     end
   end
 
-  defp render_edit(conn, %Ecto.Changeset{} = changeset) do
+  defp render_edit(conn, changeset = %Ecto.Changeset{}) do
     conn
     |> assign(:changeset, changeset)
     |> render("edit.html")
@@ -66,7 +66,7 @@ defmodule HaytniWeb.Recoverable.PasswordController do
         conn
         |> HaytniWeb.Shared.next_step_link(HaytniWeb.Shared.session_path(conn, module), dgettext("haytni", "Password changed, continue to sign in"))
         |> HaytniWeb.Shared.render_message(module, password_changed_message())
-      {:error, %Ecto.Changeset{} = changeset} ->
+      {:error, changeset = %Ecto.Changeset{}} ->
         render_edit(conn, changeset)
     end
   end

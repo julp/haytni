@@ -75,7 +75,7 @@ defmodule HaytniWeb.Registerable.RegistrationController do
     handle_signed_in!(conn)
   end
 
-  defp render_edit(conn, %Ecto.Changeset{} = changeset) do
+  defp render_edit(conn, changeset = %Ecto.Changeset{}) do
     conn
     |> assign(:changeset, changeset)
     |> render("edit.html")

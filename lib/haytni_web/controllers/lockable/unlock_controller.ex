@@ -24,7 +24,7 @@ defmodule HaytniWeb.Lockable.UnlockController do
     end
   end
 
-  defp render_new(conn, %Ecto.Changeset{} = changeset) do
+  defp render_new(conn, changeset = %Ecto.Changeset{}) do
     conn
     |> assign(:changeset, changeset)
     |> render("new.html")
@@ -56,7 +56,7 @@ defmodule HaytniWeb.Lockable.UnlockController do
       {:ok, _user} ->
         conn
         |> HaytniWeb.Shared.render_message(module, new_token_sent_message())
-      {:error, %Ecto.Changeset{} = changeset} ->
+      {:error, changeset = %Ecto.Changeset{}} ->
         render_new(conn, changeset)
     end
   end

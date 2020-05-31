@@ -10,7 +10,7 @@ defmodule Haytni.Recoverable.PasswordChange do
 
   @types %{reset_password_token: :string, password: :string}
   @keys Map.keys(@types)
-  def changeset(module, %__MODULE__{} = struct, params \\ %{}) do
+  def changeset(module, struct = %__MODULE__{}, params \\ %{}) do
     changeset = {struct, @types}
     |> cast(params, @keys)
     |> validate_required(@keys)
@@ -19,7 +19,7 @@ defmodule Haytni.Recoverable.PasswordChange do
     Haytni.validate_password(module, changeset)
   end
 
-  def change_password(module, %__MODULE__{} = request) do
+  def change_password(module, request = %__MODULE__{}) do
     changeset(module, request)
   end
 

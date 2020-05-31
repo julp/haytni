@@ -14,11 +14,10 @@ defmodule HaytniTestView do
         |> File.ls!()
         |> Enum.each(
           fn file ->
-            engine = cond do
-              String.ends_with?(file, ".html.eex") ->
-                Phoenix.HTML.Engine
-              true ->
-                EEx.SmartEngine
+            engine = if String.ends_with?(file, ".html.eex") do
+              Phoenix.HTML.Engine
+            else
+              EEx.SmartEngine
             end
 
             content = EEx.eval_file("#{path}/#{file}", web_module: HaytniTestWeb, scope: HaytniTestWeb.Haytni.scope())

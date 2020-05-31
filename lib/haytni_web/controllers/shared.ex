@@ -26,9 +26,9 @@ defmodule HaytniWeb.Shared do
   """
   @spec add_referer_to_changeset(conn :: Plug.Conn.t, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
   def add_referer_to_changeset(conn = %Plug.Conn{}, changeset = %Ecto.Changeset{}) do
-    referer = with [referer] <- Plug.Conn.get_req_header(conn, "referer") do
-      referer
-    else
+    referer = case Plug.Conn.get_req_header(conn, "referer") do
+      [referer] ->
+        referer
       _ ->
         nil
     end

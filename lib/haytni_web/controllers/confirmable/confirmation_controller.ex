@@ -29,7 +29,7 @@ defmodule HaytniWeb.Confirmable.ConfirmationController do
     end
   end
 
-  defp render_new(conn, %Ecto.Changeset{} = changeset) do
+  defp render_new(conn, changeset = %Ecto.Changeset{}) do
     conn
     |> assign(:changeset, changeset)
     |> render("new.html")
@@ -51,7 +51,7 @@ defmodule HaytniWeb.Confirmable.ConfirmationController do
       {:ok, _user} ->
         conn
         |> HaytniWeb.Shared.render_message(module, confirmation_sent_message())
-      {:error, %Ecto.Changeset{} = changeset} ->
+      {:error, changeset = %Ecto.Changeset{}} ->
         render_new(conn, changeset)
     end
   end
