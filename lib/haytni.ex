@@ -420,7 +420,9 @@ defmodule Haytni do
       :all ->
         Plug.Conn.configure_session(conn, drop: true)
       _ ->
-        Plug.Conn.delete_session(conn, :"#{module.scope()}_id")
+        conn
+        |> Plug.Conn.configure_session(renew: true)
+        |> Plug.Conn.delete_session(:"#{module.scope()}_id")
     end
   end
 
