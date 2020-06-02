@@ -15,6 +15,7 @@ defmodule Haytni.RegisterablePlugin do
       defmodule YourApp.User do
         require YourApp.Haytni
 
+        @derive {Inspect, except: [:password]}
         schema "users" do
           YourApp.Haytni.fields()
 

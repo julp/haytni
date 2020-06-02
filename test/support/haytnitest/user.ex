@@ -3,6 +3,7 @@ defmodule HaytniTest.User do
   require HaytniTestWeb.Haytni
   import Ecto.Changeset
 
+  @derive {Inspect, except: [:password]}
   schema "users" do
     HaytniTestWeb.Haytni.fields()
     field :dummy, :boolean, default: false

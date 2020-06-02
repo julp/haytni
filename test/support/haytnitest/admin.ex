@@ -3,6 +3,7 @@ defmodule HaytniTest.Admin do
   require HaytniTestWeb.HaytniAdmin
   import Ecto.Changeset
 
+  @derive {Inspect, except: [:password]}
   schema "admins" do
     HaytniTestWeb.HaytniAdmin.fields()
   end
