@@ -266,8 +266,15 @@ defmodule Haytni.LockablePlugin do
     * `{:error, :email_strategy_disabled}` if `:email` strategy is disabled
     * `{:error, changeset}` if there is no such account matching `config.unlock_keys` or if the account is not currently locked (`changeset.errors` is set consequently)
     * `{:ok, user}` if successful
+
+  In strict mode (`config :haytni, mode: :strict`), returned values are different:
+
+    * `{:error, :email_strategy_disabled}` if `:email` strategy is disabled
+    * `{:error, changeset}` if (form) fields are empty
+    * `{:ok, nil}` if no one matches `config.unlock_keys` or if the account is not currently locked
+    * `{:ok, user}` if successful (meaning an email has been sent)
   """
-  @spec resend_unlock_instructions(module :: module, config :: Config.t, request_params :: %{optional(String.t) => String.t}) :: {:ok, Haytni.user} | {:error, Ecto.Changeset.t}
+  @spec resend_unlock_instructions(module :: module, config :: Config.t, request_params :: %{optional(String.t) => String.t}) :: {:ok, nil | Haytni.user} | {:error, Ecto.Changeset.t}
   def resend_unlock_instructions(module, config, request_params = %{}) do
     changeset = unlock_request_changeset(config, request_params)
 
@@ -279,10 +286,18 @@ defmodule Haytni.LockablePlugin do
           sanitized_params = Map.delete(sanitized_params, :referer)
           case Haytni.get_user_by(module, sanitized_params) do
             nil ->
-              Haytni.Helpers.mark_changeset_keys_as_unmatched(changeset, config.unlock_keys)
+              if Application.get_env(:haytni, :mode) == :strict do
+                {:ok, nil}
+              else
+                Haytni.Helpers.mark_changeset_keys_as_unmatched(changeset, config.unlock_keys)
+              end
             %_{unlock_token: nil} ->
+              if Application.get_env(:haytni, :mode) == :strict do
+                {:ok, nil}
+              else
                 #Haytni.Helpers.apply_base_error(changeset, not_locked_message())
                 Haytni.Helpers.mark_changeset_keys_with_error(changeset, config.unlock_keys, not_locked_message())
+              end
             user = %_{} ->
               user
               |> send_unlock_instructions_mail_to_user(module, config)

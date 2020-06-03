@@ -93,6 +93,17 @@ defmodule Haytni.Helpers do
   end
 
   @doc ~S"""
+  Concat to *message* the translated note to invite the user to also check its spam folder
+  """
+  @spec concat_spam_check_hint_message(message :: String.t) :: String.t
+  def concat_spam_check_hint_message(message) do
+    import Haytni.Gettext
+
+    [message, dgettext("haytni", "You may need to look at the spams folder.")]
+    |> Enum.join("\n\n")
+  end
+
+  @doc ~S"""
   Helper for plugins to associate a mismatch error to fields given as *keys* of *changeset*.
 
   Returns an `Ecto.Changeset.t` with proper errors set.

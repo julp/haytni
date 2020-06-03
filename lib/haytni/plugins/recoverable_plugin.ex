@@ -106,11 +106,12 @@ defmodule Haytni.RecoverablePlugin do
     ]
   end
 
-  @spec send_reset_password_instructions_mail_to_user(user :: Haytni.user, module :: module, config :: Haytni.config) :: {:ok, Haytni.user}
+  @spec send_reset_password_instructions_mail_to_user(user :: Haytni.user, module :: module, config :: Haytni.config) :: {:ok, Haytni.irrelevant}
   defp send_reset_password_instructions_mail_to_user(user, module, config) do
     Haytni.RecoverableEmail.reset_password_email(user, module, config)
     |> module.mailer().deliver_later()
-    {:ok, user}
+
+    {:ok, true}
   end
 
   @spec reset_password_token_expired?(user :: Haytni.user, config :: Config.t) :: boolean
@@ -132,10 +133,17 @@ defmodule Haytni.RecoverablePlugin do
 
   Returns `{:error, changeset}` if there is no account matching `config.reset_password_keys` else `{:ok, user}`.
 
-  Raises if user couldn't be updated.
+  But in strict mode (`config :haytni, mode: :strict`) returned values are:
+
+    * `{:error, changeset}` if fields (form) were not filled
+    * `{:ok, user}` if successful
+    * `{:ok, nil}` if there is no account matching `config.reset_password_keys`
+
+  For the latest, the difference between `{:ok, user}` and `{:ok, nil}` cases SHOULD not be tested in order to disclose
+  to the end user if an actual account matches or not!
   """
   # step 1/2: send a token by mail
-  @spec send_reset_password_instructions(module :: module, config :: Config.t, request_params :: %{optional(String.t) => String.t}) :: {:ok, Haytni.user} | {:error, Ecto.Changeset.t} | no_return
+  @spec send_reset_password_instructions(module :: module, config :: Config.t, request_params :: %{optional(String.t) => String.t}) :: {:ok, nil | Haytni.user} | {:error, Ecto.Changeset.t}
   def send_reset_password_instructions(module, config, request_params) do
     changeset = recovering_changeset(config, request_params)
 
@@ -145,11 +153,25 @@ defmodule Haytni.RecoverablePlugin do
       {:ok, sanitized_params} ->
         case Haytni.get_user_by(module, sanitized_params) do
           nil ->
-            Haytni.Helpers.mark_changeset_keys_as_unmatched(changeset, config.reset_password_keys)
+            if Application.get_env(:haytni, :mode) == :strict do
+              {:ok, nil}
+            else
+              Haytni.Helpers.mark_changeset_keys_as_unmatched(changeset, config.reset_password_keys)
+            end
           user = %_{} ->
-            # TODO: use Ecto.Multi?
-            Haytni.update_user_with!(module, user, reset_password_attributes(config)) # NOTE: this line implies no_return in spec
-            |> send_reset_password_instructions_mail_to_user(module, config)
+            Ecto.Multi.new()
+            |> Ecto.Multi.update(:user, Ecto.Changeset.change(user, reset_password_attributes(config)))
+            |> Ecto.Multi.run(
+              :send_reset_password_instructions,
+              fn _repo, %{user: user} ->
+                send_reset_password_instructions_mail_to_user(user, module, config)
+              end
+            )
+            |> module.repo().transaction()
+            |> case do
+              {:ok, %{user: user}} -> {:ok, user}
+              {:error, :user, changeset, _changes_so_far} -> {:error, changeset}
+            end
         end
       error = {:error, %Ecto.Changeset{}} ->
         error

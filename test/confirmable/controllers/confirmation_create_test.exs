@@ -28,7 +28,7 @@ defmodule Haytni.Confirmable.ConfirmationCreateControllerTest do
         |> user_fixture()
 
         new_conn = post(conn, Routes.haytni_user_confirmation_path(conn, :create), confirmation_params(user))
-        assert contains_text?(html_response(new_conn, 200), HaytniWeb.Confirmable.ConfirmationController.confirmation_sent_message())
+        assert contains_formatted_text?(html_response(new_conn, 200), HaytniWeb.Confirmable.ConfirmationController.confirmation_sent_message())
       end
     end
   end

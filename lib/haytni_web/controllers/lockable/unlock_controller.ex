@@ -39,14 +39,14 @@ defmodule HaytniWeb.Lockable.UnlockController do
     |> render_new(changeset)
   end
 
-  @msgid ~S"""
-  Check your emails, a new key to unlock your account has been sent.
-
-  You may need to look at the spams folder.
-  """
   @spec new_token_sent_message() :: String.t
   def new_token_sent_message do
-    dgettext("haytni", @msgid)
+    if Application.get_env(:haytni, :mode) == :strict do
+      dgettext("haytni", "If the provided informations match our database, you will shortly receive the instructions by mail to recover your account.")
+    else
+      dgettext("haytni", "Check your emails, a new key to unlock your account has been sent.")
+    end
+    |> Haytni.Helpers.concat_spam_check_hint_message()
   end
 
   # POST /unlock

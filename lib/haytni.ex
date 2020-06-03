@@ -7,6 +7,7 @@ defmodule Haytni do
 
   @type user :: struct
   @type config :: any
+  @type irrelevant :: any
   @type duration_unit :: :second | :minute | :hour | :day | :week | :month | :year
   @type duration :: pos_integer | {pos_integer, duration_unit}
 

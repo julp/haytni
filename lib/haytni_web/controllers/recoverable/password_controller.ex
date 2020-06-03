@@ -18,14 +18,14 @@ defmodule HaytniWeb.Recoverable.PasswordController do
     |> render_new(Haytni.RecoverablePlugin.recovering_changeset(config))
   end
 
-  @msgid ~S"""
-  To reset your password we sent you an email containing a link you will need to follow.
-
-  Hint: don't forget to look in the spams folder.
-  """
   @spec recovery_token_sent_message() :: String.t
   def recovery_token_sent_message do
-    dgettext("haytni", @msgid)
+    if Application.get_env(:haytni, :mode) == :strict do
+      dgettext("haytni", "If the provided informations match our database, you will shortly receive in your mailbox the instructions to allow you to reset your password.")
+    else
+      dgettext("haytni", "To reset your password we sent you an email containing a link you will need to follow.")
+    end
+    |> Haytni.Helpers.concat_spam_check_hint_message()
   end
 
   # POST /password
