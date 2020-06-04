@@ -11,7 +11,7 @@ defmodule Haytni.Registerable.RegistrationViewTest do
       {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} = Haytni.create_user(module, params)
       changeset
     end
-    content = render_to_string(HaytniTestWeb.Haytni.RegistrationView, "new.html", conn: conn, changeset: changeset, module: module)
+    content = render_to_string(HaytniTestWeb.Haytni.User.RegistrationView, "new.html", conn: conn, changeset: changeset, module: module)
 
     assert String.contains?(content, "name=\"registration[email]\"")
     assert String.contains?(content, "name=\"registration[email_confirmation]\"")
@@ -42,7 +42,7 @@ defmodule Haytni.Registerable.RegistrationViewTest do
       {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} = Haytni.update_registration(module, user, params)
       changeset
     end
-    content = render_to_string(HaytniTestWeb.Haytni.RegistrationView, "edit.html", conn: conn, changeset: changeset, module: module)
+    content = render_to_string(HaytniTestWeb.Haytni.User.RegistrationView, "edit.html", conn: conn, changeset: changeset, module: module)
 
     assert String.contains?(content, "name=\"registration[email]\"")
     assert String.contains?(content, "name=\"registration[password]\"")

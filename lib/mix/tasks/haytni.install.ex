@@ -13,19 +13,27 @@ defmodule Mix.Tasks.Haytni.Install do
     otp_app = Mix.Phoenix.otp_app()
     base_module = Module.concat([Mix.Phoenix.base()])
     web_module = Mix.Phoenix.web_module(base_module)
+    scope_as_string = Keyword.get(opts, :scope, "user")
     plugins = Keyword.get_values(opts, :plugin)
     |> Enum.map(&(Module.concat([&1])))
 
+    web_path = web_path()
+    base_path = base_path()
+    timestamp = timestamp()
     files_to_install = plugins
-    |> Enum.reduce([], &(&1.files_to_install() ++ &2))
+    |> Enum.reduce(
+      Haytni.shared_files_to_install(base_path, web_path, scope_as_string, timestamp),
+      &(&1.files_to_install(base_path, web_path, scope_as_string, timestamp) ++ &2)
+    )
 
     binding = Keyword.new()
     |> Keyword.put(:otp_app, otp_app)
     |> Keyword.put(:plugins, plugins)
     |> Keyword.put(:web_module, web_module)
     |> Keyword.put(:base_module, base_module)
-    |> Keyword.put(:scope, Keyword.get(opts, :scope, "user") |> String.to_atom())
+    |> Keyword.put(:scope, String.to_atom(scope_as_string))
     |> Keyword.put(:table, Keyword.get(opts, :table, "users"))
+    |> Keyword.put(:camelized_scope, Phoenix.Naming.camelize(scope_as_string))
 
     Mix.Phoenix.copy_from([".", :haytni], "priv/", binding, files_to_install)
   end

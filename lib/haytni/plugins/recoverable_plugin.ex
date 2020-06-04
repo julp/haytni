@@ -49,19 +49,18 @@ defmodule Haytni.RecoverablePlugin do
   end
 
   @impl Haytni.Plugin
-  def files_to_install do
-    import Mix.Tasks.Haytni.Install, only: [web_path: 0, timestamp: 0]
+  def files_to_install(_base_path, web_path, scope, timestamp) do
     [
       # HTML
-      {:eex, "views/password_view.ex", Path.join([web_path(), "views", "haytni", "password_view.ex"])},
-      {:eex, "templates/password/new.html.eex", Path.join([web_path(), "templates", "haytni", "password", "new.html.eex"])},
-      {:eex, "templates/password/edit.html.eex", Path.join([web_path(), "templates", "haytni", "password", "edit.html.eex"])},
+      {:eex, "views/password_view.ex", Path.join([web_path, "views", "haytni", scope, "password_view.ex"])},
+      {:eex, "templates/password/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "password", "new.html.eex"])},
+      {:eex, "templates/password/edit.html.eex", Path.join([web_path, "templates", "haytni", scope, "password", "edit.html.eex"])},
       # email
-      {:eex, "views/email/recoverable_view.ex", Path.join([web_path(), "views", "haytni", "email", "recoverable_view.ex"])},
-      {:eex, "templates/email/recoverable/reset_password_instructions.text.eex", Path.join([web_path(), "templates", "haytni", "email", "recoverable", "reset_password_instructions.text.eex"])},
-      {:eex, "templates/email/recoverable/reset_password_instructions.html.eex", Path.join([web_path(), "templates", "haytni", "email", "recoverable", "reset_password_instructions.html.eex"])},
+      {:eex, "views/email/recoverable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "recoverable_view.ex"])},
+      {:eex, "templates/email/recoverable/reset_password_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "recoverable", "reset_password_instructions.text.eex"])},
+      {:eex, "templates/email/recoverable/reset_password_instructions.html.eex", Path.join([web_path, "templates", "haytni", scope, "email", "recoverable", "reset_password_instructions.html.eex"])},
       # migration
-      {:eex, "migrations/0-recoverable_changes.ex", Path.join([web_path(), "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_recoverable_changes.ex"])}, # TODO: less "hacky"
+      {:eex, "migrations/0-recoverable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_recoverable_#{scope}_changes.ex"])},
     ]
   end
 

@@ -27,6 +27,17 @@ defmodule Haytni.TestHelpers do
   end
 
   @doc ~S"""
+  On the fly creation of an Elixir module from an EEx template
+  """
+  @spec onfly_module_from_eex(path :: String.t, binding :: Keyword.t) :: module
+  def onfly_module_from_eex(path, binding) do
+    [{module, _binary}] = path
+    |> EEx.eval_file(binding)
+    |> Code.compile_string()
+    module
+  end
+
+  @doc ~S"""
   Ensures all given *routes* are handled by *router*
 
   Example:
@@ -70,7 +81,7 @@ defmodule Haytni.TestHelpers do
   @doc ~S"""
   Same as `user_fixture/1` but returns a `%HaytniTest.Admin{}` instead of a `%HaytniTest.User{}`
   """
-  @spec user_fixture(attrs :: Enumerable) :: Haytni.user
+  @spec admin_fixture(attrs :: Enumerable) :: Haytni.user
   def admin_fixture(attrs \\ %{}) do
     fixture(attrs, HaytniTest.Admin)
   end
@@ -224,5 +235,88 @@ defmodule Haytni.TestHelpers do
     b
     |> MapSet.new()
     |> MapSet.subset?(MapSet.new(a))
+  end
+
+  @doc ~S"""
+  Generates a random string composed of *len* letters (only
+  to be a valid component of a module name)
+  """
+  # Borrowed to phoenix (phoenix/installer/test/mix_helper.exs)
+  @spec random_string(len :: non_neg_integer) :: String.t
+  def random_string(len) do
+    'abcdefghijklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ'
+    |> Enum.shuffle()
+    |> Enum.take(len)
+    |> to_string()
+  end
+
+  @doc ~S"""
+  Creates a temporary directory, its path is the concatenation of `System.tmp_dir!/1`
+  <> *which* <> a small random generated string then temporarily changes the currect
+  working directory to it, the time to execute *fun/0*
+
+  NOTE: changing current directory has side effects so you can't declare your test
+  `async: true`.
+  """
+  # Borrowed to phoenix (phoenix/installer/test/mix_helper.exs)
+  @spec in_tmp_project(which :: String.t, fun :: (-> any)) :: :ok
+  def in_tmp_project(which, fun) do
+    root = Path.join([System.tmp_dir!(), which, random_string(10)])
+    try do
+      File.rm_rf!(root)
+      File.mkdir_p!(root)
+      File.cd!(
+        root,
+        fn ->
+          #File.touch!("mix.exs")
+          fun.()
+        end
+      )
+    after
+      File.rm_rf!(root)
+    end
+    :ok
+  end
+
+  @doc ~S"""
+  Asserts a (regular) file exists.
+  """
+  @spec assert_file(file :: String.t) :: true | no_return
+  # Borrowed to phoenix (phoenix/installer/test/mix_helper.exs)
+  def assert_file(file) do
+    assert File.regular?(file), "Expected #{file} to exist, but does not"
+  end
+
+  @doc ~S"""
+  Asserts a file does not exist or is not a regular file.
+  """
+  @spec refute_file(file :: String.t) :: false | no_return
+  # Borrowed to phoenix (phoenix/installer/test/mix_helper.exs)
+  def refute_file(file) do
+    refute File.regular?(file), "Expected #{file} to not exist, but it does"
+  end
+
+  @doc ~S"""
+  Asserts that *file* is a regular file and also checks its content.
+
+  *match* can be:
+  * a list of patterns (strings or regexpes) to be matched by *file* content
+  * a string or regexp to be found in *file*
+  * a function of arity 1 to be called with the content of the file
+  """
+  # Borrowed to phoenix (phoenix/installer/test/mix_helper.exs)
+  @type match :: [String.t | Regex.t] | String.t | Regex.t | (String.t -> any | no_return)
+  @spec assert_file(file :: String.t, match :: match) :: any | no_return
+  def assert_file(file, match) do
+    cond do
+      is_list(match) ->
+        assert_file file, &(Enum.each(match, fn(m) -> assert &1 =~ m end))
+      is_binary(match) or Regex.regex?(match) ->
+        assert_file file, &(assert &1 =~ match)
+      is_function(match, 1) ->
+        assert_file(file)
+        match.(File.read!(file))
+      true -> raise inspect({file, match})
+    end
   end
 end

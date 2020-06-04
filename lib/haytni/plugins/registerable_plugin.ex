@@ -93,12 +93,11 @@ defmodule Haytni.RegisterablePlugin do
   end
 
   @impl Haytni.Plugin
-  def files_to_install do
-    import Mix.Tasks.Haytni.Install, only: [web_path: 0]
+  def files_to_install(_base_path, web_path, scope, _timestamp) do
     [
-      {:eex, "views/registration_view.ex", Path.join([web_path(), "views", "haytni", "registration_view.ex"])},
-      {:eex, "templates/registration/new.html.eex", Path.join([web_path(), "templates", "haytni", "registration", "new.html.eex"])},
-      {:text, "templates/registration/edit.html.eex", Path.join([web_path(), "templates", "haytni", "registration", "edit.html.eex"])},
+      {:eex, "views/registration_view.ex", Path.join([web_path, "views", "haytni", scope, "registration_view.ex"])},
+      {:eex, "templates/registration/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "registration", "new.html.eex"])},
+      {:eex, "templates/registration/edit.html.eex", Path.join([web_path, "templates", "haytni", scope, "registration", "edit.html.eex"])},
     ]
   end
 

@@ -13,7 +13,7 @@ defmodule Haytni.LockableEmail do
     |> assign(:user, user)
     |> from(module.mailer().from())
     |> subject(dgettext("haytni", "Unlock instructions"))
-    |> put_view(Module.concat([module.web_module(), :Haytni, :Email, :LockableView]))
+    |> put_view(module, "Email.LockableView")
     |> put_text_template("unlock_instructions.text")
     |> put_html_template("unlock_instructions.html")
   end

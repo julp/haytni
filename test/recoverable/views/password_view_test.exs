@@ -18,7 +18,7 @@ defmodule Haytni.Recoverable.PasswordViewTest do
       {:error, changeset} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, params)
       changeset
     end
-    content = render_to_string(HaytniTestWeb.Haytni.PasswordView, "new.html", conn: conn, changeset: changeset, config: config, module: HaytniTestWeb.Haytni)
+    content = render_to_string(HaytniTestWeb.Haytni.User.PasswordView, "new.html", conn: conn, changeset: changeset, config: config, module: HaytniTestWeb.Haytni)
 
     for key <- config.reset_password_keys do
       assert String.contains?(content, "name=\"password[#{key}]\"")
@@ -51,7 +51,7 @@ defmodule Haytni.Recoverable.PasswordViewTest do
 
   test "renders edit.html", %{conn: conn} do
     changeset = Haytni.Recoverable.PasswordChange.change_password(HaytniTestWeb.Haytni, %{})
-    content = render_to_string(HaytniTestWeb.Haytni.PasswordView, "edit.html", conn: conn, changeset: changeset, module: HaytniTestWeb.Haytni)
+    content = render_to_string(HaytniTestWeb.Haytni.User.PasswordView, "edit.html", conn: conn, changeset: changeset, module: HaytniTestWeb.Haytni)
     assert String.contains?(content, "name=\"password[password]\"")
     assert String.contains?(content, "name=\"password[password_confirmation]\"")
   end
@@ -61,7 +61,7 @@ defmodule Haytni.Recoverable.PasswordViewTest do
     config = Haytni.RecoverablePlugin.build_config()
 
     {:error, changeset} = Haytni.RecoverablePlugin.recover(module, config, %{"reset_password_token" => "not a match", "password" => "H1b0lnc9c!ZPGTr9Itje", "password_confirmation" => "H1b0lnc9c!ZPGTr9Itje"})
-    content = render_to_string(HaytniTestWeb.Haytni.PasswordView, "edit.html", conn: conn, changeset: changeset, module: module)
+    content = render_to_string(HaytniTestWeb.Haytni.User.PasswordView, "edit.html", conn: conn, changeset: changeset, module: module)
     assert String.contains?(content, "name=\"password[password]\"")
     assert String.contains?(content, "name=\"password[password_confirmation]\"")
     assert contains_text?(content, Haytni.RecoverablePlugin.invalid_token_message())

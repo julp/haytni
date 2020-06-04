@@ -28,6 +28,28 @@ defmodule Haytni.Mail do
   end
 
   @doc ~S"""
+  Set and infer the full name of the view for email from *module* and its scope.
+
+  Example: if `view_suffix = "Email.NewLoginNotification"` and scope associated to *module* is `:admin`
+  the view module is set to `YourAppWeb.Admin.Email.NewLoginNotification` if it exists else fallback to
+  `YourAppWeb.Email.NewLoginNotification`.
+  """
+  @spec put_view(email :: Bamboo.Email.t, module :: module, view_suffix :: atom | String.t) :: Bamboo.Email.t
+  def put_view(email = %Bamboo.Email{}, module, view_suffix) do
+    view_module = Module.concat([module.web_module(), :Haytni, Phoenix.Naming.camelize(to_string(module.scope())), view_suffix])
+    |> Code.ensure_compiled()
+    |> case do
+      {:module, module} ->
+        module
+      _ ->
+        Module.concat([module.web_module(), :Haytni, view_suffix])
+    end
+
+    email
+    |> put_view(view_module)
+  end
+
+  @doc ~S"""
   Sets the template for when rendering the email as plain text.
 
   NOTE: the view (see `put_view/2`) has to be set prior to a call to `put_text_template/2`.

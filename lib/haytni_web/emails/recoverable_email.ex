@@ -13,7 +13,7 @@ defmodule Haytni.RecoverableEmail do
     |> assign(:user, user)
     |> from(module.mailer().from())
     |> subject(dgettext("haytni", "Reset password instructions"))
-    |> put_view(Module.concat([module.web_module(), :Haytni, :Email, :RecoverableView]))
+    |> put_view(module, "Email.RecoverableView")
     |> put_text_template("reset_password_instructions.text")
     |> put_html_template("reset_password_instructions.html")
   end

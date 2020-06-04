@@ -2,12 +2,12 @@
 
 <%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :create), [as: :password], fn f -> %>
 
-  <%%= render <%= inspect web_module %>.Haytni.SharedView, "keys.html", changeset: @changeset, f: f, keys: @config.reset_password_keys %>
+  <%%= render <%= inspect Module.concat([web_module, :Haytni, camelized_scope, "SharedView"]) %>, "keys.html", changeset: @changeset, f: f, keys: @config.reset_password_keys %>
 
   <div class="form-group">
     <%%= submit Haytni.Gettext.dgettext("haytni", "Send me reset password instructions") %>
   </div>
 
-  <%%= render <%= inspect web_module %>.Haytni.SharedView, "links.html", assigns %>
+  <%%= render <%= inspect Module.concat([web_module, :Haytni, camelized_scope, "SharedView"]) %>, "links.html", assigns %>
 
 <%% end %>

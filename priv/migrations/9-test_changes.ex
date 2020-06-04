@@ -1,12 +1,12 @@
-defmodule Haytni.Migrations.TestChanges do
+defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "TestChanges"]) %> do
   use Ecto.Migration
 
-  def change do
-    create_if_not_exists table(<%= inspect table %>) do
+  def change(table \\ <%= inspect table %>) do
+    create_if_not_exists table(table) do
       # NOP
     end
 
-    alter table(<%= inspect table %>) do
+    alter table(table) do
       add :dummy, :boolean, null: false, default: false
 
       add :lastname, :string, null: true, default: nil
@@ -14,7 +14,7 @@ defmodule Haytni.Migrations.TestChanges do
     end
 
     admin_table = HaytniTest.Admin.__schema__(:source)
-    Haytni.Migrations.AuthenticableCreation.change(admin_table)
-    Haytni.Migrations.TrackableChanges.change(admin_table, :admin)
+    <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "AuthenticableCreation"]) %>.change(admin_table)
+    <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "TrackableChanges"]) %>.change(admin_table, :admin)
   end
 end

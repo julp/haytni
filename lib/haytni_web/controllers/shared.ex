@@ -75,7 +75,7 @@ defmodule HaytniWeb.Shared do
     conn
     |> assign(:type, type)
     |> assign(:message, message)
-    |> put_view(Module.concat([module.web_module(), :Haytni, :SharedView]))
+    |> HaytniWeb.Helpers.put_view(module, "SharedView")
     |> render("message.html")
   end
 end

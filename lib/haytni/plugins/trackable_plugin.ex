@@ -22,11 +22,10 @@ defmodule Haytni.TrackablePlugin do
   use Haytni.Plugin
 
   @impl Haytni.Plugin
-  def files_to_install do
-    import Mix.Tasks.Haytni.Install, only: [web_path: 0, timestamp: 0]
+  def files_to_install(_base_path, web_path, scope, timestamp) do
     [
       # migration
-      {:eex, "migrations/0-trackable_changes.ex", Path.join([web_path(), "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_trackable_changes.ex"])}, # TODO: less "hacky"
+      {:eex, "migrations/0-trackable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_trackable_#{scope}_changes.ex"])},
     ]
   end
 

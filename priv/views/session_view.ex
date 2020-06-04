@@ -1,4 +1,4 @@
-defmodule <%= inspect web_module %>.Haytni.SessionView do
+defmodule <%= inspect Module.concat([web_module, :Haytni, camelized_scope, "SessionView"]) %> do
   use <%= inspect web_module %>, :view
   require Haytni.Gettext
   require HaytniTestView
