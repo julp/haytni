@@ -201,6 +201,20 @@ defmodule Haytni do
   end
 
   @doc ~S"""
+  Get the list of shared (templates/views) or independant (Haytni stack) files to install
+  """
+  @spec shared_files_to_install(base_path :: String.t, web_path :: String.t, scope :: String.t, timestamp :: String.t) :: [{:eex | :text, String.t, String.t}]
+  def shared_files_to_install(base_path, web_path, scope, _timestamp) do
+    [
+      {:eex, "haytni.ex", Path.join([base_path, "haytni.ex"])},
+      {:eex, "views/shared_view.ex", Path.join([web_path, "views", "haytni", scope, "shared_view.ex"])},
+      {:eex, "templates/shared/keys.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.eex"])},
+      {:eex, "templates/shared/links.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "links.html.eex"])},
+      {:eex, "templates/shared/message.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "message.html.eex"])},
+    ]
+  end
+
+  @doc ~S"""
   Returns `true` if *plugin* is enabled in the *module* Haytni stack.
   """
   @spec plugin_enabled?(module :: module, plugin :: module) :: boolean

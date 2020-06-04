@@ -15,6 +15,21 @@ defmodule Haytni.InstallTaskTest do
   ]
 
   @spec file_list_for(plugin :: module, scope :: String.t, table :: String.t, camelized_scope :: String.t) :: [{String.t, Haytni.TestHelpers.match}]
+  defp file_list_for(Haytni, scope, _table, camelized_scope) do
+    [
+      # views
+      {"lib/haytni_web/views/haytni/#{scope}/shared_view.ex", [
+        "defmodule HaytniWeb.Haytni.#{camelized_scope}.SharedView do",
+      ]},
+      # templates
+      {"lib/haytni_web/templates/haytni/#{scope}/shared/keys.html.eex", []},
+      {"lib/haytni_web/templates/haytni/#{scope}/shared/message.html.eex", []},
+      {"lib/haytni_web/templates/haytni/#{scope}/shared/links.html.eex", [
+        "HaytniWeb.Router.Helpers.haytni_#{scope}_session_path(",
+      ]},
+    ]
+  end
+
   defp file_list_for(Haytni.AuthenticablePlugin, scope, table, camelized_scope) do
     [
       # views
@@ -24,15 +39,6 @@ defmodule Haytni.InstallTaskTest do
       # templates
       {"lib/haytni_web/templates/haytni/#{scope}/session/new.html.eex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_session_path(",
-      ]},
-      # shared templates
-      {"lib/haytni_web/templates/haytni/#{scope}/shared/keys.html.eex", []},
-      {"lib/haytni_web/templates/haytni/#{scope}/shared/message.html.eex", []},
-      {"lib/haytni_web/templates/haytni/#{scope}/shared/links.html.eex", [
-        "HaytniWeb.Router.Helpers.haytni_#{scope}_session_path(",
-      ]},
-      {"lib/haytni_web/views/haytni/#{scope}/shared_view.ex", [
-        "defmodule HaytniWeb.Haytni.#{camelized_scope}.SharedView do",
       ]},
       # migration
       {"priv/repo/migrations/*_haytni_authenticable_#{scope}_changes.ex", [
@@ -228,11 +234,11 @@ defmodule Haytni.InstallTaskTest do
           end
 
           Enum.each(
-            @plugins,
+            @plugins ++ [Haytni],
             fn plugin ->
               Enum.each(
                 file_list_for(plugin, scope, table, camelized_scope),
-                &(to_assertion(plugin in plugins, &1))
+                &(to_assertion(Haytni == plugin or plugin in plugins, &1))
               )
             end
           )

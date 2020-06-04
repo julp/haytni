@@ -79,18 +79,12 @@ defmodule Haytni.AuthenticablePlugin do
   end
 
   @impl Haytni.Plugin
-  def files_to_install(base_path, web_path, scope, timestamp) do
+  def files_to_install(_base_path, web_path, scope, timestamp) do
     [
       {:eex, "views/session_view.ex", Path.join([web_path, "views", "haytni", scope, "session_view.ex"])},
       {:eex, "templates/session/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "session", "new.html.eex"])},
       # migration
       {:eex, "migrations/0-authenticable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_authenticable_#{scope}_changes.ex"])},
-      # TODO: put shared stuffs elsewhere
-      {:eex, "haytni.ex", Path.join([base_path, "haytni.ex"])},
-      {:eex, "views/shared_view.ex", Path.join([web_path, "views", "haytni", scope, "shared_view.ex"])},
-      {:eex, "templates/shared/keys.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.eex"])},
-      {:eex, "templates/shared/links.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "links.html.eex"])},
-      {:eex, "templates/shared/message.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "message.html.eex"])},
     ]
   end
 

@@ -12,10 +12,14 @@ defmodule Mix.Tasks.Haytni.Uninstall do
 
     web_path = web_path()
     base_path = base_path()
+    timestamp = "<UNUSED>"
     scope_as_string = Keyword.get(opts, :scope, "user")
     Keyword.get_values(opts, :plugin)
     |> Enum.map(&(Module.concat([&1])))
-    |> Enum.reduce([], &(&1.files_to_install(base_path, web_path, scope_as_string, "<UNUSED>") ++ &2))
+    |> Enum.reduce(
+      Haytni.shared_files_to_install(base_path, web_path, scope_as_string, timestamp),
+      &(&1.files_to_install(base_path, web_path, scope_as_string, timestamp) ++ &2)
+    )
     |> rm_from()
   end
 
