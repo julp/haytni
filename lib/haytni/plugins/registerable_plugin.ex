@@ -92,7 +92,7 @@ defmodule Haytni.RegisterablePlugin do
   end
 
   @impl Haytni.Plugin
-  def files_to_install(_base_path, web_path, scope) do
+  def files_to_install(_base_path, web_path, scope, _timestamp) do
     [
       {:eex, "views/registration_view.ex", Path.join([web_path, "views", "haytni", scope, "registration_view.ex"])},
       {:eex, "templates/registration/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "registration", "new.html.eex"])},

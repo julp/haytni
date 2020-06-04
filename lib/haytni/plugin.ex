@@ -58,7 +58,7 @@ defmodule Haytni.Plugin do
       + plugins (*[module]*): the list of the enabled modules
     * `:text`: to copy the file as is
   """
-  @callback files_to_install(base_path :: String.t, web_path :: String.t, scope :: String.t) :: [{:eex | :text, String.t, String.t}]
+  @callback files_to_install(base_path :: String.t, web_path :: String.t, scope :: String.t, timestamp :: String.t) :: [{:eex | :text, String.t, String.t}]
 
   @doc ~S"""
   Extract the user from the HTTP request (http authentication, cookies, ...).
@@ -184,7 +184,7 @@ end
       def invalid?(_user = %_{}, _config), do: false
       def find_user(conn = %Plug.Conn{}, _module, _config), do: {conn, nil}
       def on_failed_authentication(_user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config), do: {multi, keywords}
-      def files_to_install(_base_path, _web_path, _scope), do: []
+      def files_to_install(_base_path, _web_path, _scope, _timestamp), do: []
       def on_logout(conn = %Plug.Conn{}, _config), do: conn
       def on_registration(multi = %Ecto.Multi{}, _module, _config), do: multi
       def validate_password(changeset = %Ecto.Changeset{}, _config), do: changeset
@@ -203,7 +203,7 @@ end
         #shared_links: 1,
         on_registration: 3,
         on_email_change: 4,
-        files_to_install: 3,
+        files_to_install: 4,
         on_failed_authentication: 5,
         on_successful_authentication: 5,
         validate_password: 2,

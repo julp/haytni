@@ -79,13 +79,12 @@ defmodule Haytni.AuthenticablePlugin do
   end
 
   @impl Haytni.Plugin
-  def files_to_install(base_path, web_path, scope) do
-    import Mix.Tasks.Haytni.Install, only: [timestamp: 0]
+  def files_to_install(base_path, web_path, scope, timestamp) do
     [
       {:eex, "views/session_view.ex", Path.join([web_path, "views", "haytni", scope, "session_view.ex"])},
       {:eex, "templates/session/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "session", "new.html.eex"])},
       # migration
-      {:eex, "migrations/0-authenticable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_authenticable_#{scope}_changes.ex"])}, # TODO: less "hacky"
+      {:eex, "migrations/0-authenticable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_authenticable_#{scope}_changes.ex"])},
       # TODO: put shared stuffs elsewhere
       {:eex, "haytni.ex", Path.join([base_path, "haytni.ex"])},
       {:eex, "views/shared_view.ex", Path.join([web_path, "views", "haytni", scope, "shared_view.ex"])},

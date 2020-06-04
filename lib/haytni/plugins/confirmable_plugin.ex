@@ -57,8 +57,7 @@ defmodule Haytni.ConfirmablePlugin do
   end
 
   @impl Haytni.Plugin
-  def files_to_install(_base_path, web_path, scope) do
-    import Mix.Tasks.Haytni.Install, only: [timestamp: 0]
+  def files_to_install(_base_path, web_path, scope, timestamp) do
     [
       # HTML
       {:eex, "views/confirmation_view.ex", Path.join([web_path, "views", "haytni", scope, "confirmation_view.ex"])},
@@ -73,7 +72,7 @@ defmodule Haytni.ConfirmablePlugin do
       {:eex, "templates/email/confirmable/reconfirmation_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "reconfirmation_instructions.text.eex"])},
       {:eex, "templates/email/confirmable/reconfirmation_instructions.html.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "reconfirmation_instructions.html.eex"])},
       # migration
-      {:eex, "migrations/0-confirmable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp()}_haytni_confirmable_#{scope}_changes.ex"])}, # TODO: less "hacky"
+      {:eex, "migrations/0-confirmable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_confirmable_#{scope}_changes.ex"])},
     ]
   end
 

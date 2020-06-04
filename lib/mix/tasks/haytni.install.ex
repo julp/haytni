@@ -19,8 +19,9 @@ defmodule Mix.Tasks.Haytni.Install do
 
     web_path = web_path()
     base_path = base_path()
+    timestamp = timestamp()
     files_to_install = plugins
-    |> Enum.reduce([], &(&1.files_to_install(base_path, web_path, scope_as_string) ++ &2))
+    |> Enum.reduce([], &(&1.files_to_install(base_path, web_path, scope_as_string, timestamp) ++ &2))
 
     binding = Keyword.new()
     |> Keyword.put(:otp_app, otp_app)
