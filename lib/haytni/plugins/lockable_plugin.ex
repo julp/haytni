@@ -149,8 +149,53 @@ defmodule Haytni.LockablePlugin do
       end
       {multi, Keyword.merge(keywords, lock_attributes(config))}
     else
-      # TODO: this is not really safe, better to append to the multi an UPDATE ... SET failed_attempts = failed_attempts + 1 ...
-      {multi, Keyword.put(keywords, :failed_attempts, user.failed_attempts + 1)}
+      import Ecto.Query
+
+      schema = user.__struct__ # <=> module.schema()
+      where = dynamic([u], is_nil(u.locked_at))
+      where = if config.unlock_strategy in ~W[both time]a do
+        dynamic([u], u.locked_at < ago(^config.unlock_in, "second") or ^where)
+      else
+        where
+      end
+      where = schema.__schema__(:primary_key)
+      |> Enum.reduce(
+        where,
+        fn field, acc ->
+          dynamic([u], field(u, ^field) == ^Map.fetch!(user, field) and ^acc)
+        end
+      )
+      query = from(
+        u in schema,
+        #select: u.failed_attempts, # not supported by MySQL
+        where: ^where
+      )
+
+      multi = multi
+      |> Ecto.Multi.update_all(:increment_failed_attempts, query, inc: [failed_attempts: 1])
+      # NOTE: uncomment the following line, remove quotes and assignment below if *select* key from the query above is left uncommented
+      #maximum_attempts = config.maximum_attempts
+      _ = """
+      |> Ecto.Multi.run(
+        :lock,
+        fn
+          # increment done and database returned the new amount of failed attempts
+          repo, %{increment_failed_attempts: {1, [new_failed_attempts]}} when is_integer(new_failed_attempts) and new_failed_attempts >= maximum_attempts ->
+            user
+            |> Ecto.Changeset.change(lock_attributes(config))
+            |> repo.update()
+            if email_strategy_enabled?(config) do
+              send_unlock_instructions_mail_to_user(user, module, config)
+            end
+            {:ok, true}
+          # the account is already locked and has not yet expired or the database doesn't have any equivalent to PostgreSQL's RETURNING clause
+          _repo, _ ->
+            {:ok, false}
+        end
+      )
+      """
+
+      {multi, keywords}
     end
   end
 

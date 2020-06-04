@@ -14,15 +14,28 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
     end
 
     test "ensures failed_attempts is (only) incremented while it doesn't exceed maximum_attempts", %{config: config} do
-      user = %User{locked_at: nil, unlock_token: nil, failed_attempts: 0}
+      #user = %User{id: 0, locked_at: nil, unlock_token: nil, failed_attempts: 0}
+      user = user_fixture()
+      updates = [inc: [failed_attempts: 1]]
 
       Range.new(0, config.maximum_attempts - 2)
-      |> Enum.each(
-        fn attempt ->
-          {multi, changes} = on_failed_authentication(config, %{user | failed_attempts: attempt})
+      |> Enum.reduce(
+        user,
+        fn attempt, user ->
+          assert user.failed_attempts == attempt
 
-          assert [] == Ecto.Multi.to_list(multi)
-          assert [failed_attempts: attempt + 1] == changes
+          {multi, changes} = on_failed_authentication(config, user)
+          assert [{:increment_failed_attempts, {:update_all, query, ^updates, []}}] = Ecto.Multi.to_list(multi)
+          assert [] == changes
+
+          HaytniTest.Repo.update_all(query, updates)
+          [updated_user] = HaytniTest.Repo.all(user.__struct__)
+          assert updated_user.id == user.id
+          assert updated_user.failed_attempts == user.failed_attempts + 1
+          assert is_nil(updated_user.locked_at)
+          assert is_nil(updated_user.unlock_token)
+
+          updated_user
         end
       )
     end
