@@ -41,7 +41,7 @@ defmodule Haytni.InstallTaskTest do
         "HaytniWeb.Router.Helpers.haytni_#{scope}_session_path(",
       ]},
       # migration
-      {"priv/repo/migrations/*_haytni_authenticable_#{scope}_changes.ex", [
+      {"priv/repo/migrations/*_haytni_authenticable_#{scope}_changes.exs", [
         ~s'def change(table \\\\ "#{table}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.AuthenticableCreation do",
       ]},
@@ -67,7 +67,7 @@ defmodule Haytni.InstallTaskTest do
   defp file_list_for(Haytni.TrackablePlugin, scope, table, camelized_scope) do
     [
       # migration
-      {"priv/repo/migrations/*_haytni_trackable_#{scope}_changes.ex", [
+      {"priv/repo/migrations/*_haytni_trackable_#{scope}_changes.exs", [
         ~s'def change(table \\\\ "#{table}", scope \\\\ "#{scope}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.TrackableChanges do",
       ]},
@@ -77,7 +77,7 @@ defmodule Haytni.InstallTaskTest do
   defp file_list_for(Haytni.RememberablePlugin, scope, table, camelized_scope) do
     [
       # migration
-      {"priv/repo/migrations/*_haytni_rememberable_#{scope}_changes.ex", [
+      {"priv/repo/migrations/*_haytni_rememberable_#{scope}_changes.exs", [
         ~s'def change(table \\\\ "#{table}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.RememberableChanges do",
       ]},
@@ -104,7 +104,7 @@ defmodule Haytni.InstallTaskTest do
         "HaytniWeb.Router.Helpers.haytni_#{scope}_unlock_url(",
       ]},
       # migration
-      {"priv/repo/migrations/*_haytni_lockable_#{scope}_changes.ex", [
+      {"priv/repo/migrations/*_haytni_lockable_#{scope}_changes.exs", [
         ~s'def change(table \\\\ "#{table}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.LockableChanges do",
       ]},
@@ -134,7 +134,7 @@ defmodule Haytni.InstallTaskTest do
         "HaytniWeb.Router.Helpers.haytni_#{scope}_password_url(",
       ]},
       # migration
-      {"priv/repo/migrations/*_haytni_recoverable_#{scope}_changes.ex", [
+      {"priv/repo/migrations/*_haytni_recoverable_#{scope}_changes.exs", [
         ~s'def change(table \\\\ "#{table}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.RecoverableChanges do",
       ]},
@@ -169,7 +169,7 @@ defmodule Haytni.InstallTaskTest do
         "HaytniWeb.Router.Helpers.haytni_#{scope}_confirmation_url(",
       ]},
       # migration
-      {"priv/repo/migrations/*_haytni_confirmable_#{scope}_changes.ex", [
+      {"priv/repo/migrations/*_haytni_confirmable_#{scope}_changes.exs", [
         ~s'def change(table \\\\ "#{table}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.ConfirmableChanges do",
       ]},

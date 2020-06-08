@@ -89,7 +89,7 @@ defmodule Haytni.LockablePlugin do
       {:eex, "templates/email/lockable/unlock_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "lockable", "unlock_instructions.text.eex"])},
       {:eex, "templates/email/lockable/unlock_instructions.html.eex", Path.join([web_path, "templates", "haytni", scope, "email", "lockable", "unlock_instructions.html.eex"])},
       # migration
-      {:eex, "migrations/0-lockable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_lockable_#{scope}_changes.ex"])},
+      {:eex, "migrations/0-lockable_changes.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_lockable_#{scope}_changes.exs"])},
     ]
   end
 

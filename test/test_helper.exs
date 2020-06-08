@@ -55,7 +55,7 @@ binding = [
   table: HaytniTestWeb.HaytniAdmin.schema().__schema__(:source),
 ]
 
-~W[0-lockable_changes.ex]
+~W[0-lockable_changes.exs]
 |> Enum.each(
   fn migration ->
     module = Haytni.TestHelpers.onfly_module_from_eex(Path.join(migration_root, migration), binding)

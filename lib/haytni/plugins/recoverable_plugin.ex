@@ -60,7 +60,7 @@ defmodule Haytni.RecoverablePlugin do
       {:eex, "templates/email/recoverable/reset_password_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "recoverable", "reset_password_instructions.text.eex"])},
       {:eex, "templates/email/recoverable/reset_password_instructions.html.eex", Path.join([web_path, "templates", "haytni", scope, "email", "recoverable", "reset_password_instructions.html.eex"])},
       # migration
-      {:eex, "migrations/0-recoverable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_recoverable_#{scope}_changes.ex"])},
+      {:eex, "migrations/0-recoverable_changes.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_recoverable_#{scope}_changes.exs"])},
     ]
   end
 

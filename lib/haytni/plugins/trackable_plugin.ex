@@ -25,7 +25,7 @@ defmodule Haytni.TrackablePlugin do
   def files_to_install(_base_path, web_path, scope, timestamp) do
     [
       # migration
-      {:eex, "migrations/0-trackable_changes.ex", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_trackable_#{scope}_changes.ex"])},
+      {:eex, "migrations/0-trackable_changes.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_trackable_#{scope}_changes.exs"])},
     ]
   end
 
