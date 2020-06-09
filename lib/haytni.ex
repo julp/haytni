@@ -69,7 +69,7 @@ defmodule Haytni do
         unquote(fetch_env!(__CALLER__.module)[:schema])
       end
 
-      @spec schema() :: module
+      @spec repo() :: module
       def repo do
         unquote(fetch_env!(__CALLER__.module)[:repo])
       end
