@@ -55,6 +55,7 @@ defmodule Haytni.MixProject do
       {:excoveralls, "~> 0.13", only: :test},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:sobelow, "~> 0.10", only: :test},
+      #{:myxql, ">= 0.0.0", only: :test},
       {:postgrex, ">= 0.0.0", only: :test},
     ]
   end

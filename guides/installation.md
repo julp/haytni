@@ -7,6 +7,7 @@ def deps do
   [
     # ...
     {:haytni, "~> 0.6.0"},
+    {:ecto_network, "~> 1.3.0"}, # for TrackablePlugin only with PostgreSQL
   ]
 end
 ```

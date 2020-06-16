@@ -68,7 +68,7 @@ defmodule Haytni.InstallTaskTest do
     [
       # migration
       {"priv/repo/migrations/*_haytni_trackable_#{scope}_changes.exs", [
-        ~s'def change(table \\\\ "#{table}", scope \\\\ "#{scope}") do',
+        ~s'def change(users_table \\\\ "#{table}", scope \\\\ "#{scope}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.TrackableChanges do",
       ]},
     ]

@@ -29,6 +29,29 @@ defmodule Haytni.TrackablePlugin do
     ]
   end
 
+  def __after_compile__(env, _bytecode) do
+    contents = quote do
+      use Ecto.Schema
+      import Ecto.Changeset
+
+      schema "#{unquote(env.module.__schema__(:source))}_connections" do
+        field :ip, unquote(Module.get_attribute(env.module, :__ip_type__))
+        timestamps(updated_at: false)
+
+        belongs_to unquote(String.to_atom(Phoenix.Naming.resource_name(env.module))), unquote(env.module)
+      end
+
+      @attributes ~W[ip]a
+      def changeset(struct = %__MODULE__{}, params \\ %{}) do
+        struct
+        |> cast(params, @attributes)
+        |> validate_required(@attributes)
+      end
+    end
+
+    Module.create(env.module.__schema__(:association, :connections).related, contents, env)
+  end
+
   @impl Haytni.Plugin
   def fields(module) do
     ip_type = case module.repo().__adapter__() do
@@ -38,38 +61,15 @@ defmodule Haytni.TrackablePlugin do
         :string
     end
 
-    scope = module.scope()
-    quote bind_quoted: [ip_type: ip_type, scope: scope] do
-      connection_module = __MODULE__
-      |> Module.split()
-      |> List.update_at(-1, &(&1 <> "Connection"))
-      |> Module.concat()
+    quote bind_quoted: [ip_type: ip_type] do
+      Module.put_attribute(__MODULE__, :__ip_type__, ip_type)
 
-      contents = quote do
-        use Ecto.Schema
-        import Ecto.Changeset
-
-        schema "#{unquote(scope)}_connections" do
-          field :ip, unquote(ip_type)
-          timestamps(updated_at: false)
-
-          belongs_to unquote(String.to_atom(Phoenix.Naming.resource_name(__MODULE__))), unquote(__MODULE__)
-        end
-
-        @attributes ~W[ip]a
-        def changeset(struct = %__MODULE__{}, params \\ %{}) do
-          struct
-          |> cast(params, @attributes)
-          |> validate_required(@attributes)
-        end
-      end
-
-      Module.create(connection_module, contents, Macro.Env.location(__ENV__))
+      @after_compile Haytni.TrackablePlugin
 
       field :last_sign_in_at, :utc_datetime
       field :current_sign_in_at, :utc_datetime
 
-      has_many :connections, connection_module
+      has_many :connections, Haytni.Helpers.scope_module(__MODULE__, "Connection")
     end
   end
 

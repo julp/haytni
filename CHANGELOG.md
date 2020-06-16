@@ -1,6 +1,8 @@
 ?.?.?
 
 - fix wrong extension for migrations (.ex => .exs)
+- [Trackable] fixed table name (singular => plural, eg: user_connections becomes user**s**_connections)
+- [Trackable] no longer PostgreSQL specific but a "dummy" `VARCHAR(39)` will be used for storage for others RDBMS
 - [Authenticable] DELETE method can be overriden for logout by giving the option `logout_method: :get` to your YourApp.Haytni.routes/1 call
 - paths used to generate the routes created by plugins can be customized at your YourApp.Haytni.routes/1 call, see their respective documentation for further details
 - [Lockable] Incrementation of failed_attempts has been moved into the *multi* to make the UPDATE atomic and makes this counter reliable
@@ -62,6 +64,22 @@ defmodule YourRepo.Migrations.UsersUpdateToCitextTable do
   end
 
   execute("REINDEX users_email_index FORCE")
+end
+```
+
+- [Trackable] to keep your <scope>_connections tables, rename them by a plain SQL command: `ALTER TABLE user_connections RENAME TO users_connections;` or a migration:
+
+```
+defmodule YourRepo.Migrations.RenameUserConnectionsTable do
+  use Ecto.Migration
+
+  def up do
+    rename table("user_connections"), to: table("users_connections")
+  end
+
+  def down do
+    rename table("users_connections"), to: table("user_connections")
+  end
 end
 ```
 

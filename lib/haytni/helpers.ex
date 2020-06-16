@@ -151,6 +151,20 @@ defmodule Haytni.Helpers do
     end
   end
 
+  @doc """
+  Generates a module name by appending *suffix* to *module*
+
+      iex> #{__MODULE__}.scope_module(YourApp.User, "Connection")
+      YourApp.UserConnection
+  """
+  @spec scope_module(module :: module, suffix :: String.t) :: atom
+  def scope_module(module, suffix) do
+    module
+    |> Module.split()
+    |> List.update_at(-1, &(&1 <> suffix))
+    |> Module.concat()
+  end
+
   @doc ~S"""
   Helper intended for plugins for the implementation of their `build_config/1` callback. It merges the values of *params*
   into *struct*, their default configuration and automatically converting *duration_keys* from *Haytni.duration* to seconds.

@@ -8,6 +8,12 @@ defmodule Haytni.Trackable.OnSuccessfulAuthentificationTest do
     |> HaytniTest.Repo.all()
   end
 
+  @loopback (if HaytniTest.Repo.__adapter__() == Ecto.Adapters.Postgres do
+    %Postgrex.INET{address: {127, 0, 0, 1}, netmask: 32}
+  else
+    "127.0.0.1"
+  end)
+
   describe "Haytni.TrackablePlugin.on_successful_authentication/5 (callback)" do
     setup do
       {:ok, user: user_fixture()}
@@ -26,7 +32,7 @@ defmodule Haytni.Trackable.OnSuccessfulAuthentificationTest do
       #assert changes[:assert current_sign_in_at] ~ Haytni.Helpers.now()
 
       HaytniTest.Repo.transaction(multi)
-      assert [%HaytniTest.UserConnection{user_id: ^id, ip: %Postgrex.INET{address: {127, 0, 0, 1}, netmask: 32}}] = list_connections()
+      assert [%HaytniTest.UserConnection{user_id: ^id, ip: @loopback}] = list_connections()
     end
   end
 end
