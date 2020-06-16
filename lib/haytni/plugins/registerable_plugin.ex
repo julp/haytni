@@ -49,8 +49,11 @@ defmodule Haytni.RegisterablePlugin do
   Configuration:
 
     * `email_regexp` (default: `#{inspect(@default_email_regexp)}`): the `Regex` that an email at registration or profile edition needs to match
-    * `case_insensitive_keys` (default: `~W[email]a`): list of fields to automatically downcase on registration. May be unneeded depending on your database (eg: *citext* columns for PostgreSQL or columns with a collation suffixed by "\_ci" for MySQL)
-    * `strip_whitespace_keys` (default: `~W[email]a`): list of fields to automatically strip from whitespaces
+    * `case_insensitive_keys` (default: `~W[email]a`): list of fields to automatically downcase on registration. May be unneeded depending on your
+      database (eg: *citext* columns for PostgreSQL or columns with a collation suffixed by "\_ci" for MySQL). You **SHOULD NOT** include the
+      password field here!
+    * `strip_whitespace_keys` (default: `~W[email]a`): list of fields to automatically strip from whitespaces. You **SHOULD NEITHER** include the
+      password field here, to exclude any involuntary mistake, you should instead consider using a custom validation.
     * `email_index_name` (default: `"users_email_index"`): the name of the unique index/constraint on email field
     * `registration_disabled?` (default: `false`): disable any new registration (existing users are still able to login, edit their profile, ...)
 

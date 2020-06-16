@@ -32,7 +32,7 @@ defmodule Haytni.ConfirmablePlugin do
   Routes:
 
     * `haytni_<scope>_confirmation_path` (actions: show, new/create): default path is `#{inspect(@default_confirmation_path)}` but it can be redefined by the
-      `#{inspect(@confirmation_path_key)}` option when calling YourApp.Haytni.routes/1 from your own router (eg: `YourApp.Haytni.routes(confirmation_path: "/verification")`)
+      `#{inspect(@confirmation_path_key)}` option when calling YourApp.Haytni.routes/1 from your own router (eg: `YourApp.Haytni.routes(#{@confirmation_path_key}: "/verification")`)
   """
 
   import Haytni.Gettext
@@ -300,7 +300,7 @@ defmodule Haytni.ConfirmablePlugin do
 
   @doc ~S"""
   This function converts the parameters received by the controller to request a new confirmation token sent by email to an `%Ecto.Changeset{}`,
-  a convenient to perform basic validations, any intermediate handling and casting.
+  a convenient way to perform basic validations, any intermediate handling and casting.
   """
   @spec confirmation_request_changeset(config :: Config.t, confirmation_params :: %{optional(String.t) => String.t}) :: Ecto.Changeset.t
   def confirmation_request_changeset(config, confirmation_params \\ %{}) do

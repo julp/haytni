@@ -25,7 +25,7 @@ defmodule Haytni.RecoverablePlugin do
   Routes:
 
     * `haytni_<scope>_password_path` (actions: new/create, edit/update): default path is `#{inspect(@default_password_path)}` but you can customize it to whatever
-      you want by specifying the option `#{inspect(@password_path_key)}` to your YourApp.Haytni.routes/1 call in your router (eg: `YourApp.Haytni.routes(password_path: "/recover")`)
+      you want by specifying the option `#{inspect(@password_path_key)}` to your YourApp.Haytni.routes/1 call in your router (eg: `YourApp.Haytni.routes(#{@password_path_key}: "/recover")`)
   """
 
   import Haytni.Gettext

@@ -35,7 +35,7 @@ defmodule Haytni.LockablePlugin do
   Routes:
 
     * `haytni_<scope>_unlock_path` (actions: new/create, show): default path is `#{inspect(@default_unlock_path)}` but you can override it by the
-      `#{inspect(@unlock_path_key)}` option when calling YourApp.Haytni.routes/1 from your router (eg: `YourApp.Haytni.routes(unlock_path: "/unblock")`)
+      `#{inspect(@unlock_path_key)}` option when calling YourApp.Haytni.routes/1 from your router (eg: `YourApp.Haytni.routes(#{@unlock_path_key}: "/unblock")`)
   """
 
   import Haytni.Gettext
