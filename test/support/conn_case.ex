@@ -18,7 +18,8 @@ defmodule HaytniWeb.ConnCase do
   using do
     quote do
       # Import conveniences for testing with connections
-      use Phoenix.ConnTest
+      import Plug.Conn
+      import Phoenix.ConnTest
       import Haytni.TestHelpers
       alias Haytni.Params
       alias HaytniTestWeb.Router.Helpers, as: Routes

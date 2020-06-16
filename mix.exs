@@ -39,22 +39,22 @@ defmodule Haytni.MixProject do
   defp deps do
     [
       {:gettext, ">= 0.0.0"},
-      {:bcrypt_elixir, "~> 2.0"}, # implies erlang > 20
+      {:bcrypt_elixir, "~> 2.2"}, # implies erlang > 20
       #{:argon2_elixir, "~> 2.0"},
       #{:pbkdf2_elixir, "~> 1.0"},
-      {:ecto_sql, "~> 3.0"},
-      {:phoenix, "~> 1.4"},
-      {:phoenix_ecto, "~> 4.0"},
-      {:phoenix_html, "~> 2.11"},
-      {:ecto_network, "~> 1.2.0"}, # required by plugin: trackable
+      {:ecto_sql, "~> 3.4"},
+      {:phoenix, "~> 1.5"},
+      {:phoenix_ecto, "~> 4.1"},
+      {:phoenix_html, "~> 2.14"},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       # jason is "optional" to phoenix and bamboo
-      {:jason, "~> 1.1"},
-      {:bamboo, "~> 1.3"}, # required by plugins: confirmable, lockable and recoverable
-      {:dialyxir, "~> 1.0.0-rc.7", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.10", only: :test},
+      {:jason, "~> 1.2"},
+      {:bamboo, "~> 1.5"}, # required by plugins: confirmable, lockable, recoverable and invitable
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
+      {:ecto_network, "~> 1.3", only: :test}, # required by plugin: trackable with PostgreSQL
+      {:excoveralls, "~> 0.13", only: :test},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:sobelow, "~> 0.8", only: :test},
+      {:sobelow, "~> 0.10", only: :test},
     ]
   end
 
