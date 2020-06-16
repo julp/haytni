@@ -7,6 +7,7 @@
 - routes created for Haytni are now prefixed by `haytni_<scope>_` to avoid conflicts and permit the use of several Haytni stacks (note that prefixes herited from Phoenix.Router.scope or outer Phoenix.Router.resources still apply)
 - `files_to_install/0` becomes `files_to_install/4` to receive (in that order) the base_path (the lib/your_app directory), web_path (the lib/your_app_web directory), the scope and a timestamp (included in migration filenames)
 - [Registerable] fix installation of edit.html.eex template, it was simply copied as is instead being evaluated as an EEx template like the others
+- replaced `:string` for PostgreSQL by `:citext` on email addresses in migrations
 
 Upgrade notes:
 
@@ -23,6 +24,45 @@ find lib/your_app_web/views/haytni -type f -name "*.ex" -print0 | xargs -0 perl 
 (git) mv lib/your_app_web/views/haytni lib/your_app_web/views/temporary
 mkdir lib/your_app_web/views/haytni
 (git) mv lib/your_app_web/views/temporary lib/your_app_web/views/haytni/user
+```
+
+- [PostgreSQL] to upgrade email addresses to an insensitive type (citext), you are encouraged to manually run:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS citext;
+
+ALTER TABLE users ALTER COLUMN email TYPE citext;
+REINDEX users_email_index FORCE;
+
+ALTER TABLE users ALTER COLUMN unconfirmed_email TYPE citext;
+```
+
+The same can be achieved with a migration:
+
+```elixir
+defmodule YourRepo.Migrations.UsersUpdateToCitextTable do
+  use Ecto.Migration
+
+  def up do
+    execute("CREATE EXTENSION IF NOT EXISTS citext")
+
+    alter table("users") do
+      modify :email, :citext
+      modify :unconfirmed_email, :email
+    end
+  end
+
+  def down do
+    #execute("DROP EXTENSION citext")
+
+    alter table("users") do
+      modify :email, :string
+      modify :unconfirmed_email, :string
+    end
+  end
+
+  execute("REINDEX users_email_index FORCE")
+end
 ```
 
 DISCLAIMER: these commands are purely informative, make sure to understand them and to do a backup of your project before running any of it, especially if your project is not (yet) versioned

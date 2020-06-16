@@ -6,8 +6,10 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "Au
       # NOP
     end
 
+    cistring = Haytni.Helpers.case_insensitive_string_type()
+
     alter table(table) do
-      add :email, :string, null: false
+      add :email, cistring, null: false
       add :encrypted_password, :string, null: false
     end
 
