@@ -15,7 +15,7 @@ defmodule YourApp.AddBannedField do
 end
 ```
 
-Then write a plugin which implements the `fields/0` to inject the *banned* column we created earlier and `invalid?/2` callback to return an error:
+Then write a plugin which implements the `fields/1` to inject the *banned* column we created earlier and `invalid?/2` callback to return an error:
 
 ```elixir
 # lib/your_app/haytni/ban_plugin.ex
@@ -24,7 +24,7 @@ defmodule YourApp.BanPlugin do
   #import YourApp.Gettext
 
   @impl Haytni.Plugin
-  def fields do
+  def fields(_module) do
     quote do
       field :banned, :boolean, default: false
     end
