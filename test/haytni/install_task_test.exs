@@ -12,6 +12,7 @@ defmodule Haytni.InstallTaskTest do
     Haytni.RegisterablePlugin,
     Haytni.RememberablePlugin,
     Haytni.TrackablePlugin,
+    Haytni.InvitablePlugin,
   ]
 
   @spec file_list_for(plugin :: module, scope :: String.t, table :: String.t, camelized_scope :: String.t) :: [{String.t, Haytni.TestHelpers.match}]
@@ -70,6 +71,29 @@ defmodule Haytni.InstallTaskTest do
       {"priv/repo/migrations/*_haytni_trackable_#{scope}_changes.exs", [
         ~s'def change(users_table \\\\ "#{table}", scope \\\\ "#{scope}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.TrackableChanges do",
+      ]},
+    ]
+  end
+
+  defp file_list_for(Haytni.InvitablePlugin, scope, table, camelized_scope) do
+    [
+      # views
+      {"lib/haytni_web/views/haytni/#{scope}/invitation_view.ex", [
+        "defmodule HaytniWeb.Haytni.#{camelized_scope}.InvitationView do",
+      ]},
+      {"lib/haytni_web/views/haytni/#{scope}/email/invitable_view.ex", [
+        "defmodule HaytniWeb.Haytni.#{camelized_scope}.Email.InvitableView do",
+      ]},
+      # templates
+      {"lib/haytni_web/templates/haytni/#{scope}/invitation/new.html.eex", [
+        "HaytniWeb.Router.Helpers.haytni_#{scope}_invitation_path(",
+      ]},
+      {"lib/haytni_web/templates/haytni/#{scope}/email/invitable/invitation.text.eex", []},
+      {"lib/haytni_web/templates/haytni/#{scope}/email/invitable/invitation.html.eex", []},
+      # migration
+      {"priv/repo/migrations/*_haytni_invitable_#{scope}_creation.exs", [
+        ~s'def change(users_table \\\\ "#{table}", _scope \\\\ "#{scope}") do',
+        "defmodule Haytni.Migrations.#{camelized_scope}.InvitableCreation do",
       ]},
     ]
   end
@@ -230,6 +254,7 @@ defmodule Haytni.InstallTaskTest do
               assert Haytni.RecoverablePlugin in plugins == String.contains?(content, "stack Haytni.RecoverablePlugin")
               assert Haytni.TrackablePlugin in plugins == String.contains?(content, "stack Haytni.TrackablePlugin")
               assert Haytni.PasswordPolicyPlugin in plugins == String.contains?(content, "stack Haytni.PasswordPolicyPlugin")
+              assert Haytni.InvitablePlugin in plugins == String.contains?(content, "stack Haytni.InvitablePlugin")
             end
           end
 

@@ -43,12 +43,15 @@ defmodule HaytniTest.Users do
     Repo.delete(user)
   end
 
-  def change_user do
-    HaytniTest.User
-    |> change_user()
-  end
+  # unused for now
+  if false do
+    def change_user do
+      HaytniTest.User
+      |> change_user()
+    end
 
-  def change_user(user = %_{}) do
-    HaytniTest.User.changeset(user, %{})
+    def change_user(user = %_{}) do
+      HaytniTest.User.changeset(user, %{})
+    end
   end
 end

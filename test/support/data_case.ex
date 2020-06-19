@@ -3,11 +3,8 @@ defmodule Haytni.DataCase do
 
   using do
     quote do
-      alias HaytniTest.Repo
-
       import Ecto
       import Ecto.Changeset
-      import Ecto.Query
       import unquote(__MODULE__)
       import Haytni.TestHelpers
       alias Haytni.Params

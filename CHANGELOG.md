@@ -1,5 +1,6 @@
 ?.?.?
 
+- introduced new Invitable plugin
 - fix wrong extension for migrations (.ex => .exs)
 - [Trackable] fixed table name (singular => plural, eg: user_connections becomes user**s**_connections)
 - [Trackable] no longer PostgreSQL specific but a "dummy" `VARCHAR(39)` will be used for storage for others RDBMS
@@ -50,7 +51,7 @@ defmodule YourRepo.Migrations.UsersUpdateToCitextTable do
 
     alter table("users") do
       modify :email, :citext
-      modify :unconfirmed_email, :email
+      modify :unconfirmed_email, :citext
     end
   end
 
@@ -69,7 +70,7 @@ end
 
 - [Trackable] to keep your <scope>_connections tables, rename them by a plain SQL command: `ALTER TABLE user_connections RENAME TO users_connections;` or a migration:
 
-```
+```elixir
 defmodule YourRepo.Migrations.RenameUserConnectionsTable do
   use Ecto.Migration
 
@@ -79,6 +80,45 @@ defmodule YourRepo.Migrations.RenameUserConnectionsTable do
 
   def down do
     rename table("users_connections"), to: table("user_connections")
+  end
+end
+```
+
+```elixir
+# priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_0_to_?_?_?.exs
+
+defmodule YourRepo.Migrations.HaytniUpgradeFrom060To??? do
+  @stacks [HaytniTestWeb.Haytni] # a list of your Haytni stacks (module names) related to the current Repo
+
+  use Ecto.Migration
+
+  def change do
+    if repo().__adapter__() == Ecto.Adapters.Postgres do
+      # DROP EXTENSION citext
+      execute("CREATE EXTENSION IF NOT EXISTS citext", "")
+    end
+
+    for stack <- @stacks do
+      source = stack.schema().__schema__(:source)
+
+      if Haytni.plugin_enabled?(stack, Haytni.TrackablePlugin) do
+        rename table("#{stack.scope()}_connections"), to: table("#{source}_connections")
+      end
+
+      if repo().__adapter__() == Ecto.Adapters.Postgres and (Haytni.plugin_enabled?(stack, Haytni.AuthenticablePlugin) or Haytni.plugin_enabled?(stack, Haytni.ConfirmablePlugin)) do
+        alter table(source) do
+          if Haytni.plugin_enabled?(stack, Haytni.AuthenticablePlugin) do
+            modify :email, :citext, from: :string
+          end
+          if Haytni.plugin_enabled?(stack, Haytni.ConfirmablePlugin) do
+            modify :unconfirmed_email, :citext, from: :string
+          end
+        end
+
+        reindex_stmt = "REINDEX INDEX #{source}_email_index"
+        execute(reindex_stmt, reindex_stmt)
+      end
+    end
   end
 end
 ```

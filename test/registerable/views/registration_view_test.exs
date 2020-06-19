@@ -37,7 +37,7 @@ defmodule Haytni.Registerable.RegistrationViewTest do
     conn = get(conn, Routes.haytni_user_registration_path(conn, :edit))
     module = HaytniTestWeb.Haytni
     changeset = if map_size(params) == 0 do
-      Haytni.change_user(module, user)
+      Haytni.change_user(user)
     else
       {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} = Haytni.update_registration(module, user, params)
       changeset

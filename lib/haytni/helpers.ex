@@ -63,12 +63,24 @@ defmodule Haytni.Helpers do
   end
 
   @doc ~S"""
-  Helper to add a global error under the `:base` key as Ruby on Rails does.
+  Helper to add a global error under the `:base` key as Ruby on Rails does and right after apply
+  (see `Ecto.Changeset.apply_action/2`) an action. Meaning the changeset is not meant to be reuse
+  (you had better to use `add_base_error/2` instead), it is an immediate error.
   """
+  @spec apply_base_error(changeset :: Ecto.Changeset.t, message :: String.t) :: {:error, Ecto.Changeset.t}
   def apply_base_error(changeset = %Ecto.Changeset{}, message) do
     changeset
-    |> Ecto.Changeset.add_error(:base, message)
+    |> add_base_error(message)
     |> Ecto.Changeset.apply_action(:insert)
+  end
+
+  @doc ~S"""
+  Helper to add a global error under the `:base` key as Ruby on Rails does.
+  """
+  @spec add_base_error(changeset :: Ecto.Changeset.t, message :: String.t) :: Ecto.Changeset.t
+  def add_base_error(changeset = %Ecto.Changeset{}, message) do
+    changeset
+    |> Ecto.Changeset.add_error(:base, message)
   end
 
   @doc ~S"""
@@ -129,6 +141,20 @@ defmodule Haytni.Helpers do
     |> Ecto.Changeset.validate_required(required_keys || keys)
   end
 
+  @doc """
+  Generates a module name by appending *suffix* to *module*
+
+      iex> #{__MODULE__}.scope_module(YourApp.User, "Connection")
+      YourApp.UserConnection
+  """
+  @spec scope_module(module :: module, suffix :: String.t) :: atom
+  def scope_module(module, suffix) do
+    module
+    |> Module.split()
+    |> List.update_at(-1, &(&1 <> suffix))
+    |> Module.concat()
+  end
+
   @doc ~S"""
   Helper for migrations to choose the best type for a case insensitive string like email addresses
   based on the current database.
@@ -149,20 +175,6 @@ defmodule Haytni.Helpers do
       _ ->
         :string
     end
-  end
-
-  @doc """
-  Generates a module name by appending *suffix* to *module*
-
-      iex> #{__MODULE__}.scope_module(YourApp.User, "Connection")
-      YourApp.UserConnection
-  """
-  @spec scope_module(module :: module, suffix :: String.t) :: atom
-  def scope_module(module, suffix) do
-    module
-    |> Module.split()
-    |> List.update_at(-1, &(&1 <> suffix))
-    |> Module.concat()
   end
 
   @doc ~S"""

@@ -4,6 +4,8 @@ Haytni is a configurable authentication system for Phoenix, inspired (and yet th
 
 Goals:
 
+* security focused
+* provides a strong and ready to use base
 * non-bloatware:
   + all logics are not located in controllers
   + minimize changes (upgrade)
@@ -31,7 +33,10 @@ Plugins:
 * [recoverable](https://hexdocs.pm/haytni/Haytni.RecoverablePlugin.html) (`Haytni.RecoverablePlugin`): recover for a forgotten password
 * [lockable](https://hexdocs.pm/haytni/Haytni.LockablePlugin.html) (`Haytni.LockablePlugin`): automatic lock an account after a number of failed attempts to sign in
 * [trackable](https://hexdocs.pm/haytni/Haytni.TrackablePlugin.html) (`Haytni.TrackablePlugin`): register users's connections (IP + when)
+* [invitable](https://hexdocs.pm/haytni/Haytni.InvitablePlugin.html) (`Haytni.InvitablePlugin`): registration on invitation or sponsorship
 
 Documentation can be found at [https://hexdocs.pm/haytni](https://hexdocs.pm/haytni).
 
 Installation is described [here](https://hexdocs.pm/haytni/installation.html).
+
+**BEWARE**: this README (and the whole master branch) might be out of sync with hexdocs (last release)

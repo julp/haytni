@@ -87,6 +87,43 @@ defmodule Haytni.TestHelpers do
   end
 
   @doc ~S"""
+  Creates an invitation from *user* to *sent_to* email address.
+
+  Optional options:
+
+    * `:code` (String.t): use the given code instead of generating one
+    * `:sent_at` (integer): dated from *sent_at* seconds ago from now (to test expiration)
+    * `:accepted_by` (struct or integer or nil): the id of the user who accepted the invitation (`nil` if unused)
+  """
+  @spec invitation_fixture(user :: Haytni.user, sent_to :: String.t) :: Haytni.InvitablePlugin.invitation
+  def invitation_fixture(user, sent_to, options \\ []) do
+    sent_at = Keyword.get(options, :sent_at, 0)
+    code = Keyword.get_lazy(options, :code, fn -> Haytni.Token.generate(16) end)
+    accepter_id = case Keyword.get(options, :accepted_by, nil) do
+      %_{id: id} when is_integer(id) ->
+        id
+      other when is_nil(other) or is_integer(other) ->
+        other
+    end
+
+    {:ok, invitation} = user
+    |> Haytni.InvitablePlugin.build_and_assoc_invitation(code: code, sent_at: seconds_ago(sent_at), sent_to: sent_to, accepted_by: accepter_id)
+    |> HaytniTest.Repo.insert()
+
+    invitation
+  end
+
+  @doc ~S"""
+  Returns the list of all invitations (accepted as pending) send by the provided user
+  """
+  @spec list_invitations(module :: module, user :: Haytni.user) :: [Haytni.InvitablePlugin.invitation]
+  def list_invitations(module, user) do
+    user
+    |> Haytni.InvitablePlugin.QueryHelpers.invitations_from_user()
+    |> module.repo().all()
+  end
+
+  @doc ~S"""
   Creates the parameters to simulate a temporary sign in action.
 
   Example:

@@ -30,22 +30,25 @@ defmodule HaytniWeb.Registerable.RegistrationController do
     render_new_when_disabled_registration(conn, module)
   end
 
-  def new(conn, _params, nil, module, _config) do
-    render_new(conn, Haytni.change_user(module))
+  def new(conn, params, nil, module, _config) do
+    params = if Haytni.plugin_enabled?(module, Haytni.InvitablePlugin) do
+      params
+      |> Map.take(~W[invitation email])
+      |> Map.put("email_confirmation", Map.get(params, "email"))
+    else
+      %{}
+    end
+    render_new(conn, Haytni.change_user(module, params))
   end
 
   def new(conn, _params, _current_user, _module, _config) do
     handle_signed_in!(conn)
   end
 
-  @msgid ~S"""
-  A final step is required before you fully dispose of your account: in order to confirm your address, an email has been sent to %{email}, which contains a link you need to activate. Once done, you will be able to login.
-
-  Check your spam folder if necessary.
-  """
   @spec account_to_be_confirmed_message(user :: Haytni.user) :: String.t
   def account_to_be_confirmed_message(user) do
-    dgettext("haytni", @msgid, email: user.email)
+    dgettext("haytni", "A final step is required before you fully dispose of your account: in order to confirm your address, an email has been sent to %{email}, which contains a link you need to activate. Once done, you will be able to login.", email: user.email)
+    |> Haytni.Helpers.concat_spam_check_hint_message()
   end
 
   def create(conn, _params, nil, module, %{registration_disabled?: true}) do
@@ -85,8 +88,8 @@ defmodule HaytniWeb.Registerable.RegistrationController do
     handle_signed_in!(conn)
   end
 
-  def edit(conn, _params, current_user, module, _config) do
-    render_edit(conn, Haytni.change_user(module, current_user))
+  def edit(conn, _params, current_user, _module, _config) do
+    render_edit(conn, Haytni.change_user(current_user))
   end
 
   @spec successful_edition_message() :: String.t
@@ -103,7 +106,7 @@ defmodule HaytniWeb.Registerable.RegistrationController do
       {:ok, %{user: _current_user}} ->
         conn
         |> put_flash(:info, successful_edition_message())
-        |> render_edit(Haytni.change_user(module, current_user))
+        |> render_edit(Haytni.change_user(current_user))
       {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} ->
         render_edit(conn, changeset)
       # other error case: let it crash

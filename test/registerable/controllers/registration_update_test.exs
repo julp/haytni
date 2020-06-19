@@ -16,12 +16,15 @@ defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
 
     if false do
       test "checks error on invalid edition", %{conn: conn, user: user} do
-        new_conn = patch(conn, Routes.haytni_user_registration_path(conn, :update), registration_params())
+        new_conn = conn
+        |> assign(:current_user, user)
+        |> patch(Routes.haytni_user_registration_path(conn, :update), registration_params())
+
         response = html_response(new_conn, 200)
         assert String.contains?(response, "<form ")
         assert String.contains?(response, "action=\"#{Routes.haytni_user_registration_path(conn, :update)}\"")
         assert contains_text?(response, empty_message())
-        assert contains_text?(response, invalid_message())
+        #assert contains_text?(response, invalid_format_message())
       end
     end
 

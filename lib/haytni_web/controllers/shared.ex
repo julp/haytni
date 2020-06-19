@@ -15,9 +15,24 @@ defmodule HaytniWeb.Shared do
   @doc ~S"""
   Returns the path to the login page.
   """
-  @spec session_path(conn :: Plug.Conn.t, module :: module) :: String.t
-  def session_path(conn, module) do
-    apply(module.router(), :"haytni_#{module.scope()}_session_path", [conn, :new])
+  @spec session_path(conn_or_endpoint :: Plug.Conn.t | module, module :: module) :: String.t
+  def session_path(conn_or_endpoint, module) do
+    haytni_path(conn_or_endpoint, module, &(:"haytni_#{&1}_session_path"), :new)
+  end
+
+  @doc """
+  Returns the path to a Haytni controller
+
+  Example:
+
+      iex> #{__MODULE__}.Shared.haytni_path(conn, YourApp.Haytni, &(:"haytni_\#{&1}_invitation_path"), :new, invitation: "ABCD", email: "me@mydomain.com")
+      "/invitations/new?invitation=ABCD&email=me%40mydomain.com"
+  """
+  @spec haytni_path(conn_or_endpoint :: Plug.Conn.t | module, module :: module, fun :: (atom -> atom), action :: atom, args :: Keyword.t) :: String.t
+  def haytni_path(conn_or_endpoint, module, fun, action, args \\ [])
+    when is_function(fun, 1) and is_atom(action)
+  do
+    apply(module.router(), fun.(module.scope()), [conn_or_endpoint, action, args])
   end
 
   @doc ~S"""

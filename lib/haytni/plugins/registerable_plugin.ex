@@ -54,7 +54,8 @@ defmodule Haytni.RegisterablePlugin do
       password field here!
     * `strip_whitespace_keys` (default: `~W[email]a`): list of fields to automatically strip from whitespaces. You **SHOULD NEITHER** include the
       password field here, to exclude any involuntary mistake, you should instead consider using a custom validation.
-    * `email_index_name` (default: `"users_email_index"`): the name of the unique index/constraint on email field
+    * `email_index_name` (default: `nil`, translated to `<source>_email_index` by `Ecto.Changeset.unique_constraint/3`): the name of the unique
+      index/constraint on email field
     * `registration_disabled?` (default: `false`): disable any new registration (existing users are still able to login, edit their profile, ...)
 
           stack Haytni.RegisterablePlugin,
@@ -62,7 +63,7 @@ defmodule Haytni.RegisterablePlugin do
             strip_whitespace_keys: ~W[email]a,
             case_insensitive_keys: ~W[email]a,
             email_regexp: #{inspect(@default_email_regexp)},
-            email_index_name: :users_email_index
+            email_index_name: nil
 
   Routes:
 
@@ -77,11 +78,13 @@ defmodule Haytni.RegisterablePlugin do
       strip_whitespace_keys: ~W[email]a,
       case_insensitive_keys: ~W[email]a,
       email_regexp: ~R/^[^@\s]+@[^@\s]+$/,
-      email_index_name: "users_email_index"
+      email_index_name: nil
+
+    @typep index_name :: atom | String.t | nil
 
     @type t :: %__MODULE__{
       email_regexp: Regex.t,
-      email_index_name: atom | String.t,
+      email_index_name: index_name,
       strip_whitespace_keys: [atom],
       case_insensitive_keys: [atom],
     }

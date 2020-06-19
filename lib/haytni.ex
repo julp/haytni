@@ -581,21 +581,22 @@ defmodule Haytni do
   end
 
   @doc ~S"""
-  Creates an `%Ecto.Changeset{}` for a new user/account (registration)
+  Creates an `%Ecto.Changeset{}` for a new user/account (at registration from a module)
+  or from a user (when editing account from a struct)
   """
-  @spec change_user(module :: module) :: Ecto.Changeset.t
-  def change_user(module) do
+  @spec change_user(user_or_module :: module | Haytni.user, params :: %{optional(String.t) => String.t}) :: Ecto.Changeset.t
+  def change_user(user_or_module, params \\ %{})
+
+  def change_user(module, params)
+    when is_atom(module)
+  do
     user = module.schema()
     |> struct()
-    change_user(module, user)
+    user.__struct__.create_registration_changeset(user, params)
   end
 
-  @doc ~S"""
-  Creates an `%Ecto.Changeset{}` from a user (editing account)
-  """
-  @spec change_user(module :: module, user :: Haytni.user) :: Ecto.Changeset.t
-  def change_user(module, user) do
-    module.schema().changeset(user, %{})
+  def change_user(user = %_{}, params) do
+    user.__struct__.update_registration_changeset(user, params)
   end
 
   @doc ~S"""

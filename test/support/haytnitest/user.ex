@@ -16,11 +16,12 @@ defmodule HaytniTest.User do
     |> cast(params, [])
   end
 
-  @attributes ~W[email password]a
+  @required ~W[email password]a
+  @attributes @required ++ ~W[invitation]a
   def create_registration_changeset(struct = %__MODULE__{}, params) do
     struct
     |> cast(params, @attributes)
-    |> validate_required(@attributes)
+    |> validate_required(@required)
     |> HaytniTestWeb.Haytni.validate_password()
     |> HaytniTestWeb.Haytni.validate_create_registration()
   end

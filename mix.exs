@@ -107,6 +107,7 @@ defmodule Haytni.MixProject do
         Haytni.RememberablePlugin,
         Haytni.TrackablePlugin,
         Haytni.PasswordPolicyPlugin,
+        Haytni.InvitablePlugin,
       ],
       Authenticable: [
         Haytni.AuthenticablePlugin,
@@ -144,6 +145,12 @@ defmodule Haytni.MixProject do
       Trackable: [
         Haytni.TrackablePlugin,
         Haytni.TrackablePlugin.Config,
+      ],
+      Invitable: [
+        Haytni.InvitablePlugin,
+        Haytni.InvitablePlugin.Config,
+        #Haytni.Invitable.Invitation,
+        Haytni.InvitableEmail,
       ],
       Helpers: [
         Haytni.Params,

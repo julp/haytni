@@ -1,0 +1,11 @@
+Hello <%%= @invitation.sent_to %>!
+
+<%%= @user.email %> wants you to join <%%= <%= inspect web_module %>.Endpoint.host() %>.
+
+To accept the invitation copy the following link and paste it in your web browser:
+
+<%%= <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_registration_url(<%= inspect web_module %>.Endpoint, :new, invitation: @invitation.code, email: @invitation.sent_to) %>
+
+<%%= if @config.email_matching_invitation do %>
+Note : when registering, your email address has to be <%%= @invitation.sent_to %>
+<%% end %>

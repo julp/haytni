@@ -19,10 +19,6 @@ defmodule Haytni.Recoverable.PasswordChange do
     Haytni.validate_password(module, changeset)
   end
 
-  def change_password(module, request = %__MODULE__{}) do
-    changeset(module, request)
-  end
-
   def change_password(module, params = %{}) do
     changeset(module, %__MODULE__{}, params)
   end
