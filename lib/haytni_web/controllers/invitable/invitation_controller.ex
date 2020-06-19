@@ -43,31 +43,4 @@ defmodule HaytniWeb.Invitable.InvitationController do
         render_new(conn, changeset)
     end
   end
-
-  if false do
-    @spec invitation_sent_message() :: String.t
-    def invitation_revoked_message do
-      dgettext("haytni", "Invitation has been successfully revoked")
-    end
-
-    # GET /invitations
-    def index(conn, _params, current_user, module, _config)
-      when not is_nil(current_user)
-    do
-      conn
-      |> assign(:invitations, Haytni.InvitablePlugin.list_invitations(module, current_user))
-      |> render("index.html")
-    end
-
-    # DELETE /invitations/<id>
-    def delete(conn, %{"id" => invitation_id}, current_user, module, _config)
-      when not is_nil(current_user)
-    do
-      Haytni.InvitablePlugin.revoke_invitation(module, current_user, invitation_id)
-      conn
-      |> put_flash(:info, invitation_revoked_message())
-      |> redirect(to: HaytniWeb.Shared.haytni_path(conn, module, &(:"haytni_#{&1}_invitation_path"), :index))
-      |> halt()
-    end
-  end
 end

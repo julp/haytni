@@ -394,6 +394,16 @@ msgid "Resend unlock instructions"
 msgstr ""
 
 #, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/invitation/new.html.eex:9
+msgid "email address of your friend"
+msgstr ""
+
+#, elixir-format
+#: /usr/home/julp/elixir/haytni/priv/templates/invitation/new.html.eex:14
+msgid "Invite"
+msgstr ""
+
+#, elixir-format
 #: /usr/home/julp/elixir/haytni/priv/templates/invitation/index.html.eex:5
 msgid "Sent at"
 msgstr ""
@@ -426,16 +436,6 @@ msgstr ""
 #, elixir-format
 #: /usr/home/julp/elixir/haytni/priv/templates/invitation/index.html.eex:31
 msgid "Do you have a friend you want to invite?"
-msgstr ""
-
-#, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/invitation/new.html.eex:9
-msgid "email address of your friend"
-msgstr ""
-
-#, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/invitation/new.html.eex:14
-msgid "Invite"
 msgstr ""
 
 #, elixir-format

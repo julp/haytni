@@ -370,38 +370,6 @@ defmodule Haytni.InvitablePlugin do
     end
   end
 
-  if false do
-    @doc ~S"""
-    Returns the list of all invitations (accepted as pending) send by the provided user
-    """
-    @spec list_invitations(module :: module, user :: Haytni.user) :: [invitation]
-    def list_invitations(module, user) do
-      import Ecto.Query
-
-      user
-      |> QueryHelpers.invitations_from_user()
-      |> preload([i], [:accepter])
-      |> order_by([i], i.sent_at)
-      |> module.repo().all()
-    end
-
-    @doc ~S"""
-    Revokes (deletes) a non yet accepted invitation identified by its *id* only if it was sent by *user*
-    """
-    @spec revoke_invitation(module :: module, user :: Haytni.user, id :: any) :: boolean
-    def revoke_invitation(module, user, id)
-      when not is_nil(id)
-    do
-      {count, nil} = user
-      |> QueryHelpers.invitations_from_user()
-      |> QueryHelpers.and_where_not_accepted()
-      |> QueryHelpers.and_where_id_equals(id)
-      |> module.repo().delete_all()
-
-      1 == count
-    end
-  end
-
   @doc ~S"""
   Build an invitation associated to *user*.
 

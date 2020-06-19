@@ -149,7 +149,6 @@ defmodule Haytni.MixProject do
       Invitable: [
         Haytni.InvitablePlugin,
         Haytni.InvitablePlugin.Config,
-        #Haytni.Invitable.Invitation,
         Haytni.InvitableEmail,
       ],
       Helpers: [
