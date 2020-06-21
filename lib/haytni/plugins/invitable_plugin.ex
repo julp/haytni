@@ -185,6 +185,7 @@ defmodule Haytni.InvitablePlugin do
     @doc ~S"""
     Returns a queryable for all invitations sent by *user*
     """
+    @spec invitations_from_user(user :: Haytni.user) :: Ecto.Query.t
     def invitations_from_user(user = %_{}) do
       from(i in Ecto.assoc(user, :invitations), as: :invitations)
     end
@@ -194,6 +195,7 @@ defmodule Haytni.InvitablePlugin do
 
     Note: *user* is not used for the query, just to find the scope/table/association
     """
+    @spec invitations_from_all(user :: Haytni.user) :: Ecto.Query.t
     def invitations_from_all(user = %_{}) do
       from(i in user.__struct__.__schema__(:association, :invitations).related, as: :invitations)
     end
@@ -201,6 +203,7 @@ defmodule Haytni.InvitablePlugin do
     @doc ~S"""
     Composes *query* to filter on non-accepted invitations
     """
+    @spec and_where_not_accepted(query :: Ecto.Queryable.t) :: Ecto.Query.t
     def and_where_not_accepted(query) do
       from(i in query, where: is_nil(i.accepted_by))
     end
@@ -208,6 +211,7 @@ defmodule Haytni.InvitablePlugin do
     @doc ~S"""
     Composes *query* to filter on accepted invitations
     """
+    @spec and_where_accepted(query :: Ecto.Queryable.t) :: Ecto.Query.t
     def and_where_accepted(query) do
       from(i in query, where: not is_nil(i.accepted_by))
     end
@@ -215,6 +219,7 @@ defmodule Haytni.InvitablePlugin do
     @doc ~S"""
     Composes *query* to filter on non-expired invitations
     """
+    @spec and_where_not_expired(query :: Ecto.Queryable.t, config :: Haytni.InvitablePlugin.Config.t) :: Ecto.Query.t
     def and_where_not_expired(query, config) do
       from(i in query, where: i.sent_at > ago(^config.invitation_within, "second"))
     end
@@ -222,6 +227,7 @@ defmodule Haytni.InvitablePlugin do
     @doc ~S"""
     Composes *query* for token invitation to match *code*
     """
+    @spec and_where_code_equals(query :: Ecto.Queryable.t, code :: String.t) :: Ecto.Query.t
     def and_where_code_equals(query, code)
       when is_binary(code) # exclude code = nil
     do
@@ -231,6 +237,7 @@ defmodule Haytni.InvitablePlugin do
     @doc ~S"""
     Composes *query* for invitation id (primary key) to worth *id*
     """
+    @spec and_where_id_equals(query :: Ecto.Queryable.t, id :: pos_integer | String.t) :: Ecto.Query.t
     def and_where_id_equals(query, id)
       when not is_nil(id)
     do
@@ -241,6 +248,7 @@ defmodule Haytni.InvitablePlugin do
     Composes *query* for *email* to match the address it was sent to only if
     `email_matching_invitation` is `true` (else returns the query as it was)
     """
+    @spec and_where_email_equals(query :: Ecto.Queryable.t, email :: String.t, config :: Haytni.InvitablePlugin.Config.t) :: Ecto.Queryable.t
     def and_where_email_equals(query, email, config)
       when is_binary(email) # exclude email = nil
     do
@@ -382,7 +390,7 @@ defmodule Haytni.InvitablePlugin do
     * `:accepted_at` (for testing purpose only): when (`DateTime`) the invitation was accepted
     * `:id` (for testing purpose only): force a (not nil) id for an in-memory (not persisted to database) invitation
   """
-  @spec build_and_assoc_invitation(user :: Haytni.user, attrs :: Keyword.t | Map.t) :: invitation
+  @spec build_and_assoc_invitation(user :: Haytni.user, attrs :: Keyword.t | map) :: invitation
   def build_and_assoc_invitation(user, attrs \\ %{}) do
     Ecto.build_assoc(user, :invitations, attrs)
   end
