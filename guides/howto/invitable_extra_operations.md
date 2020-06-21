@@ -19,14 +19,14 @@ defmodule YourApp.Accounts do
   import Ecto.Query
 
   alias YourApp.Repo
-  alias Haytni.InvitablePlugin.QueryHelpers
+  import Haytni.InvitablePlugin.QueryHelpers
 
   # ...
 
   @spec list_invitations(user :: YourApp.user) :: [Haytni.InvitablePlugin.invitation]
   def list_invitations(user = %YourApp.User{}) do
     user
-    |> QueryHelpers.invitations_from_user()
+    |> invitations_from_user()
     |> preload([:accepter])
     |> order_by([desc: :sent_at])
     |> Repo.all()
@@ -110,7 +110,7 @@ defmodule YourApp.Accounts do
   import Ecto.Query
 
   alias YourApp.Repo
-  alias Haytni.InvitablePlugin.QueryHelpers
+  import Haytni.InvitablePlugin.QueryHelpers
 
   # ...
 
@@ -120,9 +120,9 @@ defmodule YourApp.Accounts do
   do
     {count, nil} =
       user
-      |> QueryHelpers.invitations_from_user()
-      |> QueryHelpers.and_where_not_accepted()
-      |> QueryHelpers.and_where_id_equals(id)
+      |> invitations_from_user()
+      |> and_where_not_accepted()
+      |> and_where_id_equals(id)
       |> Repo.delete_all()
 
     1 == count

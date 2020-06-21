@@ -4,6 +4,7 @@ Create a migration to add a boolean field to your table:
 
 ```elixir
 # priv/repo/migrations/`date '+%Y%m%d%H%m%s'`_add_banned_field.ex
+
 defmodule YourApp.AddBannedField do
   use Ecto.Migration
 
@@ -19,6 +20,7 @@ Then write a plugin which implements the `fields/1` to inject the *banned* colum
 
 ```elixir
 # lib/your_app/haytni/ban_plugin.ex
+
 defmodule YourApp.BanPlugin do
   use Haytni.Plugin
   #import YourApp.Gettext
@@ -40,6 +42,7 @@ Finally add `YourApp.BanPlugin` to your Haytni stack key in lib/*your_app*/haytn
 
 ```elixir
 # lib/your_app/haytni.ex
+
 defmodule YourApp.Haytni do
   use Haytni, otp_app: :your_app
 
@@ -49,4 +52,4 @@ defmodule YourApp.Haytni do
 end
 ```
 
-(the part to turn it on or off in your admin panel is not shown - its just a form/checkbox with a separate *changeset* function)
+(the part to turn it on or off in your admin panel is not shown - it's just a form/checkbox with a separate *changeset* function)

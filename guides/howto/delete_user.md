@@ -58,6 +58,6 @@ defmodule YourApp.Accounts do
 end
 ```
 
-Knowing that you can put whatever logic you want in this YourApp.Accounts.delete_user!/1: you can, of course, replace this DELETE query by an UPDATE, do some extra operations like deleting files and so on.
+Knowing that you can put whatever logic you want in this `YourApp.Accounts.delete_user!/1` function: you can, of course, replace this DELETE query by an UPDATE (soft deletion), do some extra operations like deleting files and so on.
 
 Note: don't forget to adapt `YourApp`, `YourAppWeb` and `Accounts` parts in module names to the modules you actually use

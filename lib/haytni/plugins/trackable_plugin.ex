@@ -85,4 +85,84 @@ defmodule Haytni.TrackablePlugin do
 
     {conn, Ecto.Multi.insert(multi, :connection, connection), changes}
   end
+
+  defmodule QueryHelpers do
+    @moduledoc ~S"""
+    This module provides some basic helpers to query connections to be independant and not
+    have to know the internals of the Trackable plugin.
+    """
+
+    import Ecto.Query
+
+    @doc ~S"""
+    Returns a queryable for all connections of *user*
+    """
+    @spec connections_from_user(user :: Haytni.user) :: Ecto.Query.t
+    def connections_from_user(user = %_{}) do
+      from(c in Ecto.assoc(user, :connections), as: :connections)
+    end
+
+    @doc ~S"""
+    Returns a queryable for all invitations
+
+    Note: *user* is not used for the query, just to find the scope/table/association
+    """
+    @spec connections_from_all(user :: Haytni.user) :: Ecto.Query.t
+    def connections_from_all(user = %_{}) do
+      from(c in user.__struct__.__schema__(:association, :connections).related, as: :connections)
+    end
+
+    @doc ~S"""
+    Composes *query* to filter on ip address
+    """
+    @spec and_where_ip_equals(query :: Ecto.Queryable.t, ip :: String.t) :: Ecto.Query.t
+    def and_where_ip_equals(query, ip) do
+      from(c in query, where: c.ip == ^ip)
+    end
+
+    defmacrop inserted_at(query, value, op) do
+      case op do
+        :>= ->
+          quote bind_quoted: [query: query, value: value] do
+            case value do
+              nil ->
+                query
+              %Date{} ->
+                from(c in query, where: fragment("DATE(?)", c.inserted_at) >= type(^value, :date))
+              %module{} when module in [DateTime, NaiveDateTime] ->
+                from(c in query, where: c.inserted_at >= type(^value, :date))
+            end
+          end
+        :<= ->
+          quote bind_quoted: [query: query, value: value] do
+            case value do
+              nil ->
+                query
+              %Date{} ->
+                from(c in query, where: fragment("DATE(?)", c.inserted_at) <= type(^value, :date))
+              %module{} when module in [DateTime, NaiveDateTime] ->
+                from(c in query, where: c.inserted_at <= type(^value, :date))
+            end
+          end
+      end
+    end
+
+    @doc ~S"""
+    Composes *query* to filter on connection date
+    """
+    @spec and_where_date_equals(query :: Ecto.Queryable.t, date :: Date.t | DateTime.t | NaiveDateTime.t) :: Ecto.Query.t
+    def and_where_date_equals(query, date) do
+      and_where_date_between(query, date, date)
+    end
+
+    @doc ~S"""
+    Composes *query* to filter on connection between an interval
+    """
+    @spec and_where_date_between(query :: Ecto.Queryable.t, first :: nil | Date.t | DateTime.t | NaiveDateTime.t, last :: nil | Date.t | DateTime.t | NaiveDateTime.t) :: Ecto.Query.t
+    def and_where_date_between(query, first, last) do
+      query
+      |> inserted_at(first, :>=)
+      |> inserted_at(last, :<=)
+    end
+  end
 end
