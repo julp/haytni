@@ -2,7 +2,7 @@ defmodule Haytni.InvitablePlugin do
   # config
   @default_invitation_required true
   @default_invitation_quota :infinity
-  @default_invalidation_within {30, :day}
+  @default_invitation_within {30, :day}
   @default_email_matching_invitation false
   # paths
   @default_invitation_path "/invitations"
@@ -21,13 +21,13 @@ defmodule Haytni.InvitablePlugin do
       + `{count, :unaccepted}`, *count* being a number, to limit the user to *count* pending invitation
     * `email_matching_invitation` (default: `#{inspect(@default_email_matching_invitation)}`): `true` to force users who accept the invitation to register with the same email address they received the invitation from
     * `invitation_required` (default: `#{inspect(@default_invitation_required)}`): `true` if users can only register with a valid invitation. `false` to make it optional (sponsorship).
-    * `invitation_within` (default: `#{inspect(@default_invalidation_within)}`): laps of time before the invitation can no longer be used (expiration)
+    * `invitation_within` (default: `#{inspect(@default_invitation_within)}`): laps of time before the invitation can no longer be used (expiration)
     * `invitation_sent_to_index_name` (default: `nil`): the name of the index on sent_to column if you have to explicit it
 
           stack Haytni.InvitablePlugin,
             invitation_required: #{inspect(@default_invitation_required)},
             invitation_quota: #{inspect(@default_invitation_quota)},
-            invitation_within: #{inspect(@default_invalidation_within)},
+            invitation_within: #{inspect(@default_invitation_within)},
             email_matching_invitation: #{inspect(@default_email_matching_invitation)},
             invitation_sent_to_index_name: nil
 
