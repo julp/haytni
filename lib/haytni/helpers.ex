@@ -195,7 +195,7 @@ defmodule Haytni.Helpers do
     |> Enum.reduce(
       struct,
       fn k, acc ->
-        Map.update!(acc, k, &Haytni.Helpers.duration/1)
+        Map.update!(acc, k, &duration/1)
       end
     )
   end
