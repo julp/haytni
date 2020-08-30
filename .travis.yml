@@ -16,5 +16,6 @@ services:
 before_script:
   - psql -U postgres -c "CREATE USER haytni WITH PASSWORD 'haytni';"
   - psql -U postgres -c 'CREATE DATABASE haytni_test OWNER haytni;'
+  - psql -U postgres -d haytni_test -c 'CREATE EXTENSION citext;'
   - echo -e "\nlisten_addresses = ''\nunix_socket_directories = '/tmp'" | sudo tee -a `psql -U postgres -t -P format=unaligned -c 'SHOW config_file;'`
   - sudo service postgresql restart
