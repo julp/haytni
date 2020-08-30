@@ -53,8 +53,8 @@ defmodule Haytni.MixProject do
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:ecto_network, "~> 1.3", only: :test}, # required by plugin: trackable with PostgreSQL
       {:excoveralls, "~> 0.13", only: :test},
-      {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:sobelow, "~> 0.10", only: :test},
+      #{:credo, "~> 1.4", only: [:dev, :test], runtime: false},
+      #{:sobelow, "~> 0.10", only: :test},
       #{:myxql, ">= 0.0.0", only: :test},
       {:postgrex, ">= 0.0.0", only: :test},
     ]
