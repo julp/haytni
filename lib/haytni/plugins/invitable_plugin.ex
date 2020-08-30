@@ -88,8 +88,8 @@ defmodule Haytni.InvitablePlugin do
       schema "#{unquote(env.module.__schema__(:source))}_invitations" do
         field :code, :string # UNIQUE
         field :sent_to, :string # UNIQUE
-        field :sent_at, :utc_datetime
         field :accepted_at, :utc_datetime # NULLABLE
+        timestamps(inserted_at: :sent_at, updated_at: false, type: :utc_datetime)
 
         belongs_to :sender, unquote(env.module), foreign_key: :sent_by
         belongs_to :accepter, unquote(env.module), foreign_key: :accepted_by # NULLABLE
@@ -419,7 +419,7 @@ defmodule Haytni.InvitablePlugin do
   @spec send_invitation(module :: module, config :: Config.t, invitation_params :: %{optional(String.t) => String.t}, user :: Haytni.user) :: {:ok, invitation} | {:error, Ecto.Changeset.t}
   def send_invitation(module, config, invitation_params, user) do
     changeset = user
-    |> build_and_assoc_invitation(code: Haytni.Token.generate(64), sent_at: Haytni.Helpers.now())
+    |> build_and_assoc_invitation(code: Haytni.Token.generate(64))
     |> invitation_to_changeset(config, invitation_params)
     Ecto.Multi.new()
     |> Ecto.Multi.run(
