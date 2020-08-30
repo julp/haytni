@@ -6,7 +6,7 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "Co
       # NOP
     end
 
-    cistring = Haytni.Helpers.case_insensitive_string_type()
+    cistring = Haytni.Migration.case_insensitive_string_type()
 
     alter table(table) do
       add :confirmed_at, :utc_datetime, default: nil

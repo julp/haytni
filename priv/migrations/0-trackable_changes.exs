@@ -26,7 +26,7 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "Tr
     create table(connections_table) do
       add fk, references(users_table), null: false, on_delete: :delete_all, on_update: :update_all
       add :ip, ip_type, ip_opts
-      timestamps(updated_at: false)
+      timestamps(updated_at: false, type: :utc_datetime)
     end
 
     create index(connections_table, [fk])

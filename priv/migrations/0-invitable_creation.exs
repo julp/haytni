@@ -2,7 +2,7 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "In
   use Ecto.Migration
 
   def change(users_table \\ <%= inspect table %>, _scope \\ <%= inspect to_string(scope) %>) do
-    cistring = Haytni.Helpers.case_insensitive_string_type()
+    cistring = Haytni.Migration.case_insensitive_string_type()
 
     invitations_table = "#{users_table}_invitations"
     create table(invitations_table) do

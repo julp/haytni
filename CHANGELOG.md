@@ -3,6 +3,7 @@
 - introduced new Invitable plugin
 - fix wrong extension for migrations (.ex => .exs)
 - [Trackable] fixed table name (singular => plural, eg: user_connections becomes user**s**_connections)
+- [Trackable] `Ecto.Schema.timestamps/1` type was changed from `:naive_datetime` to `:utc_datetime`
 - [Trackable] no longer PostgreSQL specific but a "dummy" `VARCHAR(39)` will be used for storage for others RDBMS
 - [Authenticable] DELETE method can be overriden for logout by giving the option `logout_method: :get` to your YourApp.Haytni.routes/1 call
 - paths used to generate the routes created by plugins can be customized at your YourApp.Haytni.routes/1 call, see their respective documentation for further details
@@ -29,60 +30,10 @@ mkdir lib/your_app_web/views/haytni
 (git) mv lib/your_app_web/views/temporary lib/your_app_web/views/haytni/user
 ```
 
-- [PostgreSQL] to upgrade email addresses to an insensitive type (citext), you are encouraged to manually run:
+The following migration should take care of the upgrade of:
 
-```sql
-CREATE EXTENSION IF NOT EXISTS citext;
-
-ALTER TABLE users ALTER COLUMN email TYPE citext;
-REINDEX users_email_index FORCE;
-
-ALTER TABLE users ALTER COLUMN unconfirmed_email TYPE citext;
-```
-
-The same can be achieved with a migration:
-
-```elixir
-defmodule YourRepo.Migrations.UsersUpdateToCitextTable do
-  use Ecto.Migration
-
-  def up do
-    execute("CREATE EXTENSION IF NOT EXISTS citext")
-
-    alter table("users") do
-      modify :email, :citext
-      modify :unconfirmed_email, :citext
-    end
-  end
-
-  def down do
-    #execute("DROP EXTENSION citext")
-
-    alter table("users") do
-      modify :email, :string
-      modify :unconfirmed_email, :string
-    end
-  end
-
-  execute("REINDEX users_email_index FORCE")
-end
-```
-
-- [Trackable] to keep your <scope>_connections tables, rename them by a plain SQL command: `ALTER TABLE user_connections RENAME TO users_connections;` or a migration:
-
-```elixir
-defmodule YourRepo.Migrations.RenameUserConnectionsTable do
-  use Ecto.Migration
-
-  def up do
-    rename table("user_connections"), to: table("users_connections")
-  end
-
-  def down do
-    rename table("users_connections"), to: table("user_connections")
-  end
-end
-```
+* email addresses to citext (PostgreSQL)
+* rename your <scope>_connections tables (Trackable)
 
 ```elixir
 # priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_0_to_?_?_?.exs

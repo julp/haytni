@@ -36,7 +36,7 @@ defmodule Haytni.TrackablePlugin do
 
       schema "#{unquote(env.module.__schema__(:source))}_connections" do
         field :ip, unquote(Module.get_attribute(env.module, :__ip_type__))
-        timestamps(updated_at: false)
+        timestamps(updated_at: false, type: :utc_datetime)
 
         belongs_to unquote(String.to_atom(Phoenix.Naming.resource_name(env.module))), unquote(env.module)
       end
