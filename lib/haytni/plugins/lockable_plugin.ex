@@ -209,12 +209,12 @@ defmodule Haytni.LockablePlugin do
   """
   @spec locked?(user :: Haytni.user, config :: Config.t) :: boolean
   def locked?(user = %_{}, config) do
-    user.locked_at != nil && !lock_expired?(user, config)
+    user.locked_at != nil and not lock_expired?(user, config)
   end
 
   @spec lock_expired?(user :: Haytni.user, config :: Config.t) :: boolean
   defp lock_expired?(user, config) do
-    config.unlock_strategy in ~W[both time]a && DateTime.diff(DateTime.utc_now(), user.locked_at) >= config.unlock_in
+    config.unlock_strategy in ~W[both time]a and DateTime.diff(DateTime.utc_now(), user.locked_at) >= config.unlock_in
   end
 
   @spec send_unlock_instructions_mail_to_user(user :: Haytni.user, module :: module, config :: Config.t) :: {:ok, Haytni.user}
