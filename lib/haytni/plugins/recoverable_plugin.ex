@@ -35,7 +35,7 @@ defmodule Haytni.RecoverablePlugin do
 
     @type t :: %__MODULE__{
       reset_token_length: pos_integer,
-      reset_password_keys: [atom],
+      reset_password_keys: [atom, ...],
       reset_password_within: Haytni.duration,
     }
   end

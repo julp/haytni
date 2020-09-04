@@ -43,7 +43,7 @@ defmodule Haytni.ConfirmablePlugin do
     @type t :: %__MODULE__{
       reconfirmable: boolean,
       confirm_within: Haytni.duration,
-      confirmation_keys: [atom],
+      confirmation_keys: [atom, ...],
       confirmation_token_length: pos_integer,
     }
   end

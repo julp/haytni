@@ -4,7 +4,7 @@ defmodule Haytni.TestHelpers do
 
   @type falsy :: false | nil
 
-  @spec fixture(attrs :: Enumerable, schema :: module) :: Haytni.user
+  @spec fixture(attrs :: Enumerable.t, schema :: module) :: Haytni.user
   defp fixture(attrs, schema) do
     id = System.unique_integer([:positive])
     config = HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin)
@@ -73,7 +73,7 @@ defmodule Haytni.TestHelpers do
 
       iron_man = user_fixture(email: "tony.stark@stark-industries.com", firstname: "Tony", lastname: "Stark")
   """
-  @spec user_fixture(attrs :: Enumerable) :: Haytni.user
+  @spec user_fixture(attrs :: Enumerable.t) :: Haytni.user
   def user_fixture(attrs \\ %{}) do
     fixture(attrs, HaytniTest.User)
   end
@@ -81,7 +81,7 @@ defmodule Haytni.TestHelpers do
   @doc ~S"""
   Same as `user_fixture/1` but returns a `%HaytniTest.Admin{}` instead of a `%HaytniTest.User{}`
   """
-  @spec admin_fixture(attrs :: Enumerable) :: Haytni.user
+  @spec admin_fixture(attrs :: Enumerable.t) :: Haytni.user
   def admin_fixture(attrs \\ %{}) do
     fixture(attrs, HaytniTest.Admin)
   end
@@ -89,17 +89,17 @@ defmodule Haytni.TestHelpers do
   @doc ~S"""
   Creates an invitation from *user* to *sent_to* email address.
 
-  Optional options:
+  Optional attributes:
 
     * `:code` (String.t): use the given code instead of generating one
     * `:sent_at` (integer): dated from *sent_at* seconds ago from now (to test expiration)
     * `:accepted_by` (struct or integer or nil): the id of the user who accepted the invitation (`nil` if unused)
   """
-  @spec invitation_fixture(user :: Haytni.user, sent_to :: String.t) :: Haytni.InvitablePlugin.invitation
-  def invitation_fixture(user, sent_to, options \\ []) do
-    sent_at = Keyword.get(options, :sent_at, 0)
-    code = Keyword.get_lazy(options, :code, fn -> Haytni.Token.generate(16) end)
-    accepter_id = case Keyword.get(options, :accepted_by, nil) do
+  @spec invitation_fixture(user :: Haytni.user, sent_to :: String.t, attrs :: Keyword.t) :: Haytni.InvitablePlugin.invitation
+  def invitation_fixture(user, sent_to, attrs \\ []) do
+    sent_at = Keyword.get(attrs, :sent_at, 0)
+    code = Keyword.get_lazy(attrs, :code, fn -> Haytni.Token.generate(16) end)
+    accepter_id = case Keyword.get(attrs, :accepted_by, nil) do
       %_{id: id} when is_integer(id) ->
         id
       other when is_nil(other) or is_integer(other) ->
@@ -131,7 +131,7 @@ defmodule Haytni.TestHelpers do
       iex> session_params_without_rememberme(%{"email" => "foo@bar.com", "password" => "azerty"})
       %{"session" => %{"email" => "foo@bar.com", "password" => "azerty"}}
   """
-  @spec session_params_without_rememberme(attrs :: Enumerable | struct) :: %{String.t => String.t}
+  @spec session_params_without_rememberme(attrs :: Enumerable.t | struct) :: %{String.t => %{String.t => String.t}}
   def session_params_without_rememberme(attrs \\ %{}) do
     [
       email: "abc@def.ghi",

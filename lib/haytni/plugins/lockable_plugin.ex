@@ -49,14 +49,14 @@ defmodule Haytni.LockablePlugin do
       maximum_attempts: pos_integer,
       unlock_in: Haytni.duration,
       unlock_strategy: unlock_strategy,
-      unlock_keys: [atom],
+      unlock_keys: [atom, ...],
       unlock_token_length: pos_integer,
     }
 
     @doc ~S"""
     Returns all available strategies (all possible values for *unlock_strategy* parameter)
     """
-    @spec available_strategies() :: [unlock_strategy]
+    @spec available_strategies() :: [unlock_strategy, ...]
     def available_strategies do
       ~W[both email none time]a
     end
@@ -64,7 +64,7 @@ defmodule Haytni.LockablePlugin do
     @doc ~S"""
     Returns strategies involving sending emails
     """
-    @spec email_strategies() :: [unlock_strategy]
+    @spec email_strategies() :: [unlock_strategy, ...]
     def email_strategies do
       ~W[both email]a
     end

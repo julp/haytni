@@ -64,7 +64,7 @@ defmodule Haytni.AuthenticablePlugin do
       password_hash_fun: &Bcrypt.hash_pwd_salt/1
 
     @type t :: %__MODULE__{
-      authentication_keys: [atom],
+      authentication_keys: [atom, ...],
       password_check_fun: (struct, Comeonin.PasswordHash.password_hash, Comeonin.PasswordHash.opts -> {:ok, struct} | {:error, String.t}),
       password_hash_fun: (Comeonin.PasswordHash.password -> Comeonin.PasswordHash.password_hash),
     }
