@@ -15,6 +15,7 @@ defmodule Haytni.MixProject do
       description: description(),
       package: package(),
       deps: deps(),
+      dialyzer: [plt_add_apps: [:mix, :ex_unit]],
       name: "Haytni",
       source_url: "https://github.com/julp/haytni",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -50,7 +51,7 @@ defmodule Haytni.MixProject do
       # jason is "optional" to phoenix and bamboo
       {:jason, "~> 1.2"},
       {:bamboo, "~> 1.5"}, # required by plugins: confirmable, lockable, recoverable and invitable
-      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0", only: ~W[dev test]a, runtime: false},
       {:ecto_network, "~> 1.3", only: :test}, # required by plugin: trackable with PostgreSQL
       {:excoveralls, "~> 0.13", only: :test},
       #{:credo, "~> 1.4", only: [:dev, :test], runtime: false},
