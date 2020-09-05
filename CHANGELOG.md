@@ -1,4 +1,4 @@
-?.?.?
+0.6.1
 
 - introduced new Invitable plugin
 - fix wrong extension for migrations (.ex => .exs)
@@ -36,9 +36,9 @@ The following migration should take care of the upgrade of:
 * rename your <scope>_connections tables (Trackable)
 
 ```elixir
-# priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_0_to_?_?_?.exs
+# priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_0_to_0_6_1.exs
 
-defmodule YourRepo.Migrations.HaytniUpgradeFrom060To??? do
+defmodule YourRepo.Migrations.HaytniUpgradeFrom060To061 do
   @stacks [HaytniTestWeb.Haytni] # a list of your Haytni stacks (module names) related to the current Repo
 
   use Ecto.Migration
