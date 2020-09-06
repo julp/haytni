@@ -42,7 +42,7 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
 
     for strategy <- Haytni.LockablePlugin.Config.available_strategies() do
       test "ensures account becomes locked if failed_attempts >= maximum_attempts (strategy: #{strategy})", %{config: config} do
-        %{config | unlock_strategy: unquote(strategy)}
+        config = %{config | unlock_strategy: unquote(strategy)}
         # NOTE: user needs an email for email based strategies
         user = %User{email: "test@notadomain.com", locked_at: nil, unlock_token: nil, failed_attempts: 0}
 
