@@ -20,8 +20,8 @@
 
   <%%= if Haytni.plugin_enabled?(@module, Haytni.RememberablePlugin) do %>
     <div class="form-group">
-      <input type="checkbox" name="remember" id="remember">
-      <label for="remember"><%%= Haytni.Gettext.dgettext("haytni", "Remember Me?") %></label>
+      <%%= checkbox f, :remember, hidden_input: false %>
+      <%%= label f, :remember, Haytni.Gettext.dgettext("haytni", "Remember Me?") %>
     </div>
     <br/>
   <%% end %>
