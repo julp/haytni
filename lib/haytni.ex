@@ -255,14 +255,20 @@ defmodule Haytni do
     {conn, nil}
   end
 
+  @spec invalid_user?(module :: module, user :: Haytni.user) :: {:error, String.t} | false
+  defp invalid_user?(module, user = %_{}) do
+    module.plugins_with_config()
+    |> map_while(false, &(&1.invalid?(user, &2)))
+  end
+
   @doc ~S"""
   Used by plug to extract the current user (if any) from the HTTP
   request (meaning from headers, cookies, etc)
   """
   @spec find_user(module :: module, conn :: Plug.Conn.t) :: {Plug.Conn.t, Haytni.user | nil}
   def find_user(module, conn = %Plug.Conn{}) do
-    scope = :"#{module.scope()}_id"
-    {conn, user, from_session?} = case Plug.Conn.get_session(conn, scope) do
+    scoped_session_key = :"#{module.scope()}_id"
+    {conn, user, from_session?} = case Plug.Conn.get_session(conn, scoped_session_key) do
       nil ->
         find_user(module.plugins_with_config(), conn, module)
         |> Tuple.append(false)
@@ -270,19 +276,18 @@ defmodule Haytni do
         {conn, get_user(module, id), true}
     end
     if user do
-      module.plugins_with_config()
-      |> map_while(false, &(&1.invalid?(user, &2)))
-      |> case do
+      case invalid_user?(module, user) do
         {:error, _error} ->
-          {conn, nil}
+          {Plug.Conn.delete_session(conn, scoped_session_key), nil}
         false ->
           if from_session? do
             {conn, user}
           else
             {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user)
-            conn = conn
-            |> Plug.Conn.put_session(scope, user.id)
-            |> Plug.Conn.configure_session(renew: true)
+            conn =
+              conn
+              |> Plug.Conn.put_session(scoped_session_key, user.id)
+              |> Plug.Conn.configure_session(renew: true)
             {conn, user}
           end
       end
@@ -463,14 +468,17 @@ defmodule Haytni do
   """
   @spec login(conn :: Plug.Conn.t, module :: module, user :: Haytni.user) :: {:ok, Plug.Conn.t} | {:error, String.t}
   def login(conn = %Plug.Conn{}, module, user = %_{}) do
-    module.plugins_with_config()
-    |> map_while(false, &(&1.invalid?(user, &2)))
-    |> case do
+    case invalid_user?(module, user) do
       error = {:error, _message} ->
         error
       false ->
         {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user)
-        {:ok, Plug.Conn.assign(conn, :"current_#{module.scope()}", user)}
+        conn =
+          conn
+          |> Plug.Conn.put_session(:"#{module.scope()}_id", user.id)
+          |> Plug.Conn.configure_session(renew: true)
+          |> Plug.Conn.assign(:"current_#{module.scope()}", user)
+        {:ok, conn}
     end
   end
 

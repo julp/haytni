@@ -3,7 +3,10 @@ defmodule Haytni.Authenticable.AuthentificateTest do
 
   @spec create_session(email :: String.t, password :: String.t) :: %{String.t => String.t}
   defp create_session(email, password) do
-    %{"email" => email, "password" => password}
+    %{
+      "email" => email,
+      "password" => password,
+    }
   end
 
   @spec assert_invalid_credentials(conn :: Plug.Conn.t, config :: HaytniTestWeb.Haytni.Config.t, module :: module, session :: %{String.t => String.t}) :: boolean | no_return
@@ -16,22 +19,29 @@ defmodule Haytni.Authenticable.AuthentificateTest do
   describe "Haytni.AuthenticablePlugin.authenticate/4" do
     @pass "123456"
 
-    setup do
+    setup %{conn: conn} do
       admin = admin_fixture(password: @pass)
       config = HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin)
-      user = #HaytniTestWeb.Haytni.fetch_config(Haytni.ConfirmablePlugin)
-      Haytni.ConfirmablePlugin.reset_confirmation_attributes()
-      |> Keyword.put(:password, @pass)
-      |> user_fixture()
+      user =
+        #HaytniTestWeb.Haytni.fetch_config(Haytni.ConfirmablePlugin)
+        Haytni.ConfirmablePlugin.reset_confirmation_attributes()
+        |> Keyword.put(:password, @pass)
+        |> user_fixture()
 
-      {:ok, config: config, user: user, admin: admin}
+      [
+        user: user,
+        admin: admin,
+        config: config,
+        conn: Plug.Test.init_test_session(conn, %{}),
+      ]
     end
 
     test "returns user with correct password", %{conn: conn, config: config, user: user} do
       session = create_session(user.email, @pass)
 
-      assert {:ok, new_conn} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, session)
-      assert new_conn.assigns.current_user.id == user.id
+      assert {:ok, conn} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, session)
+      assert user.id == conn.assigns.current_user.id
+      assert user.id == Plug.Conn.get_session(conn, :user_id)
     end
 
     test "check user/admin scopes do not mix", %{conn: conn, config: config, user: user, admin: admin} do
@@ -42,8 +52,9 @@ defmodule Haytni.Authenticable.AuthentificateTest do
     test "returns admin with correct password", %{conn: conn, config: config, admin: admin} do
       session = create_session(admin.email, @pass)
 
-      assert {:ok, new_conn} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.HaytniAdmin, config, session)
-      assert new_conn.assigns.current_admin.id == admin.id
+      assert {:ok, conn} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.HaytniAdmin, config, session)
+      assert admin.id == conn.assigns.current_admin.id
+      assert admin.id == Plug.Conn.get_session(conn, :admin_id)
     end
 
     test "returns error with empty credentials", %{conn: conn, config: config} do

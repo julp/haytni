@@ -1,3 +1,9 @@
+0.6.2
+
+- [Rememberable] fixed wrong checkbox's name in template session/new.html.eex
+- fixed session was not created except if Rememberable was involved
+
+
 0.6.1
 
 - introduced new Invitable plugin
