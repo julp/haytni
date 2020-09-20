@@ -1,9 +1,14 @@
 defmodule Haytni.RegisterablePlugin do
-  @default_email_regexp ~R/^[^@\s]+@[^@\s]+$/
   @default_registration_path "/registration"
   @registration_path_key :registration_path
   @new_registration_path_key :new_registration_path
   @edit_registration_path_key :edit_registration_path
+
+  @default_email_regexp ~R/^[^@\s]+@[^@\s]+$/
+  @default_case_insensitive_keys ~W[email]a
+  @default_strip_whitespace_keys ~W[email]a
+  @default_registration_disabled? false
+  @default_email_index_name nil
 
   @moduledoc """
   This plugin allows the user to register and edit their account.
@@ -49,21 +54,21 @@ defmodule Haytni.RegisterablePlugin do
   Configuration:
 
     * `email_regexp` (default: `#{inspect(@default_email_regexp)}`): the `Regex` that an email at registration or profile edition needs to match
-    * `case_insensitive_keys` (default: `~W[email]a`): list of fields to automatically downcase on registration. May be unneeded depending on your
+    * `case_insensitive_keys` (default: `#{inspect(@default_case_insensitive_keys)}`): list of fields to automatically downcase on registration. May be unneeded depending on your
       database (eg: *citext* columns for PostgreSQL or columns with a collation suffixed by "\_ci" for MySQL). You **SHOULD NOT** include the
       password field here!
-    * `strip_whitespace_keys` (default: `~W[email]a`): list of fields to automatically strip from whitespaces. You **SHOULD NEITHER** include the
+    * `strip_whitespace_keys` (default: `#{inspect(@default_strip_whitespace_keys)}`): list of fields to automatically strip from whitespaces. You **SHOULD NEITHER** include the
       password field here, to exclude any involuntary mistake, you should instead consider using a custom validation.
-    * `email_index_name` (default: `nil`, translated to `<source>_email_index` by `Ecto.Changeset.unique_constraint/3`): the name of the unique
+    * `email_index_name` (default: `#{inspect(@default_email_index_name)}`, translated to `<source>_email_index` by `Ecto.Changeset.unique_constraint/3`): the name of the unique
       index/constraint on email field
-    * `registration_disabled?` (default: `false`): disable any new registration (existing users are still able to login, edit their profile, ...)
+    * `registration_disabled?` (default: `#{inspect(@default_registration_disabled?)}`): disable any new registration (existing users are still able to login, edit their profile, ...)
 
           stack Haytni.RegisterablePlugin,
-            registration_disabled?: false,
-            strip_whitespace_keys: ~W[email]a,
-            case_insensitive_keys: ~W[email]a,
+            registration_disabled?: #{inspect(@default_registration_disabled?)},
+            strip_whitespace_keys: #{inspect(@default_strip_whitespace_keys)},
+            case_insensitive_keys: #{inspect(@default_case_insensitive_keys)},
             email_regexp: #{inspect(@default_email_regexp)},
-            email_index_name: nil
+            email_index_name: #{inspect(@default_email_index_name)}
 
   Routes:
 

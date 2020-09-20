@@ -1,5 +1,8 @@
 defmodule Haytni.PasswordPolicyPlugin do
-  @moduledoc ~S"""
+  @default_password_length 6..128
+  @default_password_classes_to_match 2
+
+  @moduledoc """
   This plugin provides a basic password policy based on its length and its content (character types). If you are
   looking for a more advanced policy you'll probably want to disable this plugin and write your own.
 
@@ -7,12 +10,13 @@ defmodule Haytni.PasswordPolicyPlugin do
 
   Configuration:
 
-    * `password_length` (default: `6..128`): define min and max password length as an Elixir Range
-    * `password_classes_to_match` (default: `2`): the minimum character classes between digit, lowercase, uppercase and others a password has to match to be accepted
+    * `password_length` (default: `#{inspect(@default_password_length)}`): define min and max password length as an Elixir Range. It's worth noting, if you use bcrypt to hash passwords, that there is no point to
+      allow a length beyond 72 bytes because bcrypt silently truncates keys to this length.
+    * `password_classes_to_match` (default: `#{inspect(@default_password_classes_to_match)}`): the minimum character classes between digit, lowercase, uppercase and others a password has to match to be accepted
 
         stack Haytni.RegisterablePlugin,
-          password_length: 6..128,
-          password_classes_to_match: 2
+          password_length: #{inspect(@default_password_length)},
+          password_classes_to_match: #{inspect(@default_password_classes_to_match)}
 
   Routes: none
   """

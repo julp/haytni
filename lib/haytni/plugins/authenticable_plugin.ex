@@ -5,6 +5,10 @@ defmodule Haytni.AuthenticablePlugin do
   @logout_path_key :logout_path
   @logout_method_key :logout_method
 
+  @default_authentication_keys ~W[email]a
+  @default_password_hash_fun &Bcrypt.hash_pwd_salt/1
+  @default_password_check_fun &Bcrypt.check_pass/3
+
   @moduledoc """
   This is a base plugin as it handles basic informations of a user (which are email and hashed password) and their authentication.
 
@@ -15,10 +19,10 @@ defmodule Haytni.AuthenticablePlugin do
 
   Configuration:
 
-    * `authentication_keys` (default: `~W[email]a`): the key(s), in addition to the password, requested to login. You can redefine it to `~W[name]a`, for example, to ask the username instead of its email address.
+    * `authentication_keys` (default: `#{inspect(@default_authentication_keys)}`): the key(s), in addition to the password, requested to login. You can redefine it to `~W[name]a`, for example, to ask the username instead of its email address.
     * password hashing algorithm (default: bcrypt):
-      + `password_hash_fun` (default: `&Bcrypt.hash_pwd_salt/1`): the function to hash a password
-      + `password_check_fun` (default: `&Bcrypt.check_pass/3`): the function to check if a password matches its hash
+      + `password_hash_fun` (default: `#{inspect(@default_password_hash_fun)}`): the function to hash a password
+      + `password_check_fun` (default: `#{inspect(@default_password_check_fun)}`): the function to check if a password matches its hash
 
     To use:
 
@@ -26,9 +30,9 @@ defmodule Haytni.AuthenticablePlugin do
       * `argon2` add `{:argon2_elixir, "~> 2.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Argon2.hash_pwd_salt/1` and `password_check_fun` to ` &Argon2.check_pass/2` in config/config.exs
 
             stack Haytni.AuthenticablePlugin,
-              authentication_keys: ~W[email]a,
-              password_check_fun: &Bcrypt.check_pass/3,
-              password_hash_fun: &Bcrypt.hash_pwd_salt/1
+              authentication_keys: #{inspect(@default_authentication_keys)},
+              password_check_fun: #{inspect(@default_password_check_fun)},
+              password_hash_fun: #{inspect(@default_password_hash_fun)}
 
   Routes:
 
