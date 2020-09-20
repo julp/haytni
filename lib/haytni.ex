@@ -308,7 +308,7 @@ defmodule Haytni do
 
   The inserted user will be part of *map* (or eventualy *changes_so_far*) under the key `:user`.
 
-  See `Ecto.Repo.insert/3` for *options*.
+  See `c:Ecto.Repo.insert/2` for *options*.
   """
   @spec create_user(module :: module, attrs :: map, options :: Keyword.t) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
   def create_user(module, attrs = %{}, options \\ []) do
@@ -546,7 +546,7 @@ defmodule Haytni do
   end
 
   @doc ~S"""
-  Same as `update_user_with/2` but returns the updated *user* struct or raises if *changes* are invalid.
+  Same as `update_user_with/3` but returns the updated *user* struct or raises if *changes* are invalid.
   """
   @spec update_user_with!(module :: module, user :: Haytni.user, changes :: Keyword.t) :: Haytni.user | no_return
   def update_user_with!(module, user = %_{}, changes) do
