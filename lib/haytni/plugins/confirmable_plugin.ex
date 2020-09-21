@@ -2,6 +2,11 @@ defmodule Haytni.ConfirmablePlugin do
   @default_confirmation_path "/confirmation"
   @confirmation_path_key :confirmation_path
 
+  @default_reconfirmable true
+  @default_confirm_within {3, :day}
+  @default_confirmation_keys ~W[email]a
+  @default_confirmation_token_length 32
+
   @moduledoc """
   This plugin ensure that email addresses given by users are valid by sending them an email containing an unique token that they have to
   return back in order to really be able to use (unlock) their account.
@@ -18,16 +23,16 @@ defmodule Haytni.ConfirmablePlugin do
 
   Configuration:
 
-    * `reconfirmable` (default: `true`): any email changes have to be confirmed to be applied. Until confirmed, new email is stored in
+    * `reconfirmable` (default: `#{inspect(@default_reconfirmable)}`): any email changes have to be confirmed to be applied. Until confirmed, new email is stored in
       unconfirmed_email column, and copied to email column on successful confirmation
-    * `confirmation_keys` (default: `~W[email]a`): the key(s) to be matched before sending a new confirmation
-    * `confirm_within` (default: `{3, :day}`): delay after which confirmation token is considered as expired (ie the user has to ask for a new one)
+    * `confirmation_keys` (default: `#{inspect(@default_confirmation_keys)}`): the key(s) to be matched before sending a new confirmation
+    * `confirm_within` (default: `#{inspect(@default_confirm_within)}`): delay after which confirmation token is considered as expired (ie the user has to ask for a new one)
 
           stack Haytni.ConfirmablePlugin,
-            reconfirmable: true,
-            confirm_within: {3, :day},
-            confirmation_keys: ~W[email]a,
-            confirmation_token_length: 32
+            reconfirmable: #{inspect(@default_reconfirmable)},
+            confirm_within: #{inspect(@default_confirm_within)},
+            confirmation_keys: #{inspect(@default_confirmation_keys)},
+            confirmation_token_length: #{inspect(@default_confirmation_token_length)}
 
   Routes:
 

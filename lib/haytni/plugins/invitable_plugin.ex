@@ -1,12 +1,13 @@
 defmodule Haytni.InvitablePlugin do
+  # paths
+  @default_invitation_path "/invitations"
+  @invitation_path_key :invitation_path
   # config
   @default_invitation_required true
   @default_invitation_quota :infinity
   @default_invitation_within {30, :day}
   @default_email_matching_invitation false
-  # paths
-  @default_invitation_path "/invitations"
-  @invitation_path_key :invitation_path
+  @default_invitation_sent_to_index_name nil
 
   @moduledoc """
   This plugin provides the feature of registration on invitation or sponsorship.
@@ -22,14 +23,14 @@ defmodule Haytni.InvitablePlugin do
     * `email_matching_invitation` (default: `#{inspect(@default_email_matching_invitation)}`): `true` to force users who accept the invitation to register with the same email address they received the invitation from
     * `invitation_required` (default: `#{inspect(@default_invitation_required)}`): `true` if users can only register with a valid invitation. `false` to make it optional (sponsorship).
     * `invitation_within` (default: `#{inspect(@default_invitation_within)}`): laps of time before the invitation can no longer be used (expiration)
-    * `invitation_sent_to_index_name` (default: `nil`): the name of the index on sent_to column if you have to explicit it
+    * `invitation_sent_to_index_name` (default: `#{inspect(@default_invitation_sent_to_index_name)}`): the name of the index on sent_to column if you have to explicit it
 
           stack Haytni.InvitablePlugin,
             invitation_required: #{inspect(@default_invitation_required)},
             invitation_quota: #{inspect(@default_invitation_quota)},
             invitation_within: #{inspect(@default_invitation_within)},
             email_matching_invitation: #{inspect(@default_email_matching_invitation)},
-            invitation_sent_to_index_name: nil
+            invitation_sent_to_index_name: #{inspect(@default_invitation_sent_to_index_name)}
 
   Routes:
 

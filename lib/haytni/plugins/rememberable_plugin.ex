@@ -1,5 +1,13 @@
 defmodule Haytni.RememberablePlugin do
-  @moduledoc ~S"""
+  @default_remember_for {2, :week}
+  @default_remember_cookie_name "remember_token"
+  @default_remember_cookie_options [
+    http_only: true,
+    extra: "Samesite=Strict",
+  ]
+  @default_remember_token_length 16
+
+  @moduledoc """
   This plugin makes artificialy last user's authentication by creating a cookie which stores a token for remembering the user.
 
   This cookie is cleared when user's manually logout.
@@ -11,21 +19,18 @@ defmodule Haytni.RememberablePlugin do
 
   Configuration:
 
-    * `remember_for` (default: `{2, :week}`): the period of validity of the token/which the user won't be asked for credentials
+    * `remember_for` (default: `#{inspect(@default_remember_for)}`): the period of validity of the token/which the user won't be asked for credentials
     * `remember_salt` (default: `""`): the salt to (de)cipher the token stored in the (signed) cookie
-    * `remember_token_length` (default: 16): the length of the token (before being ciphered)
-    * `remember_cookie_name` (default: `"remember_token"`): the name of the cookie holding the token for automatic sign in
-    * `remember_cookie_options` (default: `[http_only: true, extra: "Samesite=Strict"]`): to set custom options of the cookie (options are: *domain*, *max_age*, *path*, *http_only*, *secure* and *extra*, see documentation of Plug.Conn.put_resp_cookie/4)
+    * `remember_token_length` (default: `#{inspect(@default_remember_token_length)}`): the length of the token (before being ciphered)
+    * `remember_cookie_name` (default: `#{inspect(@default_remember_cookie_name)}`): the name of the cookie holding the token for automatic sign in
+    * `remember_cookie_options` (default: `#{inspect(@default_remember_cookie_options)}`): to set custom options of the cookie (options are: *domain*, *max_age*, *path*, *http_only*, *secure* and *extra*, see documentation of Plug.Conn.put_resp_cookie/4)
 
           stack Haytni.RememberablePlugin,
             remember_salt: "",
-            remember_for: {2, :week},
-            remember_token_length: 16,
-            remember_cookie_name: "remember_token",
-            remember_cookie_options: [
-              http_only: true,
-              extra: "Samesite=Strict",
-            ]
+            remember_for: #{inspect(@default_remember_for)},
+            remember_token_length: #{inspect(@default_remember_token_length)},
+            remember_cookie_name: #{inspect(@default_remember_cookie_name)},
+            remember_cookie_options: #{inspect(@default_remember_cookie_options)}
 
   Routes: none
   """

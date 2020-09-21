@@ -2,6 +2,12 @@ defmodule Haytni.LockablePlugin do
   @default_unlock_path "/unlock"
   @unlock_path_key :unlock_path
 
+  @default_unlock_in {1, :hour}
+  @default_unlock_strategy :both
+  @default_maximum_attempts 20
+  @default_unlock_keys ~W[email]a
+  @default_unlock_token_length 32
+
   @moduledoc """
   This plugin locks an account after a specified number of failed sign-in attempts. User can unlock its account via email
   and/or after a specified time period.
@@ -14,11 +20,11 @@ defmodule Haytni.LockablePlugin do
 
   Configuration:
 
-    * `maximum_attempts` (default: `20`): the amount of successive attempts to login before locking the corresponding account
-    * `unlock_token_length` (default: `32`): the length of the generated token
-    * `unlock_keys` (default: `~W[email]a`): the field(s) to match to accept the unlock request
-    * `unlock_in` (default: `{1, :hour}`): delay to automatically unlock the account
-    * `unlock_strategy` (default: `:both`): strategy used to unlock an account. One of:
+    * `maximum_attempts` (default: `#{inspect @default_maximum_attempts}`): the amount of successive attempts to login before locking the corresponding account
+    * `unlock_token_length` (default: `#{inspect @default_unlock_token_length}`): the length of the generated token
+    * `unlock_keys` (default: `#{inspect @default_unlock_keys}`): the field(s) to match to accept the unlock request
+    * `unlock_in` (default: `#{inspect @default_unlock_in}`): delay to automatically unlock the account
+    * `unlock_strategy` (default: `#{inspect @default_unlock_strategy}`): strategy used to unlock an account. One of:
 
       + `:email`: sends an unlock link to the user email
       + `:time`: re-enables login after a certain amount of time (see :unlock_in below)
@@ -26,11 +32,11 @@ defmodule Haytni.LockablePlugin do
       + `:none`: no unlock strategy. You should handle unlocking by yourself.
 
             stack Haytni.LockablePlugin,
-              maximum_attempts: 20,
-              unlock_in: {1, :hour},
-              unlock_strategy: :both,
-              unlock_keys: ~W[email]a,
-              unlock_token_length: 32
+              maximum_attempts: #{inspect @default_maximum_attempts},
+              unlock_in: #{inspect @default_unlock_in},
+              unlock_strategy: #{inspect @default_unlock_strategy},
+              unlock_keys: #{inspect @default_unlock_keys},
+              unlock_token_length: #{inspect @default_unlock_token_length}
 
   Routes:
 

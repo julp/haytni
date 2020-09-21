@@ -2,6 +2,10 @@ defmodule Haytni.RecoverablePlugin do
   @default_password_path "/password"
   @password_path_key :password_path
 
+  @default_reset_password_keys ~W[email]a
+  @default_reset_password_within {6, :hour}
+  @default_reset_token_length 32
+
   @moduledoc """
   This plugin allows the user to reset its password if he forgot it. To do so, its email addresse (default) is asked to him then an unique token is generated
   and send to its mailbox. This mail contains a link to activate where a new password will be requested to override the previous one.
@@ -13,14 +17,14 @@ defmodule Haytni.RecoverablePlugin do
 
   Configuration:
 
-    * `reset_token_length` (default: `32`): the length of the generated token
-    * `reset_password_within` (default: `{6, :hour}`): the delay before the token expires
-    * `reset_password_keys` (default: `~W[email]a`): the field(s) to be matched to send a reinitialization token
+    * `reset_token_length` (default: `#{inspect(@default_reset_token_length)}`): the length of the generated token
+    * `reset_password_within` (default: `#{inspect(@default_reset_password_within)}`): the delay before the token expires
+    * `reset_password_keys` (default: `#{inspect(@default_reset_password_keys)}`): the field(s) to be matched to send a reinitialization token
 
           stack Haytni.RecoverablePlugin,
-            reset_token_length: 32,
-            reset_password_keys: ~W[email]a,
-            reset_password_within: {6, :hour}
+            reset_token_length: #{inspect(@default_reset_token_length)},
+            reset_password_keys: #{inspect(@default_reset_password_keys)},
+            reset_password_within: #{inspect(@default_reset_password_within)}
 
   Routes:
 
