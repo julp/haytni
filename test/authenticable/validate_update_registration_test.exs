@@ -17,6 +17,16 @@ defmodule Haytni.Authenticable.ValidateUpdateRegistrationTest do
         %User{}
         |> Ecto.Changeset.change(dummy: true)
 
+      assert changeset.valid?
+      assert changeset == Haytni.AuthenticablePlugin.validate_update_registration(changeset, config)
+    end
+
+    test "doesn't interfere if email nor password are changed but with some (useless and unchecked) current_password", %{config: config} do
+      changeset =
+        %User{}
+        |> Ecto.Changeset.change(dummy: true, current_password: "wrong password")
+
+      assert changeset.valid?
       assert changeset == Haytni.AuthenticablePlugin.validate_update_registration(changeset, config)
     end
 
