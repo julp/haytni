@@ -451,7 +451,8 @@ defmodule Haytni do
 
     case Keyword.get(options, :scope) do
       :all ->
-        Plug.Conn.configure_session(conn, drop: true)
+        Plug.Conn.clear_session(conn)
+        #Plug.Conn.configure_session(conn, drop: true)
       _ ->
         conn
         |> Plug.Conn.configure_session(renew: true)
