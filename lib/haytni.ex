@@ -189,6 +189,8 @@ defmodule Haytni do
       @spec fetch_config(plugin :: module) :: any
       unquote(defs)
 
+      def fetch_config(_), do: nil
+
       @spec plugins() :: [module]
       def plugins do
         unquote(Enum.map(plugins_with_config, &(elem(&1, 0))))
