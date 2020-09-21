@@ -131,6 +131,18 @@ defmodule Haytni.LockablePlugin do
     ]
   end
 
+  @doc ~S"""
+  The (database) attributes as a keyword-list to turn an account to unlocked state
+  """
+  @spec unlock_attributes() :: Keyword.t
+  def unlock_attributes do
+    [
+      unlock_token: nil,
+      failed_attempts: 0,
+      locked_at: nil,
+    ]
+  end
+
   @impl Haytni.Plugin
   def on_failed_authentication(user = %_{}, multi, keywords, module, config) do
     if user.failed_attempts + 1 >= config.maximum_attempts && !locked?(user, config) do
@@ -139,7 +151,7 @@ defmodule Haytni.LockablePlugin do
           multi,
           :send_unlock_instructions,
           fn _repo, %{user: user} ->
-            send_unlock_instructions_mail_to_user(user, module, config)
+            send_unlock_instructions_mail_to_user(user, user.unlock_token, module, config)
             {:ok, :success}
           end
         )
@@ -184,7 +196,7 @@ defmodule Haytni.LockablePlugin do
             |> Ecto.Changeset.change(lock_attributes(config))
             |> repo.update()
             if email_strategy_enabled?(config) do
-              send_unlock_instructions_mail_to_user(user, module, config)
+              send_unlock_instructions_mail_to_user(user, user.unlock_token, module, config)
             end
             {:ok, true}
           # the account is already locked and has not yet expired or the database doesn't have any equivalent to PostgreSQL's RETURNING clause
@@ -217,12 +229,11 @@ defmodule Haytni.LockablePlugin do
     config.unlock_strategy in ~W[both time]a and DateTime.diff(DateTime.utc_now(), user.locked_at) >= config.unlock_in
   end
 
-  @spec send_unlock_instructions_mail_to_user(user :: Haytni.user, module :: module, config :: Config.t) :: {:ok, Haytni.user}
-  defp send_unlock_instructions_mail_to_user(user, module, config) do
-    if email_strategy_enabled?(config) do
-      Haytni.LockableEmail.unlock_instructions_email(user, module, config)
-      |> module.mailer().deliver_later()
-    end
+  @spec send_unlock_instructions_mail_to_user(user :: Haytni.user, unlock_token :: String.t, module :: module, config :: Config.t) :: {:ok, Haytni.user}
+  defp send_unlock_instructions_mail_to_user(user, unlock_token, module, config) do
+    user
+    |> Haytni.LockableEmail.unlock_instructions_email(unlock_token, module, config)
+    |> module.mailer().deliver_later()
     {:ok, user}
   end
 
@@ -257,14 +268,6 @@ defmodule Haytni.LockablePlugin do
   @spec invalid_token_message() :: String.t
   def invalid_token_message do
     dgettext("haytni", "The given unlock token is invalid.")
-  end
-
-  @doc ~S"""
-  The (database) attributes as a keyword-list to turn an account to unlocked state
-  """
-  @spec unlock_attributes() :: Keyword.t
-  def unlock_attributes do
-    [unlock_token: nil, failed_attempts: 0, locked_at: nil]
   end
 
   @doc ~S"""
@@ -343,8 +346,7 @@ defmodule Haytni.LockablePlugin do
                 Haytni.Helpers.mark_changeset_keys_with_error(changeset, config.unlock_keys, not_locked_message())
               end
             user = %_{} ->
-              user
-              |> send_unlock_instructions_mail_to_user(module, config)
+              send_unlock_instructions_mail_to_user(user, user.unlock_token, module, config)
           end
         else
           {:error, :email_strategy_disabled}

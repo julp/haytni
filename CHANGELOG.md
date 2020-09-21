@@ -1,3 +1,11 @@
+?.?.?
+
+```
+find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0 perl -pi \
+    -e 's/\@user\.(unlock_token|reset_password_token|confirmation_token|unconfirmed_email)/\@\1/;'
+```
+
+
 0.6.2
 
 - [Rememberable] fixed wrong checkbox's name in template session/new.html.eex

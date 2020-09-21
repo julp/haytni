@@ -38,7 +38,7 @@ defmodule Haytni.Recoverable.SendResetPasswordInstructionsTest do
         assert is_binary(updated_user.reset_password_token)
         assert %DateTime{} = updated_user.reset_password_sent_at
 
-        assert_delivered_email Haytni.RecoverableEmail.reset_password_email(updated_user, HaytniTestWeb.Haytni, config)
+        assert_delivered_email Haytni.RecoverableEmail.reset_password_email(updated_user, updated_user.reset_password_token, HaytniTestWeb.Haytni, config)
       end
 #     end
   end

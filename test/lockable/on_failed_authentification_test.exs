@@ -73,7 +73,7 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
 
         assert [{:send_unlock_instructions, {:run, fun}}] = Ecto.Multi.to_list(multi)
         assert {:ok, :success} = fun.(HaytniTest.Repo, %{user: updated_user})
-        assert_delivered_email Haytni.LockableEmail.unlock_instructions_email(updated_user, HaytniTestWeb.Haytni, config)
+        assert_delivered_email Haytni.LockableEmail.unlock_instructions_email(updated_user, updated_user.unlock_token, HaytniTestWeb.Haytni, config)
       end
     end
   end

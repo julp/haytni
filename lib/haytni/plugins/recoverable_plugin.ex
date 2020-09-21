@@ -105,9 +105,10 @@ defmodule Haytni.RecoverablePlugin do
     ]
   end
 
-  @spec send_reset_password_instructions_mail_to_user(user :: Haytni.user, module :: module, config :: Haytni.config) :: {:ok, Haytni.irrelevant}
-  defp send_reset_password_instructions_mail_to_user(user, module, config) do
-    Haytni.RecoverableEmail.reset_password_email(user, module, config)
+  @spec send_reset_password_instructions_mail_to_user(user :: Haytni.user, reset_password_token :: String.t, module :: module, config :: Haytni.config) :: {:ok, Haytni.irrelevant}
+  defp send_reset_password_instructions_mail_to_user(user, reset_password_token, module, config) do
+    user
+    |> Haytni.RecoverableEmail.reset_password_email(reset_password_token, module, config)
     |> module.mailer().deliver_later()
 
     {:ok, true}
@@ -163,7 +164,7 @@ defmodule Haytni.RecoverablePlugin do
             |> Ecto.Multi.run(
               :send_reset_password_instructions,
               fn _repo, %{user: user} ->
-                send_reset_password_instructions_mail_to_user(user, module, config)
+                send_reset_password_instructions_mail_to_user(user, user.reset_password_token, module, config)
               end
             )
             |> module.repo().transaction()

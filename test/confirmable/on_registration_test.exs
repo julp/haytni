@@ -13,7 +13,7 @@ defmodule Haytni.Confirmable.OnRegistrationTest do
 
       assert [{:send_confirmation_instructions, {:run, fun}}] = actions
       assert {:ok, :success} = fun.(HaytniTest.Repo, %{user: user})
-      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, HaytniTestWeb.Haytni, config)
+      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, user.confirmation_token, HaytniTestWeb.Haytni, config)
     end
   end
 end

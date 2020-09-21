@@ -6,11 +6,12 @@ defmodule Haytni.RecoverableEmail do
   @doc ~S"""
   Email the recovery password token to *user*
   """
-  @spec reset_password_email(user :: Haytni.user, module :: module, config :: Haytni.config) :: Bamboo.Email.t
-  def reset_password_email(user = %_{}, module, _config) do
+  @spec reset_password_email(user :: Haytni.user, reset_password_token :: String.t, module :: module, config :: Haytni.config) :: Bamboo.Email.t
+  def reset_password_email(user = %_{}, reset_password_token, module, _config) do
     new_email()
     |> to(user.email)
     |> assign(:user, user)
+    |> assign(:reset_password_token, reset_password_token)
     |> from(module.mailer().from())
     |> subject(dgettext("haytni", "Reset password instructions"))
     |> put_view(module, "Email.RecoverableView")

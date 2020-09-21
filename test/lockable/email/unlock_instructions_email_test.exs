@@ -2,11 +2,11 @@ defmodule Haytni.LockableEmail.ResetPasswordEmailTest do
   use ExUnit.Case
   use Bamboo.Test
 
-  describe "Haytni.LockableEmail.unlock_instructions_email/3 (callback)" do
+  describe "Haytni.LockableEmail.unlock_instructions_email/4 (callback)" do
     test "checks unlock email" do
       config = Haytni.LockablePlugin.build_config()
       user = %HaytniTest.User{email: "abc@def.ghi", unlock_token: "S7ViKr4vSYs1"}
-      email = Haytni.LockableEmail.unlock_instructions_email(user, HaytniTestWeb.Haytni, config)
+      email = Haytni.LockableEmail.unlock_instructions_email(user, user.unlock_token, HaytniTestWeb.Haytni, config)
 
       assert email.to == user.email
       assert email.from == HaytniTest.Mailer.from()

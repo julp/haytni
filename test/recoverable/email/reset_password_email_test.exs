@@ -6,7 +6,7 @@ defmodule Haytni.RecoverableEmail.ResetPasswordEmailTest do
     test "checks recovery email" do
       config = Haytni.RecoverablePlugin.build_config()
       user = %HaytniTest.User{email: "abc@def.ghi", reset_password_token: "YvLdScEIfwOC"}
-      email = Haytni.RecoverableEmail.reset_password_email(user, HaytniTestWeb.Haytni, config)
+      email = Haytni.RecoverableEmail.reset_password_email(user, user.reset_password_token, HaytniTestWeb.Haytni, config)
 
       assert email.to == user.email
       assert email.from == HaytniTest.Mailer.from()

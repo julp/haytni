@@ -42,7 +42,7 @@ defmodule Haytni.Recoverable.ResendConfirmationInstructionsTest do
     test "ensures a new confirmation is sent by email with the same token if last one is not expired", %{config: config, unconfirmed_user: user} do
       assert {:ok, updated_user} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(user.email))
       assert updated_user.id == user.id
-      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, HaytniTestWeb.Haytni, config)
+      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, user.confirmation_token, HaytniTestWeb.Haytni, config)
     end
 
     test "ensures a new confirmation is sent by email with the a new token if last one is expired", %{config: config, unconfirmed_user: user} do
@@ -59,7 +59,7 @@ defmodule Haytni.Recoverable.ResendConfirmationInstructionsTest do
       assert updated_user.id == user.id
       refute updated_user.confirmation_token == expired_user.confirmation_token
       refute updated_user.confirmation_sent_at == expired_user.confirmation_sent_at
-      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(updated_user, HaytniTestWeb.Haytni, config)
+      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(updated_user, updated_user.confirmation_token, HaytniTestWeb.Haytni, config)
     end
   end
 end

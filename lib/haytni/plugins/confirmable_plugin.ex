@@ -256,19 +256,17 @@ defmodule Haytni.ConfirmablePlugin do
 
   @spec send_confirmation_instructions(user :: Haytni.user, module :: module, config :: Haytni.config) :: {:ok, Haytni.irrelevant}
   defp send_confirmation_instructions(user, module, config) do
-    #Task.start(
-      #fn ->
-        Haytni.ConfirmableEmail.confirmation_email(user, module, config)
-        |> module.mailer().deliver_later()
-      #end
-    #)
+    user
+    |> Haytni.ConfirmableEmail.confirmation_email(user.confirmation_token, module, config)
+    |> module.mailer().deliver_later()
 
     {:ok, true}
   end
 
   @spec send_reconfirmation_instructions(user :: Haytni.user, module :: module, config :: Haytni.config) :: {:ok, Haytni.irrelevant}
   defp send_reconfirmation_instructions(user, module, config) do
-    Haytni.ConfirmableEmail.reconfirmation_email(user, module, config)
+    user
+    |> Haytni.ConfirmableEmail.reconfirmation_email(user.unconfirmed_email, user.confirmation_token, module, config)
     |> module.mailer().deliver_later()
 
     {:ok, true}
@@ -276,7 +274,8 @@ defmodule Haytni.ConfirmablePlugin do
 
   @spec send_notice_about_email_change(user :: Haytni.user, old_email :: String.t, module :: module, config :: Config.t) :: Bamboo.Email.t
   defp send_notice_about_email_change(user = %_{}, old_email, module, config) do
-    Haytni.ConfirmableEmail.email_changed(user, old_email, module, config)
+    user
+    |> Haytni.ConfirmableEmail.email_changed(old_email, module, config)
     |> module.mailer().deliver_later()
   end
 

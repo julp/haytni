@@ -2,11 +2,11 @@ defmodule Haytni.ConfirmableEmail.ReconfirmationEmailTest do
   use ExUnit.Case
   use Bamboo.Test
 
-  describe "Haytni.ConfirmableEmail.reconfirmation_email/3 (callback)" do
+  describe "Haytni.ConfirmableEmail.reconfirmation_email/5 (callback)" do
     test "checks confirmation email" do
       config = Haytni.ConfirmablePlugin.build_config()
       user = %HaytniTest.User{unconfirmed_email: "abc@def.ghi", confirmation_token: "eBfPHalAkSbp"}
-      email = Haytni.ConfirmableEmail.reconfirmation_email(user, HaytniTestWeb.Haytni, config)
+      email = Haytni.ConfirmableEmail.reconfirmation_email(user, user.unconfirmed_email, user.confirmation_token, HaytniTestWeb.Haytni, config)
 
       assert email.to == user.unconfirmed_email
       assert email.from == HaytniTest.Mailer.from()
