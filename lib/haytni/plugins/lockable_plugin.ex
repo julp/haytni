@@ -47,7 +47,11 @@ defmodule Haytni.LockablePlugin do
   import Haytni.Gettext
 
   defmodule Config do
-    defstruct maximum_attempts: 20, unlock_in: {1, :hour}, unlock_strategy: :both, unlock_keys: ~W[email]a, unlock_token_length: 32
+    defstruct maximum_attempts: 20,
+      unlock_in: {1, :hour},
+      unlock_strategy: :both,
+      unlock_keys: ~W[email]a,
+      unlock_token_length: 32
 
     @type unlock_strategy :: :both | :email | :time | :none
 
@@ -175,21 +179,23 @@ defmodule Haytni.LockablePlugin do
       else
         where
       end
-      where = schema.__schema__(:primary_key)
-      |> Enum.reduce(
-        where,
-        fn field, acc ->
-          dynamic([u], field(u, ^field) == ^Map.fetch!(user, field) and ^acc)
-        end
-      )
+      where =
+        schema.__schema__(:primary_key)
+        |> Enum.reduce(
+          where,
+          fn field, acc ->
+            dynamic([u], field(u, ^field) == ^Map.fetch!(user, field) and ^acc)
+          end
+        )
       query = from(
         u in schema,
         #select: u.failed_attempts, # not supported by MySQL
         where: ^where
       )
 
-      multi = multi
-      |> Ecto.Multi.update_all(:increment_failed_attempts, query, inc: [failed_attempts: 1])
+      multi =
+        multi
+        |> Ecto.Multi.update_all(:increment_failed_attempts, query, inc: [failed_attempts: 1])
       # NOTE: uncomment the following line, remove quotes and assignment below if *select* key from the query above is left uncommented
       #maximum_attempts = config.maximum_attempts
       _ = """

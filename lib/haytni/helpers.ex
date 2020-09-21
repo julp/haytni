@@ -88,9 +88,13 @@ defmodule Haytni.Helpers do
   """
   @spec mark_changeset_keys_with_error(changeset :: Ecto.Changeset.t, keys :: [atom], error :: String.t) :: {:error, Ecto.Changeset.t}
   def mark_changeset_keys_with_error(changeset = %Ecto.Changeset{}, keys, error) do
-    Enum.reduce(keys, changeset, fn field, changeset_as_acc ->
-      Ecto.Changeset.add_error(changeset_as_acc, field, error)
-    end)
+    Enum.reduce(
+      keys,
+      changeset,
+      fn field, changeset_as_acc ->
+        Ecto.Changeset.add_error(changeset_as_acc, field, error)
+      end
+    )
     |> Ecto.Changeset.apply_action(:insert)
   end
 
@@ -161,13 +165,14 @@ defmodule Haytni.Helpers do
   """
   @spec merge_config(struct :: struct, params :: %{optional(atom) => any} | Keyword.t, duration_keys :: [atom]) :: struct
   def merge_config(struct, params, duration_keys \\ []) do
-    struct = params
-    |> Enum.reduce(
-      struct,
-      fn {k, v}, acc ->
-        Map.put(acc, k, v)
-      end
-    )
+    struct =
+      params
+      |> Enum.reduce(
+        struct,
+        fn {k, v}, acc ->
+          Map.put(acc, k, v)
+        end
+      )
 
     duration_keys
     |> Enum.reduce(

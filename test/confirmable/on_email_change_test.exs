@@ -6,20 +6,20 @@ defmodule Haytni.Confirmable.OnEmailChangeTest do
   @old_email "abc@def.ghi"
   describe "Haytni.ConfirmablePlugin.on_email_change/4" do
     setup do
-      {:ok, config: Haytni.ConfirmablePlugin.build_config()}
+      [
+        config: Haytni.ConfirmablePlugin.build_config(),
+      ]
     end
 
-    test "ensures email is changed and a notice is sent to old address when reconfirmable is disabled", %{config: config} do
+    test "ensures email is changed and a notice is sent to old address when reconfirmable = false", %{config: config} do
       config = %{config | reconfirmable: false}
       user = %HaytniTest.User{email: @old_email}
 
-      changeset = user
-      |> Ecto.Changeset.change(email: @new_email)
+      changeset = Ecto.Changeset.change(user, email: @new_email)
 
       {multi, changeset} = Haytni.ConfirmablePlugin.on_email_change(Ecto.Multi.new(), changeset, HaytniTestWeb.Haytni, config)
 
-      {:ok, updated_user} = changeset
-      |> apply_action(:update)
+      {:ok, updated_user} = Ecto.Changeset.apply_action(changeset, :update)
 
       assert [{:send_notice_about_email_change, {:run, fun}}] = Ecto.Multi.to_list(multi)
 
@@ -33,17 +33,15 @@ defmodule Haytni.Confirmable.OnEmailChangeTest do
       assert @new_email == updated_user.email
     end
 
-    test "ensures a notice is sent to old address and a new confirmation token is generated when email address is changed when reconfirmable is enabled", %{config: config} do
+    test "ensures email is not changed + a notice is sent to old address + a new confirmation token is generated then sent to new email address when reconfirmable = true", %{config: config} do
       config = %{config | reconfirmable: true}
       user = %HaytniTest.User{email: @old_email}
 
-      changeset = user
-      |> Ecto.Changeset.change(email: @new_email)
+      changeset = Ecto.Changeset.change(user, email: @new_email)
 
       {multi, changeset} = Haytni.ConfirmablePlugin.on_email_change(Ecto.Multi.new(), changeset, HaytniTestWeb.Haytni, config)
 
-      {:ok, updated_user} = changeset
-      |> apply_action(:update)
+      {:ok, updated_user} = Ecto.Changeset.apply_action(changeset, :update)
 
       assert [
         {:send_reconfirmation_instructions, {:run, fun1}},

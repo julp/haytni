@@ -16,11 +16,12 @@ defmodule HaytniWeb.Helpers do
 
   defmacro __using__(options) do
     quote bind_quoted: [options: options] do
-      view_suffix = __MODULE__
-      |> Module.split()
-      |> List.last()
-      |> Phoenix.Naming.unsuffix("Controller")
-      |> Kernel.<>("View")
+      view_suffix =
+        __MODULE__
+        |> Module.split()
+        |> List.last()
+        |> Phoenix.Naming.unsuffix("Controller")
+        |> Kernel.<>("View")
 
       {plugin, extra_args} = case options do
         {plugin, :with_current_user} ->
@@ -33,11 +34,12 @@ defmodule HaytniWeb.Helpers do
         module = Haytni.fetch_module_from_conn!(conn)
         config = module.fetch_config(unquote(plugin))
 
-        conn = conn
-        |> assign(:module, module)
-        |> assign(:config, config)
-        |> put_layout(module.layout())
-        |> HaytniWeb.Helpers.put_view(module, unquote(view_suffix))
+        conn =
+          conn
+          |> assign(:module, module)
+          |> assign(:config, config)
+          |> put_layout(module.layout())
+          |> HaytniWeb.Helpers.put_view(module, unquote(view_suffix))
 
         args = [conn, conn.params, unquote_splicing(extra_args), module, config]
         apply(__MODULE__, action_name(conn), args)

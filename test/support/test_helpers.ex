@@ -9,19 +9,21 @@ defmodule Haytni.TestHelpers do
     id = System.unique_integer([:positive])
     config = HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin)
 
-    attrs = attrs
-    |> Enum.into(
-      %{
-        email: "test#{id}@test.com",
-        confirmation_sent_at: Haytni.Helpers.now(),
-        password: attrs[:password] || "not so SECRET!",
-      }
-    )
+    attrs =
+      attrs
+      |> Enum.into(
+        %{
+          email: "test#{id}@test.com",
+          confirmation_sent_at: Haytni.Helpers.now(),
+          password: attrs[:password] || "not so SECRET!",
+        }
+      )
     attrs = Map.put(attrs, :encrypted_password, config.password_hash_fun.(attrs.password))
 
-    {:ok, user} = schema
-    |> struct(attrs)
-    |> HaytniTest.Repo.insert()
+    {:ok, user} =
+      schema
+      |> struct(attrs)
+      |> HaytniTest.Repo.insert()
 
     user
   end
@@ -31,9 +33,10 @@ defmodule Haytni.TestHelpers do
   """
   @spec onfly_module_from_eex(path :: String.t, binding :: Keyword.t) :: module
   def onfly_module_from_eex(path, binding) do
-    [{module, _binary}] = path
-    |> EEx.eval_file(binding)
-    |> Code.compile_string()
+    [{module, _binary}] =
+      path
+      |> EEx.eval_file(binding)
+      |> Code.compile_string()
     module
   end
 
@@ -106,9 +109,10 @@ defmodule Haytni.TestHelpers do
         other
     end
 
-    {:ok, invitation} = user
-    |> Haytni.InvitablePlugin.build_and_assoc_invitation(code: code, sent_at: seconds_ago(sent_at), sent_to: sent_to, accepted_by: accepter_id)
-    |> HaytniTest.Repo.insert()
+    {:ok, invitation} =
+      user
+      |> Haytni.InvitablePlugin.build_and_assoc_invitation(code: code, sent_at: seconds_ago(sent_at), sent_to: sent_to, accepted_by: accepter_id)
+      |> HaytniTest.Repo.insert()
 
     invitation
   end
@@ -193,10 +197,11 @@ defmodule Haytni.TestHelpers do
   """
   @spec contains_formatted_text?(response :: String.t, text :: String.t) :: boolean
   def contains_formatted_text?(response, text) do
-    html = text
-    |> Phoenix.HTML.Format.text_to_html()
-    |> Phoenix.HTML.safe_to_string()
-    |> IO.iodata_to_binary()
+    html =
+      text
+      |> Phoenix.HTML.Format.text_to_html()
+      |> Phoenix.HTML.safe_to_string()
+      |> IO.iodata_to_binary()
 
     String.contains?(response, html)
   end

@@ -21,9 +21,10 @@ defmodule HaytniWeb.Invitable.InvitationController do
   def new(conn, _params, current_user, _module, config)
     when not is_nil(current_user)
   do
-    changeset = current_user
-    |> Haytni.InvitablePlugin.build_and_assoc_invitation()
-    |> Haytni.InvitablePlugin.invitation_to_changeset(config)
+    changeset =
+      current_user
+      |> Haytni.InvitablePlugin.build_and_assoc_invitation()
+      |> Haytni.InvitablePlugin.invitation_to_changeset(config)
     conn
     |> render_new(changeset)
   end

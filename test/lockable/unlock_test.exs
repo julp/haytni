@@ -5,11 +5,14 @@ defmodule Haytni.Lockable.UnlockedTest do
     setup do
       _unlocked = user_fixture() # to not just have an unlocked user in the database
 
-      locked = Haytni.LockablePlugin.build_config()
-      |> Haytni.LockablePlugin.lock_attributes()
-      |> user_fixture()
+      locked =
+        Haytni.LockablePlugin.build_config()
+        |> Haytni.LockablePlugin.lock_attributes()
+        |> user_fixture()
 
-      {:ok, locked: locked}
+      [
+        locked: locked,
+      ]
     end
 
     for strategy <- Haytni.LockablePlugin.Config.available_strategies() do

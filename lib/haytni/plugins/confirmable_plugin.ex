@@ -43,7 +43,10 @@ defmodule Haytni.ConfirmablePlugin do
   import Haytni.Gettext
 
   defmodule Config do
-    defstruct reconfirmable: true, confirm_within: {3, :day}, confirmation_token_length: 32, confirmation_keys: ~W[email]a
+    defstruct reconfirmable: true,
+      confirm_within: {3, :day},
+      confirmation_token_length: 32,
+      confirmation_keys: ~W[email]a
 
     @type t :: %__MODULE__{
       reconfirmable: boolean,
@@ -134,15 +137,16 @@ defmodule Haytni.ConfirmablePlugin do
 
   @impl Haytni.Plugin
   def on_email_change(multi, changeset, module, config) do
-    multi = multi
-    |> handle_reconfirmable_for_multi(module, config)
-    |> Ecto.Multi.run(
-      :send_notice_about_email_change,
-      fn _repo, %{user: user, old_email: old_email} ->
-        send_notice_about_email_change(user, old_email, module, config)
-        {:ok, :success}
-      end
-    )
+    multi =
+      multi
+      |> handle_reconfirmable_for_multi(module, config)
+      |> Ecto.Multi.run(
+        :send_notice_about_email_change,
+        fn _repo, %{user: user, old_email: old_email} ->
+          send_notice_about_email_change(user, old_email, module, config)
+          {:ok, :success}
+        end
+      )
 
     changeset = if config.reconfirmable do
       changeset
@@ -164,10 +168,13 @@ defmodule Haytni.ConfirmablePlugin do
 
   @impl Haytni.Plugin
   def on_registration(multi = %Ecto.Multi{}, module, config) do
-    Ecto.Multi.run(multi, :send_confirmation_instructions, fn _repo, %{user: user} ->
-      send_confirmation_instructions(user, module, config)
-      {:ok, :success}
-    end)
+    Ecto.Multi.run(
+      multi,
+      :send_confirmation_instructions, fn _repo, %{user: user} ->
+        send_confirmation_instructions(user, module, config)
+        {:ok, :success}
+      end
+    )
   end
 
   @doc ~S"""

@@ -7,24 +7,30 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
   describe "Haytni.LockablePlugin.resend_unlock_instructions/3" do
     setup do
       unlocked_account = user_fixture()
-      locked_account = Haytni.LockablePlugin.build_config()
-      |> Haytni.LockablePlugin.lock_attributes()
-      |> user_fixture()
+      locked_account =
+        Haytni.LockablePlugin.build_config()
+        |> Haytni.LockablePlugin.lock_attributes()
+        |> user_fixture()
 
       locked_params = %{"email" => locked_account.email}
       unlocked_params = %{"email" => unlocked_account.email}
       nomatch_params = %{"email" => "nomatch"}
 
-      {:ok, locked_account: locked_account, locked_params: locked_params, unlocked_params: unlocked_params, nomatch_params: nomatch_params}
+      [
+        locked_account: locked_account,
+        locked_params: locked_params,
+        unlocked_params: unlocked_params,
+        nomatch_params: nomatch_params,
+      ]
     end
 
     for strategy <- Haytni.LockablePlugin.Config.available_strategies() -- Haytni.LockablePlugin.Config.email_strategies() do
       test "returns error when strategy doesn't include email (strategy: #{strategy})", %{locked_params: locked_params, unlocked_params: unlocked_params, nomatch_params: nomatch_params} do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
 
-        assert {:error, :email_strategy_disabled} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, nomatch_params)
-        assert {:error, :email_strategy_disabled} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, locked_params)
-        assert {:error, :email_strategy_disabled} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, unlocked_params)
+        for params <- [nomatch_params, locked_params, unlocked_params] do
+          assert {:error, :email_strategy_disabled} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, params)
+        end
       end
     end
 
@@ -32,6 +38,7 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
       config = Haytni.LockablePlugin.build_config()
 
       assert {:error, changeset} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, %{"email" => ""})
+      refute changeset.valid?
       refute is_nil(changeset.action)
       assert %{email: [empty_message()]} == errors_on(changeset)
     end
@@ -48,6 +55,7 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
 
         assert {:error, changeset} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, unlocked_params)
+        refute changeset.valid?
         refute is_nil(changeset.action)
         assert %{email: [Haytni.LockablePlugin.not_locked_message()]} == errors_on(changeset)
       end
@@ -56,6 +64,7 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
 
         assert {:error, changeset} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, nomatch_params)
+        refute changeset.valid?
         refute is_nil(changeset.action)
         assert %{email: [Haytni.Helpers.no_match_message()]} == errors_on(changeset)
       end

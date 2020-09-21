@@ -142,23 +142,26 @@ defmodule Haytni do
 
   @doc false
   defmacro __before_compile__(env) do
-    plugins_with_config = Module.get_attribute(env.module, :plugins)
-    |> Enum.map(
-      fn {plugin, options} ->
-        {plugin, Macro.escape(plugin.build_config(options))}
-      end
-    )
+    plugins_with_config =
+      env.module
+      |> Module.get_attribute(:plugins)
+      |> Enum.map(
+        fn {plugin, options} ->
+          {plugin, Macro.escape(plugin.build_config(options))}
+        end
+      )
 
-    defs = plugins_with_config
-    |> Enum.map(
-      fn {plugin, config} ->
-        quote do
-          def fetch_config(unquote(plugin)) do
-            unquote(config)
+    defs =
+      plugins_with_config
+      |> Enum.map(
+        fn {plugin, config} ->
+          quote do
+            def fetch_config(unquote(plugin)) do
+              unquote(config)
+            end
           end
         end
-      end
-    )
+      )
     quote do
       # an "idea" to replace module + config arguments?
       @spec __config__() :: %{
@@ -351,13 +354,20 @@ defmodule Haytni do
 
   @spec handle_email_change(module :: module, multi :: Ecto.Multi.t, changeset :: Ecto.Changeset.t) :: {Ecto.Multi.t, Ecto.Changeset.t}
   defp handle_email_change(module, multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{changes: %{email: new_email}}) do
-    multi = multi
-    |> Ecto.Multi.run(:new_email, fn _repo, %{} ->
-      {:ok, new_email}
-    end)
-    |> Ecto.Multi.run(:old_email, fn _repo, %{} ->
-      {:ok, changeset.data.email}
-    end)
+    multi =
+      multi
+      |> Ecto.Multi.run(
+        :new_email,
+        fn _repo, %{} ->
+          {:ok, new_email}
+        end
+      )
+      |> Ecto.Multi.run(
+        :old_email,
+        fn _repo, %{} ->
+          {:ok, changeset.data.email}
+        end
+      )
     module.plugins_with_config()
     |> Enum.reduce(
       {multi, changeset},
@@ -434,9 +444,10 @@ defmodule Haytni do
   """
   @spec logout(conn :: Plug.Conn.t, module :: module, options :: Keyword.t) :: Plug.Conn.t
   def logout(conn = %Plug.Conn{}, module, options \\ []) do
-    conn = module.plugins_with_config()
-    |> Enum.reverse()
-    |> Enum.reduce(conn, fn {plugin, config}, conn -> plugin.on_logout(conn, config) end)
+    conn =
+      module.plugins_with_config()
+      |> Enum.reverse()
+      |> Enum.reduce(conn, fn {plugin, config}, conn -> plugin.on_logout(conn, config) end)
 
     case Keyword.get(options, :scope) do
       :all ->
@@ -450,13 +461,14 @@ defmodule Haytni do
 
   @spec on_successful_authentication(module :: module, conn :: Plug.Conn.t, user :: Haytni.user) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
   defp on_successful_authentication(module, conn, user) do
-    {conn, multi, changes} = module.plugins_with_config()
-    |> Enum.reduce(
-      {conn, Ecto.Multi.new(), Keyword.new()},
-      fn {plugin, config}, {conn, multi, changes} ->
-        plugin.on_successful_authentication(conn, user, multi, changes, config)
-      end
-    )
+    {conn, multi, changes} =
+      module.plugins_with_config()
+      |> Enum.reduce(
+        {conn, Ecto.Multi.new(), Keyword.new()},
+        fn {plugin, config}, {conn, multi, changes} ->
+          plugin.on_successful_authentication(conn, user, multi, changes, config)
+        end
+      )
 
     Ecto.Multi.new()
     |> Ecto.Multi.run(:conn, fn _repo, %{} -> {:ok, conn} end)
@@ -496,13 +508,14 @@ defmodule Haytni do
   end
 
   def authentication_failed(module, user = %_{}) do
-    {multi, changes} = module.plugins_with_config()
-    |> Enum.reduce(
-      {Ecto.Multi.new(), Keyword.new()},
-      fn {plugin, config}, {multi, keywords} ->
-        plugin.on_failed_authentication(user, multi, keywords, module, config)
-      end
-    )
+    {multi, changes} =
+      module.plugins_with_config()
+      |> Enum.reduce(
+        {Ecto.Multi.new(), Keyword.new()},
+        fn {plugin, config}, {multi, keywords} ->
+          plugin.on_failed_authentication(user, multi, keywords, module, config)
+        end
+      )
 
     Ecto.Multi.new()
     |> Ecto.Multi.update(:user, Ecto.Changeset.change(user, changes))
@@ -543,7 +556,8 @@ defmodule Haytni do
   """
   @spec update_user_with(module :: module, user :: Haytni.user, changes :: Keyword.t) :: {:ok, Haytni.user} | {:error, Ecto.Changeset.t}
   def update_user_with(module, user = %_{}, changes) do
-    user_and_changes_to_changeset(user, changes)
+    user
+    |> user_and_changes_to_changeset(changes)
     |> module.repo().update()
   end
 
@@ -552,7 +566,8 @@ defmodule Haytni do
   """
   @spec update_user_with!(module :: module, user :: Haytni.user, changes :: Keyword.t) :: Haytni.user | no_return
   def update_user_with!(module, user = %_{}, changes) do
-    user_and_changes_to_changeset(user, changes)
+    user
+    |> user_and_changes_to_changeset(changes)
     |> module.repo().update!()
   end
 

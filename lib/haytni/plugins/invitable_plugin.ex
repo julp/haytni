@@ -333,7 +333,8 @@ defmodule Haytni.InvitablePlugin do
 
   @spec send_invitation_mail(user :: Haytni.user, invitation :: invitation, module :: module, config :: Config.t) :: {:ok, Haytni.irrelevant}
   defp send_invitation_mail(user, invitation, module, config) do
-    Haytni.InvitableEmail.invitation_email(user, invitation, module, config)
+    user
+    |> Haytni.InvitableEmail.invitation_email(invitation, module, config)
     |> module.mailer().deliver_later()
 
     {:ok, true}
@@ -346,7 +347,8 @@ defmodule Haytni.InvitablePlugin do
     """
     @spec invitation_changeset(config :: Config.t, invitation_params :: %{optional(String.t) => String.t}) :: Ecto.Changeset.t
     def invitation_changeset(_config, invitation_params \\ %{}) do
-      Haytni.Helpers.to_changeset(invitation_params, ~W[email]a)
+      invitation_params
+      |> Haytni.Helpers.to_changeset(~W[email]a)
       # TODO: reuse, move or share code from Haytni.RegisterablePlugin, config.email_regexp
       |> Ecto.Changeset.validate_format(:email, ~R/^[^@\s]+@[^@\s]+$/)
     end
@@ -419,9 +421,10 @@ defmodule Haytni.InvitablePlugin do
   """
   @spec send_invitation(module :: module, config :: Config.t, invitation_params :: %{optional(String.t) => String.t}, user :: Haytni.user) :: {:ok, invitation} | {:error, Ecto.Changeset.t}
   def send_invitation(module, config, invitation_params, user) do
-    changeset = user
-    |> build_and_assoc_invitation(code: Haytni.Token.generate(64))
-    |> invitation_to_changeset(config, invitation_params)
+    changeset =
+      user
+      |> build_and_assoc_invitation(code: Haytni.Token.generate(64))
+      |> invitation_to_changeset(config, invitation_params)
     Ecto.Multi.new()
     |> Ecto.Multi.run(
       :quota_check,

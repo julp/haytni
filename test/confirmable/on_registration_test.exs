@@ -7,9 +7,10 @@ defmodule Haytni.Confirmable.OnRegistrationTest do
       config = Haytni.ConfirmablePlugin.build_config()
       user = %HaytniTest.User{email: "abc@def.ghi", confirmation_token: "0123"}
 
-      actions = Ecto.Multi.new()
-      |> Haytni.ConfirmablePlugin.on_registration(HaytniTestWeb.Haytni, config)
-      |> Ecto.Multi.to_list()
+      actions =
+        Ecto.Multi.new()
+        |> Haytni.ConfirmablePlugin.on_registration(HaytniTestWeb.Haytni, config)
+        |> Ecto.Multi.to_list()
 
       assert [{:send_confirmation_instructions, {:run, fun}}] = actions
       assert {:ok, :success} = fun.(HaytniTest.Repo, %{user: user})

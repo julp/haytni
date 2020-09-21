@@ -6,11 +6,15 @@ defmodule Haytni.Confirmable.ConfirmTest do
   describe "Haytni.ConfirmablePlugin.confirm/3" do
     setup do
       config = Haytni.ConfirmablePlugin.build_config()
-      user = config
-      |> Haytni.ConfirmablePlugin.new_confirmation_attributes()
-      |> user_fixture()
+      user =
+        config
+        |> Haytni.ConfirmablePlugin.new_confirmation_attributes()
+        |> user_fixture()
 
-      {:ok, config: config, user: user}
+      [
+        user: user,
+        config: config,
+      ]
     end
 
     test "ensures account get confirmed from its associated confirmation_token", %{config: config, user: user} do
@@ -31,13 +35,15 @@ defmodule Haytni.Confirmable.ConfirmTest do
     end
 
     test "ensures an expired confirmation_token is rejected", %{config: config, user: user = %User{id: id}} do
-      new_confirmation_sent_at = config.confirm_within
-      |> Kernel.+(1)
-      |> seconds_ago()
+      new_confirmation_sent_at =
+        config.confirm_within
+        |> Kernel.+(1)
+        |> seconds_ago()
 
-      %User{id: ^id} = user
-      |> Ecto.Changeset.change(confirmation_sent_at: new_confirmation_sent_at)
-      |> HaytniTest.Repo.update!()
+      %User{id: ^id} =
+        user
+        |> Ecto.Changeset.change(confirmation_sent_at: new_confirmation_sent_at)
+        |> HaytniTest.Repo.update!()
 
       assert {:error, Haytni.ConfirmablePlugin.expired_token_message()} == Haytni.ConfirmablePlugin.confirm(HaytniTestWeb.Haytni, config, user.confirmation_token)
     end

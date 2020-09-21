@@ -13,10 +13,10 @@ defmodule Haytni.Registerable.RegistrationViewTest do
     end
     content = render_to_string(HaytniTestWeb.Haytni.User.RegistrationView, "new.html", conn: conn, changeset: changeset, module: module)
 
-    assert String.contains?(content, "name=\"registration[email]\"")
-    assert String.contains?(content, "name=\"registration[email_confirmation]\"")
-    assert String.contains?(content, "name=\"registration[password]\"")
-    assert String.contains?(content, "name=\"registration[password_confirmation]\"")
+    assert content =~ "name=\"registration[email]\""
+    assert content =~ "name=\"registration[email_confirmation]\""
+    assert content =~ "name=\"registration[password]\""
+    assert content =~ "name=\"registration[password_confirmation]\""
 
     content
   end
@@ -44,9 +44,9 @@ defmodule Haytni.Registerable.RegistrationViewTest do
     end
     content = render_to_string(HaytniTestWeb.Haytni.User.RegistrationView, "edit.html", conn: conn, changeset: changeset, module: module)
 
-    assert String.contains?(content, "name=\"registration[email]\"")
-    assert String.contains?(content, "name=\"registration[password]\"")
-    assert String.contains?(content, "name=\"registration[password_confirmation]\"")
+    assert content =~ "name=\"registration[email]\""
+    assert content =~ "name=\"registration[password]\""
+    assert content =~ "name=\"registration[password_confirmation]\""
 
     content
   end

@@ -10,7 +10,9 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
 
   describe "Haytni.LockablePlugin.on_failed_authentication/5 (callback)" do
     setup do
-      {:ok, config: Haytni.LockablePlugin.build_config()}
+      [
+        config: Haytni.LockablePlugin.build_config(),
+      ]
     end
 
     test "ensures failed_attempts is (only) incremented while it doesn't exceed maximum_attempts", %{config: config} do
@@ -67,9 +69,10 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
         user = %User{email: "test@notadomain.com", failed_attempts: config.maximum_attempts}
         {multi, changes} = on_failed_authentication(config, user)
 
-        updated_user = user
-        |> Ecto.Changeset.change(changes)
-        |> Ecto.Changeset.apply_changes()
+        updated_user =
+          user
+          |> Ecto.Changeset.change(changes)
+          |> Ecto.Changeset.apply_changes()
 
         assert [{:send_unlock_instructions, {:run, fun}}] = Ecto.Multi.to_list(multi)
         assert {:ok, :success} = fun.(HaytniTest.Repo, %{user: updated_user})

@@ -15,11 +15,15 @@ defmodule Haytni.Recoverable.RecoverTest do
     setup do
       config = Haytni.RecoverablePlugin.build_config()
 
-      user = Haytni.RecoverablePlugin.reset_password_attributes(config)
-      |> user_fixture()
+      user =
+        Haytni.RecoverablePlugin.reset_password_attributes(config)
+        |> user_fixture()
       _some_random_guy = user_fixture()
 
-      {:ok, user: user, config: config}
+      [
+        user: user,
+        config: config,
+      ]
     end
 
     test "ensures error when reset params are empty", %{config: config} do
@@ -35,9 +39,10 @@ defmodule Haytni.Recoverable.RecoverTest do
     end
 
     test "ensures error when reset token has expired (and password remains the same)", %{config: config, user: user = %User{id: id, encrypted_password: encrypted_password}} do
-      new_reset_password_sent_at = config.reset_password_within
-      |> Kernel.+(1)
-      |> seconds_ago()
+      new_reset_password_sent_at =
+        config.reset_password_within
+        |> Kernel.+(1)
+        |> seconds_ago()
 
       user = Haytni.update_user_with!(HaytniTestWeb.Haytni, user, reset_password_sent_at: new_reset_password_sent_at)
 

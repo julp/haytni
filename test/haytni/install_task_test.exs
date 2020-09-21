@@ -228,9 +228,10 @@ defmodule Haytni.InstallTaskTest do
   defp check_files(plugins, scope, table)
     when is_binary(scope) and is_binary(table)
   do
-    camelized_scope = scope
-    |> to_string()
-    |> Phoenix.Naming.camelize()
+    camelized_scope =
+      scope
+      |> to_string()
+      |> Phoenix.Naming.camelize()
 
     in_tmp_project(
         "haytni",

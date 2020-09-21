@@ -4,18 +4,26 @@ defmodule Haytni.Recoverable.ResendConfirmationInstructionsTest do
 
   @spec create_confirmation(email :: String.t) :: %{String.t => String.t}
   defp create_confirmation(email) do
-    %{"email" => email, "referer" => "http://www.test.com/"}
+    %{
+      "email" => email,
+      "referer" => "http://www.test.com/",
+    }
   end
 
   describe "Haytni.ConfirmablePlugin.resend_confirmation_instructions/3" do
     setup do
       config = Haytni.ConfirmablePlugin.build_config()
       confirmed_user = user_fixture()
-      unconfirmed_user = config
-      |> Haytni.ConfirmablePlugin.new_confirmation_attributes()
-      |> user_fixture()
+      unconfirmed_user =
+        config
+        |> Haytni.ConfirmablePlugin.new_confirmation_attributes()
+        |> user_fixture()
 
-      {:ok, config: config, confirmed_user: confirmed_user, unconfirmed_user: unconfirmed_user}
+      [
+        config: config,
+        confirmed_user: confirmed_user,
+        unconfirmed_user: unconfirmed_user,
+      ]
     end
 
     test "ensures no email is sent if email as confirmation keys are empty", %{config: config} do
@@ -46,13 +54,15 @@ defmodule Haytni.Recoverable.ResendConfirmationInstructionsTest do
     end
 
     test "ensures a new confirmation is sent by email with the a new token if last one is expired", %{config: config, unconfirmed_user: user} do
-      new_confirmation_sent_at = config.confirm_within
-      |> Kernel.+(1)
-      |> seconds_ago()
+      new_confirmation_sent_at =
+        config.confirm_within
+        |> Kernel.+(1)
+        |> seconds_ago()
 
-      expired_user = user
-      |> Ecto.Changeset.change(confirmation_sent_at: new_confirmation_sent_at)
-      |> HaytniTest.Repo.update!()
+      expired_user =
+        user
+        |> Ecto.Changeset.change(confirmation_sent_at: new_confirmation_sent_at)
+        |> HaytniTest.Repo.update!()
 
       {:ok, updated_user} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(user.email))
 

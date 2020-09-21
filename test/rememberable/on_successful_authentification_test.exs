@@ -25,7 +25,12 @@ defmodule Haytni.Rememberable.OnSuccessfulAuthentificationTest do
       user_with_valid_token = %HaytniTest.User{remember_token: "rOlFVqQG0CLB", remember_created_at: Haytni.Helpers.now()}
       user_with_expired_token = %HaytniTest.User{remember_token: "071pviHFiiil", remember_created_at: seconds_ago(config.remember_for + 1)}
 
-      {:ok, config: config, user_without_token: user_without_token, user_with_expired_token: user_with_expired_token, user_with_valid_token: user_with_valid_token}
+      [
+        config: config,
+        user_without_token: user_without_token,
+        user_with_valid_token: user_with_valid_token,
+        user_with_expired_token: user_with_expired_token,
+      ]
     end
 
     test "do nothing (no rememberme cookie is created) if rememberme checkbox is not checked", ctxt do

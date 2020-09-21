@@ -35,7 +35,9 @@ defmodule Haytni.RecoverablePlugin do
   import Haytni.Gettext
 
   defmodule Config do
-    defstruct reset_password_within: {6, :hour}, reset_token_length: 32, reset_password_keys: ~W[email]a
+    defstruct reset_password_within: {6, :hour},
+      reset_token_length: 32,
+      reset_password_keys: ~W[email]a
 
     @type t :: %__MODULE__{
       reset_token_length: pos_integer,

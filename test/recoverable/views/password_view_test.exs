@@ -8,7 +8,9 @@ defmodule Haytni.Recoverable.PasswordViewTest do
   setup %{conn: conn} do
     user_fixture(email: @email, firstname: @firstname, lastname: @lastname)
 
-    {:ok, conn: get(conn, Routes.haytni_user_password_path(conn, :new))}
+    [
+      conn: get(conn, Routes.haytni_user_password_path(conn, :new)),
+    ]
   end
 
   defp do_test(conn, config, params) do
@@ -35,16 +37,14 @@ defmodule Haytni.Recoverable.PasswordViewTest do
   ]
 
   for {config, params} <- @configs do
-    keys = Enum.join(config.reset_password_keys, ", ")
-
-    test "renders \"empty\" new.html with #{keys} as key(s)", %{conn: conn} do
+    test "renders \"empty\" new.html with #{inspect(config.reset_password_keys)} as key(s)", %{conn: conn} do
       do_test(conn, unquote(Macro.escape(config)), %{})
     end
 
     # NOTE: the purpose of this test is to check that changeset errors are displayed
     # previously I've forgotten to apply an action so they weren't shown in several places
     # we kinda simulate a create action (which renders also new.html)
-    test "renders new.html with #{keys} as key(s) and bad params", %{conn: conn} do
+    test "renders new.html with #{inspect(config.reset_password_keys)} as key(s) and bad params", %{conn: conn} do
       do_test(conn, unquote(Macro.escape(config)), unquote(Macro.escape(params)))
     end
   end

@@ -36,9 +36,11 @@ defmodule HaytniWeb.ConnCase do
       Ecto.Adapters.SQL.Sandbox.mode(HaytniTest.Repo, {:shared, self()})
     end
 
-    conn = Phoenix.ConnTest.build_conn()
-    |> Plug.Conn.put_private(:haytni, HaytniTestWeb.Haytni)
-    |> Plug.Conn.put_private(:phoenix_endpoint, HaytniTestWeb.Endpoint)
+    conn =
+      Phoenix.ConnTest.build_conn()
+      |> Map.replace!(:secret_key_base, HaytniTestWeb.Endpoint.config(:secret_key_base))
+      |> Plug.Conn.put_private(:haytni, HaytniTestWeb.Haytni)
+      |> Plug.Conn.put_private(:phoenix_endpoint, HaytniTestWeb.Endpoint)
 
     {:ok, conn: conn}
   end
