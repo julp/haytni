@@ -11,6 +11,6 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "Re
       add :remember_created_at, :utc_datetime, default: nil
     end
 
-    create index(table, ~W[remember_token]a, unique: true)
+    create unique_index(table, ~W[remember_token]a)
   end
 end

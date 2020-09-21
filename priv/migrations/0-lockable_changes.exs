@@ -12,6 +12,6 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "Lo
       add :unlock_token, :string, default: nil
     end
 
-    create index(table, ~W[unlock_token]a, unique: true)
+    create unique_index(table, ~W[unlock_token]a)
   end
 end

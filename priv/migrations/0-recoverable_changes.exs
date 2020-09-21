@@ -11,6 +11,6 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "Re
       add :reset_password_sent_at, :utc_datetime, default: nil
     end
 
-    create index(table, ~W[reset_password_token]a, unique: true)
+    create unique_index(table, ~W[reset_password_token]a)
   end
 end

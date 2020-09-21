@@ -15,7 +15,7 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "In
     end
 
     create index(invitations_table, ~W[sent_by]a)
-    create index(invitations_table, ~W[code]a, unique: true)
-    create index(invitations_table, ~W[sent_to]a, unique: true)
+    create unique_index(invitations_table, ~W[code]a)
+    create unique_index(invitations_table, ~W[sent_to]a)
   end
 end

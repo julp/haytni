@@ -15,6 +15,6 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "Co
       add :confirmation_sent_at, :utc_datetime, null: false
     end
 
-    create index(table, ~W[confirmation_token]a, unique: true)
+    create unique_index(table, ~W[confirmation_token]a)
   end
 end
