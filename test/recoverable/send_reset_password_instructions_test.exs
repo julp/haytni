@@ -2,7 +2,7 @@ defmodule Haytni.Recoverable.SendResetPasswordInstructionsTest do
   use Haytni.DataCase, async: true
   use Bamboo.Test
 
-  @spec create_request(email :: String.t) :: %{String.t => String.t}
+  @spec create_request(email :: String.t) :: Haytni.params
   defp create_request(email) do
     %{"email" => email}
   end

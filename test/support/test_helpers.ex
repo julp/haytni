@@ -135,7 +135,7 @@ defmodule Haytni.TestHelpers do
       iex> session_params_without_rememberme(%{"email" => "foo@bar.com", "password" => "azerty"})
       %{"session" => %{"email" => "foo@bar.com", "password" => "azerty"}}
   """
-  @spec session_params_without_rememberme(attrs :: Enumerable.t | struct) :: %{String.t => %{String.t => String.t}}
+  @spec session_params_without_rememberme(attrs :: Enumerable.t | struct) :: Haytni.params
   def session_params_without_rememberme(attrs \\ %{}) do
     [
       email: "abc@def.ghi",

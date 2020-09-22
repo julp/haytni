@@ -1,7 +1,7 @@
 defmodule Haytni.Authenticable.AuthentificateTest do
   use HaytniWeb.ConnCase, async: true
 
-  @spec create_session(email :: String.t, password :: String.t) :: %{String.t => String.t}
+  @spec create_session(email :: String.t, password :: String.t) :: Haytni.params
   defp create_session(email, password) do
     %{
       "email" => email,
@@ -9,7 +9,7 @@ defmodule Haytni.Authenticable.AuthentificateTest do
     }
   end
 
-  @spec assert_invalid_credentials(conn :: Plug.Conn.t, config :: HaytniTestWeb.Haytni.Config.t, module :: module, session :: %{String.t => String.t}) :: boolean | no_return
+  @spec assert_invalid_credentials(conn :: Plug.Conn.t, config :: HaytniTestWeb.Haytni.Config.t, module :: module, session :: Haytni.params) :: boolean | no_return
   defp assert_invalid_credentials(conn, config, module, session) do
     assert {:error, changeset} = Haytni.AuthenticablePlugin.authenticate(conn, module, config, session)
     refute is_nil(changeset.action)

@@ -136,7 +136,7 @@ defmodule Haytni.Helpers do
 
   If *required_keys* is `nil`, all *keys* are mandatory.
   """
-  @spec to_changeset(params :: %{optional(String.t) => String.t}, keys :: [atom], required_keys :: nil | [atom]) :: Ecto.Changeset.t
+  @spec to_changeset(params :: Haytni.params, keys :: [atom], required_keys :: nil | [atom]) :: Ecto.Changeset.t
   def to_changeset(params, keys, required_keys \\ nil) do
     types = Enum.into(keys, %{}, fn key -> {key, :string} end)
 

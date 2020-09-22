@@ -11,7 +11,7 @@ defmodule Haytni.Rememberable.OnSuccessfulAuthentificationTest do
       %{"session" => %{"email" => "foo@bar.com", "password" => "azerty", "remember" => "checked"}}
   """
   end
-  @spec session_params_with_rememberme(attrs :: %{optional(String.t) => String.t}) :: %{String.t => String.t}
+  @spec session_params_with_rememberme(attrs :: Haytni.params) :: Haytni.params
   defp session_params_with_rememberme(attrs \\ %{}) do
     attrs
     |> session_params_without_rememberme()

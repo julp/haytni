@@ -313,7 +313,7 @@ defmodule Haytni.ConfirmablePlugin do
   This function converts the parameters received by the controller to request a new confirmation token sent by email to an `%Ecto.Changeset{}`,
   a convenient way to perform basic validations, any intermediate handling and casting.
   """
-  @spec confirmation_request_changeset(config :: Config.t, confirmation_params :: %{optional(String.t) => String.t}) :: Ecto.Changeset.t
+  @spec confirmation_request_changeset(config :: Config.t, confirmation_params :: Haytni.params) :: Ecto.Changeset.t
   def confirmation_request_changeset(config, confirmation_params \\ %{}) do
     Haytni.Helpers.to_changeset(confirmation_params, [:referer | config.confirmation_keys], config.confirmation_keys)
   end
@@ -376,7 +376,7 @@ defmodule Haytni.ConfirmablePlugin do
     * `{:error, changeset}` if fields (form) were not filled
     * `{:ok, user}` if successful or nothing has to be done (meaning there is no account matching `config.confirmation_keys` or the account is not pending confirmation)
   """
-  @spec resend_confirmation_instructions(module :: module, config :: Config.t, confirmation_params :: %{optional(String.t) => String.t}) :: {:ok, nil | Haytni.user} | {:error, Ecto.Changeset.t}
+  @spec resend_confirmation_instructions(module :: module, config :: Config.t, confirmation_params :: Haytni.params) :: Haytni.repo_nobang_operation(Haytni.user | nil)
   def resend_confirmation_instructions(module, config, confirmation_params = %{}) do
     changeset = confirmation_request_changeset(config, confirmation_params)
 

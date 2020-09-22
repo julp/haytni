@@ -28,7 +28,7 @@ defmodule Haytni.Params do
       value of *defaults* to set the final value
     * `nil` values from a struct are "safely" ignored
   """
-  @spec create(defaults :: Enumerable.t | struct, attrs :: Enumerable.t | struct) :: %{String.t => String.t} | no_return
+  @spec create(defaults :: Enumerable.t | struct, attrs :: Enumerable.t | struct) :: Haytni.params | no_return
   def create(defaults, attrs \\ %{}) do
     defaults = to_stringified_map(defaults)
     attrs = attrs
@@ -61,7 +61,7 @@ defmodule Haytni.Params do
       iex> #{__MODULE__}.confirm(%{"email" => "foo@bar.com", "password" => "azerty", ~W[password]a}
       %{"email" => "foo@bar.com", "password" => "azerty", "password_confirmation" => "azerty"}
   """
-  @spec confirm(params :: %{String.t => String.t}, keys :: [atom | String.t]) :: %{String.t => String.t}
+  @spec confirm(params :: Haytni.params, keys :: [atom | String.t]) :: Haytni.params
   def confirm(params, keys) do
     keys
     |> Enum.reduce(
@@ -80,7 +80,7 @@ defmodule Haytni.Params do
       iex> #{__MODULE__}.wrap(%{"email" => %{"email" => "foo@bar.com", "password" => "azerty"}}, :session)
       %{"session" => %{"email" => "foo@bar.com", "password" => "azerty"}}
   """
-  @spec wrap(params :: %{String.t => String.t}, key :: atom | String.t) :: %{required(String.t) => %{optional(String.t) => String.t}}
+  @spec wrap(params :: Haytni.params, key :: atom | String.t) :: Haytni.params
   def wrap(params, key) do
     %{to_string(key) => params}
   end

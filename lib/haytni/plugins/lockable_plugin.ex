@@ -304,7 +304,7 @@ defmodule Haytni.LockablePlugin do
   @doc ~S"""
   Converts the "raw" parameters received by the controller to request a new token to unlock its account to an `%Ecto.Changeset{}`
   """
-  @spec unlock_request_changeset(config :: Config.t, request_params :: %{String.t => String.t}) :: Ecto.Changeset.t
+  @spec unlock_request_changeset(config :: Config.t, request_params :: Haytni.params) :: Ecto.Changeset.t
   def unlock_request_changeset(config, request_params \\ %{}) do
     Haytni.Helpers.to_changeset(request_params, [:referer | config.unlock_keys], config.unlock_keys)
   end
@@ -333,7 +333,7 @@ defmodule Haytni.LockablePlugin do
     * `{:ok, nil}` if no one matches `config.unlock_keys` or if the account is not currently locked
     * `{:ok, user}` if successful (meaning an email has been sent)
   """
-  @spec resend_unlock_instructions(module :: module, config :: Config.t, request_params :: %{optional(String.t) => String.t}) :: {:ok, nil | Haytni.user} | {:error, Ecto.Changeset.t}
+  @spec resend_unlock_instructions(module :: module, config :: Config.t, request_params :: Haytni.params) :: Haytni.repo_nobang_operation(Haytni.user | nil)
   def resend_unlock_instructions(module, config, request_params = %{}) do
     changeset = unlock_request_changeset(config, request_params)
 

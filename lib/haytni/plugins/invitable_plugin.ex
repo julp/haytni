@@ -345,7 +345,7 @@ defmodule Haytni.InvitablePlugin do
     This function converts the parameters received by the controller to send a new invitation by email to an `%Ecto.Changeset{}`,
     a convenient way to perform basic validations, any intermediate handling and casting.
     """
-    @spec invitation_changeset(config :: Config.t, invitation_params :: %{optional(String.t) => String.t}) :: Ecto.Changeset.t
+    @spec invitation_changeset(config :: Config.t, invitation_params :: Haytni.params) :: Ecto.Changeset.t
     def invitation_changeset(_config, invitation_params \\ %{}) do
       invitation_params
       |> Haytni.Helpers.to_changeset(~W[email]a)
@@ -401,7 +401,7 @@ defmodule Haytni.InvitablePlugin do
   @doc ~S"""
   Converts an invitation to an `Ecto.Changeset` by applying the changes from *params*
   """
-  @spec invitation_to_changeset(invitation :: invitation, config :: Config.t, params :: %{optional(String.t) => String.t}) :: Ecto.Changeset.t
+  @spec invitation_to_changeset(invitation :: invitation, config :: Config.t, params :: Haytni.params) :: Ecto.Changeset.t
   def invitation_to_changeset(invitation, config, params \\ %{}) do
     invitation.__struct__.changeset(config, invitation, params)
   end
@@ -419,7 +419,7 @@ defmodule Haytni.InvitablePlugin do
   @doc ~S"""
   Sends an invitation (by email) from *user* after checking if its quota (`invitation_quota`) allows it to
   """
-  @spec send_invitation(module :: module, config :: Config.t, invitation_params :: %{optional(String.t) => String.t}, user :: Haytni.user) :: {:ok, invitation} | {:error, Ecto.Changeset.t}
+  @spec send_invitation(module :: module, config :: Config.t, invitation_params :: Haytni.params, user :: Haytni.user) :: Haytni.repo_nobang_operation(invitation)
   def send_invitation(module, config, invitation_params, user) do
     changeset =
       user

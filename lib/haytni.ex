@@ -11,6 +11,10 @@ defmodule Haytni do
   @type duration_unit :: :second | :minute | :hour | :day | :week | :month | :year
   @type duration :: pos_integer | {pos_integer, duration_unit}
 
+  @type params :: %{optional(String.t) => String.t}
+  @type repo_nobang_operation(type) :: {:ok, type} | {:error, Ecto.Changeset.t}
+  @type multi_result :: {:ok, %{required(Ecto.Multi.name) => any}} | {:error, Ecto.Multi.name, any, %{optional(Ecto.Multi.name) => any}}
+
   @spec app_base(atom | module) :: String.t
   defp app_base(app) do
     case Application.get_env(app, :namespace, app) do
@@ -315,7 +319,7 @@ defmodule Haytni do
 
   See `c:Ecto.Repo.insert/2` for *options*.
   """
-  @spec create_user(module :: module, attrs :: map, options :: Keyword.t) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
+  @spec create_user(module :: module, attrs :: map, options :: Keyword.t) :: Haytni.multi_result
   def create_user(module, attrs = %{}, options \\ []) do
     schema = module.schema()
     changeset = schema
@@ -398,7 +402,7 @@ defmodule Haytni do
     * the previous email as `:old_email`
     * `:new_email`: the new email
   """
-  @spec update_registration(module :: module, user :: Haytni.user, attrs :: map, options :: Keyword.t) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
+  @spec update_registration(module :: module, user :: Haytni.user, attrs :: map, options :: Keyword.t) :: Haytni.multi_result
   def update_registration(module, user = %_{}, attrs = %{}, options \\ []) do
     changeset = user
     |> module.schema().update_registration_changeset(attrs)
@@ -460,7 +464,7 @@ defmodule Haytni do
     end
   end
 
-  @spec on_successful_authentication(module :: module, conn :: Plug.Conn.t, user :: Haytni.user) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
+  @spec on_successful_authentication(module :: module, conn :: Plug.Conn.t, user :: Haytni.user) :: Haytni.multi_result
   defp on_successful_authentication(module, conn, user) do
     {conn, multi, changes} =
       module.plugins_with_config()
@@ -502,7 +506,7 @@ defmodule Haytni do
 
   If *user* is `nil`, nothing is done.
   """
-  @spec authentication_failed(module :: module, user :: Haytni.user | nil) :: {:ok, %{Ecto.Multi.name => any}} | {:error, Ecto.Multi.name, any, %{Ecto.Multi.name => any}}
+  @spec authentication_failed(module :: module, user :: Haytni.user | nil) :: Haytni.multi_result
   def authentication_failed(_module, user = nil) do
     # NOP, for convenience
     {:ok, %{user: user}}
@@ -555,7 +559,7 @@ defmodule Haytni do
 
   NOTE: for internal use, there isn't any validation. Do **NOT** inject values from controller's *params*!
   """
-  @spec update_user_with(module :: module, user :: Haytni.user, changes :: Keyword.t) :: {:ok, Haytni.user} | {:error, Ecto.Changeset.t}
+  @spec update_user_with(module :: module, user :: Haytni.user, changes :: Keyword.t) :: Haytni.repo_nobang_operation(Haytni.user)
   def update_user_with(module, user = %_{}, changes) do
     user
     |> user_and_changes_to_changeset(changes)
@@ -610,7 +614,7 @@ defmodule Haytni do
   Creates an `%Ecto.Changeset{}` for a new user/account (at registration from a module)
   or from a user (when editing account from a struct)
   """
-  @spec change_user(user_or_module :: module | Haytni.user, params :: %{optional(String.t) => String.t}) :: Ecto.Changeset.t
+  @spec change_user(user_or_module :: module | Haytni.user, params :: Haytni.params) :: Ecto.Changeset.t
   def change_user(user_or_module, params \\ %{})
 
   def change_user(module, params)

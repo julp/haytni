@@ -168,7 +168,7 @@ defmodule Haytni.AuthenticablePlugin do
   Converts the parameters received for authentication by the controller in a `%Ecto.Changeset{}` to handle and validate
   user inputs according to plugin's configuration (`authentication_keys`).
   """
-  @spec session_changeset(config :: Config.t, request_params :: %{String.t => String.t}) :: Ecto.Changeset.t
+  @spec session_changeset(config :: Config.t, request_params :: Haytni.params) :: Ecto.Changeset.t
   def session_changeset(config, session_params \\ %{}) do
     Haytni.Helpers.to_changeset(session_params, [:password | config.authentication_keys])
   end
@@ -190,7 +190,7 @@ defmodule Haytni.AuthenticablePlugin do
     * `{:error, changeset}` if credentials are incorrect or *user* is invalid (rejected by a
       `Haytni.Plugin.invalid?` callback by a plugin in the stack)
   """
-  @spec authenticate(conn :: Plug.Conn.t, module :: module, config :: Config.t, session_params :: %{optional(String.t) => String.t}) :: {:ok, Plug.Conn.t} | {:error, Ecto.Changeset.t}
+  @spec authenticate(conn :: Plug.Conn.t, module :: module, config :: Config.t, session_params :: Haytni.params) :: Haytni.repo_nobang_operation(Plug.Conn.t)
   def authenticate(conn = %Plug.Conn{}, module, config, session_params = %{}) do
     changeset = session_changeset(config, session_params)
 

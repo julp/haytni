@@ -2,7 +2,7 @@ defmodule Haytni.Recoverable.ResendConfirmationInstructionsTest do
   use Haytni.DataCase, async: true
   use Bamboo.Test#, shared: true
 
-  @spec create_confirmation(email :: String.t) :: %{String.t => String.t}
+  @spec create_confirmation(email :: String.t) :: Haytni.params
   defp create_confirmation(email) do
     %{
       "email" => email,
