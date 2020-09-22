@@ -221,6 +221,8 @@ defmodule Haytni do
       {:eex, "templates/shared/keys.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.eex"])},
       {:eex, "templates/shared/links.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "links.html.eex"])},
       {:eex, "templates/shared/message.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "message.html.eex"])},
+      # test
+      {:eex, "tests/haytni_quick_views_and_templates_test.exs", Path.join([base_path, "..", "..", "test", "haytni", "haytni_quick_views_and_templates_test.exs"])},
     ]
   end
 

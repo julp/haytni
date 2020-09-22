@@ -28,6 +28,10 @@ defmodule Haytni.InstallTaskTest do
       {"lib/haytni_web/templates/haytni/#{scope}/shared/links.html.eex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_session_path(",
       ]},
+      # test
+      {"test/haytni/haytni_quick_views_and_templates_test.exs", [
+        "defmodule Haytni.Haytni.#{camelized_scope}.QuickViewsAndTemplatesTest do",
+      ]},
     ]
   end
 
