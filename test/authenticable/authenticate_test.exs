@@ -1,4 +1,4 @@
-defmodule Haytni.Authenticable.AuthentificateTest do
+defmodule Haytni.Authenticable.AuthenticateTest do
   use HaytniWeb.ConnCase, async: true
 
   @spec create_session(email :: String.t, password :: String.t) :: Haytni.params
