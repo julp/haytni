@@ -10,6 +10,8 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "Au
     alter table(table) do
       add :email, cistring, null: false
       add :encrypted_password, :string, null: false
+
+      timestamps(updated_at: false, type: :utc_datetime)
     end
 
     create unique_index(table, ~W[email]a)

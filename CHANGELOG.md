@@ -1,5 +1,28 @@
 ?.?.?
 
+- [Authenticable] added *inserted_at* field (`Ecto.Schema.timestamps/1` + `Ecto.Migration.timestamps/1`) to user schemas
+
+```elixir
+# priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_2_to_?_?_?.exs
+
+defmodule YourRepo.Migrations.HaytniUpgradeFrom062To??? do
+  @stacks [HaytniTestWeb.Haytni] # a list of your Haytni stacks (module names) related to the current Repo
+
+  use Ecto.Migration
+
+  def change do
+    for stack <- @stacks do
+      source = stack.schema().__schema__(:source)
+      if Haytni.plugin_enabled?(stack, Haytni.AuthenticablePlugin) do
+        alter table(source) do
+          timestamps(updated_at: false, type: :utc_datetime, default: fragment("NOW()"))
+        end
+      end
+    end
+  end
+end
+```
+
 ```
 find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0 perl -pi \
     -e 's/\@user\.(unlock_token|reset_password_token|confirmation_token|unconfirmed_email)/\@\1/;'

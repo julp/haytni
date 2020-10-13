@@ -98,6 +98,8 @@ defmodule Haytni.AuthenticablePlugin do
       field :email, :string # UNIQUE
       field :encrypted_password, :string
       field :password, :string, virtual: true
+
+      timestamps(updated_at: false, type: :utc_datetime)
     end
   end
 
