@@ -1,6 +1,7 @@
 ?.?.?
 
 - [Authenticable] added *inserted_at* field (`Ecto.Schema.timestamps/1` + `Ecto.Migration.timestamps/1`) to user schemas
+- the X-Suspicious-Activity header is also set by HaytniWeb.Registerable.RegistrationController.create
 
 ```elixir
 # priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_2_to_?_?_?.exs

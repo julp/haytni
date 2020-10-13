@@ -14,6 +14,16 @@ defmodule HaytniWeb.Helpers do
     |> Phoenix.Controller.put_view(view_module)
   end
 
+  @doc ~S"""
+  Add and set the HTTP header *x-suspicious-activity* to the value *1* (as string) to the HTTP response
+  in order to allow a proxy, in front of your application, to take action in case of repeated suspicious
+  activity from a same origin.
+  """
+  def set_suspicious_activity(conn) do
+    conn
+    |> Plug.Conn.put_resp_header("x-suspicious-activity", "1")
+  end
+
   defmacro __using__(options) do
     quote bind_quoted: [options: options] do
       view_suffix =

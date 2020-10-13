@@ -69,7 +69,9 @@ defmodule HaytniWeb.Registerable.RegistrationController do
           |> halt()
         end
       {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} ->
-        render_new(conn, changeset)
+        conn
+        |> HaytniWeb.Helpers.set_suspicious_activity()
+        |> render_new(changeset)
       # other error case: let it crash
     end
   end
