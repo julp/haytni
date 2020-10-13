@@ -7,10 +7,10 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "In
     invitations_table = "#{users_table}_invitations"
     create table(invitations_table) do
       add :code, :string, null: false
-      add :sent_by, references(users_table), null: false, on_delete: :delete_all, on_update: :update_all
+      add :sent_by, references(users_table, on_delete: :delete_all, on_update: :update_all), null: false
       add :sent_to, cistring, null: false
       add :sent_at, :utc_datetime, null: false
-      add :accepted_by, references(users_table), on_delete: :delete_all, on_update: :update_all, default: nil
+      add :accepted_by, references(users_table, on_delete: :delete_all, on_update: :update_all), default: nil
       add :accepted_at, :utc_datetime, default: nil
     end
 
