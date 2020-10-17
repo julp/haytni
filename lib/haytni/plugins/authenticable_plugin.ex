@@ -24,15 +24,17 @@ defmodule Haytni.AuthenticablePlugin do
       + `password_hash_fun` (default: `#{inspect(@default_password_hash_fun)}`): the function to hash a password
       + `password_check_fun` (default: `#{inspect(@default_password_check_fun)}`): the function to check if a password matches its hash
 
-    To use:
+  To use:
 
-      * `pbkdf2` add `{:pbkdf2_elixir, "~> 1.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Pbkdf2.hash_pwd_salt/1` and `password_check_fun` to `&Pbkdf2.check_pass/2` in config/config.exs
-      * `argon2` add `{:argon2_elixir, "~> 2.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Argon2.hash_pwd_salt/1` and `password_check_fun` to ` &Argon2.check_pass/2` in config/config.exs
+    * `pbkdf2` add `{:pbkdf2_elixir, "~> 1.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Pbkdf2.hash_pwd_salt/1` and `password_check_fun` to `&Pbkdf2.check_pass/2` in config/config.exs
+    * `argon2` add `{:argon2_elixir, "~> 2.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Argon2.hash_pwd_salt/1` and `password_check_fun` to ` &Argon2.check_pass/2` in config/config.exs
 
-            stack Haytni.AuthenticablePlugin,
-              authentication_keys: #{inspect(@default_authentication_keys)},
-              password_check_fun: #{inspect(@default_password_check_fun)},
-              password_hash_fun: #{inspect(@default_password_hash_fun)}
+  ```elixir
+  stack Haytni.AuthenticablePlugin,
+    authentication_keys: #{inspect(@default_authentication_keys)},
+    password_check_fun: #{inspect(@default_password_check_fun)},
+    password_hash_fun: #{inspect(@default_password_hash_fun)}
+  ```
 
   Routes:
 
