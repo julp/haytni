@@ -353,7 +353,7 @@ defmodule Haytni do
     |> Enum.reduce(
       changeset,
       fn {plugin, config}, changeset = %Ecto.Changeset{} ->
-          plugin.validate_password(changeset, config)
+        plugin.validate_password(changeset, config)
       end
     )
   end
@@ -378,7 +378,7 @@ defmodule Haytni do
     |> Enum.reduce(
       {multi, changeset},
       fn {plugin, config}, {multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}} ->
-          plugin.on_email_change(multi, changeset, module, config)
+        plugin.on_email_change(multi, changeset, module, config)
       end
     )
   end
