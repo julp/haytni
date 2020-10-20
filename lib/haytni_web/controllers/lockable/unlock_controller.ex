@@ -53,10 +53,10 @@ defmodule HaytniWeb.Lockable.UnlockController do
   # Handle the request for account unlocking
   def create(conn, %{"unlock" => unlock_params}, module, config) do
     case Haytni.LockablePlugin.resend_unlock_instructions(module, config, unlock_params) do
-      {:ok, _user} ->
+      {:ok, _changes} ->
         conn
         |> HaytniWeb.Shared.render_message(module, new_token_sent_message())
-      {:error, changeset = %Ecto.Changeset{}} ->
+      {:error, _failed_operation, changeset = %Ecto.Changeset{}, _changes_so_far} ->
         render_new(conn, changeset)
     end
   end

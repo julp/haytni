@@ -9,9 +9,6 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "Lo
     alter table(table) do
       add :locked_at, :utc_datetime, default: nil
       add :failed_attempts, :integer, default: 0, null: false
-      add :unlock_token, :string, default: nil
     end
-
-    create unique_index(table, ~W[unlock_token]a)
   end
 end

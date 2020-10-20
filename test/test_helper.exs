@@ -55,11 +55,13 @@ binding = [
   table: HaytniTestWeb.HaytniAdmin.schema().__schema__(:source),
 ]
 
-~W[0-lockable_changes.exs]
-|> Enum.each(
-  fn migration ->
+~W[0-tokens_creation.exs 0-lockable_changes.exs]
+|> Enum.reduce(
+  42,
+  fn migration, acc ->
     module = Haytni.TestHelpers.onfly_module_from_eex(Path.join(migration_root, migration), binding)
-    Ecto.Migrator.up(HaytniTestWeb.Haytni.repo(), 42, module, log: false, all: true)
+    Ecto.Migrator.up(HaytniTestWeb.Haytni.repo(), acc, module, log: false, all: true)
+    acc + 1
   end
 )
 
@@ -68,6 +70,10 @@ Haytni.TestHelpers.onfly_module_from_eex(Path.join(view_root, "session_view.ex")
 # Simulate a shared view (HaytniTestWeb.Haytni.UnlockView)
 Haytni.TestHelpers.onfly_module_from_eex(Path.join(view_root, "unlock_view.ex"), binding |> Keyword.put(:scope, nil) |> Keyword.put(:camelized_scope, nil))
 
+
+HaytniTestWeb.Haytni
+|> Haytni.Token.purge_expired_tokens()
+|> IO.inspect()
 
 Process.flag(:trap_exit, true)
 Ecto.Adapters.SQL.Sandbox.mode(HaytniTest.Repo, :manual)

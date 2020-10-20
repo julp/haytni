@@ -16,54 +16,48 @@ defmodule Haytni.Confirmable.OnEmailChangeTest do
       user = %HaytniTest.User{email: @old_email}
 
       changeset = Ecto.Changeset.change(user, email: @new_email)
-
       {multi, changeset} = Haytni.ConfirmablePlugin.on_email_change(Ecto.Multi.new(), changeset, HaytniTestWeb.Haytni, config)
-
-      {:ok, updated_user} = Ecto.Changeset.apply_action(changeset, :update)
+      assert {:ok, @new_email} == Ecto.Changeset.fetch_change(changeset, :email)
 
       assert [{:send_notice_about_email_change, {:run, fun}}] = Ecto.Multi.to_list(multi)
 
       # simulates Haytni.handle_email_change
-      state = %{user: updated_user, old_email: @old_email, new_email: @new_email}
+      state = %{user: user, old_email: @old_email, new_email: @new_email}
 
       assert {:ok, :success} = fun.(HaytniTest.Repo, state)
-      assert_delivered_email Haytni.ConfirmableEmail.email_changed(updated_user, @old_email, HaytniTestWeb.Haytni, config)
-
-      assert @new_email == Ecto.Changeset.get_change(changeset, :email)
-      assert @new_email == updated_user.email
+      assert_delivered_email Haytni.ConfirmableEmail.email_changed(user, @old_email, HaytniTestWeb.Haytni, config)
     end
 
     test "ensures email is not changed + a notice is sent to old address + a new confirmation token is generated then sent to new email address when reconfirmable = true", %{config: config} do
       config = %{config | reconfirmable: true}
-      user = %HaytniTest.User{email: @old_email}
+      user = user_fixture(email: @old_email)
 
       changeset = Ecto.Changeset.change(user, email: @new_email)
-
       {multi, changeset} = Haytni.ConfirmablePlugin.on_email_change(Ecto.Multi.new(), changeset, HaytniTestWeb.Haytni, config)
-
-      {:ok, updated_user} = Ecto.Changeset.apply_action(changeset, :update)
+      assert :error == Ecto.Changeset.fetch_change(changeset, :email)
 
       assert [
-        {:send_reconfirmation_instructions, {:run, fun1}},
-        {:send_notice_about_email_change, {:run, fun2}}
+        {:confirmation_token, {:run, fun1}},
+        {:send_reconfirmation_instructions, {:run, fun2}},
+        {:send_notice_about_email_change, {:run, fun3}}
       ] = Ecto.Multi.to_list(multi)
 
       # simulates Haytni.handle_email_change
-      state = %{user: updated_user, old_email: @old_email, new_email: @new_email}
+      state = %{user: user, old_email: @old_email, new_email: @new_email}
 
-      assert {:ok, :success} = fun1.(HaytniTest.Repo, state)
-      assert_delivered_email Haytni.ConfirmableEmail.reconfirmation_email(updated_user, updated_user.unconfirmed_email, updated_user.confirmation_token, HaytniTestWeb.Haytni, config)
+      #assert [] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.ConfirmablePlugin.token_context()))
+      assert {:ok, confirmation_token = %HaytniTest.UserToken{}} = fun1.(HaytniTest.Repo, state)
+      assert confirmation_token.user_id == user.id
+      assert confirmation_token.context == Haytni.ConfirmablePlugin.token_context(@old_email)
+      assert is_binary(confirmation_token.token)
+      #assert [%HaytniTest.UserToken{^id: ^confirmation_token.id}] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.ConfirmablePlugin.token_context()))
 
-      assert {:ok, :success} = fun2.(HaytniTest.Repo, state)
-      assert_delivered_email Haytni.ConfirmableEmail.email_changed(updated_user, @old_email, HaytniTestWeb.Haytni, config)
+      state = Map.put(state, :confirmation_token, confirmation_token)
+      assert {:ok, true} = fun2.(HaytniTest.Repo, state)
+      assert_delivered_email Haytni.ConfirmableEmail.reconfirmation_email(user, @new_email, Haytni.Token.encode_token(confirmation_token), HaytniTestWeb.Haytni, config)
 
-      assert is_binary(Ecto.Changeset.get_change(changeset, :confirmation_token))
-      assert @new_email == Ecto.Changeset.get_change(changeset, :unconfirmed_email)
-      assert %DateTime{} = Ecto.Changeset.get_change(changeset, :confirmation_sent_at)
-
-      assert is_binary(updated_user.confirmation_token)
-      assert @new_email == updated_user.unconfirmed_email
-      assert %DateTime{} = updated_user.confirmation_sent_at
+      assert {:ok, :success} = fun3.(HaytniTest.Repo, state)
+      assert_delivered_email Haytni.ConfirmableEmail.email_changed(user, @old_email, HaytniTestWeb.Haytni, config)
     end
   end
 end

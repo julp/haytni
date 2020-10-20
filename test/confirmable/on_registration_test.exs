@@ -4,17 +4,28 @@ defmodule Haytni.Confirmable.OnRegistrationTest do
 
   describe "Haytni.ConfirmablePlugin.on_registration/3" do
     test "a mail is sent at/after registration" do
+      user = user_fixture(email: "abc@def.ghi")
       config = Haytni.ConfirmablePlugin.build_config()
-      user = %HaytniTest.User{email: "abc@def.ghi", confirmation_token: "0123"}
 
-      actions =
+      operations =
         Ecto.Multi.new()
         |> Haytni.ConfirmablePlugin.on_registration(HaytniTestWeb.Haytni, config)
         |> Ecto.Multi.to_list()
 
-      assert [{:send_confirmation_instructions, {:run, fun}}] = actions
-      assert {:ok, :success} = fun.(HaytniTest.Repo, %{user: user})
-      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, user.confirmation_token, HaytniTestWeb.Haytni, config)
+      state = %{user: user}
+      assert [
+        {:confirmation_token, {:run, fun1}},
+        {:send_confirmation_instructions, {:run, fun2}}
+      ] = operations
+
+      assert {:ok, confirmation_token = %HaytniTest.UserToken{}} = fun1.(HaytniTest.Repo, state)
+      assert confirmation_token.user_id == user.id
+      assert confirmation_token.context == Haytni.ConfirmablePlugin.token_context()
+      assert is_binary(confirmation_token.token)
+
+      state = Map.put(state, :confirmation_token, confirmation_token)
+      assert {:ok, :success} = fun2.(HaytniTest.Repo, state)
+      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, Haytni.Token.encode_token(confirmation_token), HaytniTestWeb.Haytni, config)
     end
   end
 end

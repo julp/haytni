@@ -3,11 +3,12 @@ defmodule Haytni.Rememberable.FindUserTest do
 
   describe "Haytni.RememberablePlugin.find_user/3 (callback)" do
     setup do
-      user = user_fixture(remember_token: "hjzOqslZZu8M", remember_created_at: Haytni.Helpers.now())
+      user = user_fixture()
 
       [
         user: user,
         config: Haytni.RememberablePlugin.build_config(),
+        token: token_fixture(user, Haytni.RememberablePlugin),
       ]
     end
 
@@ -17,10 +18,11 @@ defmodule Haytni.Rememberable.FindUserTest do
 
     if false do
       test "gets nothing ({conn, nil}) and rememberme cookie is deleted if token is expired", %{conn: conn, config: config} do
-        user = user_fixture(remember_token: "mwMbedOBiqYT", remember_created_at: seconds_ago(config.remember_for + 1))
+        user = user_fixture()
+        #token =
         result =
           conn
-          |> add_rememberme_cookie(user.remember_token, config)
+          |> add_rememberme_cookie(token, config)
           |> Haytni.RememberablePlugin.find_user(HaytniTestWeb.Haytni, config)
 
         # NOTE/TODO: it won't work because RememberablePlugin doesn't check the value of the column remember_created_at,
@@ -41,10 +43,10 @@ defmodule Haytni.Rememberable.FindUserTest do
       assert_cookie_deletion(new_conn, config.remember_cookie_name)
     end
 
-    test "gets user ({conn, user}) if token is valid (and rememberme cookie is kept)", %{conn: conn, config: config, user: user} do
+    test "gets user ({conn, user}) if token is valid (and rememberme cookie is kept)", %{conn: conn, config: config, user: user, token: token} do
       result =
         conn
-        |> add_rememberme_cookie(user.remember_token, config)
+        |> add_rememberme_cookie(token, config)
         |> Haytni.RememberablePlugin.find_user(HaytniTestWeb.Haytni, config)
 
       assert {new_conn = %Plug.Conn{}, found_user} = result

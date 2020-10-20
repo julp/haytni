@@ -214,13 +214,15 @@ defmodule Haytni do
   Get the list of shared (templates/views) or independant (Haytni stack) files to install
   """
   @spec shared_files_to_install(base_path :: String.t, web_path :: String.t, scope :: String.t, timestamp :: String.t) :: [{:eex | :text, String.t, String.t}]
-  def shared_files_to_install(base_path, web_path, scope, _timestamp) do
+  def shared_files_to_install(base_path, web_path, scope, timestamp) do
     [
       {:eex, "haytni.ex", Path.join([base_path, "haytni.ex"])},
       {:eex, "views/shared_view.ex", Path.join([web_path, "views", "haytni", scope, "shared_view.ex"])},
       {:eex, "templates/shared/keys.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.eex"])},
       {:eex, "templates/shared/links.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "links.html.eex"])},
       {:eex, "templates/shared/message.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "message.html.eex"])},
+      # migration
+      {:eex, "migrations/0-tokens_creation.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_#{scope}_tokens_creation.exs"])},
       # test
       {:eex, "tests/haytni_quick_views_and_templates_test.exs", Path.join([base_path, "..", "..", "test", "haytni", "haytni_quick_views_and_templates_test.exs"])},
     ]
@@ -281,7 +283,19 @@ defmodule Haytni do
     scoped_session_key = :"#{module.scope()}_id"
     {conn, user, from_session?} = case Plug.Conn.get_session(conn, scoped_session_key) do
       nil ->
-        find_user(module.plugins_with_config(), conn, module)
+        module.plugins_with_config()
+        |> find_user(conn, module)
+        #|> Enum.reduce_while(
+          #{conn, nil},
+          #fn plugin, {conn, _user} ->
+            #acc = {conn, user} = plugin.find_user(conn, module, config)
+            #if conn.halted? or not is_nil(user) ->
+              #{:halt, acc}
+            #else
+              #{:cont, acc}
+            #end
+          #end
+        #)
         |> Tuple.append(false)
       id ->
         {conn, get_user(module, id), true}
@@ -299,6 +313,7 @@ defmodule Haytni do
               conn
               |> Plug.Conn.put_session(scoped_session_key, user.id)
               |> Plug.Conn.configure_session(renew: true)
+
             {conn, user}
           end
       end
@@ -362,18 +377,8 @@ defmodule Haytni do
   defp handle_email_change(module, multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{changes: %{email: new_email}}) do
     multi =
       multi
-      |> Ecto.Multi.run(
-        :new_email,
-        fn _repo, %{} ->
-          {:ok, new_email}
-        end
-      )
-      |> Ecto.Multi.run(
-        :old_email,
-        fn _repo, %{} ->
-          {:ok, changeset.data.email}
-        end
-      )
+      |> Haytni.Multi.assign(:new_email, new_email)
+      |> Haytni.Multi.assign(:old_email, changeset.data.email)
     module.plugins_with_config()
     |> Enum.reduce(
       {multi, changeset},
@@ -442,7 +447,7 @@ defmodule Haytni do
   """
   def fields(module) do
     module.plugins()
-    |> Enum.map(&(&1.fields(module)))
+    |> Enum.into([Haytni.Token.fields(module)], &(&1.fields(module)))
   end
 
   @doc ~S"""
@@ -478,7 +483,7 @@ defmodule Haytni do
       )
 
     Ecto.Multi.new()
-    |> Ecto.Multi.run(:conn, fn _repo, %{} -> {:ok, conn} end)
+    |> Haytni.Multi.assign(:conn, conn)
     |> Ecto.Multi.update(:user, Ecto.Changeset.change(user, changes))
     |> Ecto.Multi.append(multi)
     |> module.repo().transaction()
@@ -576,6 +581,14 @@ defmodule Haytni do
     user
     |> user_and_changes_to_changeset(changes)
     |> module.repo().update!()
+  end
+
+  @doc ~S"""
+  Update user in the same way as `update_user_with/3` but as part of a set of operations (Ecto.Multi).
+  """
+  @spec update_user_in_multi_with(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, user :: Haytni.user, changes :: Keyword.t) :: Ecto.Multi.t
+  def update_user_in_multi_with(multi = %Ecto.Multi{}, name, user = %_{}, changes) do
+    Ecto.Multi.update(multi, name, user_and_changes_to_changeset(user, changes))
   end
 
   @doc ~S"""

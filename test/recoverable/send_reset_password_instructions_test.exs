@@ -20,7 +20,7 @@ defmodule Haytni.Recoverable.SendResetPasswordInstructionsTest do
 #     ]
 #     for keys <- @keys do
       test "gets error when unlock_keys are empty with email as key(s)", %{config: config} do
-        assert {:error, changeset} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request(""))
+        assert {:error, :params, changeset, %{}} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request(""))
         refute is_nil(changeset.action)
         assert %{email: [empty_message()]} == errors_on(changeset)
       end
@@ -32,13 +32,10 @@ defmodule Haytni.Recoverable.SendResetPasswordInstructionsTest do
       end
 
       test "ensures a reset token is generated and sent by email when a user match with email as key(s)", %{config: config, user: user} do
-        {:ok, updated_user} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request(user.email))
+        {:ok, %{user: updated_user, token: token}} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request(user.email))
 
         assert updated_user.id == user.id
-        assert is_binary(updated_user.reset_password_token)
-        assert %DateTime{} = updated_user.reset_password_sent_at
-
-        assert_delivered_email Haytni.RecoverableEmail.reset_password_email(updated_user, updated_user.reset_password_token, HaytniTestWeb.Haytni, config)
+        assert_delivered_email Haytni.RecoverableEmail.reset_password_email(updated_user, Haytni.Token.encode_token(token), HaytniTestWeb.Haytni, config)
       end
 #     end
   end

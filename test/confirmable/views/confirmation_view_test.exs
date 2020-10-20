@@ -15,7 +15,7 @@ defmodule Haytni.Confirmable.ConfirmationViewTest do
     changeset = if map_size(params) == 0 do
       Haytni.ConfirmablePlugin.confirmation_request_changeset(config)
     else
-      {:error, changeset} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, params)
+      {:error, _failed_operation, changeset, _changes_so_far} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, params)
       changeset
     end
     content = render_to_string(HaytniTestWeb.Haytni.User.ConfirmationView, "new.html", conn: conn, changeset: changeset, config: config, module: HaytniTestWeb.Haytni)

@@ -13,10 +13,11 @@ defmodule Haytni.InstallTaskTest do
     Haytni.RememberablePlugin,
     Haytni.TrackablePlugin,
     Haytni.InvitablePlugin,
+    Haytni.LiveViewPlugin,
   ]
 
   @spec file_list_for(plugin :: module, scope :: String.t, table :: String.t, camelized_scope :: String.t) :: [{String.t, Haytni.TestHelpers.match}]
-  defp file_list_for(Haytni, scope, _table, camelized_scope) do
+  defp file_list_for(Haytni, scope, table, camelized_scope) do
     [
       # views
       {"lib/haytni_web/views/haytni/#{scope}/shared_view.ex", [
@@ -27,6 +28,11 @@ defmodule Haytni.InstallTaskTest do
       {"lib/haytni_web/templates/haytni/#{scope}/shared/message.html.eex", []},
       {"lib/haytni_web/templates/haytni/#{scope}/shared/links.html.eex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_session_path(",
+      ]},
+      # migration
+      {"priv/repo/migrations/*_haytni_#{scope}_tokens_creation.exs", [
+        ~s'def change(users_table \\\\ "#{table}", _scope \\\\ "#{scope}") do',
+        "defmodule Haytni.Migrations.#{camelized_scope}.TokensCreation do",
       ]},
       # test
       {"test/haytni/haytni_quick_views_and_templates_test.exs", [
@@ -101,16 +107,6 @@ defmodule Haytni.InstallTaskTest do
       ]},
     ]
   end
-  
-  defp file_list_for(Haytni.RememberablePlugin, scope, table, camelized_scope) do
-    [
-      # migration
-      {"priv/repo/migrations/*_haytni_rememberable_#{scope}_changes.exs", [
-        ~s'def change(table \\\\ "#{table}") do',
-        "defmodule Haytni.Migrations.#{camelized_scope}.RememberableChanges do",
-      ]},
-    ]
-  end
 
   defp file_list_for(Haytni.LockablePlugin, scope, table, camelized_scope) do
     [
@@ -139,7 +135,7 @@ defmodule Haytni.InstallTaskTest do
     ]
   end
 
-  defp file_list_for(Haytni.RecoverablePlugin, scope, table, camelized_scope) do
+  defp file_list_for(Haytni.RecoverablePlugin, scope, _table, camelized_scope) do
     [
       # views
       {"lib/haytni_web/views/haytni/#{scope}/password_view.ex", [
@@ -160,11 +156,6 @@ defmodule Haytni.InstallTaskTest do
       ]},
       {"lib/haytni_web/templates/haytni/#{scope}/email/recoverable/reset_password_instructions.html.eex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_password_url(",
-      ]},
-      # migration
-      {"priv/repo/migrations/*_haytni_recoverable_#{scope}_changes.exs", [
-        ~s'def change(table \\\\ "#{table}") do',
-        "defmodule Haytni.Migrations.#{camelized_scope}.RecoverableChanges do",
       ]},
     ]
   end
@@ -191,10 +182,10 @@ defmodule Haytni.InstallTaskTest do
         "HaytniWeb.Router.Helpers.haytni_#{scope}_confirmation_url(",
       ]},
       {"lib/haytni_web/templates/haytni/#{scope}/email/confirmable/reconfirmation_instructions.text.eex", [
-        "HaytniWeb.Router.Helpers.haytni_#{scope}_confirmation_url(",
+        "HaytniWeb.Router.Helpers.haytni_#{scope}_reconfirmation_url(",
       ]},
       {"lib/haytni_web/templates/haytni/#{scope}/email/confirmable/reconfirmation_instructions.html.eex", [
-        "HaytniWeb.Router.Helpers.haytni_#{scope}_confirmation_url(",
+        "HaytniWeb.Router.Helpers.haytni_#{scope}_reconfirmation_url(",
       ]},
       # migration
       {"priv/repo/migrations/*_haytni_confirmable_#{scope}_changes.exs", [

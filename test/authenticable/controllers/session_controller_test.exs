@@ -30,10 +30,11 @@ defmodule Haytni.Authenticable.SessionControllerTest do
 
   describe "HaytniWeb.Authenticable.SessionController#delete" do
     test "we get logged out (redirected + session deleted)", %{conn: conn} do
+      user = user_fixture()
       conn =
         conn
-        #|> Plug.Test.init_test_session(%{user_id: 6498})
-        #|> Plug.Conn.put_private(:plug_skip_csrf_protection, true)
+        |> Plug.Test.init_test_session(%{user_id: user.id})
+        |> Plug.Conn.assign(:current_user, user)
         |> delete(Routes.haytni_user_session_path(conn, :delete))
 
       assert conn.halted

@@ -7,6 +7,10 @@ defmodule HaytniTestWeb.Endpoint do
     signing_salt: "9wWymz8u",
   ]
 
+  #socket "/socket", HaytniTestWeb.UserSocket,
+    #websocket: [connect_info: [:peer_data, :x_headers]],
+    #longpoll: false
+
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],

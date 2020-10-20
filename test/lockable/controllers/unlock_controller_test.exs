@@ -34,13 +34,16 @@ defmodule Haytni.Lockable.UnlockControllerTest do
 
     test "checks successful unlocking", %{conn: conn} do
       user =
-        Haytni.LockablePlugin.build_config()
-        |> Haytni.LockablePlugin.lock_attributes()
+        Haytni.LockablePlugin.lock_attributes()
         |> user_fixture()
+      unlock_token =
+        user
+        |> token_fixture(Haytni.LockablePlugin)
+        |> Base.url_encode64()
 
       response =
         conn
-        |> get(Routes.haytni_user_unlock_path(conn, :show), %{"unlock_token" => user.unlock_token})
+        |> get(Routes.haytni_user_unlock_path(conn, :show), %{"unlock_token" => unlock_token})
         |> html_response(200)
 
       assert contains_text?(response, HaytniWeb.Lockable.UnlockController.unlock_message())
@@ -70,8 +73,7 @@ defmodule Haytni.Lockable.UnlockControllerTest do
 
       test "checks successful unlock request with #{inspect(keys)} as key(s)", %{conn: conn} do
         user =
-          Haytni.LockablePlugin.build_config()
-          |> Haytni.LockablePlugin.lock_attributes()
+          Haytni.LockablePlugin.lock_attributes()
           |> Keyword.merge(email: "parker.peter@daily-bugle.com", first_name: "Peter", last_name: "Parker")
           |> user_fixture()
 

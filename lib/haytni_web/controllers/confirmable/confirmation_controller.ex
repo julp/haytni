@@ -56,6 +56,9 @@ defmodule HaytniWeb.Confirmable.ConfirmationController do
       {:ok, _user} ->
         conn
         |> HaytniWeb.Shared.render_message(module, confirmation_sent_message())
+      # TODO: result of Ecto.Repo vs Ecto.Multi
+      {:error, _failed_operation, changeset = %Ecto.Changeset{}, _changes_so_far} ->
+        render_new(conn, changeset)
       {:error, changeset = %Ecto.Changeset{}} ->
         render_new(conn, changeset)
     end

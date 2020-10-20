@@ -6,15 +6,8 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "Co
       # NOP
     end
 
-    cistring = Haytni.Migration.case_insensitive_string_type()
-
     alter table(table) do
       add :confirmed_at, :utc_datetime, default: nil
-      add :unconfirmed_email, cistring, default: nil
-      add :confirmation_token, :string, default: nil
-      add :confirmation_sent_at, :utc_datetime, null: false
     end
-
-    create unique_index(table, ~W[confirmation_token]a)
   end
 end

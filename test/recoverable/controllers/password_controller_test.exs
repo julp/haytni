@@ -81,14 +81,12 @@ defmodule Haytni.Recoverable.PasswordControllerTest do
     end
 
     test "checks successful password change", %{conn: conn} do
-      user =
-        Haytni.RecoverablePlugin.build_config()
-        |> Haytni.RecoverablePlugin.reset_password_attributes()
-        |> user_fixture()
+      user = user_fixture()
+      token = token_fixture(user, Haytni.RecoverablePlugin)
 
       response =
         conn
-        |> patch(Routes.haytni_user_password_path(conn, :update), change_params(user.reset_password_token))
+        |> patch(Routes.haytni_user_password_path(conn, :update), change_params(token))
         |> html_response(200)
 
       assert contains_text?(response, HaytniWeb.Recoverable.PasswordController.password_changed_message())
