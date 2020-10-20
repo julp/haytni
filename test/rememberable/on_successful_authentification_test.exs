@@ -18,7 +18,7 @@ defmodule Haytni.Rememberable.OnSuccessfulAuthentificationTest do
     |> put_in(~W[session remember], "checked")
   end
 
-  describe "Haytni.Rememberable.on_successful_authentication/5 (callback)" do
+  describe "Haytni.Rememberable.on_successful_authentication/6 (callback)" do
     setup do
       config = Haytni.RememberablePlugin.build_config()
       user_without_token = %HaytniTest.User{remember_token: nil, remember_created_at: nil}
@@ -35,7 +35,7 @@ defmodule Haytni.Rememberable.OnSuccessfulAuthentificationTest do
 
     test "do nothing (no rememberme cookie is created) if rememberme checkbox is not checked", ctxt do
       for user <- [ctxt.user_without_token, ctxt.user_with_expired_token, ctxt.user_with_valid_token] do
-        assert {new_conn, multi, []} = Haytni.RememberablePlugin.on_successful_authentication(%{ctxt.conn | params: session_params_without_rememberme()}, user, Ecto.Multi.new(), Keyword.new(), ctxt.config)
+        assert {new_conn, multi, []} = Haytni.RememberablePlugin.on_successful_authentication(%{ctxt.conn | params: session_params_without_rememberme()}, user, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, ctxt.config)
         assert [] == Ecto.Multi.to_list(multi)
         refute_cookie_presence(new_conn, ctxt.config.remember_cookie_name)
       end
@@ -43,7 +43,7 @@ defmodule Haytni.Rememberable.OnSuccessfulAuthentificationTest do
 
     if false do
       test "if rememberme checkbox is checked but current user rememberme token is expired, generate (and send) a new one", ctxt do
-        assert {new_conn, multi, changes} = Haytni.RememberablePlugin.on_successful_authentication(%{ctxt.conn | params: session_params_with_rememberme()}, ctxt.user_with_expired_token, Ecto.Multi.new(), Keyword.new(), ctxt.config)
+        assert {new_conn, multi, changes} = Haytni.RememberablePlugin.on_successful_authentication(%{ctxt.conn | params: session_params_with_rememberme()}, ctxt.user_with_expired_token, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, ctxt.config)
         assert [] == Ecto.Multi.to_list(multi)
         # NOTE/TODO: it won't work because RememberablePlugin doesn't check the value of the column remember_created_at,
         # it counts on Phoenix.Token.verify for expiration but we have no way to override time generation of the token
@@ -54,13 +54,13 @@ defmodule Haytni.Rememberable.OnSuccessfulAuthentificationTest do
     end
 
     test "if rememberme checkbox is checked but current user rememberme token is still valid, send it as rememberme cookie", ctxt do
-      assert {new_conn, multi, []} = Haytni.RememberablePlugin.on_successful_authentication(%{ctxt.conn | params: session_params_with_rememberme()}, ctxt.user_with_valid_token, Ecto.Multi.new(), Keyword.new(), ctxt.config)
+      assert {new_conn, multi, []} = Haytni.RememberablePlugin.on_successful_authentication(%{ctxt.conn | params: session_params_with_rememberme()}, ctxt.user_with_valid_token, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, ctxt.config)
       assert [] == Ecto.Multi.to_list(multi)
       assert_rememberme_presence(new_conn, ctxt.config, ctxt.user_with_valid_token.remember_token)
     end
 
     test "if rememberme checkbox is checked but current user doesn't have a rememberme token, generate (and send) a new token", ctxt do
-      assert {new_conn, multi, changes} = Haytni.RememberablePlugin.on_successful_authentication(%{ctxt.conn | params: session_params_with_rememberme()}, ctxt.user_without_token, Ecto.Multi.new(), Keyword.new(), ctxt.config)
+      assert {new_conn, multi, changes} = Haytni.RememberablePlugin.on_successful_authentication(%{ctxt.conn | params: session_params_with_rememberme()}, ctxt.user_without_token, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, ctxt.config)
       assert [] == Ecto.Multi.to_list(multi)
       assert Keyword.keys(changes) == ~W[remember_token remember_created_at]a
       assert_rememberme_presence(new_conn, ctxt.config, changes[:remember_token])

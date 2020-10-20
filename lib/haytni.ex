@@ -97,6 +97,35 @@ defmodule Haytni do
       def init(_options), do: nil
 
       @impl Plug
+      def call(conn = %Plug.Conn{private: %{haytni: module}}, _options) do
+        raise ArgumentError, """
+        More than one Haytni stack can't be applied to a same URL. A review of your router is required.
+
+        If you have defined several stacks in a same router, it is required to replace:
+
+          pipeline :browser do
+            # ...
+            plug #{inspect(module)}
+            plug #{inspect(__MODULE__)}
+            # ...
+          end
+
+        By distinct pipelines. One way to do it is as follows:
+
+          scope "..." do
+            pipe_through [:browser, #{inspect(module)}]
+
+            # ...
+          end
+
+          scope "..." do
+            pipe_through [:browser, #{inspect(__MODULE__)}]
+
+            # ...
+          end
+        """
+      end
+
       def call(conn, _options) do
         scope = :"current_#{scope()}"
         if Map.get(conn.assigns, scope) do
@@ -278,32 +307,36 @@ defmodule Haytni do
   """
   @spec find_user(module :: module, conn :: Plug.Conn.t) :: {Plug.Conn.t, Haytni.user | nil}
   def find_user(module, conn = %Plug.Conn{}) do
-    scoped_session_key = :"#{module.scope()}_id"
-    {conn, user, from_session?} = case Plug.Conn.get_session(conn, scoped_session_key) do
-      nil ->
-        find_user(module.plugins_with_config(), conn, module)
-        |> Tuple.append(false)
-      id ->
-        {conn, get_user(module, id), true}
-    end
+    {conn, user} =
+      module.plugins_with_config()
+      |> find_user(conn, module)
     if user do
       case invalid_user?(module, user) do
         {:error, _error} ->
-          {Plug.Conn.delete_session(conn, scoped_session_key), nil}
+          {Haytni.logout(conn, module, []), nil}
         false ->
-          if from_session? do
-            {conn, user}
-          else
-            {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user)
-            conn =
-              conn
-              |> Plug.Conn.put_session(scoped_session_key, user.id)
-              |> Plug.Conn.configure_session(renew: true)
-            {conn, user}
-          end
+          # NOTE: Plug.Conn.assign(conn, :"current_#{module.scope()}", user) is done by Plug.call/2 callback
+          {conn, user}
       end
     else
       {conn, nil}
+    end
+  end
+
+  # Diffences between set_user/3 and find_user/2:
+  # - find_user/2 does not invoke on_successful_authentication/6 callbacks (but set_user/3 does)
+  # - find_user/2 drops current session/cookies/... by a "forced" call of on_logout/3 callbacks if current user becomes invalid (but set_user/3 does not)
+  @doc ~S"""
+  To set the current user (at login for example)
+  """
+  @spec set_user(conn :: Plug.Conn.t, module :: module, user :: Haytni.user) :: {:ok, Plug.Conn.t} | {:error, String.t}
+  def set_user(conn = %Plug.Conn{}, module, user = %_{}) do
+    case invalid_user?(module, user) do
+      error = {:error, _message} ->
+        error
+      false ->
+        {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user)
+        {:ok, Plug.Conn.assign(conn, :"current_#{module.scope()}", user)}
     end
   end
 
@@ -324,9 +357,10 @@ defmodule Haytni do
   @spec create_user(module :: module, attrs :: map, options :: Keyword.t) :: Haytni.multi_result
   def create_user(module, attrs = %{}, options \\ []) do
     schema = module.schema()
-    changeset = schema
-    |> struct()
-    |> schema.create_registration_changeset(attrs)
+    changeset =
+      schema
+      |> struct()
+      |> schema.create_registration_changeset(attrs)
 
     multi = Ecto.Multi.new()
     |> Ecto.Multi.insert(:user, changeset, options)
@@ -449,21 +483,10 @@ defmodule Haytni do
   Notifies plugins that current user is going to be logged out
   """
   @spec logout(conn :: Plug.Conn.t, module :: module, options :: Keyword.t) :: Plug.Conn.t
-  def logout(conn = %Plug.Conn{}, module, options \\ []) do
-    conn =
-      module.plugins_with_config()
-      |> Enum.reverse()
-      |> Enum.reduce(conn, fn {plugin, config}, conn -> plugin.on_logout(conn, config) end)
-
-    case Keyword.get(options, :scope) do
-      :all ->
-        Plug.Conn.clear_session(conn)
-        #Plug.Conn.configure_session(conn, drop: true)
-      _ ->
-        conn
-        |> Plug.Conn.configure_session(renew: true)
-        |> Plug.Conn.delete_session(:"#{module.scope()}_id")
-    end
+  def logout(conn = %Plug.Conn{}, module, _options \\ []) do
+    module.plugins_with_config()
+    |> Enum.reverse()
+    |> Enum.reduce(conn, fn {plugin, config}, conn -> plugin.on_logout(conn, module, config) end)
   end
 
   @spec on_successful_authentication(module :: module, conn :: Plug.Conn.t, user :: Haytni.user) :: Haytni.multi_result
@@ -473,7 +496,7 @@ defmodule Haytni do
       |> Enum.reduce(
         {conn, Ecto.Multi.new(), Keyword.new()},
         fn {plugin, config}, {conn, multi, changes} ->
-          plugin.on_successful_authentication(conn, user, multi, changes, config)
+          plugin.on_successful_authentication(conn, user, multi, changes, module, config)
         end
       )
 
@@ -482,25 +505,6 @@ defmodule Haytni do
     |> Ecto.Multi.update(:user, Ecto.Changeset.change(user, changes))
     |> Ecto.Multi.append(multi)
     |> module.repo().transaction()
-  end
-
-  @doc ~S"""
-  To be called on (manual) login
-  """
-  @spec login(conn :: Plug.Conn.t, module :: module, user :: Haytni.user) :: {:ok, Plug.Conn.t} | {:error, String.t}
-  def login(conn = %Plug.Conn{}, module, user = %_{}) do
-    case invalid_user?(module, user) do
-      error = {:error, _message} ->
-        error
-      false ->
-        {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user)
-        conn =
-          conn
-          |> Plug.Conn.put_session(:"#{module.scope()}_id", user.id)
-          |> Plug.Conn.configure_session(renew: true)
-          |> Plug.Conn.assign(:"current_#{module.scope()}", user)
-        {:ok, conn}
-    end
   end
 
   @doc ~S"""

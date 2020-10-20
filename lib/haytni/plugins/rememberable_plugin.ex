@@ -120,7 +120,7 @@ defmodule Haytni.RememberablePlugin do
 
   @impl Haytni.Plugin
   # The checkbox "remember me" is checked (present in params)
-  def on_successful_authentication(conn = %Plug.Conn{params: %{"session" => %{"remember" => _}}}, user = %_{}, multi = %Ecto.Multi{}, keyword, config) do
+  def on_successful_authentication(conn = %Plug.Conn{params: %{"session" => %{"remember" => _}}}, user = %_{}, multi = %Ecto.Multi{}, keyword, _module, config) do
     {remember_token, keyword} = if is_nil(user.remember_token) or rememberable_token_expired?(user, config) do
       remember_token = config.remember_token_length
       |> Haytni.Token.generate()
@@ -138,7 +138,7 @@ defmodule Haytni.RememberablePlugin do
   end
 
   # The checkbox "remember me" is not checked (absent from params)
-  def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keyword, _config) do
+  def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keyword, _module, _config) do
     {conn, multi, keyword}
   end
 
@@ -172,7 +172,7 @@ defmodule Haytni.RememberablePlugin do
   end
 
   @impl Haytni.Plugin
-  def on_logout(conn = %Plug.Conn{}, config) do
+  def on_logout(conn = %Plug.Conn{}, _module, config) do
     remove_rememberme_cookie(conn, config)
   end
 end

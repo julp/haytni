@@ -157,6 +157,51 @@ defmodule Haytni.AuthenticablePlugin do
     changeset
   end
 
+  @spec module_to_session_key(module :: module) :: atom
+  defp module_to_session_key(module) do
+    :"#{module.scope()}_id"
+  end
+
+  # TODO: move find_user + on_successful_authentication + on_logout (session handling) to a separate plugin?
+  @impl Haytni.Plugin
+  def find_user(conn = %Plug.Conn{}, module, _config) do
+    scoped_session_key = module_to_session_key(module)
+    if id = Plug.Conn.get_session(conn, scoped_session_key) do
+      case Haytni.get_user(module, id) do
+        user = %_{} ->
+          {conn, user}
+        _ ->
+          {Plug.Conn.delete_session(conn, scoped_session_key), nil}
+      end
+    else
+      {conn, nil}
+    end
+  end
+
+  @impl Haytni.Plugin
+  def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi = %Ecto.Multi{}, keyword, module, _config) do
+    conn =
+      conn
+      |> Plug.Conn.put_session(module_to_session_key(module), user.id)
+      |> Plug.Conn.configure_session(renew: true)
+
+    {conn, multi, keyword}
+  end
+
+  @impl Haytni.Plugin
+  def on_logout(conn = %Plug.Conn{}, module, _config) do
+    options = [] # TODO
+    case Keyword.get(options, :scope) do
+      :all ->
+        Plug.Conn.clear_session(conn)
+        #Plug.Conn.configure_session(conn, drop: true)
+      _ ->
+        conn
+        |> Plug.Conn.configure_session(renew: true)
+        |> Plug.Conn.delete_session(module_to_session_key(module))
+    end
+  end
+
   if false do
     @impl Haytni.Plugin
     def shared_links(:new_session), do: []
@@ -208,7 +253,7 @@ defmodule Haytni.AuthenticablePlugin do
         |> check_password(sanitized_params.password, config, hide_user: true)
         |> case do
           {:ok, user} ->
-            case Haytni.login(conn, module, user) do
+            case Haytni.set_user(conn, module, user) do
               result = {:ok, _conn} ->
                 result
               {:error, message} ->

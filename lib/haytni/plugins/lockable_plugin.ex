@@ -223,7 +223,7 @@ defmodule Haytni.LockablePlugin do
   end
 
   @impl Haytni.Plugin
-  def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _config) do
+  def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config) do
     # reset failed_attempts
     {conn, multi, Keyword.put(keywords, :failed_attempts, 0)}
   end

@@ -86,7 +86,7 @@ defmodule Haytni.Plugin do
   This callback is invoked when a user (manually) log out. Its purpose is mainly to do some cleanup
   like removing a cookie.
   """
-  @callback on_logout(conn :: Plug.Conn.t, config :: Haytni.config) :: Plug.Conn.t # TODO: or {Plug.Conn.t, Keyword.t} to update the user ?
+  @callback on_logout(conn :: Plug.Conn.t, module :: module, config :: Haytni.config) :: Plug.Conn.t # TODO: or {Plug.Conn.t, Keyword.t} to update the user ?
 
   @doc ~S"""
   Invoked when an authentication failed (wrong password). It receives the concerned account
@@ -115,11 +115,11 @@ defmodule Haytni.Plugin do
   To continue our example with a failed attempts counter, on a successful authentication it may be
   a good idea to reset it in this scenario:
 
-      def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi, keywords, _config) do
+      def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi, keywords, _module, _config) do
         {conn, multi, Keyword.put(keywords, :failed_attempts, 0)}
       end
   """
-  @callback on_successful_authentication(conn :: Plug.Conn.t, user :: Haytni.user, multi :: Ecto.Multi.t, keywords :: Keyword.t, config :: Haytni.config) :: {Plug.Conn.t, Ecto.Multi.t, Keyword.t}
+  @callback on_successful_authentication(conn :: Plug.Conn.t, user :: Haytni.user, multi :: Ecto.Multi.t, keywords :: Keyword.t, module :: module, config :: Haytni.config) :: {Plug.Conn.t, Ecto.Multi.t, Keyword.t}
 
   @doc ~S"""
   This callback is invoked when a user is editing its registration and change its email address.
@@ -185,13 +185,13 @@ end
       def find_user(conn = %Plug.Conn{}, _module, _config), do: {conn, nil}
       def on_failed_authentication(_user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config), do: {multi, keywords}
       def files_to_install(_base_path, _web_path, _scope, _timestamp), do: []
-      def on_logout(conn = %Plug.Conn{}, _config), do: conn
+      def on_logout(conn = %Plug.Conn{}, _module, _config), do: conn
       def on_registration(multi = %Ecto.Multi{}, _module, _config), do: multi
       def validate_password(changeset = %Ecto.Changeset{}, _config), do: changeset
       def validate_create_registration(changeset = %Ecto.Changeset{}, _config), do: changeset
       def validate_update_registration(changeset = %Ecto.Changeset{}, _config), do: changeset
       def on_email_change(multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}, _module, _config), do: {multi, changeset}
-      def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _config), do: {conn, multi, keywords}
+      def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config), do: {conn, multi, keywords}
 
       defoverridable [
         build_config: 1,
@@ -199,13 +199,13 @@ end
         routes: 2,
         invalid?: 2,
         find_user: 3,
-        on_logout: 2,
+        on_logout: 3,
         #shared_links: 1,
         on_registration: 3,
         on_email_change: 4,
         files_to_install: 4,
         on_failed_authentication: 5,
-        on_successful_authentication: 5,
+        on_successful_authentication: 6,
         validate_password: 2,
         validate_create_registration: 2,
         validate_update_registration: 2,
