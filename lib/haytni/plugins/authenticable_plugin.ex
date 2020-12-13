@@ -125,16 +125,16 @@ defmodule Haytni.AuthenticablePlugin do
   end
 
   @impl Haytni.Plugin
-  def validate_create_registration(changeset = %Ecto.Changeset{valid?: true, changes: %{password: password}}, config) do
+  def validate_create_registration(changeset = %Ecto.Changeset{valid?: true, changes: %{password: password}}, _module, config) do
     hash_password(changeset, password, config)
   end
 
-  def validate_create_registration(changeset = %Ecto.Changeset{}, _config) do
+  def validate_create_registration(changeset = %Ecto.Changeset{}, _module, _config) do
     changeset
   end
 
   @impl Haytni.Plugin
-  def validate_update_registration(changeset = %Ecto.Changeset{valid?: true, changes: %{current_password: current_password}}, config) do
+  def validate_update_registration(changeset = %Ecto.Changeset{valid?: true, changes: %{current_password: current_password}}, _module, config) do
     new_password = Ecto.Changeset.get_change(changeset, :password)
     if Ecto.Changeset.get_change(changeset, :email) || new_password do
       case check_password(changeset.data, current_password, config) do
@@ -153,7 +153,7 @@ defmodule Haytni.AuthenticablePlugin do
     end
   end
 
-  def validate_update_registration(changeset = %Ecto.Changeset{}, _config) do
+  def validate_update_registration(changeset = %Ecto.Changeset{}, _module, _config) do
     changeset
   end
 

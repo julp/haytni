@@ -156,7 +156,7 @@ defmodule Haytni.RegisterablePlugin do
   end
 
   @impl Haytni.Plugin
-  def validate_create_registration(changeset = %Ecto.Changeset{}, config) do
+  def validate_create_registration(changeset = %Ecto.Changeset{}, _module, config) do
     changeset
     |> Ecto.Changeset.validate_required(~W[email password]a)
     |> validate_both_registration(config)
@@ -183,7 +183,7 @@ defmodule Haytni.RegisterablePlugin do
   defp handle_password(changeset = %Ecto.Changeset{}, _config), do: changeset
 
   @impl Haytni.Plugin
-  def validate_update_registration(changeset = %Ecto.Changeset{}, config) do
+  def validate_update_registration(changeset = %Ecto.Changeset{}, _module, config) do
     changeset
     # NOTE: in the opposite of validate_create_registration, password is NOT required here
     |> Ecto.Changeset.validate_required(~W[email]a)

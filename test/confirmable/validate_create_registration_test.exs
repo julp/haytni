@@ -3,14 +3,14 @@ defmodule Haytni.Confirmable.ValidateCreateRegistrationTest do
 
   alias HaytniTest.User
 
-  describe "Haytni.ConfirmablePlugin.validate_create_registration/2" do
+  describe "Haytni.ConfirmablePlugin.validate_create_registration/3" do
     test "ensures a confirmation is generated at registration" do
       config = Haytni.ConfirmablePlugin.build_config()
 
       {:ok, user} =
         %User{}
         |> Ecto.Changeset.change()
-        |> Haytni.ConfirmablePlugin.validate_create_registration(config)
+        |> Haytni.ConfirmablePlugin.validate_create_registration(HaytniTestWeb.Haytni, config)
         |> Ecto.Changeset.apply_action(:insert)
 
       assert is_binary(user.confirmation_token)

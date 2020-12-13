@@ -12,20 +12,20 @@ defmodule Haytni.Plugin do
   This callback let you do any kind of change or additionnal validation on the changeset
   when a user is registering.
   """
-  @callback validate_create_registration(changeset :: Ecto.Changeset.t, config :: Haytni.config) :: Ecto.Changeset.t
+  @callback validate_create_registration(changeset :: Ecto.Changeset.t, module :: module, config :: Haytni.config) :: Ecto.Changeset.t
 
   @doc ~S"""
   Same as `validate_create_registration` but registration's edition as logic between the two
   may be completely different.
   """
-  @callback validate_update_registration(changeset :: Ecto.Changeset.t, config :: Haytni.config) :: Ecto.Changeset.t
+  @callback validate_update_registration(changeset :: Ecto.Changeset.t, module :: module, config :: Haytni.config) :: Ecto.Changeset.t
 
   @doc ~S"""
   Performs validations of user's password. It is a convenient way to enforce your password policy.
 
   Apply any custom validation(s) to the input `%Ecto.Changeset{}` before returning it.
   """
-  @callback validate_password(changeset :: Ecto.Changeset.t, config :: Haytni.config) :: Ecto.Changeset.t
+  @callback validate_password(changeset :: Ecto.Changeset.t, module :: module, config :: Haytni.config) :: Ecto.Changeset.t
 
   @doc ~S"""
   Returns the `Ecto.Schema.field/1`s as a quoted fragment to be injected in your user schema
@@ -77,16 +77,16 @@ defmodule Haytni.Plugin do
 
   For example, you may want to have some kind of ban plugin. This is the way to decline the login:
 
-      def invalid?(%User{banned: true}, _config), do: {:error, :banned} # or: {:error, dgettext("myapp", "you're banned")}
-      def invalid?(%User{banned: _}, _config), do: false
+      def invalid?(%User{banned: true}, _module, _config), do: {:error, :banned} # or: {:error, dgettext("myapp", "you're banned")}
+      def invalid?(%User{banned: _}, _module, _config), do: false
   """
-  @callback invalid?(user :: Haytni.user, config :: Haytni.config) :: false | {:error, atom}
+  @callback invalid?(user :: Haytni.user, module :: module, config :: Haytni.config) :: false | {:error, atom}
 
   @doc ~S"""
   This callback is invoked when a user (manually) log out. Its purpose is mainly to do some cleanup
   like removing a cookie.
   """
-  @callback on_logout(conn :: Plug.Conn.t, config :: Haytni.config) :: Plug.Conn.t # TODO: or {Plug.Conn.t, Keyword.t} to update the user ?
+  @callback on_logout(conn :: Plug.Conn.t, module :: module, config :: Haytni.config) :: Plug.Conn.t # TODO: or {Plug.Conn.t, Keyword.t} to update the user ?
 
   @doc ~S"""
   Invoked when an authentication failed (wrong password). It receives the concerned account
@@ -115,11 +115,11 @@ defmodule Haytni.Plugin do
   To continue our example with a failed attempts counter, on a successful authentication it may be
   a good idea to reset it in this scenario:
 
-      def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi, keywords, _config) do
+      def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi, keywords, _module, _config) do
         {conn, multi, Keyword.put(keywords, :failed_attempts, 0)}
       end
   """
-  @callback on_successful_authentication(conn :: Plug.Conn.t, user :: Haytni.user, multi :: Ecto.Multi.t, keywords :: Keyword.t, config :: Haytni.config) :: {Plug.Conn.t, Ecto.Multi.t, Keyword.t}
+  @callback on_successful_authentication(conn :: Plug.Conn.t, user :: Haytni.user, multi :: Ecto.Multi.t, keywords :: Keyword.t, module :: module, config :: Haytni.config) :: {Plug.Conn.t, Ecto.Multi.t, Keyword.t}
 
   @doc ~S"""
   This callback is invoked when a user is editing its registration and change its email address.
@@ -181,34 +181,34 @@ end
       # NOTE: return a truthy value by default if options/config is not used at all
       # by the plugin to avoid to execute the second part of the || operator
       def build_config(_options), do: true
-      def invalid?(_user = %_{}, _config), do: false
+      def invalid?(_user = %_{}, _module, _config), do: false
       def find_user(conn = %Plug.Conn{}, _module, _config), do: {conn, nil}
       def on_failed_authentication(_user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config), do: {multi, keywords}
       def files_to_install(_base_path, _web_path, _scope, _timestamp), do: []
-      def on_logout(conn = %Plug.Conn{}, _config), do: conn
+      def on_logout(conn = %Plug.Conn{}, _module, _config), do: conn
       def on_registration(multi = %Ecto.Multi{}, _module, _config), do: multi
-      def validate_password(changeset = %Ecto.Changeset{}, _config), do: changeset
-      def validate_create_registration(changeset = %Ecto.Changeset{}, _config), do: changeset
-      def validate_update_registration(changeset = %Ecto.Changeset{}, _config), do: changeset
+      def validate_password(changeset = %Ecto.Changeset{}, _module, _config), do: changeset
+      def validate_create_registration(changeset = %Ecto.Changeset{}, _module, _config), do: changeset
+      def validate_update_registration(changeset = %Ecto.Changeset{}, _module, _config), do: changeset
       def on_email_change(multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}, _module, _config), do: {multi, changeset}
-      def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _config), do: {conn, multi, keywords}
+      def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config), do: {conn, multi, keywords}
 
       defoverridable [
         build_config: 1,
         fields: 1,
         routes: 2,
-        invalid?: 2,
+        invalid?: 3,
         find_user: 3,
-        on_logout: 2,
+        on_logout: 3,
         #shared_links: 1,
         on_registration: 3,
         on_email_change: 4,
         files_to_install: 4,
         on_failed_authentication: 5,
-        on_successful_authentication: 5,
-        validate_password: 2,
-        validate_create_registration: 2,
-        validate_update_registration: 2,
+        on_successful_authentication: 6,
+        validate_password: 3,
+        validate_create_registration: 3,
+        validate_update_registration: 3,
       ]
     end
   end

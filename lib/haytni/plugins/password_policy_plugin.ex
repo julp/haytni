@@ -104,7 +104,7 @@ defmodule Haytni.PasswordPolicyPlugin do
   end
 
   @impl Haytni.Plugin
-  def validate_password(changeset = %Ecto.Changeset{}, config) do
+  def validate_password(changeset = %Ecto.Changeset{}, _module, config) do
     #password = changeset.get_change(changeset, :password)
     changeset
     |> Ecto.Changeset.validate_length(@password_field, min: config.password_length.first, max: config.password_length.last)

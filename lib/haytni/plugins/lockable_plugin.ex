@@ -122,7 +122,7 @@ defmodule Haytni.LockablePlugin do
   end
 
   @impl Haytni.Plugin
-  def invalid?(user = %_{}, config) do
+  def invalid?(user = %_{}, _module, config) do
     if locked?(user, config) do
       {:error, dgettext("haytni", "account is locked due to an excessive number of unsuccessful sign in attempts, please check your emails.")}
     else
@@ -223,7 +223,7 @@ defmodule Haytni.LockablePlugin do
   end
 
   @impl Haytni.Plugin
-  def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _config) do
+  def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config) do
     # reset failed_attempts
     {conn, multi, Keyword.put(keywords, :failed_attempts, 0)}
   end

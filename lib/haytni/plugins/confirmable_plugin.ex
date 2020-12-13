@@ -112,7 +112,7 @@ defmodule Haytni.ConfirmablePlugin do
   end
 
   @impl Haytni.Plugin
-  def invalid?(user = %_{}, _config) do
+  def invalid?(user = %_{}, _module, _config) do
     if confirmed?(user) do
       false
     else
@@ -161,7 +161,7 @@ defmodule Haytni.ConfirmablePlugin do
   end
 
   @impl Haytni.Plugin
-  def validate_create_registration(changeset = %Ecto.Changeset{}, config) do
+  def validate_create_registration(changeset = %Ecto.Changeset{}, _module, config) do
     changeset
     |> confirmation_changeset(config)
   end

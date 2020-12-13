@@ -74,7 +74,7 @@ defmodule Haytni.TrackablePlugin do
   end
 
   @impl Haytni.Plugin
-  def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi = %Ecto.Multi{}, keywords, _config) do
+  def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config) do
     changes = keywords
     |> Keyword.put(:current_sign_in_at, Haytni.Helpers.now())
     |> Keyword.put(:last_sign_in_at, user.current_sign_in_at)

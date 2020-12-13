@@ -299,7 +299,7 @@ defmodule Haytni.InvitablePlugin do
   defp validate_invitation(changeset, _config), do: changeset
 
   @impl Haytni.Plugin
-  def validate_create_registration(changeset = %Ecto.Changeset{}, config) do
+  def validate_create_registration(changeset = %Ecto.Changeset{}, _module, config) do
     changeset
     |> Ecto.Changeset.prepare_changes(
       fn changeset ->

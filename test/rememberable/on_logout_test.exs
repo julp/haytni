@@ -5,12 +5,12 @@ defmodule Haytni.Rememberable.OnLogoutTest do
     conn =
       conn
       |> Haytni.RememberablePlugin.add_rememberme_cookie("azerty", config)
-      |> Haytni.RememberablePlugin.on_logout(config)
+      |> Haytni.RememberablePlugin.on_logout(HaytniTestWeb.Haytni, config)
 
     assert_cookie_deletion(conn, config.remember_cookie_name)
   end
 
-  describe "Haytni.RememberablePlugin.on_logout/2 (callback)" do
+  describe "Haytni.RememberablePlugin.on_logout/3 (callback)" do
     setup do
       [
         config: Haytni.RememberablePlugin.build_config(),

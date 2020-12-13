@@ -61,13 +61,13 @@ defmodule YourApp.RefuseDisposableEmailPlugin do
   use Haytni.Plugin
 
   @impl Haytni.Plugin
-  def validate_create_registration(changeset = %Ecto.Changeset{}, _config) do
+  def validate_create_registration(changeset = %Ecto.Changeset{}, _module, _config) do
     changeset
     |> YourApp.EmailProviderValidation(:email)
   end
 
   @impl Haytni.Plugin
-  def validate_update_registration(changeset = %Ecto.Changeset{}, _config) do
+  def validate_update_registration(changeset = %Ecto.Changeset{}, _module, _config) do
     changeset
     |> YourApp.EmailProviderValidation(:email)
   end

@@ -4,7 +4,7 @@ defmodule Haytni.Authenticable.ValidateUpdateRegistrationTest do
   alias HaytniTest.User
 
   @password "this is my password"
-  describe "Haytni.AuthenticablePlugin.validate_update_registration/2" do
+  describe "Haytni.AuthenticablePlugin.validate_update_registration/3" do
     setup do
       [
         user: user_fixture(password: @password),
@@ -18,7 +18,7 @@ defmodule Haytni.Authenticable.ValidateUpdateRegistrationTest do
         |> Ecto.Changeset.change(dummy: true)
 
       assert changeset.valid?
-      assert changeset == Haytni.AuthenticablePlugin.validate_update_registration(changeset, config)
+      assert changeset == Haytni.AuthenticablePlugin.validate_update_registration(changeset, HaytniTestWeb.Haytni, config)
     end
 
     test "doesn't interfere if email nor password are changed but with some (useless and unchecked) current_password", %{config: config} do
@@ -27,7 +27,7 @@ defmodule Haytni.Authenticable.ValidateUpdateRegistrationTest do
         |> Ecto.Changeset.change(dummy: true, current_password: "wrong password")
 
       assert changeset.valid?
-      assert changeset == Haytni.AuthenticablePlugin.validate_update_registration(changeset, config)
+      assert changeset == Haytni.AuthenticablePlugin.validate_update_registration(changeset, HaytniTestWeb.Haytni, config)
     end
 
     # NOTE: current_password field is required by registerable
@@ -43,7 +43,7 @@ defmodule Haytni.Authenticable.ValidateUpdateRegistrationTest do
           changeset =
             user
             |> Ecto.Changeset.change(Keyword.put(changes, :current_password, "wrong password"))
-            |> Haytni.AuthenticablePlugin.validate_update_registration(config)
+            |> Haytni.AuthenticablePlugin.validate_update_registration(HaytniTestWeb.Haytni, config)
 
           # NOTE: changeset.action is set later (by the Ecto.Multi.update operation) so don't check that point here
           #refute is_nil(changeset.action)
@@ -52,7 +52,7 @@ defmodule Haytni.Authenticable.ValidateUpdateRegistrationTest do
           changeset =
             user
             |> Ecto.Changeset.change(Keyword.put(changes, :current_password, @password))
-            |> Haytni.AuthenticablePlugin.validate_update_registration(config)
+            |> Haytni.AuthenticablePlugin.validate_update_registration(HaytniTestWeb.Haytni, config)
 
           assert changeset.valid?
         end
@@ -64,7 +64,7 @@ defmodule Haytni.Authenticable.ValidateUpdateRegistrationTest do
       changeset =
         user
         |> Ecto.Changeset.change(current_password: @password, password: @new_password)
-        |> Haytni.AuthenticablePlugin.validate_update_registration(config)
+        |> Haytni.AuthenticablePlugin.validate_update_registration(HaytniTestWeb.Haytni, config)
 
       new_hash = Ecto.Changeset.get_change(changeset, :encrypted_password)
 

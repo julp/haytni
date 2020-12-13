@@ -33,8 +33,8 @@ defmodule YourApp.BanPlugin do
   end
 
   @impl Haytni.Plugin
-  def invalid?(%_{banned: false}, _config), do: false
-  def invalid?(%_{}, _config), do: {:error, "your account has been banned"} # better if you translate it with (d)gettext
+  def invalid?(%_{banned: false}, _module, _config), do: false
+  def invalid?(%_{}, _module, _config), do: {:error, "your account has been banned"} # better if you translate it with (d)gettext
 end
 ```
 

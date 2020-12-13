@@ -14,7 +14,7 @@ defmodule Haytni.Trackable.OnSuccessfulAuthentificationTest do
     "127.0.0.1"
   end)
 
-  describe "Haytni.TrackablePlugin.on_successful_authentication/5 (callback)" do
+  describe "Haytni.TrackablePlugin.on_successful_authentication/6 (callback)" do
     setup do
       {:ok, user: user_fixture()}
     end
@@ -22,7 +22,7 @@ defmodule Haytni.Trackable.OnSuccessfulAuthentificationTest do
     test "ensures *sign_in_at fields are updated and there is a new record in connections table", %{conn: conn, user: user = %User{id: id}} do
       assert [] == list_connections()
 
-      {^conn, multi, changes} = Haytni.TrackablePlugin.on_successful_authentication(conn, user, Ecto.Multi.new(), Keyword.new(), nil)
+      {^conn, multi, changes} = Haytni.TrackablePlugin.on_successful_authentication(conn, user, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, nil)
 
       assert [connection: {:insert, changeset = %Ecto.Changeset{}, []}] = Ecto.Multi.to_list(multi)
       #assert ip in changes?

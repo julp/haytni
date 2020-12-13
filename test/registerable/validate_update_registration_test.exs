@@ -16,10 +16,10 @@ defmodule Haytni.Registerable.ValidateUpdateRegistrationTest do
   defp to_changeset(params, user, config) do
     user
     |> Ecto.Changeset.cast(params, ~W[email password current_password]a)
-    |> Haytni.RegisterablePlugin.validate_update_registration(config)
+    |> Haytni.RegisterablePlugin.validate_update_registration(HaytniTestWeb.Haytni, config)
   end
 
-  describe "Haytni.RegisterablePlugin.validate_update_registration/2" do
+  describe "Haytni.RegisterablePlugin.validate_update_registration/3" do
     setup do
       {:ok, config: Haytni.RegisterablePlugin.build_config(), user: user_fixture(password: @password)}
     end

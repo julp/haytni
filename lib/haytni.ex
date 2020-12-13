@@ -269,7 +269,7 @@ defmodule Haytni do
   @spec invalid_user?(module :: module, user :: Haytni.user) :: {:error, String.t} | false
   defp invalid_user?(module, user = %_{}) do
     module.plugins_with_config()
-    |> map_while(false, &(&1.invalid?(user, &2)))
+    |> map_while(false, &(&1.invalid?(user, module, &2)))
   end
 
   @doc ~S"""
@@ -353,7 +353,7 @@ defmodule Haytni do
     |> Enum.reduce(
       changeset,
       fn {plugin, config}, changeset = %Ecto.Changeset{} ->
-        plugin.validate_password(changeset, config)
+        plugin.validate_password(changeset, module, config)
       end
     )
   end
@@ -453,7 +453,7 @@ defmodule Haytni do
     conn =
       module.plugins_with_config()
       |> Enum.reverse()
-      |> Enum.reduce(conn, fn {plugin, config}, conn -> plugin.on_logout(conn, config) end)
+      |> Enum.reduce(conn, fn {plugin, config}, conn -> plugin.on_logout(conn, module, config) end)
 
     case Keyword.get(options, :scope) do
       :all ->
@@ -473,7 +473,7 @@ defmodule Haytni do
       |> Enum.reduce(
         {conn, Ecto.Multi.new(), Keyword.new()},
         fn {plugin, config}, {conn, multi, changes} ->
-          plugin.on_successful_authentication(conn, user, multi, changes, config)
+          plugin.on_successful_authentication(conn, user, multi, changes, module, config)
         end
       )
 
@@ -537,7 +537,7 @@ defmodule Haytni do
   @spec validate_create_registration(module :: module, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
   def validate_create_registration(module, changeset = %Ecto.Changeset{}) do
     module.plugins_with_config()
-    |> Enum.reduce(changeset, fn {plugin, config}, changeset -> plugin.validate_create_registration(changeset, config) end)
+    |> Enum.reduce(changeset, fn {plugin, config}, changeset -> plugin.validate_create_registration(changeset, module, config) end)
   end
 
   @doc ~S"""
@@ -546,7 +546,7 @@ defmodule Haytni do
   @spec validate_update_registration(module :: module, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
   def validate_update_registration(module, changeset = %Ecto.Changeset{}) do
     module.plugins_with_config()
-    |> Enum.reduce(changeset, fn {plugin, config}, changeset -> plugin.validate_update_registration(changeset, config) end)
+    |> Enum.reduce(changeset, fn {plugin, config}, changeset -> plugin.validate_update_registration(changeset, module, config) end)
   end
 
   defp user_and_changes_to_changeset(user, changes) do

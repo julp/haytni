@@ -16,11 +16,11 @@ defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
     %HaytniTest.User{}
     |> Ecto.Changeset.cast(params, ~W[invitation email]a)
     #|> Map.put(:repo, HaytniTest.Repo) # simulates Repo.insert call
-    |> Haytni.InvitablePlugin.validate_create_registration(config)
+    |> Haytni.InvitablePlugin.validate_create_registration(HaytniTestWeb.Haytni, config)
     |> HaytniTest.Repo.insert()
   end
 
-  describe "Haytni.InvitablePlugin.validate_create_registration/2" do
+  describe "Haytni.InvitablePlugin.validate_create_registration/3" do
     setup do
       user = user_fixture()
       invitation = invitation_fixture(user, @email, code: @code)

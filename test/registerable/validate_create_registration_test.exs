@@ -10,7 +10,7 @@ defmodule Haytni.Registerable.ValidateCreateRegistrationTest do
   defp to_changeset(params, config) do
     %HaytniTest.User{}
     |> Ecto.Changeset.cast(params, @fields)
-    |> Haytni.RegisterablePlugin.validate_create_registration(config)
+    |> Haytni.RegisterablePlugin.validate_create_registration(HaytniTestWeb.Haytni, config)
   end
 
   defp registration_params(attrs \\ %{}) do
@@ -19,7 +19,7 @@ defmodule Haytni.Registerable.ValidateCreateRegistrationTest do
     |> Params.confirm(@fields)
   end
 
-  describe "Haytni.RegisterablePlugin.validate_create_registration/2" do
+  describe "Haytni.RegisterablePlugin.validate_create_registration/3" do
     setup do
       [
         config: Haytni.RegisterablePlugin.build_config(),
