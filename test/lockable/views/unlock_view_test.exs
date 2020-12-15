@@ -15,6 +15,7 @@ defmodule Haytni.Lockable.UnlockViewTest do
     changeset = if map_size(params) == 0 do
       Haytni.LockablePlugin.unlock_request_changeset(config)
     else
+      # {:error, :user, :no_result, %{params: _}}
       {:error, changeset} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, params)
       changeset
     end

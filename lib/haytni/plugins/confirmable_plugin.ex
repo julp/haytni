@@ -348,7 +348,7 @@ defmodule Haytni.ConfirmablePlugin do
     context = token_context(user.email)
     with(
       {:ok, confirmation_token} <- Haytni.Token.decode_token(confirmation_token),
-      token = %_{} = Haytni.Token.user_from_token_without_mail_match(module, user, confirmation_token, context, config.reconfirm_within)
+      token = %_{} <- Haytni.Token.user_from_token_without_mail_match(module, user, confirmation_token, context, config.reconfirm_within)
     ) do
         Ecto.Multi.new()
         |> Haytni.update_user_in_multi_with(:user, user, email: token.sent_to)

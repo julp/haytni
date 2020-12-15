@@ -80,7 +80,7 @@ defmodule Haytni.RememberablePlugin do
   end
 
   # The checkbox "remember me" is not checked (absent from params)
-  def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keyword, _config) do
+  def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keyword, _module, _config) do
     {conn, multi, keyword}
   end
 

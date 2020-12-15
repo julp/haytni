@@ -216,6 +216,7 @@ end
 
   @doc ~S"""
   TODO: doublon avec Haytni.update_user_in_multi_with
+
   Update user in the same way as `Haytni.update_user_with/3` but as part of a set of operations (Ecto.Multi).
   """
   @spec update_user_with(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, user :: Haytni.user, changes :: Keyword.t) :: Ecto.Multi.t

@@ -47,7 +47,7 @@ defmodule Haytni.RecoverablePlugin do
   end
 
   @impl Haytni.Plugin
-  def files_to_install(_base_path, web_path, scope, _timestamp) do
+  def files_to_install(_base_path, web_path, scope, timestamp) do
     [
       # HTML
       {:eex, "views/password_view.ex", Path.join([web_path, "views", "haytni", scope, "password_view.ex"])},
@@ -149,7 +149,7 @@ defmodule Haytni.RecoverablePlugin do
             end
           user = %_{} ->
             Ecto.Multi.new()
-            # TODO: passer Haytni.get_user_by(module, sanitized_params) en Multi à la place du Ecto.Multi.run ci-dessous ?
+            # TODO: passer Haytni.get_user_by(module, sanitized_params) en Multi à la place du Ecto.Multi.assign ci-dessous ?
             |> Haytni.Multi.assign(:user, user)
             |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context())
             |> send_instructions_in_multi(:user, :token, module, config)

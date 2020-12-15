@@ -221,7 +221,7 @@ defmodule Haytni.LockablePlugin do
   end
 
   @impl Haytni.Plugin
-  def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config) do
+  def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config) do
     # reset failed_attempts and revoke tokens intended for unlocking the current account
     {conn, Haytni.Token.delete_tokens_in_multi(multi, :tokens, user, token_context()), Keyword.put(keywords, :failed_attempts, 0)}
   end

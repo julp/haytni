@@ -101,17 +101,26 @@ defmodule Haytni.Token do
       select: u
   end
 
+  @doc ~S"""
+  TODO (doc)
+  """
   @spec user_from_token_with_mail_query(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Ecto.Query.t
   def user_from_token_with_mail_query(module, token, context, duration) do
     from([t, u] in user_from_token_query(module, token, context, duration), where: t.sent_to == u.email)
   end
 
+  @doc ~S"""
+  TODO (doc)
+  """
   @spec user_from_token_with_mail_match(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.user | nil
   def user_from_token_with_mail_match(module, token, context, duration) do
     user_from_token_with_mail_query(module, token, context, duration)
     |> module.repo().one()
   end
 
+  @doc ~S"""
+  TODO (doc)
+  """
   @spec user_from_token_without_mail_match(module :: module, user :: Haytni.user, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.user | nil
   def user_from_token_without_mail_match(module, user, token, context, duration) do
     #from([t, u] in user_from_token_query(module, token, context, duration), where: t.sent_to != u.email)
@@ -124,6 +133,9 @@ defmodule Haytni.Token do
     |> module.repo().one()
   end
 
+  @doc ~S"""
+  TODO (doc)
+  """
   @spec tokens_from_user_query(user :: Haytni.user, contexts :: String.t | nonempty_list(String.t) | :all) :: Ecto.Query.t
   def tokens_from_user_query(user, :all) do
     from Ecto.assoc(user, @token_association), where: [user_id: ^user.id]
@@ -139,6 +151,9 @@ defmodule Haytni.Token do
     tokens_from_user_query(user, [context])
   end
 
+  @doc ~S"""
+  TODO (doc/experimental)
+  """
   @spec purge_expired_tokens(module :: module) :: String.t
   def purge_expired_tokens(module) do
     conditions =
@@ -159,7 +174,7 @@ defmodule Haytni.Token do
   end
 
   @doc ~S"""
-  TODO (doc)
+  Deletes all tokens associated to the given *user* and contexts (if not `:all`)
   """
   @spec delete_tokens_in_multi(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, user :: Haytni.user, contexts :: String.t | nonempty_list(String.t) | :all) :: Ecto.Multi.t
   def delete_tokens_in_multi(multi = %Ecto.Multi{}, name, user = %_{}, contexts) do
@@ -167,7 +182,14 @@ defmodule Haytni.Token do
   end
 
   @doc ~S"""
-  TODO (doc)
+  When the *multi* will be executed, generates and inserts a token, associated to the user resulting of a previous operation of *multi* identified by the name *user_name*.
+
+  Exemple:
+
+      Ecto.Multi.new()
+      |> Ecto.Multi.update(:user, Ecto.Changeset.change(user, changes))
+      |> Haytni.Token.insert_token_in_multi(:token, :user, "context")
+      |> Repo.Transaction()
   """
   @spec insert_token_in_multi(multi :: Ecto.Multi.t, token_name :: Ecto.Multi.name, user_name :: Ecto.Multi.name, context :: String.t) :: Ecto.Multi.t
   def insert_token_in_multi(multi = %Ecto.Multi{}, token_name, user_name, context) do
@@ -181,7 +203,7 @@ defmodule Haytni.Token do
   end
 
   @doc ~S"""
-  TODO (doc)
+  Generates a token associated to *user* and add it to the multi for insertion.
   """
   @spec insert_token_in_multi(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, user :: Haytni.user, email :: String.t, context :: String.t) :: Ecto.Multi.t
   def insert_token_in_multi(multi = %Ecto.Multi{}, name, user = %_{}, email, context) do
@@ -189,7 +211,7 @@ defmodule Haytni.Token do
   end
 
   @doc ~S"""
-  TODO (doc)
+  Fetch the user associated to the given *token*, and if it is still valid. Returns `nil` if none.
   """
   @spec verify(module :: module, token :: String.t, duration :: pos_integer, context :: String.t) :: nil | Haytni.user
   def verify(module, token, duration, context) do

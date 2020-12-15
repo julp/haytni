@@ -27,14 +27,14 @@ defmodule Haytni.Rememberable.OnSuccessfulAuthentificationTest do
     end
 
     test "do nothing (no rememberme cookie is created) if rememberme checkbox is not checked", %{conn: conn, config: config, user: user} do
-      assert {new_conn, multi, []} = Haytni.RememberablePlugin.on_successful_authentication(%{conn | params: session_params_without_rememberme()}, user, Ecto.Multi.new(), Keyword.new(), config)
+      assert {new_conn, multi, []} = Haytni.RememberablePlugin.on_successful_authentication(%{conn | params: session_params_without_rememberme()}, user, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, config)
       assert [] == Ecto.Multi.to_list(multi)
       refute_cookie_presence(new_conn, config.remember_cookie_name)
     end
 
     test "if rememberme checkbox is checked but current user doesn't have a rememberme token, generate (and send) a new token", %{conn: conn, config: config, user: user} do
       # TODO: vérifier que si on a un cookie rememberme avec un token valide, il est conservé ? (et invalide, un nouveau d'assigné ?)
-      assert {new_conn, multi, changes} = Haytni.RememberablePlugin.on_successful_authentication(%{conn | params: session_params_with_rememberme()}, user, Ecto.Multi.new(), Keyword.new(), config)
+      assert {new_conn, multi, changes} = Haytni.RememberablePlugin.on_successful_authentication(%{conn | params: session_params_with_rememberme()}, user, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, config)
       assert [{:rememberable_token, {:insert, changeset = %Ecto.Changeset{}, []}}] = Ecto.Multi.to_list(multi)
       assert_rememberme_presence(new_conn, config, Haytni.Token.encode_token(changeset.data))
     end
