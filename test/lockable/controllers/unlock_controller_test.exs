@@ -59,16 +59,19 @@ defmodule Haytni.Lockable.UnlockControllerTest do
     end
   end
 
+  defp maybe_succeed(conn, params) do
+    response =
+      conn
+      |> post(Routes.haytni_user_unlock_path(conn, :create), params)
+      |> html_response(200)
+
+    assert contains_formatted_text?(response, HaytniWeb.Lockable.UnlockController.new_token_sent_message())
+  end
+
   describe "HaytniWeb.Lockable.UnlockController#create" do
     for keys <- @keys do
       test "checks error on invalid unlock request with #{inspect(keys)} as key(s)", %{conn: conn} do
-        response =
-          conn
-          |> post(Routes.haytni_user_unlock_path(conn, :create), unlock_params())
-          |> html_response(200)
-
-        check_for_new_form(response)
-        assert contains_text?(response, Haytni.Helpers.no_match_message())
+        maybe_succeed(conn, unlock_params())
       end
 
       test "checks successful unlock request with #{inspect(keys)} as key(s)", %{conn: conn} do
@@ -77,12 +80,7 @@ defmodule Haytni.Lockable.UnlockControllerTest do
           |> Keyword.merge(email: "parker.peter@daily-bugle.com", first_name: "Peter", last_name: "Parker")
           |> user_fixture()
 
-        response =
-          conn
-          |> post(Routes.haytni_user_unlock_path(conn, :create), unlock_params(user))
-          |> html_response(200)
-
-        assert contains_formatted_text?(response, HaytniWeb.Lockable.UnlockController.new_token_sent_message())
+          maybe_succeed(conn, unlock_params(user))
       end
     end
   end

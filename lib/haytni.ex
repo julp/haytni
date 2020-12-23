@@ -554,7 +554,7 @@ defmodule Haytni do
     |> Enum.reduce(changeset, fn {plugin, config}, changeset -> plugin.validate_update_registration(changeset, module, config) end)
   end
 
-  defp user_and_changes_to_changeset(user, changes) do
+  def user_and_changes_to_changeset(user, changes) do
     Ecto.Changeset.change(user, changes)
   end
 

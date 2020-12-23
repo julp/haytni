@@ -247,8 +247,10 @@ defmodule Haytni.LockablePlugin do
   end
 
   @spec send_instructions_in_multi(multi :: Ecto.Multi.t, user_name :: Ecto.Multi.name, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
-  defp send_instructions_in_multi(multi = %Ecto.Multi{}, user_name, token_name, module, config) do
-    Ecto.Multi.run(
+  # multi = %Ecto.Multi{}
+  defp send_instructions_in_multi(multi, user_name, token_name, module, config) do
+    #Ecto.Multi.run(
+    multi.__struct__.run(
       multi,
       :send_unlock_instructions,
       fn _repo, %{^user_name => user, ^token_name => token} ->
@@ -313,29 +315,53 @@ defmodule Haytni.LockablePlugin do
   @doc ~S"""
   Unlock an account from a URL base64 encoded unlock token.
 
-  Returns the user as `{:ok, user}` if the token exists and `{:error, message}` if not.
+  Returns:
+    * `{:error, :strategy, message, %{}}` if email strategy is currently disabled
+    * conforms to Ecto.Multi for any other error
+    * `{:ok, %{user: nil}}`  if the token doesn't exist or is expired
+    * `{:ok, %{user: user}}` if the token exists and is valid
   """
   @spec unlock(module :: module, config :: Config.t, token :: String.t) :: Haytni.multi_result
   def unlock(module, config, token) do
-if false do
-    # TODO (multi) ?
-    multi = Ecto.Multi.new()
-    if email_strategy_enabled?(config) do
-      multi
-      |> Haytni.Multi.select(:user, Haytni.Token.user_from_token_with_mail_query(module, token, token_context(), config.unlock_within), invalid_token_message())
-      |> Ecto.Multi.update(:updated_user, fn %{user: user} ->
-          Ecto.Changeset.change(user, unlock_attributes())
+if true do
+    Ecto.Multi2.new()
+    |> Ecto.Multi2.run(:strategy, fn _repo, _changes ->
+        if email_strategy_enabled?(config) do
+          {:ok, true}
+        else
+          {:error, email_strategy_disabled_message()}
         end
-      )
-      |> Ecto.Multi.delete_all(:tokens, fn %{user: user} ->
-          Haytni.Token.tokens_from_user_query(user, token_context())
+      end
+    )
+    |> Ecto.Multi2.one(:user_from_token, fn _changes ->
+        case Haytni.Token.decode_token(token) do
+          {:ok, unlock_token} ->
+            Haytni.Token.user_from_token_with_mail_query(module, unlock_token, token_context(), config.unlock_within)
+          _ ->
+            nil
         end
-      )
-    else
-      #Haytni.Multi.apply_base_error(multi, :strategy, changeset, email_strategy_disabled_message())
-      Ecto.Multi.error(multi, :strategy, email_strategy_disabled_message())
-    end
-    |> module.repo().transaction()
+      end
+    )
+    |> Haytni.Multi.update_user_with2(:user, :user_from_token, unlock_attributes())
+    |> Haytni.Multi.delete_tokens(:tokens, :user, token_context())
+    |> Ecto.Multi2.transaction(module.repo())
+    #multi = Ecto.Multi.new()
+    #if email_strategy_enabled?(config) do
+      #multi
+      #|> Haytni.Multi.select(:user, Haytni.Token.user_from_token_with_mail_query(module, token, token_context(), config.unlock_within), invalid_token_message())
+      #|> Ecto.Multi.update(:updated_user, fn %{user: user} ->
+          #Ecto.Changeset.change(user, unlock_attributes())
+        #end
+      #)
+      #|> Ecto.Multi.delete_all(:tokens, fn %{user: user} ->
+          #Haytni.Token.tokens_from_user_query(user, token_context())
+        #end
+      #)
+    #else
+      ##Haytni.Multi.apply_base_error(multi, :strategy, changeset, email_strategy_disabled_message())
+      #Ecto.Multi.error(multi, :strategy, email_strategy_disabled_message())
+    #end
+    #|> module.repo().transaction()
 else
     if email_strategy_enabled?(config) do
       with(
@@ -393,24 +419,47 @@ end
   @spec resend_unlock_instructions(module :: module, config :: Config.t, request_params :: Haytni.params) :: Haytni.multi_result
   def resend_unlock_instructions(module, config, request_params = %{}) do
 if true do
-    multi = Ecto.Multi.new()
+    #multi = Ecto.Multi.new()
     changeset = unlock_request_changeset(config, request_params)
 
-    if email_strategy_enabled?(config) do
-      import Ecto.Query
+    Ecto.Multi2.new()
+    |> Ecto.Multi2.run(:strategy, fn _repo, _changes ->
+        if email_strategy_enabled?(config) do
+          {:ok, true}
+        else
+          Haytni.Helpers.apply_base_error(changeset, email_strategy_disabled_message())
+        end
+      end
+    )
+    |> Ecto.Multi2.apply_action(:params, changeset)
+    |> Ecto.Multi2.one(:user, fn %{params: sanitized_params} ->
+        import Ecto.Query
 
-      multi
-      |> Haytni.Multi.apply_changeset(:params, changeset)
-      |> Haytni.Multi.get_user(:user, module, :params, dynamic([u], not is_nil(u.locked_at)))
-      # TODO : comment gérer l'absence de correspondance en :user ?
-      # - {:ok, nil} que les prochaines opérations doivent ignorer ?
-      # - {:error, changeset} mais comment créer le changeset et avec quelles erreurs ? (:base vs config.unlock_keys)
-      |> Haytni.Multi.insert_token(:token, :user, token_context())
-      |> send_instructions_in_multi(:user, :token, module, config)
-    else
-      Haytni.Multi.apply_base_error(multi, :strategy, changeset, email_strategy_disabled_message())
-    end
-    |> module.repo().transaction()
+        from(
+          u in module.schema(),
+          where: not is_nil(u.locked_at),
+          where: ^Map.to_list(Map.delete(sanitized_params, :referer))
+        )
+      end
+    )
+    |> Haytni.Multi.insert_token(:token, :user, token_context())
+    |> send_instructions_in_multi(:user, :token, module, config)
+    |> Ecto.Multi2.transaction(module.repo())
+    #if email_strategy_enabled?(config) do
+      #import Ecto.Query
+
+      #multi
+      #|> Haytni.Multi.apply_changeset(:params, changeset)
+      #|> Haytni.Multi.get_user(:user, module, :params, dynamic([u], not is_nil(u.locked_at)))
+      ## TODO : comment gérer l'absence de correspondance en :user ?
+      ## - {:ok, nil} que les prochaines opérations doivent ignorer ?
+      ## - {:error, changeset} mais comment créer le changeset et avec quelles erreurs ? (:base vs config.unlock_keys)
+      #|> Haytni.Multi.insert_token(:token, :user, token_context())
+      #|> send_instructions_in_multi(:user, :token, module, config)
+    #else
+      #Haytni.Multi.apply_base_error(multi, :strategy, changeset, email_strategy_disabled_message())
+    #end
+    #|> module.repo().transaction()
 else
     changeset = unlock_request_changeset(config, request_params)
 

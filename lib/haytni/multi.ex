@@ -189,8 +189,10 @@ end
   (doublon de Haytni.Token.insert_token_in_multi)
   """
   @spec insert_token(multi :: Ecto.Multi.t, token_name :: Ecto.Multi.name, user_name :: Ecto.Multi.name, context :: String.t) :: Ecto.Multi.t
-  def insert_token(multi = %Ecto.Multi{}, token_name, user_name, context) do
-    Ecto.Multi.insert(
+  # multi = %Ecto.Multi{}
+  def insert_token(multi, token_name, user_name, context) do
+    #Ecto.Multi.insert(
+    multi.__struct__.insert(
       multi,
       token_name,
       fn %{^user_name => user} ->
@@ -204,8 +206,10 @@ end
   TODO (doc)
   """
   @spec delete_tokens(multi :: Ecto.Multi.t, deletion_name :: Ecto.Multi.name, user_name :: Ecto.Multi.name, contexts :: String.t | nonempty_list(String.t) | :all) :: Ecto.Multi.t
-  def delete_tokens(multi = %Ecto.Multi{}, deletion_name, user_name, contexts) do
-    Ecto.Multi.delete_all(
+  # multi = %Ecto.Multi{}
+  def delete_tokens(multi, deletion_name, user_name, contexts) do
+    #Ecto.Multi.delete_all(
+    multi.__struct__.delete_all(
       multi,
       deletion_name,
       fn %{^user_name => user} ->
@@ -222,5 +226,16 @@ end
   @spec update_user_with(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, user :: Haytni.user, changes :: Keyword.t) :: Ecto.Multi.t
   def update_user_with(multi = %Ecto.Multi{}, name, user = %_{}, changes) do
     Ecto.Multi.update(multi, name, Haytni.user_and_changes_to_changeset(user, changes))
+  end
+
+  @spec update_user_with2(multi :: Ecto.Multi.t, update_name :: Ecto.Multi.name, user_name :: Ecto.Multi.name, changes :: Keyword.t) :: Ecto.Multi.t
+  def update_user_with2(multi, update_name, user_name, changes) do
+    multi.__struct__.update(
+      multi,
+      update_name,
+      fn %{^user_name => user} ->
+        Haytni.user_and_changes_to_changeset(user, changes)
+      end
+    )
   end
 end
