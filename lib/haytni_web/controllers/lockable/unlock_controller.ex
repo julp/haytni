@@ -14,17 +14,13 @@ defmodule HaytniWeb.Lockable.UnlockController do
   # Process the token to unlock an account (if valid)
   def show(conn, %{"unlock_token" => unlock_token}, module, config) do
     case Haytni.LockablePlugin.unlock(module, config, unlock_token) do
-      {:ok, %{user_from_token: nil}} ->
-        conn
-        |> HaytniWeb.Shared.render_message(module, Haytni.LockablePlugin.invalid_token_message(), :error)
-      {:ok, _changes} ->
+      {:ok, _user} ->
         conn
         |> HaytniWeb.Shared.next_step_link(HaytniWeb.Shared.session_path(conn, module), dgettext("haytni", "I get it, continue to sign in"))
         |> HaytniWeb.Shared.render_message(module, unlock_message())
-      {:error, :strategy, message, _changes_so_far} when is_binary(message) ->
+      {:error, message} ->
         conn
         |> HaytniWeb.Shared.render_message(module, message, :error)
-      #{:error, _failed_operation, changeset = %Ecto.Changeset{}, _changes_so_far} ->
     end
   end
 
@@ -54,10 +50,10 @@ defmodule HaytniWeb.Lockable.UnlockController do
   # Handle the request for account unlocking
   def create(conn, %{"unlock" => unlock_params}, module, config) do
     case Haytni.LockablePlugin.resend_unlock_instructions(module, config, unlock_params) do
-      {:ok, _changes} ->
+      {:ok, _user} ->
         conn
         |> HaytniWeb.Shared.render_message(module, new_token_sent_message())
-      {:error, _failed_operation, changeset = %Ecto.Changeset{}, _changes_so_far} ->
+      {:error, changeset = %Ecto.Changeset{}} ->
         render_new(conn, changeset)
     end
   end

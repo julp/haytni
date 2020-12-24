@@ -18,30 +18,30 @@ defmodule Haytni.Lockable.UnlockedTest do
     for strategy <- Haytni.LockablePlugin.Config.available_strategies() do
       test "returns an error when token doesn't match anything (strategy: #{strategy})" do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
-        expected = if Haytni.LockablePlugin.email_strategy_enabled?(config) do
-          {:ok, %{user_from_token: nil, strategy: true}}
+        reason = if Haytni.LockablePlugin.email_strategy_enabled?(config) do
+          Haytni.LockablePlugin.invalid_token_message()
         else
           # email strategy disabled supersedes invalidity
-          {:error, :strategy, Haytni.LockablePlugin.email_strategy_disabled_message(), %{}}
+          Haytni.LockablePlugin.email_strategy_disabled_message()
         end
 
-        assert expected == Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, "not a match")
+        assert {:error, reason} == Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, "not a match")
       end
     end
 
     for strategy <- Haytni.LockablePlugin.Config.available_strategies() -- Haytni.LockablePlugin.Config.email_strategies() do
-      test "returns error when strategy doesn't include email (strategy: #{strategy})", %{token: token} do
+      test "returns error when strategy doesn't include email (strategy: #{strategy})", %{token: unlock_token} do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
 
-        assert {:error, :strategy, Haytni.LockablePlugin.email_strategy_disabled_message(), %{}} == Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, token)
+        assert {:error, Haytni.LockablePlugin.email_strategy_disabled_message()} == Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, unlock_token)
       end
     end
 
     for strategy <- Haytni.LockablePlugin.Config.email_strategies() do
-      test "returns updated and unlocked user after unlock (strategy: #{strategy})", %{locked: locked, token: token} do
+      test "returns updated and unlocked user after unlock (strategy: #{strategy})", %{locked: locked, token: unlock_token} do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
 
-        assert {:ok, %{user: updated_user}} = Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, token)
+        assert {:ok, updated_user} = Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, unlock_token)
         assert updated_user.id == locked.id
         # assert lock was reseted
         assert is_nil(updated_user.locked_at)

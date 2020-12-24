@@ -28,7 +28,7 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
 
         for params <- [nomatch_params, locked_params, unlocked_params] do
-          assert {:error, _failed_operation, changeset = %Ecto.Changeset{}, _changes_so_far} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, params)
+          assert {:error, changeset = %Ecto.Changeset{}} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, params)
 
           refute changeset.valid?
           refute is_nil(changeset.action)
@@ -40,7 +40,7 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
     test "returns error when unlock_keys with email as key(s) are empty" do
       config = Haytni.LockablePlugin.build_config()
 
-      assert {:error, _failed_operation, changeset = %Ecto.Changeset{}, _changes_so_far} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, %{"email" => ""})
+      assert {:error, changeset = %Ecto.Changeset{}} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, %{"email" => ""})
 
       refute changeset.valid?
       refute is_nil(changeset.action)
@@ -51,7 +51,7 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
       test "sends an email when an account is locked (strategy: #{strategy})", %{locked_account: %User{id: id}, locked_params: locked_params} do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
 
-        assert {:ok, %{user: matched_user = %User{id: ^id}}} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, locked_params)
+        assert {:ok, matched_user = %User{id: ^id}} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, locked_params)
         [token] =
           matched_user
           |> Haytni.Token.tokens_from_user_query(Haytni.LockablePlugin.token_context())
@@ -62,13 +62,13 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
       test "returns error when targetted account is not locked (strategy: #{strategy})", %{unlocked_params: unlocked_params} do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
 
-        assert {:ok, %{user: nil}} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, unlocked_params)
+        assert {:ok, nil} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, unlocked_params)
       end
 
       test "returns error when there is no match (strategy: #{strategy})", %{nomatch_params: nomatch_params} do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
 
-        assert {:ok, %{user: nil}} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, nomatch_params)
+        assert {:ok, nil} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, nomatch_params)
       end
     end
   end
