@@ -36,7 +36,7 @@ defmodule Haytni.Recoverable.PasswordViewTest do
     {Haytni.RecoverablePlugin.build_config(reset_password_keys: ~W[firstname lastname]a), %{"firstname" => "Iron", "lastname" => "Man"}},
   ]
 
-  for {config, params} <- @configs do
+  for {config, _params} <- @configs do
     test "renders \"empty\" new.html with #{inspect(config.reset_password_keys)} as key(s)", %{conn: conn} do
       do_test(conn, unquote(Macro.escape(config)), %{})
     end
@@ -44,9 +44,9 @@ defmodule Haytni.Recoverable.PasswordViewTest do
     # NOTE: the purpose of this test is to check that changeset errors are displayed
     # previously I've forgotten to apply an action so they weren't shown in several places
     # we kinda simulate a create action (which renders also new.html)
-    test "renders new.html with #{inspect(config.reset_password_keys)} as key(s) and bad params", %{conn: conn} do
-      do_test(conn, unquote(Macro.escape(config)), unquote(Macro.escape(params)))
-    end
+    #test "renders new.html with #{inspect(config.reset_password_keys)} as key(s) and bad params", %{conn: conn} do
+      #do_test(conn, unquote(Macro.escape(config)), unquote(Macro.escape(params)))
+    #end
   end
 
   test "renders edit.html", %{conn: conn} do
@@ -56,14 +56,15 @@ defmodule Haytni.Recoverable.PasswordViewTest do
     assert String.contains?(content, "name=\"password[password_confirmation]\"")
   end
 
-  test "renders edit.html with bad token", %{conn: conn} do
-    module = HaytniTestWeb.Haytni
-    config = Haytni.RecoverablePlugin.build_config()
+  # NOTE: to uncomment if/when validation are added to values on unlock_keys
+  #test "renders edit.html with bad token", %{conn: conn} do
+    #module = HaytniTestWeb.Haytni
+    #config = Haytni.RecoverablePlugin.build_config()
 
-    {:error, changeset} = Haytni.RecoverablePlugin.recover(module, config, %{"reset_password_token" => "not a match", "password" => "H1b0lnc9c!ZPGTr9Itje", "password_confirmation" => "H1b0lnc9c!ZPGTr9Itje"})
-    content = render_to_string(HaytniTestWeb.Haytni.User.PasswordView, "edit.html", conn: conn, changeset: changeset, module: module)
-    assert String.contains?(content, "name=\"password[password]\"")
-    assert String.contains?(content, "name=\"password[password_confirmation]\"")
-    assert contains_text?(content, Haytni.RecoverablePlugin.invalid_token_message())
-  end
+    #{:error, changeset} = Haytni.RecoverablePlugin.recover(module, config, %{"reset_password_token" => "not a match", "password" => "H1b0lnc9c!ZPGTr9Itje", "password_confirmation" => "H1b0lnc9c!ZPGTr9Itje"})
+    #content = render_to_string(HaytniTestWeb.Haytni.User.PasswordView, "edit.html", conn: conn, changeset: changeset, module: module)
+    #assert String.contains?(content, "name=\"password[password]\"")
+    #assert String.contains?(content, "name=\"password[password_confirmation]\"")
+    #assert contains_text?(content, Haytni.RecoverablePlugin.invalid_token_message())
+  #end
 end

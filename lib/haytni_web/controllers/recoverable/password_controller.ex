@@ -20,11 +20,7 @@ defmodule HaytniWeb.Recoverable.PasswordController do
 
   @spec recovery_token_sent_message() :: String.t
   def recovery_token_sent_message do
-    if Application.get_env(:haytni, :mode) == :strict do
-      dgettext("haytni", "If the provided informations match our database, you will shortly receive in your mailbox the instructions to allow you to reset your password.")
-    else
-      dgettext("haytni", "To reset your password we sent you an email containing a link you will need to follow.")
-    end
+    dgettext("haytni", "If the provided informations match our database, you will shortly receive in your mailbox the instructions to allow you to reset your password.")
     |> Haytni.Helpers.concat_spam_check_hint_message()
   end
 
@@ -32,7 +28,7 @@ defmodule HaytniWeb.Recoverable.PasswordController do
   # Send by email a new token to reset password
   def create(conn, %{"password" => password_params}, module, config) do
     case Haytni.RecoverablePlugin.send_reset_password_instructions(module, config, password_params) do
-      {:ok, _user} ->
+      {:ok, _token} ->
         conn
         |> HaytniWeb.Shared.render_message(module, recovery_token_sent_message())
       {:error, changeset = %Ecto.Changeset{}} ->

@@ -22,7 +22,7 @@ defmodule Haytni.Recoverable.RecoverTest do
     end
 
     test "ensures error when reset params are empty", %{config: config} do
-      assert {:error, :params, changeset, %{}} = Haytni.RecoverablePlugin.recover(HaytniTestWeb.Haytni, config, new_password_change("", ""))
+      assert {:error, changeset} = Haytni.RecoverablePlugin.recover(HaytniTestWeb.Haytni, config, new_password_change("", ""))
       refute is_nil(changeset.action)
       assert %{reset_password_token: [empty_message()], password: [empty_message()]} == Haytni.DataCase.errors_on(changeset)
     end
@@ -46,7 +46,7 @@ defmodule Haytni.Recoverable.RecoverTest do
       new_password = "this is my new password"
       reset_password_token = token_fixture(user, Haytni.RecoverablePlugin)
 
-      assert {:ok, %{user: updated_user}} = Haytni.RecoverablePlugin.recover(HaytniTestWeb.Haytni, config, new_password_change(reset_password_token, new_password))
+      assert {:ok, updated_user} = Haytni.RecoverablePlugin.recover(HaytniTestWeb.Haytni, config, new_password_change(reset_password_token, new_password))
 
       assert updated_user.id == user.id
       assert String.starts_with?(updated_user.encrypted_password, "$2b$")
@@ -56,7 +56,7 @@ defmodule Haytni.Recoverable.RecoverTest do
     test "ensures new password respects minimal length", %{config: config, user: user} do
       reset_password_token = token_fixture(user, Haytni.RecoverablePlugin)
 
-      assert {:error, :params, changeset, %{}} = Haytni.RecoverablePlugin.recover(HaytniTestWeb.Haytni, config, new_password_change(reset_password_token, "1"))
+      assert {:error, changeset} = Haytni.RecoverablePlugin.recover(HaytniTestWeb.Haytni, config, new_password_change(reset_password_token, "1"))
       assert %{password: [reason]} = errors_on(changeset)
       assert reason =~ ~R"should be at least \d+ character\(s\)"
     end

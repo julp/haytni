@@ -103,12 +103,12 @@ defmodule Haytni.RecoverablePlugin do
     Haytni.Helpers.to_changeset(request_params, config.reset_password_keys)
   end
 
-  @spec send_instructions_in_multi(multi :: Ecto.Multi.t, user_name :: Ecto.Multi.name, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
-  defp send_instructions_in_multi(multi = %Ecto.Multi{}, user_name, token_name, module, config) do
+  @spec send_instructions_in_multi(multi :: Ecto.Multi.t, user :: Haytni.user, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
+  defp send_instructions_in_multi(multi = %Ecto.Multi{}, user, token_name, module, config) do
     Ecto.Multi.run(
       multi,
       :send_reset_password_instructions,
-      fn _repo, %{^user_name => user, ^token_name => token} ->
+      fn _repo, %{^token_name => token} ->
         send_reset_password_instructions_mail_to_user(user, Haytni.Token.encode_token(token), module, config)
         {:ok, true}
       end
@@ -118,19 +118,14 @@ defmodule Haytni.RecoverablePlugin do
   @doc ~S"""
   Send instructions to reset user's password.
 
-  Returns `{:error, changeset}` if there is no account matching `config.reset_password_keys` else `{:ok, user}`.
-
-  But in strict mode (`config :haytni, mode: :strict`) returned values are:
+  Returns:
 
     * `{:error, changeset}` if fields (form) were not filled
-    * `{:ok, user}` if successful
     * `{:ok, nil}` if there is no account matching `config.reset_password_keys`
-
-  For the latest, the difference between `{:ok, user}` and `{:ok, nil}` cases SHOULD not be tested in order to disclose
-  to the end user if an actual account matches or not!
+    * `{:ok, token}` if successful
   """
   # step 1/2: send a token by mail
-  @spec send_reset_password_instructions(module :: module, config :: Config.t, request_params :: Haytni.params) :: Haytni.multi_result
+  @spec send_reset_password_instructions(module :: module, config :: Config.t, request_params :: Haytni.params) :: {:ok, Haytni.Token.t | nil} | {:error, Ecto.Changeset.t}
   def send_reset_password_instructions(module, config, request_params) do
     changeset = recovering_changeset(config, request_params)
 
@@ -140,23 +135,18 @@ defmodule Haytni.RecoverablePlugin do
       {:ok, sanitized_params} ->
         case Haytni.get_user_by(module, sanitized_params) do
           nil ->
-            if Application.get_env(:haytni, :mode) == :strict do
-              {:ok, %{user: nil, token: nil}}
-            else
-              #{:error, changeset} =
-              Haytni.Helpers.mark_changeset_keys_as_unmatched(changeset, config.reset_password_keys)
-              #{:error, :user, changeset, %{}}
-            end
+            #Haytni.Helpers.mark_changeset_keys_as_unmatched(changeset, config.reset_password_keys)
+            {:ok, nil}
           user = %_{} ->
-            Ecto.Multi.new()
-            # TODO: passer Haytni.get_user_by(module, sanitized_params) en Multi à la place du Ecto.Multi.assign ci-dessous ?
-            |> Haytni.Multi.assign(:user, user)
-            |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context())
-            |> send_instructions_in_multi(:user, :token, module, config)
-            |> module.repo().transaction()
+            {:ok, %{token: token}} =
+              Ecto.Multi.new()
+              |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context())
+              |> send_instructions_in_multi(user, :token, module, config)
+              |> module.repo().transaction()
+            {:ok, token}
         end
-      {:error, changeset = %Ecto.Changeset{}} ->
-        {:error, :params, changeset, %{}}
+      error = {:error, %Ecto.Changeset{}} ->
+        error
     end
   end
 
@@ -193,7 +183,7 @@ defmodule Haytni.RecoverablePlugin do
     * is expired
   """
   # step 2/2: update password
-  @spec recover(module :: module, config :: Config.t, password_params :: %{String.t => String.t}) :: Haytni.multi_result
+  @spec recover(module :: module, config :: Config.t, password_params :: %{String.t => String.t}) :: {:ok, Haytni.user | nil} | {:error, Ecto.Changeset.t}
   def recover(module, config, password_params) do
     changeset = Haytni.Recoverable.PasswordChange.change_password(module, password_params)
 
@@ -205,13 +195,15 @@ defmodule Haytni.RecoverablePlugin do
           nil ->
             set_reset_token_error(changeset, invalid_token_message())
           user = %_{} ->
-            Ecto.Multi.new()
-            |> Haytni.update_user_in_multi_with(:user, user, new_password_attributes(module, password_change.password))
-            |> Haytni.Token.delete_tokens_in_multi(:tokens, user, token_context())
-            |> module.repo().transaction()
+            {:ok, %{user: user}} =
+              Ecto.Multi.new()
+              |> Haytni.update_user_in_multi_with(:user, user, new_password_attributes(module, password_change.password))
+              |> Haytni.Token.delete_tokens_in_multi(:tokens, user, token_context())
+              |> module.repo().transaction()
+            {:ok, user}
         end
-      {:error, changeset = %Ecto.Changeset{}} ->
-        {:error, :params, changeset, %{}}
+      error = {:error, %Ecto.Changeset{}} ->
+        error
     end
   end
 end

@@ -1,3 +1,4 @@
+if false do
 # mix test test/multi2_test.exs
 defmodule Haytni.Multi2Test do
   use Haytni.DataCase, async: true
@@ -94,3 +95,4 @@ defmodule Haytni.Multi2Test do
     end
   end
 end
+end # if false do

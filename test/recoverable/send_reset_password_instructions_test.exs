@@ -20,22 +20,20 @@ defmodule Haytni.Recoverable.SendResetPasswordInstructionsTest do
 #     ]
 #     for keys <- @keys do
       test "gets error when unlock_keys are empty with email as key(s)", %{config: config} do
-        assert {:error, :params, changeset, %{}} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request(""))
+        assert {:error, changeset} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request(""))
         refute is_nil(changeset.action)
         assert %{email: [empty_message()]} == errors_on(changeset)
       end
 
-      test "gets error when no one matches with email as key(s)", %{config: config} do
-        assert {:error, changeset} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request("not a match"))
-        refute is_nil(changeset.action)
-        assert %{email: [Haytni.Helpers.no_match_message()]} == errors_on(changeset)
+      test "gets {:ok, nil} when no one matches with email as key(s)", %{config: config} do
+        assert {:ok, nil} == Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request("not a match"))
       end
 
       test "ensures a reset token is generated and sent by email when a user match with email as key(s)", %{config: config, user: user} do
-        {:ok, %{user: updated_user, token: token}} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request(user.email))
+        {:ok, token} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request(user.email))
 
-        assert updated_user.id == user.id
-        assert_delivered_email Haytni.RecoverableEmail.reset_password_email(updated_user, Haytni.Token.encode_token(token), HaytniTestWeb.Haytni, config)
+        assert token.user_id == user.id
+        assert_delivered_email Haytni.RecoverableEmail.reset_password_email(user, Haytni.Token.encode_token(token), HaytniTestWeb.Haytni, config)
       end
 #     end
   end

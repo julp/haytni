@@ -1,5 +1,5 @@
+if false do
 # based on Ecto 3.5.5
-
 defmodule Ecto.Multi2 do
   # <julp>
   #alias __MODULE__
@@ -427,3 +427,4 @@ defmodule Ecto.Multi2 do
     end
   end
 end
+end # if false do
