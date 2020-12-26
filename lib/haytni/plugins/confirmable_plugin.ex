@@ -224,7 +224,18 @@ defmodule Haytni.ConfirmablePlugin do
     |> module.mailer().deliver_later()
   end
 
-  @spec send_confirmation_instructions_in_multi(multi :: Ecto.Multi.t, user_name :: Ecto.Multi.name, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
+  @spec send_confirmation_instructions_in_multi(multi :: Ecto.Multi.t, user_or_user_name :: Haytni.user | Ecto.Multi.t, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
+  defp send_confirmation_instructions_in_multi(multi = %Ecto.Multi{}, user = %_{}, token_name, module, config) do
+    Ecto.Multi.run(
+      multi,
+      :send_confirmation_instructions,
+      fn _repo, %{^token_name => token} ->
+        send_confirmation_instructions(user, Haytni.Token.encode_token(token), module, config)
+        {:ok, true}
+      end
+    )
+  end
+
   defp send_confirmation_instructions_in_multi(multi = %Ecto.Multi{}, user_name, token_name, module, config) do
     Ecto.Multi.run(
       multi,
@@ -286,63 +297,31 @@ defmodule Haytni.ConfirmablePlugin do
     Haytni.Helpers.to_changeset(confirmation_params, [:referer | config.confirmation_keys], config.confirmation_keys)
   end
 
-  @spec handle_query_result_for_resend_confirmation(multi :: Ecto.Multi.t, mode :: any, user :: nil | Haytni.user, config :: Config.t, changeset :: Ecto.Changeset.t) :: Ecto.Multi.t
-  # no user matches confirmation_keys but, in strict mode, do not disclose it
-  defp handle_query_result_for_resend_confirmation(multi, :strict, user = nil, _config, _changeset) do
-    Haytni.Multi.assign(multi, :user, user)
-  end
-
-  # no user matches confirmation_keys but, in NON-strict mode, disclose it
-  defp handle_query_result_for_resend_confirmation(multi, _, nil, config, changeset) do
-    Ecto.Multi.run(
-      multi,
-      :user,
-      fn _repo, _changes ->
-        Haytni.Helpers.mark_changeset_keys_as_unmatched(changeset, config.confirmation_keys)
-      end
-    )
-  end
-
-  defp handle_query_result_for_resend_confirmation(multi, _, %_{confirmed_at: confirmed_at}, config, changeset)
-    when not is_nil(confirmed_at)
-  do
-    Ecto.Multi.run(
-      multi,
-      :user,
-      fn _repo, _changes ->
-        Haytni.Helpers.mark_changeset_keys_with_error(changeset, config.confirmation_keys, alreay_confirmed_message())
-      end
-    )
-  end
-
-  # a user matches confirmation_keys
-  defp handle_query_result_for_resend_confirmation(multi, _, user, _config, _changeset) do
-    Haytni.Multi.assign(multi, :user, user)
-  end
-
   @doc ~S"""
   Confirms an account from its confirmation *token*.
 
   Returns `{:error, reason}` if token is expired or invalid else the (updated) user as `{:ok, user}`.
   """
-  @spec confirm(module :: module, config :: Config.t, token :: String.t) :: Haytni.multi_result
+  @spec confirm(module :: module, config :: Config.t, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
   def confirm(module, config, token) do
     context = token_context()
     case Haytni.Token.user_from_token_with_mail_match(module, token, context, config.confirm_within) do
       nil ->
-        {:error, invalid_token_message()} # TODO: conversion en Multi
+        {:error, invalid_token_message()}
       user = %_{} ->
-        Ecto.Multi.new()
-        |> Haytni.update_user_in_multi_with(:user, user, confirmed_attributes())
-        |> Haytni.Token.delete_tokens_in_multi(:tokens, user, context)
-        |> module.repo().transaction()
+        #{:ok, updated_user} =
+          Ecto.Multi.new()
+          |> Haytni.update_user_in_multi_with(:user, user, confirmed_attributes())
+          |> Haytni.Token.delete_tokens_in_multi(:tokens, user, context)
+          |> module.repo().transaction()
+        #{:ok, updated_user} #?
     end
   end
 
   @doc ~S"""
-  TODO
+  TODO (doc)
   """
-  @spec reconfirm(module :: module, config :: Config.t, user :: Haytni.user, token :: String.t) :: Haytni.multi_result
+  @spec reconfirm(module :: module, config :: Config.t, user :: Haytni.user, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
   def reconfirm(module, config, user, confirmation_token) do
     # TODO: refactoriser ce qui est commun avec confirm ci-dessus ?
     context = token_context(user.email)
@@ -350,13 +329,15 @@ defmodule Haytni.ConfirmablePlugin do
       {:ok, confirmation_token} <- Haytni.Token.decode_token(confirmation_token),
       token = %_{} <- Haytni.Token.user_from_token_without_mail_match(module, user, confirmation_token, context, config.reconfirm_within)
     ) do
+      #{:ok, updated_user} =
         Ecto.Multi.new()
         |> Haytni.update_user_in_multi_with(:user, user, email: token.sent_to)
         |> Haytni.Token.delete_tokens_in_multi(:tokens, user, context)
         |> module.repo().transaction()
+      #{:ok, updated_user} #?
     else
       _ ->
-        {:error, invalid_token_message()} # TODO: conversion en Multi
+        {:error, invalid_token_message()}
     end
   end
 
@@ -365,15 +346,10 @@ defmodule Haytni.ConfirmablePlugin do
 
   Returns:
 
-    * `{:error, changeset}` if there is no account matching `config.confirmation_keys` or if the account is not pending confirmation (`changeset.errors` will be set according)
-    * `{:ok, user}` if successful
-
-  But returned values differ in strict mode (`config :haytni, mode: :strict`):
-
     * `{:error, changeset}` if fields (form) were not filled
     * `{:ok, user}` if successful or nothing has to be done (meaning there is no account matching `config.confirmation_keys` or the account is not pending confirmation)
   """
-  @spec resend_confirmation_instructions(module :: module, config :: Config.t, confirmation_params :: Haytni.params) :: Haytni.multi_result
+  @spec resend_confirmation_instructions(module :: module, config :: Config.t, confirmation_params :: Haytni.params) :: {:ok, Haytni.nilable(Haytni.Token.t)} | {:error, Ecto.Changeset.t}
   def resend_confirmation_instructions(module, config, confirmation_params = %{}) do
     changeset = confirmation_request_changeset(config, confirmation_params)
 
@@ -382,13 +358,17 @@ defmodule Haytni.ConfirmablePlugin do
     |> case do
       {:ok, sanitized_params} ->
         sanitized_params = Map.delete(sanitized_params, :referer)
-        # TODO: incorporer ça en multi ? (avec where: is_nil(u.confirmed_at) ?)
-        user = Haytni.get_user_by(module, sanitized_params)
-        Ecto.Multi.new()
-        |> handle_query_result_for_resend_confirmation(Application.get_env(:haytni, :mode), user, config, changeset)
-        |> Haytni.Token.insert_token_in_multi(:token, :user, token_context())
-        |> send_confirmation_instructions_in_multi(:user, :token, module, config)
-        |> module.repo().transaction()
+        case Haytni.get_user_by(module, sanitized_params) do # TODO: where: is_nil(u.confirmed_at)
+          nil ->
+            {:ok, nil}
+          user = %_{} ->
+            {:ok, %{token: token}} =
+              Ecto.Multi.new()
+              |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context())
+              |> send_confirmation_instructions_in_multi(user, :token, module, config)
+              |> module.repo().transaction()
+            {:ok, token}
+        end
       error = {:error, %Ecto.Changeset{}} ->
         error
     end

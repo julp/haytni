@@ -11,6 +11,7 @@ defmodule Haytni do
   @type duration_unit :: :second | :minute | :hour | :day | :week | :month | :year
   @type duration :: pos_integer | {pos_integer, duration_unit}
 
+  @type nilable(type) :: type | nil
   @type params :: %{optional(String.t) => String.t}
   @type repo_nobang_operation(type) :: {:ok, type} | {:error, Ecto.Changeset.t}
   @type multi_result :: {:ok, %{required(Ecto.Multi.name) => any}} | {:error, Ecto.Multi.name, any, %{optional(Ecto.Multi.name) => any}}

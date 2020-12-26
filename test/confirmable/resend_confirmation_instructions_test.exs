@@ -31,22 +31,18 @@ defmodule Haytni.Recoverable.ResendConfirmationInstructionsTest do
     end
 
     test "ensures no email is sent if no one (email) match", %{config: config} do
-      assert {:error, _failed_operation_name, changeset, _changes} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation("no match"))
-      refute is_nil(changeset.action)
-      assert %{email: [Haytni.Helpers.no_match_message()]} == errors_on(changeset)
+      assert {:ok, nil} == Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation("no match"))
       assert_no_emails_delivered()
     end
 
     test "ensures no email is sent if account is already confirmed", %{config: config, confirmed_user: confirmed_user} do
-      assert {:error, :user, changeset, %{}} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(confirmed_user.email))
-      refute is_nil(changeset.action)
-      assert %{email: [Haytni.ConfirmablePlugin.alreay_confirmed_message()]} == errors_on(changeset)
+      assert {:ok, nil} == Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(confirmed_user.email))
       assert_no_emails_delivered()
     end
 
     test "ensures a new confirmation is sent by email if account is not already confirmed", %{config: config, unconfirmed_user: user} do
-      assert {:ok, %{user: updated_user, token: confirmation_token}} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(user.email))
-      assert updated_user.id == user.id
+      assert {:ok, confirmation_token} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(user.email))
+      assert confirmation_token.user_id == user.id
       assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, Haytni.Token.encode_token(confirmation_token), HaytniTestWeb.Haytni, config)
     end
   end
