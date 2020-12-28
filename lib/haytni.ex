@@ -168,30 +168,32 @@ defmodule Haytni do
         end
       )
     quote do
-      # an "idea" to replace module + config arguments?
-      @spec __config__() :: %{
-        #required(:router) => module,
-        required(:mailer) => module,
-        #required(:web_module) => module,
-        required(:repo) => module,
-        required(:schema) => module,
-        #required(:opt_app) => atom,
-        required(:self) => module,
-        required(:layout) => any,
-        required(:plugins) => [module],
-      }
-      def __config__ do
-        %{
-          layout: false,
-          self: __MODULE__,
-          #otp_app: unquote(otp_app),
-          #web_module: unquote(web_module),
-          repo: unquote(fetch_env!(__CALLER__.module)[:repo]),
-          mailer: unquote(fetch_env!(__CALLER__.module)[:mailer]),
-          schema: unquote(fetch_env!(__CALLER__.module)[:schema]),
-          #router: unquote(Module.concat([web_module, :Router, :Helpers])),
-          plugins: unquote(Enum.map(plugins_with_config, &(elem(&1, 0)))),
+      if false do
+        # an "idea" to replace module + config arguments?
+        @spec __config__() :: %{
+          #required(:router) => module,
+          required(:mailer) => module,
+          #required(:web_module) => module,
+          required(:repo) => module,
+          required(:schema) => module,
+          #required(:opt_app) => atom,
+          required(:self) => module,
+          required(:layout) => any,
+          required(:plugins) => [module],
         }
+        def __config__ do
+          %{
+            layout: false,
+            self: __MODULE__,
+            #otp_app: unquote(otp_app),
+            #web_module: unquote(web_module),
+            repo: unquote(fetch_env!(__CALLER__.module)[:repo]),
+            mailer: unquote(fetch_env!(__CALLER__.module)[:mailer]),
+            schema: unquote(fetch_env!(__CALLER__.module)[:schema]),
+            #router: unquote(Module.concat([web_module, :Router, :Helpers])),
+            plugins: unquote(Enum.map(plugins_with_config, &(elem(&1, 0)))),
+          }
+        end
       end
 
       @spec fetch_config(plugin :: module) :: any
@@ -374,12 +376,17 @@ defmodule Haytni do
     )
   end
 
+  @spec assign_in_multi(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, data :: any) :: Ecto.Multi.t
+  defp assign_in_multi(multi = %Ecto.Multi{}, name, data) do
+    Ecto.Multi.run(multi, name, fn _repo, _changes -> {:ok, data} end)
+  end
+
   @spec handle_email_change(module :: module, multi :: Ecto.Multi.t, changeset :: Ecto.Changeset.t) :: {Ecto.Multi.t, Ecto.Changeset.t}
   defp handle_email_change(module, multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{changes: %{email: new_email}}) do
     multi =
       multi
-      |> Haytni.Multi.assign(:new_email, new_email)
-      |> Haytni.Multi.assign(:old_email, changeset.data.email)
+      |> assign_in_multi(:new_email, new_email)
+      |> assign_in_multi(:old_email, changeset.data.email)
     module.plugins_with_config()
     |> Enum.reduce(
       {multi, changeset},
@@ -484,7 +491,7 @@ defmodule Haytni do
       )
 
     Ecto.Multi.new()
-    |> Haytni.Multi.assign(:conn, conn)
+    |> assign_in_multi(:conn, conn)
     |> Ecto.Multi.update(:user, Ecto.Changeset.change(user, changes))
     |> Ecto.Multi.append(multi)
     |> module.repo().transaction()
@@ -514,7 +521,7 @@ defmodule Haytni do
 
   If *user* is `nil`, nothing is done.
   """
-  @spec authentication_failed(module :: module, user :: Haytni.user | nil) :: Haytni.multi_result
+  @spec authentication_failed(module :: module, user :: Haytni.nilable(Haytni.user)) :: Haytni.multi_result
   def authentication_failed(_module, user = nil) do
     # NOP, for convenience
     {:ok, %{user: user}}
@@ -602,7 +609,7 @@ defmodule Haytni do
 
       hulk = Haytni.get_user_by(YourApp.Haytni, first_name: "Robert", last_name: "Banner")
   """
-  @spec get_user_by(module :: module, clauses :: Keyword.t | map) :: Haytni.user | nil
+  @spec get_user_by(module :: module, clauses :: Keyword.t | map) :: Haytni.nilable(Haytni.user)
   def get_user_by(module, clauses) do
     module.repo().get_by(module.schema(), clauses)
   end
@@ -621,7 +628,7 @@ defmodule Haytni do
           # do something of user
       end
   """
-  @spec get_user(module :: module, id :: any) :: Haytni.user | nil
+  @spec get_user(module :: module, id :: any) :: Haytni.nilable(Haytni.user)
   def get_user(module, id) do
     module.repo().get(module.schema(), id)
   end
@@ -636,8 +643,9 @@ defmodule Haytni do
   def change_user(module, params)
     when is_atom(module)
   do
-    user = module.schema()
-    |> struct()
+    user =
+      module.schema()
+      |> struct()
     user.__struct__.create_registration_changeset(user, params)
   end
 

@@ -300,7 +300,7 @@ defmodule Haytni.ConfirmablePlugin do
   @doc ~S"""
   Confirms an account from its confirmation *token*.
 
-  Returns `{:error, reason}` if token is expired or invalid else the (updated) user as `{:ok, user}`.
+  Returns `{:error, reason}` if token is expired or invalid else the (updated) user as `{:ok, user}`. # TODO!
   """
   @spec confirm(module :: module, config :: Config.t, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
   def confirm(module, config, token) do
@@ -309,17 +309,19 @@ defmodule Haytni.ConfirmablePlugin do
       nil ->
         {:error, invalid_token_message()}
       user = %_{} ->
-        #{:ok, updated_user} =
+        #{:ok, updated_user} = # TODO!
           Ecto.Multi.new()
           |> Haytni.update_user_in_multi_with(:user, user, confirmed_attributes())
           |> Haytni.Token.delete_tokens_in_multi(:tokens, user, context)
           |> module.repo().transaction()
-        #{:ok, updated_user} #?
+        #{:ok, updated_user} # TODO!
     end
   end
 
   @doc ~S"""
-  TODO (doc)
+  Reconfirms (validates an email address change) an account from its confirmation *token*.
+
+  Returns `{:error, reason}` if token is expired or invalid else the (updated) user as `{:ok, user}`. # TODO!
   """
   @spec reconfirm(module :: module, config :: Config.t, user :: Haytni.user, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
   def reconfirm(module, config, user, confirmation_token) do
@@ -329,16 +331,27 @@ defmodule Haytni.ConfirmablePlugin do
       {:ok, confirmation_token} <- Haytni.Token.decode_token(confirmation_token),
       token = %_{} <- Haytni.Token.user_from_token_without_mail_match(module, user, confirmation_token, context, config.reconfirm_within)
     ) do
-      #{:ok, updated_user} =
+      #{:ok, updated_user} = # TODO!
         Ecto.Multi.new()
         |> Haytni.update_user_in_multi_with(:user, user, email: token.sent_to)
         |> Haytni.Token.delete_tokens_in_multi(:tokens, user, context)
         |> module.repo().transaction()
-      #{:ok, updated_user} #?
+      #{:ok, updated_user} # TODO!
     else
       _ ->
         {:error, invalid_token_message()}
     end
+  end
+
+  defp resend_confirmation_query(module, sanitized_params) do
+    import Ecto.Query
+
+    from(
+      u in module.schema(),
+      where: ^Map.to_list(sanitized_params),
+      where: is_nil(u.confirmed_at)
+    )
+    |> module.repo().one()
   end
 
   @doc ~S"""
@@ -346,8 +359,9 @@ defmodule Haytni.ConfirmablePlugin do
 
   Returns:
 
-    * `{:error, changeset}` if fields (form) were not filled
-    * `{:ok, user}` if successful or nothing has to be done (meaning there is no account matching `config.confirmation_keys` or the account is not pending confirmation)
+    * `{:ok, token}`: a token was actualy sent by mail
+    * `{:ok, nil}`: there is no account matching `config.confirmation_keys` or the account is not pending confirmation
+    * `{:error, changeset}`: fields (form) was invalid
   """
   @spec resend_confirmation_instructions(module :: module, config :: Config.t, confirmation_params :: Haytni.params) :: {:ok, Haytni.nilable(Haytni.Token.t)} | {:error, Ecto.Changeset.t}
   def resend_confirmation_instructions(module, config, confirmation_params = %{}) do
@@ -358,7 +372,7 @@ defmodule Haytni.ConfirmablePlugin do
     |> case do
       {:ok, sanitized_params} ->
         sanitized_params = Map.delete(sanitized_params, :referer)
-        case Haytni.get_user_by(module, sanitized_params) do # TODO: where: is_nil(u.confirmed_at)
+        case resend_confirmation_query(module, sanitized_params) do
           nil ->
             {:ok, nil}
           user = %_{} ->

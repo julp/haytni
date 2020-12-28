@@ -86,7 +86,7 @@ defmodule Haytni.Multi2Test do
   end
 
   describe "Multi2.assign/3" do
-    test "TODO" do
+    test "chaining assign/3 with a regular Ecto.Multi function" do
       Ecto.Multi2.new()
       |> Ecto.Multi2.assign(:a, 1)
       |> Ecto.Multi2.run(:b, fn _repo, %{a: a} -> {:ok, a + 1} end)

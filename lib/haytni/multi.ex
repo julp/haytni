@@ -1,11 +1,5 @@
+if false do
 defmodule Haytni.Multi do
-  @moduledoc ~S"""
-  TODO (doc)
-  """
-
-  @doc ~S"""
-  TODO (doc)
-  """
   @spec assign(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, data :: any) :: Ecto.Multi.t
   def assign(multi = %Ecto.Multi{}, name, data) do
     Ecto.Multi.run(multi, name, fn _repo, _changes -> {:ok, data} end)
@@ -24,8 +18,6 @@ defmodule Haytni.Multi do
   #end
 
   @doc ~S"""
-  TODO (doc + test)
-
   ```elixir
   defmodule MyApp.Post do
     schema "posts" do
@@ -82,9 +74,6 @@ defmodule Haytni.Multi do
     )
   end
 
-  @doc ~S"""
-  TODO (doc)
-  """
   @spec select(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, query :: Ecto.Query.t, error_value :: any) :: Ecto.Multi.t
   def select(multi = %Ecto.Multi{}, name, query, error_value) do
     Ecto.Multi.run(
@@ -101,9 +90,6 @@ defmodule Haytni.Multi do
     )
   end
 
-  @doc ~S"""
-  TODO (doc)
-  """
   # name => {:ok, map | struct) | {:error, %Ecto.Changeset.t}
   @spec apply_changeset(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, changeset :: Ecto.Changeset.t) :: Ecto.Multi.t
   def apply_changeset(multi = %Ecto.Multi{}, name, changeset = %Ecto.Changeset{}) do
@@ -116,9 +102,6 @@ defmodule Haytni.Multi do
     )
   end
 
-  @doc ~S"""
-  TODO (doc)
-  """
   @spec apply_base_error(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, changeset :: Ecto.Changeset.t, message :: String.t) :: Ecto.Multi.t
   def apply_base_error(multi = %Ecto.Multi{}, name, changeset = %Ecto.Changeset{}, message) do
 if true do
@@ -135,9 +118,6 @@ else
 end
   end
 
-  @doc ~S"""
-  TODO (doc)
-  """
   @spec get_user(multi :: Ecto.Multi.t, module :: module, user_name :: Ecto.Multi.name, params_name :: Ecto.Multi.name, conditions :: Ecto.Query.t) :: Ecto.Multi.t
   def get_user(multi = %Ecto.Multi{}, user_name, module, params_name, conditions \\ true) do
     Ecto.Multi.run(
@@ -164,9 +144,6 @@ end
     )
   end
 
-  @doc ~S"""
-  TODO (doc)
-  """
   @spec get_user_by(multi :: Ecto.Multi.t, module :: module, user_name :: Ecto.Multi.name, params_name :: Ecto.Multi.name) :: Ecto.Multi.t
   def get_user_by(multi = %Ecto.Multi{}, user_name, module, params_name) do
     Ecto.Multi.run(
@@ -184,9 +161,7 @@ end
   end
 
   @doc ~S"""
-  TODO (doc)
-
-  (doublon de Haytni.Token.insert_token_in_multi)
+  (duplicated with Haytni.Token.insert_token_in_multi)
   """
   @spec insert_token(multi :: Ecto.Multi.t, token_name :: Ecto.Multi.name, user_name :: Ecto.Multi.name, context :: String.t) :: Ecto.Multi.t
   # multi = %Ecto.Multi{}
@@ -202,9 +177,6 @@ end
     )
   end
 
-  @doc ~S"""
-  TODO (doc)
-  """
   @spec delete_tokens(multi :: Ecto.Multi.t, deletion_name :: Ecto.Multi.name, user_name :: Ecto.Multi.name, contexts :: String.t | nonempty_list(String.t) | :all) :: Ecto.Multi.t
   # multi = %Ecto.Multi{}
   def delete_tokens(multi, deletion_name, user_name, contexts) do
@@ -219,7 +191,7 @@ end
   end
 
   @doc ~S"""
-  TODO: doublon avec Haytni.update_user_in_multi_with
+  (duplicated with Haytni.update_user_in_multi_with)
 
   Update user in the same way as `Haytni.update_user_with/3` but as part of a set of operations (Ecto.Multi).
   """
@@ -239,3 +211,4 @@ end
     )
   end
 end
+end # if false do

@@ -53,12 +53,9 @@ defmodule HaytniWeb.Confirmable.ConfirmationController do
   # The real magic to ask for a new confirmation token
   def create(conn, %{"confirmation" => confirmation_params}, module, config) do
     case Haytni.ConfirmablePlugin.resend_confirmation_instructions(module, config, confirmation_params) do
-      {:ok, _user} ->
+      {:ok, _token} ->
         conn
         |> HaytniWeb.Shared.render_message(module, confirmation_sent_message())
-      # TODO: result of Ecto.Repo vs Ecto.Multi
-      {:error, _failed_operation, changeset = %Ecto.Changeset{}, _changes_so_far} ->
-        render_new(conn, changeset)
       {:error, changeset = %Ecto.Changeset{}} ->
         render_new(conn, changeset)
     end

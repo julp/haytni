@@ -62,7 +62,6 @@ defmodule Haytni.RememberablePlugin do
       {:ok, token} <- Map.fetch(conn.cookies, config.remember_cookie_name),
       #{:ok, token} <- Haytni.Token.decode_token(token),
       user when not is_nil(user) <- Haytni.Token.verify(module, token, config.remember_for, token_context())
-      # TODO: pas nécessaire de vérifier que user est valide, c'est fait en aval/après ?
     ) do
       {conn, user}
     else
