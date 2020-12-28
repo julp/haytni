@@ -6,7 +6,7 @@ First add `Haytni.LiveViewPlugin` to your Haytni stack in lib/*your_app*/haytni.
   stack Haytni.LiveViewPlugin
 ```
 
-Then, in your endpoint (lib/your_app_web/endpoint.ex), you should fine something live that:
+Then, in your endpoint (lib/your_app_web/endpoint.ex), you should find something like that:
 
 ```elixir
 socket "/socket", YourAppWeb.UserSocket,
@@ -16,7 +16,7 @@ socket "/socket", YourAppWeb.UserSocket,
 
 Make sure to change the `true` values here to `[connect_info: [:peer_data, :x_headers]]`.
 
-TODO
+TODO (call from connect/3 callback)
 
 ```elixir
 # lib/your_app_web/channels/user_socket.ex
@@ -30,7 +30,7 @@ defmodule YourAppWeb.UserSocket do
 end
 ```
 
-Now, in your javascript asset file, to acquire a token and reinject it to be granted to create a connection, use something live that:
+Now, in your javascript asset file, to acquire a token and reinject it to be granted to create a connection, use something like the following:
 
 ```javascript
 fetch(
@@ -60,7 +60,7 @@ fetch(
 
 ### If Phoenix is behind nginx or any proxy
 
-Tokens for channels and liveview are short lived and validated against current IP address. But IP addresses from *peer_data* might be wrong if Phoenix does not directly handles HTTP and sockets. If this your case, you need to specify the name (in lower case!) of the HTTP header your *proxy* follows you client addresses as `:remote_ip_header` option of `stack Haytni.LiveViewPlugin`.
+Tokens for channels and liveview are short lived and validated against current IP address. But IP addresses from *peer_data* might be wrong if Phoenix does not directly handles HTTP and sockets. If this is your case, you need to specify the name (in lower case!) of the HTTP header your *proxy* follows you client addresses as `:remote_ip_header` option of `stack Haytni.LiveViewPlugin`.
 
 For example, if you use nginx and it is configured with:
 

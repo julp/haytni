@@ -12,11 +12,7 @@ defmodule HaytniWeb.Confirmable.ConfirmationController do
 
   @spec confirmation_sent_message() :: String.t
   def confirmation_sent_message do
-    if Application.get_env(:haytni, :mode) == :strict do
-      dgettext("haytni", "If the provided informations match our database and your email address has not been confirmed yet, you will shortly receive the instructions to do so.")
-    else
-      dgettext("haytni", "A new confirmation has been sent.")
-    end
+    dgettext("haytni", "If the provided informations match our database and your email address has not been confirmed yet, you will shortly receive the instructions to do so.")
     |> Haytni.Helpers.concat_spam_check_hint_message()
   end
 

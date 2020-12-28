@@ -17,7 +17,7 @@ defmodule Haytni.RememberablePlugin do
     * `remember_cookie_name` (default: `#{inspect(@default_remember_cookie_name)}`): the name of the cookie holding the token for automatic sign in
     * `remember_cookie_options` (default: `#{inspect(@default_remember_cookie_options)}`): to set custom options of the cookie (options are: *domain*, *max_age*, *path*, *http_only*, *secure* and *extra*, see documentation of `Plug.Conn.put_resp_cookie/4`)
 
-          stack Haytni.RememberablePlugin,
+          stack #{inspect(__MODULE__)},
             remember_for: #{inspect(@default_remember_for)},
             remember_cookie_name: #{inspect(@default_remember_cookie_name)},
             remember_cookie_options: #{inspect(@default_remember_cookie_options)}

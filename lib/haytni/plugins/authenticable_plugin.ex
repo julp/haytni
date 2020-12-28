@@ -30,7 +30,7 @@ defmodule Haytni.AuthenticablePlugin do
     * `argon2` add `{:argon2_elixir, "~> 2.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Argon2.hash_pwd_salt/1` and `password_check_fun` to ` &Argon2.check_pass/2` in config/config.exs
 
   ```elixir
-  stack Haytni.AuthenticablePlugin,
+  stack #{inspect(__MODULE__)},
     authentication_keys: #{inspect(@default_authentication_keys)},
     password_check_fun: #{inspect(@default_password_check_fun)},
     password_hash_fun: #{inspect(@default_password_hash_fun)}

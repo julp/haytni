@@ -25,7 +25,7 @@ defmodule Haytni.InvitablePlugin do
     * `invitation_within` (default: `#{inspect(@default_invitation_within)}`): laps of time before the invitation can no longer be used (expiration)
     * `invitation_sent_to_index_name` (default: `#{inspect(@default_invitation_sent_to_index_name)}`): the name of the index on sent_to column if you have to explicit it
 
-          stack Haytni.InvitablePlugin,
+          stack #{inspect(__MODULE__)},
             invitation_required: #{inspect(@default_invitation_required)},
             invitation_quota: #{inspect(@default_invitation_quota)},
             invitation_within: #{inspect(@default_invitation_within)},

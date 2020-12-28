@@ -30,7 +30,7 @@ defmodule Haytni.LockablePlugin do
       + `:both`: enables both strategies
       + `:none`: no unlock strategy. You should handle unlocking by yourself.
 
-            stack Haytni.LockablePlugin,
+            stack #{inspect(__MODULE__)},
               maximum_attempts: #{inspect @default_maximum_attempts},
               unlock_in: #{inspect @default_unlock_in},
               unlock_within: #{inspect @default_unlock_within},
@@ -355,16 +355,27 @@ defmodule Haytni.LockablePlugin do
     dgettext("haytni", "This account is not currently locked")
   end
 
+  defp resend_instructions_query(module, sanitized_params) do
+    import Ecto.Query
+
+    from(
+      u in module.schema(),
+      where: ^Map.to_list(sanitized_params),
+      where: not is_nil(u.locked_at)
+    )
+    |> module.repo().one()
+  end
+
   @doc ~S"""
   Resend, by email, the instructions to unlock an account.
 
   Returns:
 
-    * `{:error, changeset}` if form fields are invalid (empty) or if `:email` strategy is disabled
-    * `{:ok, nil}` if no one matches `config.unlock_keys` or if the account is not currently locked
-    * `{:ok, user}` if successful (meaning an email has been sent)
+    * `{:ok, nil}`: no one matches `config.unlock_keys` or the account is not currently locked
+    * `{:ok, user}`: an email has been sent
+    * `{:error, changeset}`: form fields are invalid (empty) or `:email` (reminder: included by `:both`) strategy is disabled
   """
-  @spec resend_unlock_instructions(module :: module, config :: Config.t, request_params :: Haytni.params) :: {:ok, Haytni.user | nil} | {:error, Ecto.Changeset.t}
+  @spec resend_unlock_instructions(module :: module, config :: Config.t, request_params :: Haytni.params) :: {:ok, Haytni.nilable(Haytni.user)} | {:error, Ecto.Changeset.t}
   def resend_unlock_instructions(module, config, request_params = %{}) do
     changeset = unlock_request_changeset(config, request_params)
 
@@ -374,10 +385,8 @@ defmodule Haytni.LockablePlugin do
       {:ok, sanitized_params} ->
         if email_strategy_enabled?(config) do
           sanitized_params = Map.delete(sanitized_params, :referer)
-          case Haytni.get_user_by(module, sanitized_params) do # TODO: not is_nil(u.locked_at)
+          case resend_instructions_query(module, sanitized_params) do
             nil ->
-              {:ok, nil}
-            %_{locked_at: nil} -> # TODO: removal with: not is_nil(u.locked_at)
               {:ok, nil}
             user = %_{} ->
               {:ok, _changes} =

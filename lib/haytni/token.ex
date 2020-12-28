@@ -74,11 +74,13 @@ defmodule Haytni.Token do
     Base.url_decode64(token, @base64_options)
   end
 
-  #@hash_algorithm :sha256
-  #@spec hash_token({String.t, token}) :: {String.t, token}
-  #def hash_token({raw_token, struct_token}) do
-    #{raw_token, %{struct_token | token: :crypto.hash(@hash_algorithm, struct_token.token)}}
-  #end
+  if false do
+    @hash_algorithm :sha256
+    @spec hash_token({String.t, token}) :: {String.t, token}
+    def hash_token({raw_token, struct_token}) do
+      {raw_token, %{struct_token | token: :crypto.hash(@hash_algorithm, struct_token.token)}}
+    end
+  end
 
   @spec user_module_to_token_module(module) :: module
   defp user_module_to_token_module(module) do

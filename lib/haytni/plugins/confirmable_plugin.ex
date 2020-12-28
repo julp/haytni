@@ -26,7 +26,7 @@ defmodule Haytni.ConfirmablePlugin do
     * `confirmation_keys` (default: `#{inspect(@default_confirmation_keys)}`): the key(s) to be matched before sending a new confirmation
     * `confirm_within` (default: `#{inspect(@default_confirm_within)}`): delay after which confirmation token is considered as expired (ie the user has to ask for a new one)
 
-          stack Haytni.ConfirmablePlugin,
+          stack #{inspect(__MODULE__)},
             confirm_within: #{inspect(@default_confirm_within)},
             confirmation_keys: #{inspect(@default_confirmation_keys)},
             reconfirmable: #{inspect(@default_reconfirmable)},
@@ -319,7 +319,7 @@ defmodule Haytni.ConfirmablePlugin do
   end
 
   @doc ~S"""
-  Reconfirms (validates an email address change) an account from its confirmation *token*.
+  Reconfirms (validates an email address after its change) an account from its confirmation *token*.
 
   Returns `{:error, reason}` if token is expired or invalid else the (updated) user as `{:ok, user}`. # TODO!
   """

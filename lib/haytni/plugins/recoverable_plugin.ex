@@ -16,7 +16,7 @@ defmodule Haytni.RecoverablePlugin do
     * `reset_password_within` (default: `#{inspect(@default_reset_password_within)}`): the delay before the token expires
     * `reset_password_keys` (default: `#{inspect(@default_reset_password_keys)}`): the field(s) to be matched to send a reinitialization token
 
-          stack Haytni.RecoverablePlugin,
+          stack #{inspect(__MODULE__)},
             reset_password_keys: #{inspect(@default_reset_password_keys)},
             reset_password_within: #{inspect(@default_reset_password_within)}
 

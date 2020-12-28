@@ -63,7 +63,7 @@ defmodule Haytni.RegisterablePlugin do
       index/constraint on email field
     * `registration_disabled?` (default: `#{inspect(@default_registration_disabled?)}`): disable any new registration (existing users are still able to login, edit their profile, ...)
 
-          stack Haytni.RegisterablePlugin,
+          stack #{inspect(__MODULE__)},
             registration_disabled?: #{inspect(@default_registration_disabled?)},
             strip_whitespace_keys: #{inspect(@default_strip_whitespace_keys)},
             case_insensitive_keys: #{inspect(@default_case_insensitive_keys)},
