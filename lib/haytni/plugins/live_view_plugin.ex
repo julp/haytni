@@ -77,8 +77,12 @@ defmodule Haytni.LiveViewPlugin do
     end
   end
 
+  @doc ~S"""
+  Default implementation used when *socket_id* option is omitted (or falsy)
+  """
   def default_socket_id(user = %_{}) do
-    "user_socket:#{user.id}" # TODO: ajouter module en paramètre pour le scope ?
+    # TODO: ajouter module en paramètre pour le scope ? (=> non : on dériverait de `c:Phoenix.Socket.id/1` - ie on ne pourrait pas la réutiliser)
+    "user_socket:#{user.id}"
   end
 
   @spec token_context() :: String.t
@@ -90,7 +94,7 @@ defmodule Haytni.LiveViewPlugin do
   def on_logout(conn = %Plug.Conn{}, module, config) do
     #if _live_socket_id = get_session(conn, :live_socket_id) do
       IO.inspect(config.socket_id)
-      conn.assigns[:"current_#{module.scope()}"]
+      conn.assigns[:"current_#{module.scope()}"] # TODO: provide user to on_logout callbacks?
       |> config.socket_id.()
       |> module.endpoint().broadcast("disconnect", %{})
     #end
@@ -122,9 +126,9 @@ defmodule Haytni.LiveViewPlugin do
   end
 
   @doc ~S"""
-  TODO (doc)
+  Add metadata (IP address) to *token* then hash and cipher the whole.
   """
-  @spec encode_token(conn :: Plug.Conn.t, token :: Haytni.token, config :: Config.t) :: String.t
+  @spec encode_token(conn :: Plug.Conn.t, token :: Haytni.Token.t, config :: Config.t) :: String.t
   def encode_token(conn = %Plug.Conn{}, token, config) do
     content =
       [
@@ -136,9 +140,11 @@ defmodule Haytni.LiveViewPlugin do
         |> Phoenix.json_library().encode!()
       ]
       |> Enum.join(config.separator)
+
     hash =
       content
       |> digest()
+
     [
       content,
       hash,
@@ -148,7 +154,7 @@ defmodule Haytni.LiveViewPlugin do
   end
 
   @doc ~S"""
-  TODO (doc)
+  Extract metadata and real token from a previously "encoded" token by `encode_token/3`
   """
   @spec decode_token(config :: Config.t, token_param :: String.t) :: {:ok, %{required(String.t) => String.t}} | :error
   def decode_token(config, token_param) do
@@ -167,7 +173,18 @@ defmodule Haytni.LiveViewPlugin do
   end
 
   @doc ~S"""
-  TODO: destiné à être appelé depuis la callback connect (channels)
+  For channels, to be called in `c:Phoenix.Socket.connect/3` callback in order to set the current user
+  in assigns (named `:current_user` by default - same way as it is done for Plug.Conn).
+
+  Example:
+
+      # lib/your_app_web/channels/user_socket.ex
+      defmodule YourAppWeb.UserSocket do
+        @impl Phoenix.Socket
+        def connect(params, socket, connect_info) do
+          Haytni.LiveViewPlugin.connect(YourApp.Haytni, params, socket, connect_info)
+        end
+      end
   """
   @spec connect(module :: module, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t} | :error
   def connect(module, params, socket, connect_info) do
@@ -187,8 +204,8 @@ defmodule Haytni.LiveViewPlugin do
       token when not is_nil(token) <- Map.get(params, "token"),
       {:ok, %{"ip" => ^remote_ip_as_string, "token" => token}} <- decode_token(config, token),
       {:ok, token} <- Haytni.Token.decode_token(token),
-      user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(), config.token_validity)
-      # TODO: vérifier que user est valide
+      user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(), config.token_validity),
+      false <- Haytni.invalid_user?(module, user)
     ) do
       {:ok, Phoenix.Socket.assign(socket, :"current_#{module.scope()}", user)} # TODO: Phoenix.LiveView.assign pour live view ?
     else

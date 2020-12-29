@@ -271,8 +271,13 @@ defmodule Haytni do
     {conn, nil}
   end
 
+  @doc ~S"""
+  Checks if a user is valid according to plugins.
+
+  Returns `false` if the user is valid else `{:error, reason}`.
+  """
   @spec invalid_user?(module :: module, user :: Haytni.user) :: {:error, String.t} | false
-  defp invalid_user?(module, user = %_{}) do
+  def invalid_user?(module, user = %_{}) do
     module.plugins_with_config()
     |> map_while(false, &(&1.invalid?(user, module, &2)))
   end

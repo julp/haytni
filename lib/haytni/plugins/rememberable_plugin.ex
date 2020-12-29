@@ -72,6 +72,7 @@ defmodule Haytni.RememberablePlugin do
 
   @impl Haytni.Plugin
   # The checkbox "remember me" is checked (present in params)
+  # NOTE: it isn't necessary to check if the client has already one, if he goes through the authentication form, he obviously has not
   def on_successful_authentication(conn = %Plug.Conn{params: %{"session" => %{"remember" => _}}}, user = %_{}, multi = %Ecto.Multi{}, keyword, _module, config) do
     token = Haytni.Token.build_and_assoc_token(user, user.email, token_context())
 

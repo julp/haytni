@@ -36,7 +36,7 @@ defmodule Haytni.ConfirmablePlugin do
 
     * `haytni_<scope>_confirmation_path` (actions: show, new/create): default path is `#{inspect(@default_confirmation_path)}` but it can be redefined by the
       `#{inspect(@confirmation_path_key)}` option when calling YourApp.Haytni.routes/1 from your own router (eg: `YourApp.Haytni.routes(#{@confirmation_path_key}: "/verification")`)
-    * `haytni_<scope>_reconfirmation_path` (actions: show): TODO
+    * `haytni_<scope>_reconfirmation_path` (actions: show): default path is `#{inspect(@default_reconfirmation_path)}` (overridable by the option `#{inspect(@reconfirmation_path_key)}`)
   """
 
   import Haytni.Gettext
@@ -92,12 +92,12 @@ defmodule Haytni.ConfirmablePlugin do
 
   @impl Haytni.Plugin
   def routes(prefix_name, options) do
+    # TODO: better to have only one controller (HaytniWeb.Confirmable.ConfirmationController) and add a custom action to it for reconfirmation?
     #prefix_name = :"#{prefix_name}_confirmation"
     confirmation_path = Keyword.get(options, @confirmation_path_key, @default_confirmation_path)
     reconfirmation_path = Keyword.get(options, @reconfirmation_path_key, @default_reconfirmation_path)
     quote bind_quoted: [prefix_name: prefix_name, confirmation_path: confirmation_path, reconfirmation_path: reconfirmation_path], unquote: true do
       resources confirmation_path, HaytniWeb.Confirmable.ConfirmationController, singleton: true, only: ~W[show new create]a, as: unquote(:"#{prefix_name}_confirmation")
-      # TODO: prefix (préférable de garder un contrôleur et de jouer sur l'action ?)
       resources reconfirmation_path, HaytniWeb.Confirmable.ReconfirmationController, singleton: true, only: ~W[show]a, as: unquote(:"#{prefix_name}_reconfirmation")
     end
   end
@@ -216,7 +216,7 @@ defmodule Haytni.ConfirmablePlugin do
     |> module.mailer().deliver_later()
   end
 
-  @spec send_confirmation_instructions_in_multi(multi :: Ecto.Multi.t, user_or_user_name :: Haytni.user | Ecto.Multi.t, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
+  @spec send_confirmation_instructions_in_multi(multi :: Ecto.Multi.t, user_or_user_name :: Haytni.user | Ecto.Multi.name, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
   defp send_confirmation_instructions_in_multi(multi = %Ecto.Multi{}, user = %_{}, token_name, module, config) do
     Ecto.Multi.run(
       multi,

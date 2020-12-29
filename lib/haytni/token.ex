@@ -3,8 +3,7 @@ defmodule Haytni.Token do
   This module handles generation of tokens for the use of Haytni's plugins.
   """
 
-  #@type t :: struct
-  @type token :: struct
+  @type t :: struct
 
   @token_length 32
   @token_association :tokens
@@ -12,7 +11,7 @@ defmodule Haytni.Token do
   import Ecto.Query
 
   @doc ~S"""
-  TODO (doc)
+  Generates a *length* long random binary token
   """
   def new(length) do
     length
@@ -24,7 +23,7 @@ defmodule Haytni.Token do
     quote do
       @after_compile Haytni.Token
 
-      has_many unquote(@token_association), Haytni.Helpers.scope_module(__MODULE__, "Token"), foreign_key: :user_id # TODO
+      has_many unquote(@token_association), Haytni.Helpers.scope_module(__MODULE__, "Token"), foreign_key: :user_id # TODO: "#{scope}_id"?
     end
   end
 
@@ -40,7 +39,7 @@ defmodule Haytni.Token do
 
         timestamps(updated_at: false, type: :utc_datetime)
 
-        belongs_to :user, unquote(env.module), foreign_key: :user_id # TODO
+        belongs_to :user, unquote(env.module), foreign_key: :user_id # TODO: "#{scope}_id"?
       end
     end
 
@@ -52,22 +51,22 @@ defmodule Haytni.Token do
 
   NOTE: this is a "low level" function, the token is **NOT** persisted (designed to be used by Ecto.Multi)
   """
-  @spec build_and_assoc_token(user :: Haytni.user, sent_to :: String.t, context :: String.t | atom) :: token
+  @spec build_and_assoc_token(user :: Haytni.user, sent_to :: String.t, context :: String.t | atom) :: t
   def build_and_assoc_token(user = %_{}, sent_to, context) do
     Ecto.build_assoc(user, @token_association, token: new(@token_length), context: context, sent_to: sent_to)
   end
 
   @base64_options [padding: false]
   @doc ~S"""
-  TODO (doc)
+  Encodes a token to safely figure in an URL
   """
-  @spec encode_token(token :: token) :: String.t
+  @spec encode_token(token :: t) :: String.t
   def encode_token(token = %_{}) do
     Base.url_encode64(token.token, @base64_options)
   end
 
   @doc ~S"""
-  TODO (doc)
+  Decodes a token previously encoded by `encode_token/1`
   """
   @spec decode_token(token :: String.t) :: {:ok, String.t} | :error
   def decode_token(token) do
@@ -76,7 +75,7 @@ defmodule Haytni.Token do
 
   if false do
     @hash_algorithm :sha256
-    @spec hash_token({String.t, token}) :: {String.t, token}
+    @spec hash_token({String.t, t}) :: {String.t, t}
     def hash_token({raw_token, struct_token}) do
       {raw_token, %{struct_token | token: :crypto.hash(@hash_algorithm, struct_token.token)}}
     end
@@ -87,34 +86,23 @@ defmodule Haytni.Token do
     module.__schema__(:association, @token_association).related
   end
 
-  # SELECT *, encode(token, 'escape') FROM users_tokens;
   @spec user_from_token_query(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Ecto.Query.t
   defp user_from_token_query(module, token, context, duration) do
-    #where = dynamic([t, u], t.token == ^token and t.context == ^context and t.inserted_at > ago(^duration, "second"))
-    #where = if :strict == Application.get_env(:haytni, :mode) do
-      #dynamic([u], ^where and is_nil(u.confirmed_at)) # TODO: valable uniquement pour confirmable, pas les autres
-    #else
-      #where
-    #end
     from t in user_module_to_token_module(module.schema()),
       join: u in assoc(t, :user),
-      #where: ^where,
-      where: t.token == ^token and t.context == ^context and t.inserted_at > ago(^duration, "second"), # and is_nil(u.confirmed_at)
+      where: t.token == ^token and t.context == ^context and t.inserted_at > ago(^duration, "second"), # and (not) is_nil(u.confirmed_at)
       select: u
   end
 
-  @doc ~S"""
-  TODO (doc)
-  """
   @spec user_from_token_with_mail_query(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Ecto.Query.t
-  def user_from_token_with_mail_query(module, token, context, duration) do
+  defp user_from_token_with_mail_query(module, token, context, duration) do
     from([t, u] in user_from_token_query(module, token, context, duration), where: t.sent_to == u.email)
   end
 
   @doc ~S"""
   TODO (doc)
   """
-  @spec user_from_token_with_mail_match(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.user | nil
+  @spec user_from_token_with_mail_match(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.nilable(Haytni.user)
   def user_from_token_with_mail_match(module, token, context, duration) do
     user_from_token_with_mail_query(module, token, context, duration)
     |> module.repo().one()
@@ -123,7 +111,7 @@ defmodule Haytni.Token do
   @doc ~S"""
   TODO (doc)
   """
-  @spec user_from_token_without_mail_match(module :: module, user :: Haytni.user, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.user | nil
+  @spec user_from_token_without_mail_match(module :: module, user :: Haytni.user, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.nilable(Haytni.user)
   def user_from_token_without_mail_match(module, user, token, context, duration) do
     #from([t, u] in user_from_token_query(module, token, context, duration), where: t.sent_to != u.email)
     from(
@@ -136,7 +124,7 @@ defmodule Haytni.Token do
   end
 
   @doc ~S"""
-  TODO (doc)
+  Helper (intended to be composed) to build the query to select all tokens associated to a given user and for the specified contexts
   """
   @spec tokens_from_user_query(user :: Haytni.user, contexts :: String.t | nonempty_list(String.t) | :all) :: Ecto.Query.t
   def tokens_from_user_query(user, :all) do
@@ -205,7 +193,7 @@ defmodule Haytni.Token do
   end
 
   @doc ~S"""
-  Generates a token associated to *user* and add it to the multi for insertion.
+  Generates a token associated to *user* and add it to the multi for later insertion.
   """
   @spec insert_token_in_multi(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, user :: Haytni.user, email :: String.t, context :: String.t) :: Ecto.Multi.t
   def insert_token_in_multi(multi = %Ecto.Multi{}, name, user = %_{}, email, context) do
@@ -215,7 +203,7 @@ defmodule Haytni.Token do
   @doc ~S"""
   Fetch the user associated to the given *token*, and if it is still valid. Returns `nil` if none.
   """
-  @spec verify(module :: module, token :: String.t, duration :: pos_integer, context :: String.t) :: nil | Haytni.user
+  @spec verify(module :: module, token :: String.t, duration :: pos_integer, context :: String.t) :: Haytni.nilable(Haytni.user)
   def verify(module, token, duration, context) do
     from(
       t in user_module_to_token_module(module.schema()),
@@ -228,7 +216,7 @@ defmodule Haytni.Token do
 
   if false do
     @doc ~S"""
-    TODO: à virer pour le faire manuellement en multi ? => Ecto.Multi.delete_all(:tokens, tokens_from_user_query()) ?
+    TODO (doc or removal)
     """
     @spec revoke_user_tokens(module :: module, user :: Haytni.user) :: {integer, nil}
     def revoke_user_tokens(module, user = %_{}) do
