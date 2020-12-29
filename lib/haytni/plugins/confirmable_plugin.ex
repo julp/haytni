@@ -171,14 +171,6 @@ defmodule Haytni.ConfirmablePlugin do
     dgettext("haytni", "The given confirmation token is invalid or has expired.")
   end
 
-  @doc ~S"""
-  The translated string to display when the account is already confirmed.
-  """
-  @spec alreay_confirmed_message() :: String.t
-  def alreay_confirmed_message do
-    dgettext("haytni", "This account has already been confirmed")
-  end
-
   use Haytni.Tokenable
 
   # NOTE: MUST only be used for confirmation, not reconfirmation ("reconfirmable:" <> user.email)
@@ -300,7 +292,7 @@ defmodule Haytni.ConfirmablePlugin do
   @doc ~S"""
   Confirms an account from its confirmation *token*.
 
-  Returns `{:error, reason}` if token is expired or invalid else the (updated) user as `{:ok, user}`. # TODO!
+  Returns `{:error, reason}` if token is expired or invalid else the (updated) user as `{:ok, user}`.
   """
   @spec confirm(module :: module, config :: Config.t, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
   def confirm(module, config, token) do
@@ -309,34 +301,33 @@ defmodule Haytni.ConfirmablePlugin do
       nil ->
         {:error, invalid_token_message()}
       user = %_{} ->
-        #{:ok, updated_user} = # TODO!
+        {:ok, %{user: updated_user}} =
           Ecto.Multi.new()
           |> Haytni.update_user_in_multi_with(:user, user, confirmed_attributes())
           |> Haytni.Token.delete_tokens_in_multi(:tokens, user, context)
           |> module.repo().transaction()
-        #{:ok, updated_user} # TODO!
+        {:ok, updated_user}
     end
   end
 
   @doc ~S"""
   Reconfirms (validates an email address after its change) an account from its confirmation *token*.
 
-  Returns `{:error, reason}` if token is expired or invalid else the (updated) user as `{:ok, user}`. # TODO!
+  Returns `{:error, reason}` if token is expired or invalid else the (updated) user as `{:ok, user}`.
   """
   @spec reconfirm(module :: module, config :: Config.t, user :: Haytni.user, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
   def reconfirm(module, config, user, confirmation_token) do
-    # TODO: refactoriser ce qui est commun avec confirm ci-dessus ?
     context = token_context(user.email)
     with(
       {:ok, confirmation_token} <- Haytni.Token.decode_token(confirmation_token),
       token = %_{} <- Haytni.Token.user_from_token_without_mail_match(module, user, confirmation_token, context, config.reconfirm_within)
     ) do
-      #{:ok, updated_user} = # TODO!
+      {:ok, %{user: updated_user}} =
         Ecto.Multi.new()
         |> Haytni.update_user_in_multi_with(:user, user, email: token.sent_to)
         |> Haytni.Token.delete_tokens_in_multi(:tokens, user, context)
         |> module.repo().transaction()
-      #{:ok, updated_user} # TODO!
+      {:ok, updated_user}
     else
       _ ->
         {:error, invalid_token_message()}

@@ -166,14 +166,6 @@ defmodule Haytni.RecoverablePlugin do
   end
 
   @doc ~S"""
-  The translated string to display when a password recovery token exists but is expired
-  """
-  @spec expired_token_message() :: String.t
-  def expired_token_message do
-    dgettext("haytni", "The given password recovery token is expired.")
-  end
-
-  @doc ~S"""
   Change user's password from its recovering token.
 
   Returns `{:ok, user}` if successful else `{:error, changeset}` when the token:

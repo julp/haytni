@@ -347,14 +347,6 @@ defmodule Haytni.LockablePlugin do
     Haytni.Helpers.to_changeset(request_params, [:referer | config.unlock_keys], config.unlock_keys)
   end
 
-  @doc ~S"""
-  The translated string to display when a user request a token while he is not currently locked
-  """
-  @spec not_locked_message() :: String.t
-  def not_locked_message do
-    dgettext("haytni", "This account is not currently locked")
-  end
-
   defp resend_instructions_query(module, sanitized_params) do
     import Ecto.Query
 
