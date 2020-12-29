@@ -47,9 +47,10 @@ defmodule Haytni.Token do
   end
 
   @doc ~S"""
-  TODO (doc)
+  Generates a token, associated to a given user and a given email address (*sent_to*).
 
-  NOTE: this is a "low level" function, the token is **NOT** persisted (designed to be used by Ecto.Multi)
+  NOTE: this is a "low level" function for specific needs, the token is **NOT** persisted (designed to be inserted later
+  by an Ecto.Multi). Use the higher level function `insert_token_in_multi/4` if it feet your needs.
   """
   @spec build_and_assoc_token(user :: Haytni.user, sent_to :: String.t, context :: String.t | atom) :: t
   def build_and_assoc_token(user = %_{}, sent_to, context) do
@@ -100,7 +101,8 @@ defmodule Haytni.Token do
   end
 
   @doc ~S"""
-  TODO (doc)
+  Returns the user associated to the given non-expired token, `nil` if none matches. This function checks that the current email address
+  of the found user is the same than the the one associated to the token at its creation.
   """
   @spec user_from_token_with_mail_match(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.nilable(Haytni.user)
   def user_from_token_with_mail_match(module, token, context, duration) do
@@ -109,7 +111,8 @@ defmodule Haytni.Token do
   end
 
   @doc ~S"""
-  TODO (doc)
+  Returns the user associated to the given non-expired token, `nil` if none matches but, in opposition to `user_from_token_with_mail_match/4`, the email
+  address between the user and the token is expected (has) to be different. This behaviour (and function) is primarily intended to change its email address.
   """
   @spec user_from_token_without_mail_match(module :: module, user :: Haytni.user, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.nilable(Haytni.user)
   def user_from_token_without_mail_match(module, user, token, context, duration) do
@@ -124,7 +127,7 @@ defmodule Haytni.Token do
   end
 
   @doc ~S"""
-  Helper (intended to be composed) to build the query to select all tokens associated to a given user and for the specified contexts
+  Helper to build the query (intended to be composed) to select all tokens associated to a given user and for the specified contexts
   """
   @spec tokens_from_user_query(user :: Haytni.user, contexts :: String.t | nonempty_list(String.t) | :all) :: Ecto.Query.t
   def tokens_from_user_query(user, :all) do
