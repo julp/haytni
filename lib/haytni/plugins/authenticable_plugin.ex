@@ -174,7 +174,7 @@ defmodule Haytni.AuthenticablePlugin do
   """
   @spec session_changeset(config :: Config.t, request_params :: Haytni.params) :: Ecto.Changeset.t
   def session_changeset(config, session_params \\ %{}) do
-    Haytni.Helpers.to_changeset(session_params, [:password | config.authentication_keys])
+    Haytni.Helpers.to_changeset(session_params, nil, [:password | config.authentication_keys])
   end
 
   @doc ~S"""

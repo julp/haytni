@@ -344,7 +344,7 @@ defmodule Haytni.LockablePlugin do
   """
   @spec unlock_request_changeset(config :: Config.t, request_params :: Haytni.params) :: Ecto.Changeset.t
   def unlock_request_changeset(config, request_params \\ %{}) do
-    Haytni.Helpers.to_changeset(request_params, [:referer | config.unlock_keys], config.unlock_keys)
+    Haytni.Helpers.to_changeset(request_params, nil, [:referer | config.unlock_keys], config.unlock_keys)
   end
 
   defp resend_instructions_query(module, sanitized_params) do

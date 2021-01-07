@@ -348,7 +348,7 @@ defmodule Haytni.InvitablePlugin do
     @spec invitation_changeset(config :: Config.t, invitation_params :: Haytni.params) :: Ecto.Changeset.t
     def invitation_changeset(_config, invitation_params \\ %{}) do
       invitation_params
-      |> Haytni.Helpers.to_changeset(~W[email]a)
+      |> Haytni.Helpers.to_changeset(nil, ~W[email]a)
       # TODO: reuse, move or share code from Haytni.RegisterablePlugin, config.email_regexp
       |> Ecto.Changeset.validate_format(:email, ~R/^[^@\s]+@[^@\s]+$/)
     end

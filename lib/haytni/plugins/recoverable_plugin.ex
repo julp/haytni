@@ -100,7 +100,7 @@ defmodule Haytni.RecoverablePlugin do
   """
   @spec recovering_changeset(config :: Config.t, request_params :: Haytni.params) :: Ecto.Changeset.t
   def recovering_changeset(config, request_params \\ %{}) do
-    Haytni.Helpers.to_changeset(request_params, config.reset_password_keys)
+    Haytni.Helpers.to_changeset(request_params, nil, config.reset_password_keys)
   end
 
   @spec send_instructions_in_multi(multi :: Ecto.Multi.t, user :: Haytni.user, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t

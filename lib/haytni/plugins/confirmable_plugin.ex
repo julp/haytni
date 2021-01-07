@@ -286,7 +286,7 @@ defmodule Haytni.ConfirmablePlugin do
   """
   @spec confirmation_request_changeset(config :: Config.t, confirmation_params :: Haytni.params) :: Ecto.Changeset.t
   def confirmation_request_changeset(config, confirmation_params \\ %{}) do
-    Haytni.Helpers.to_changeset(confirmation_params, [:referer | config.confirmation_keys], config.confirmation_keys)
+    Haytni.Helpers.to_changeset(confirmation_params, nil, [:referer | config.confirmation_keys], config.confirmation_keys)
   end
 
   @doc ~S"""
