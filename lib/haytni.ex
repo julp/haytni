@@ -36,10 +36,11 @@ defmodule Haytni do
   defmacro __using__(options) do
     otp_app = Keyword.fetch!(options, :otp_app)
 
-    web_module = otp_app
-    |> app_base()
-    |> Kernel.<>("Web")
-    |> String.to_atom()
+    web_module =
+      otp_app
+      |> app_base()
+      |> Kernel.<>("Web")
+      |> String.to_atom()
 
     quote do
       import unquote(__MODULE__)
