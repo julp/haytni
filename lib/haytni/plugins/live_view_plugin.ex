@@ -19,7 +19,8 @@ defmodule Haytni.LiveViewPlugin do
       header, explicit it here. For example, with nginx configured with `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;`, set `remote_ip_header: "x-forwarded-for"`
     * `token_validity` (default: `#{inspect(@default_token_validity)}`): duration of generated token. You should keep it as short as possible (not more than few minutes)
       since these tokens are intended to be used right after they were requested
-    * `socket_id` (default: `#{inspect(@default_socket_id)}`): TODO (doc)
+    * `socket_id` (default: `#{inspect(@default_socket_id)}`): a function to resolve a user into a socket's name. This function, from a module (your Haytni's stack) and a user,
+      should return a string (binary) that identify a socket, the same value returned by your `c:Phoenix.Socket.id/1` callback
 
           stack #{inspect(__MODULE__)},
             socket_id: #{inspect(@default_socket_id)},
@@ -168,23 +169,8 @@ defmodule Haytni.LiveViewPlugin do
     end
   end
 
-  @doc ~S"""
-  For channels, to be called in `c:Phoenix.Socket.connect/3` callback in order to set the current user
-  in assigns (named `:current_user` by default - same way as it is done for Plug.Conn).
-
-  Example:
-
-      # lib/your_app_web/channels/user_socket.ex
-      defmodule YourAppWeb.UserSocket do
-        @impl Phoenix.Socket
-        def connect(params, socket, connect_info) do
-          Haytni.LiveViewPlugin.connect(YourApp.Haytni, params, socket, connect_info)
-        end
-      end
-  """
-  @spec connect(module :: module, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t} | :error
-  def connect(module, params, socket, connect_info) do
-    config = module.fetch_config(__MODULE__)
+  @spec connect(module :: module, config :: Config.t, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t} | :error
+  def connect(module, config, params, socket, connect_info) do
     remote_ip_as_string = if is_nil(config.remote_ip_header) do
       connect_info.peer_data.address
       |> :inet_parse.ntoa()
@@ -208,6 +194,26 @@ defmodule Haytni.LiveViewPlugin do
       _ ->
         :error
     end
+  end
+
+  @doc ~S"""
+  For channels, to be called in `c:Phoenix.Socket.connect/3` callback in order to set the current user
+  in assigns (named `:current_user` by default - same way as it is done for Plug.Conn).
+
+  Example:
+
+      # lib/your_app_web/channels/user_socket.ex
+      defmodule YourAppWeb.UserSocket do
+        @impl Phoenix.Socket
+        def connect(params, socket, connect_info) do
+          Haytni.LiveViewPlugin.connect(YourApp.Haytni, params, socket, connect_info)
+        end
+      end
+  """
+  @spec connect(module :: module, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t} | :error
+  def connect(module, params, socket, connect_info) do
+    config = module.fetch_config(__MODULE__)
+    connect(module, config, params, socket, connect_info)
   end
 
   #@doc ~S"""

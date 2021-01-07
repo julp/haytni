@@ -5,7 +5,7 @@ defmodule HaytniTestWeb.UserSocket do
 
   @impl Phoenix.Socket
   def connect(params, socket, connect_info) do
-    Haytni.LiveViewPlugin.connect(HaytniTest.Haytni, params, socket, connect_info)
+    Haytni.LiveViewPlugin.connect(HaytniTestWeb.Haytni, params, socket, connect_info)
   end
 
   @impl Phoenix.Socket
