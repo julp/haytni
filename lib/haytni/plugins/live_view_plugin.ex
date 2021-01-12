@@ -189,7 +189,7 @@ defmodule Haytni.LiveViewPlugin do
       user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(), config.token_validity),
       false <- Haytni.invalid_user?(module, user)
     ) do
-      {:ok, Phoenix.Socket.assign(socket, :"current_#{module.scope()}", user)} # TODO: Phoenix.LiveView.assign pour live view ?
+      {:ok, Phoenix.Socket.assign(socket, :"current_#{module.scope()}", user)} # TODO: Phoenix.LiveView.assign pour live view ? (retourner {:ok, :"current_#{module.scope()}", user} | :error  pour ensuite appeler la bonne fonction assign ?)
     else
       _ ->
         :error
@@ -216,13 +216,15 @@ defmodule Haytni.LiveViewPlugin do
     connect(module, config, params, socket, connect_info)
   end
 
-  #@doc ~S"""
-  #TODO: destiné à être appelé depuis la callback mount (live view)
-  #"""
-  #def mount_user(module, params, _session, socket) do
+  @doc ~S"""
+  TODO: destiné à être appelé depuis la callback mount (live view)
+  """
+  def mount_user(module, params, _session, socket) do
     # params sont les mount_params qui sont différents des connect_params ? => Phoenix.LiveView.get_connect_params(socket)
-    #case connect(module, params, socket, Phoenix.LiveView.get_connect_info(socket)) do
-      #
-    #end
-  #end
+    case connect(module, params, socket, Phoenix.LiveView.get_connect_info(socket)) do
+      # TODO
+      _ ->
+        :error
+    end
+  end
 end

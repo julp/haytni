@@ -58,6 +58,9 @@ defmodule Haytni.MixProject do
       #{:sobelow, "~> 0.10", only: :test},
       #{:myxql, ">= 0.0.0", only: :test},
       {:postgrex, ">= 0.0.0", only: :test},
+      # for LiveViewPlugin
+      {:phoenix_live_view, ">= 0.15.3", only: :test},
+      {:floki, ">= 0.27.0", only: :test},
     ]
   end
 
