@@ -60,8 +60,7 @@ defmodule Haytni.RememberablePlugin do
     conn = Plug.Conn.fetch_cookies(conn, signed: [config.remember_cookie_name])
     with(
       {:ok, token} <- Map.fetch(conn.cookies, config.remember_cookie_name),
-      #{:ok, token} <- Haytni.Token.decode_token(token),
-      user when not is_nil(user) <- Haytni.Token.verify(module, token, config.remember_for, token_context())
+      user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(), config.remember_for)
     ) do
       {conn, user}
     else
@@ -76,7 +75,7 @@ defmodule Haytni.RememberablePlugin do
   def on_successful_authentication(conn = %Plug.Conn{params: %{"session" => %{"remember" => _}}}, user = %_{}, multi = %Ecto.Multi{}, keyword, _module, config) do
     token = Haytni.Token.build_and_assoc_token(user, user.email, token_context())
 
-    {add_rememberme_cookie(conn, Haytni.Token.encode_token(token), config), Ecto.Multi.insert(multi, :rememberable_token, token), keyword}
+    {add_rememberme_cookie(conn, Haytni.Token.url_encode(token), config), Ecto.Multi.insert(multi, :rememberable_token, token), keyword}
   end
 
   # The checkbox "remember me" is not checked (absent from params)

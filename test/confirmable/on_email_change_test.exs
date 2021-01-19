@@ -54,7 +54,7 @@ defmodule Haytni.Confirmable.OnEmailChangeTest do
 
       state = Map.put(state, :confirmation_token, confirmation_token)
       assert {:ok, true} = fun2.(HaytniTest.Repo, state)
-      assert_delivered_email Haytni.ConfirmableEmail.reconfirmation_email(user, @new_email, Haytni.Token.encode_token(confirmation_token), HaytniTestWeb.Haytni, config)
+      assert_delivered_email Haytni.ConfirmableEmail.reconfirmation_email(user, @new_email, Haytni.Token.url_encode(confirmation_token), HaytniTestWeb.Haytni, config)
 
       assert {:ok, true} = fun3.(HaytniTest.Repo, state)
       assert_delivered_email Haytni.ConfirmableEmail.email_changed(user, @old_email, HaytniTestWeb.Haytni, config)

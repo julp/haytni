@@ -39,7 +39,7 @@ defmodule Haytni.Lockable.UnlockControllerTest do
       unlock_token =
         user
         |> token_fixture(Haytni.LockablePlugin)
-        |> Base.url_encode64()
+        |> Haytni.Token.url_encode()
 
       response =
         conn

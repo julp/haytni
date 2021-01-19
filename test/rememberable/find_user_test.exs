@@ -4,11 +4,15 @@ defmodule Haytni.Rememberable.FindUserTest do
   describe "Haytni.RememberablePlugin.find_user/3 (callback)" do
     setup do
       user = user_fixture()
+      token =
+        user
+        |> token_fixture(Haytni.RememberablePlugin)
+        |> Haytni.Token.token()
 
       [
         user: user,
+        token: token,
         config: Haytni.RememberablePlugin.build_config(),
-        token: token_fixture(user, Haytni.RememberablePlugin),
       ]
     end
 

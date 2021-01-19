@@ -27,7 +27,7 @@ defmodule Haytni.Confirmable.ReconfirmationControllerTest do
     user = user_fixture()
     token = user
       |> token_fixture(Haytni.ConfirmablePlugin, sent_to: "my@new.address", context: Haytni.ConfirmablePlugin.token_context(user.email))
-      |> Base.url_encode64()
+      |> Haytni.Token.url_encode()
     conn =
       conn
       |> assign(:current_user, user)

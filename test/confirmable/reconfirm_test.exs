@@ -25,7 +25,7 @@ defmodule Haytni.Confirmable.ReconfirmTest do
       reconfirmation_token =
         user
         |> token_fixture(Haytni.ConfirmablePlugin, sent_to: "my@new.address", token: "z0g2NoDkw9", context: Haytni.ConfirmablePlugin.token_context(user.email), inserted_at: config.reconfirm_within + 1)
-        |> Base.url_encode64()
+        |> Haytni.Token.url_encode()
 
       assert {:error, Haytni.ConfirmablePlugin.invalid_token_message()} == Haytni.ConfirmablePlugin.reconfirm(module, config, user, reconfirmation_token)
     end
@@ -35,7 +35,7 @@ defmodule Haytni.Confirmable.ReconfirmTest do
       reconfirmation_token =
         user
         |> token_fixture(Haytni.ConfirmablePlugin, sent_to: new_email_address, token: "aRGFh5Rdo5", context: Haytni.ConfirmablePlugin.token_context(user.email), inserted_at: config.reconfirm_within - 1)
-        |> Base.url_encode64()
+        |> Haytni.Token.url_encode()
 
       assert {:ok, updated_user} = Haytni.ConfirmablePlugin.reconfirm(module, config, user, reconfirmation_token)
       assert updated_user.id == user.id

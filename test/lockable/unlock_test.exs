@@ -9,9 +9,14 @@ defmodule Haytni.Lockable.UnlockedTest do
         Haytni.LockablePlugin.lock_attributes()
         |> user_fixture()
 
+      token =
+        locked
+        |> token_fixture(Haytni.LockablePlugin)
+        |> Haytni.Token.url_encode()
+
       [
+        token: token,
         locked: locked,
-        token: token_fixture(locked, Haytni.LockablePlugin) |> Base.url_encode64(),
       ]
     end
 

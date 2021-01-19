@@ -35,7 +35,7 @@ defmodule Haytni.Rememberable.OnSuccessfulAuthentificationTest do
     test "if rememberme checkbox is checked ensures a new token is generated and sent", %{conn: conn, config: config, user: user} do
       assert {new_conn, multi, changes} = Haytni.RememberablePlugin.on_successful_authentication(%{conn | params: session_params_with_rememberme()}, user, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, config)
       assert [{:rememberable_token, {:insert, changeset = %Ecto.Changeset{}, []}}] = Ecto.Multi.to_list(multi)
-      assert_rememberme_presence(new_conn, config, Haytni.Token.encode_token(changeset.data))
+      assert_rememberme_presence(new_conn, config, Haytni.Token.url_encode(changeset.data))
     end
   end
 end

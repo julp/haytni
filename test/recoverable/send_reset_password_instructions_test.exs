@@ -33,7 +33,7 @@ defmodule Haytni.Recoverable.SendResetPasswordInstructionsTest do
         {:ok, token} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request(user.email))
 
         assert token.user_id == user.id
-        assert_delivered_email Haytni.RecoverableEmail.reset_password_email(user, Haytni.Token.encode_token(token), HaytniTestWeb.Haytni, config)
+        assert_delivered_email Haytni.RecoverableEmail.reset_password_email(user, Haytni.Token.url_encode(token), HaytniTestWeb.Haytni, config)
       end
 #     end
   end

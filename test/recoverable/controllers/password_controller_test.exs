@@ -81,7 +81,10 @@ defmodule Haytni.Recoverable.PasswordControllerTest do
 
     test "checks successful password change", %{conn: conn} do
       user = user_fixture()
-      token = token_fixture(user, Haytni.RecoverablePlugin)
+      token =
+        user
+        |> token_fixture(Haytni.RecoverablePlugin)
+        |> Haytni.Token.token()
 
       response =
         conn

@@ -57,20 +57,25 @@ defmodule Haytni.Token do
     Ecto.build_assoc(user, @token_association, token: new(@token_length), context: context, sent_to: sent_to)
   end
 
+  @spec url_decode(token :: t) :: String.t
+  def token(token = %_{}) do
+    token.token
+  end
+
   @base64_options [padding: false]
   @doc ~S"""
   Encodes a token to safely figure in an URL
   """
-  @spec encode_token(token :: t) :: String.t
-  def encode_token(token = %_{}) do
+  @spec url_encode(token :: t) :: String.t
+  def url_encode(token = %_{}) do
     Base.url_encode64(token.token, @base64_options)
   end
 
   @doc ~S"""
-  Decodes a token previously encoded by `encode_token/1`
+  Decodes a token previously encoded by `url_encode/1`
   """
-  @spec decode_token(token :: String.t) :: {:ok, String.t} | :error
-  def decode_token(token) do
+  @spec url_decode(token :: String.t) :: {:ok, String.t} | :error
+  def url_decode(token) do
     Base.url_decode64(token, @base64_options)
   end
 
@@ -106,7 +111,8 @@ defmodule Haytni.Token do
   """
   @spec user_from_token_with_mail_match(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.nilable(Haytni.user)
   def user_from_token_with_mail_match(module, token, context, duration) do
-    user_from_token_with_mail_query(module, token, context, duration)
+    module
+    |> user_from_token_with_mail_query(token, context, duration)
     |> module.repo().one()
   end
 
@@ -201,20 +207,6 @@ defmodule Haytni.Token do
   @spec insert_token_in_multi(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, user :: Haytni.user, email :: String.t, context :: String.t) :: Ecto.Multi.t
   def insert_token_in_multi(multi = %Ecto.Multi{}, name, user = %_{}, email, context) do
     Ecto.Multi.insert(multi, name, build_and_assoc_token(user, email, context))
-  end
-
-  @doc ~S"""
-  Fetch the user associated to the given *token*, and if it is still valid. Returns `nil` if none.
-  """
-  @spec verify(module :: module, token :: String.t, duration :: pos_integer, context :: String.t) :: Haytni.nilable(Haytni.user)
-  def verify(module, token, duration, context) do
-    from(
-      t in user_module_to_token_module(module.schema()),
-      join: user in assoc(t, :user), # :user <=> module.scope()
-      where: t.token == ^token and t.inserted_at > ago(^duration, "second") and t.context == ^context,
-      select: user
-    )
-    |> module.repo().one()
   end
 
   if false do

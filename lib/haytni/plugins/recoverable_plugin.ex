@@ -109,7 +109,7 @@ defmodule Haytni.RecoverablePlugin do
       multi,
       :send_reset_password_instructions,
       fn _repo, %{^token_name => token} ->
-        send_reset_password_instructions_mail_to_user(user, Haytni.Token.encode_token(token), module, config)
+        send_reset_password_instructions_mail_to_user(user, Haytni.Token.url_encode(token), module, config)
         {:ok, true}
       end
     )

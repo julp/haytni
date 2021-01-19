@@ -254,7 +254,7 @@ defmodule Haytni.LockablePlugin do
       multi,
       :send_unlock_instructions,
       fn _repo, %{^token_name => token} ->
-        send_unlock_instructions_mail_to_user(user, Haytni.Token.encode_token(token), module, config)
+        send_unlock_instructions_mail_to_user(user, Haytni.Token.url_encode(token), module, config)
         {:ok, true}
       end
     )
@@ -321,7 +321,7 @@ defmodule Haytni.LockablePlugin do
   def unlock(module, config, token) do
     if email_strategy_enabled?(config) do
       with(
-        {:ok, unlock_token} <- Haytni.Token.decode_token(token),
+        {:ok, unlock_token} <- Haytni.Token.url_decode(token),
         user = %_{} <- Haytni.Token.user_from_token_with_mail_match(module, unlock_token, token_context(), config.unlock_within)
       ) do
         {:ok, %{user: user}} =

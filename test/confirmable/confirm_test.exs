@@ -11,7 +11,10 @@ defmodule Haytni.Confirmable.ConfirmTest do
     end
 
     test "ensures account get confirmed from its associated confirmation_token", %{config: config, user: user} do
-      confirmation_token = token_fixture(user, Haytni.ConfirmablePlugin, token: "baL4R2KoOm", inserted_at: config.confirm_within - 1)
+      confirmation_token =
+        user
+        |> token_fixture(Haytni.ConfirmablePlugin, token: "baL4R2KoOm", inserted_at: config.confirm_within - 1)
+        |> Haytni.Token.token()
 
       assert {:ok, updated_user} = Haytni.ConfirmablePlugin.confirm(HaytniTestWeb.Haytni, config, confirmation_token)
       assert updated_user.id == user.id
@@ -26,7 +29,10 @@ defmodule Haytni.Confirmable.ConfirmTest do
     end
 
     test "ensures an expired confirmation_token is rejected", %{config: config, user: user} do
-      confirmation_token = token_fixture(user, Haytni.ConfirmablePlugin, inserted_at: config.confirm_within + 1)
+      confirmation_token =
+        user
+        |> token_fixture(Haytni.ConfirmablePlugin, inserted_at: config.confirm_within + 1)
+        |> Haytni.Token.token()
 
       assert {:error, Haytni.ConfirmablePlugin.invalid_token_message()} == Haytni.ConfirmablePlugin.confirm(HaytniTestWeb.Haytni, config, confirmation_token)
     end

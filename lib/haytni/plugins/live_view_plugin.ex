@@ -132,7 +132,7 @@ defmodule Haytni.LiveViewPlugin do
         config.pepper,
         %{
           "ip" => conn.remote_ip |> :inet_parse.ntoa() |> to_string(),
-          "token" => Haytni.Token.encode_token(token)
+          "token" => Haytni.Token.url_encode(token)
         }
         |> Phoenix.json_library().encode!()
       ]
@@ -185,7 +185,7 @@ defmodule Haytni.LiveViewPlugin do
     with(
       token when not is_nil(token) <- Map.get(params, "token"),
       {:ok, %{"ip" => ^remote_ip_as_string, "token" => token}} <- decode_token(config, token),
-      {:ok, token} <- Haytni.Token.decode_token(token),
+      {:ok, token} <- Haytni.Token.url_decode(token),
       user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(), config.token_validity),
       false <- Haytni.invalid_user?(module, user)
     ) do

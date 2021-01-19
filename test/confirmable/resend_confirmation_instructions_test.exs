@@ -43,7 +43,7 @@ defmodule Haytni.Recoverable.ResendConfirmationInstructionsTest do
     test "ensures a new confirmation is sent by email if account is not already confirmed", %{config: config, unconfirmed_user: user} do
       assert {:ok, confirmation_token} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(user.email))
       assert confirmation_token.user_id == user.id
-      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, Haytni.Token.encode_token(confirmation_token), HaytniTestWeb.Haytni, config)
+      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, Haytni.Token.url_encode(confirmation_token), HaytniTestWeb.Haytni, config)
     end
   end
 end

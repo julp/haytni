@@ -222,7 +222,7 @@ defmodule Haytni.ConfirmablePlugin do
       multi,
       :send_confirmation_instructions,
       fn _repo, %{^token_name => token} ->
-        send_confirmation_instructions(user, Haytni.Token.encode_token(token), module, config)
+        send_confirmation_instructions(user, Haytni.Token.url_encode(token), module, config)
         {:ok, true}
       end
     )
@@ -233,7 +233,7 @@ defmodule Haytni.ConfirmablePlugin do
       multi,
       :send_confirmation_instructions,
       fn _repo, %{^user_name => user, ^token_name => token} ->
-        send_confirmation_instructions(user, Haytni.Token.encode_token(token), module, config)
+        send_confirmation_instructions(user, Haytni.Token.url_encode(token), module, config)
         {:ok, true}
       end
     )
@@ -255,7 +255,7 @@ defmodule Haytni.ConfirmablePlugin do
         _repo, %{^user_name => nil} ->
           {:ok, false}
         _repo, %{^user_name => user, ^token_name => token, new_email: unconfirmed_email} ->
-          send_reconfirmation_instructions(user, unconfirmed_email, Haytni.Token.encode_token(token), module, config)
+          send_reconfirmation_instructions(user, unconfirmed_email, Haytni.Token.url_encode(token), module, config)
           {:ok, true}
       end
     )
@@ -319,7 +319,7 @@ defmodule Haytni.ConfirmablePlugin do
   def reconfirm(module, config, user, confirmation_token) do
     context = token_context(user.email)
     with(
-      {:ok, confirmation_token} <- Haytni.Token.decode_token(confirmation_token),
+      {:ok, confirmation_token} <- Haytni.Token.url_decode(confirmation_token),
       token = %_{} <- Haytni.Token.user_from_token_without_mail_match(module, user, confirmation_token, context, config.reconfirm_within)
     ) do
       {:ok, %{user: updated_user}} =

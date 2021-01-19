@@ -98,7 +98,7 @@ defmodule Haytni.TestHelpers do
     * token (default: some random string): the raw token
     * context (default: `plugin.token_context()`): the context associated to the token
   """
-  @spec token_fixture(user :: Haytni.user, plugin :: module, attrs :: Keyword.t) :: String.t
+  @spec token_fixture(user :: Haytni.user, plugin :: module, attrs :: Keyword.t) :: Haytni.Token.t
   def token_fixture(user, plugin, attrs \\ []) do
     sent_to = Keyword.get(attrs, :sent_to, user.email)
     inserted_at = Keyword.get(attrs, :inserted_at, 0)
@@ -110,7 +110,7 @@ defmodule Haytni.TestHelpers do
       |> Ecto.build_assoc(:tokens, token: token, context: context, sent_to: sent_to, inserted_at: seconds_ago(inserted_at))
       |> HaytniTest.Repo.insert()
 
-    token.token
+    token
   end
 
   @doc ~S"""

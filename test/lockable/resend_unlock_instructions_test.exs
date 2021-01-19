@@ -56,7 +56,7 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
           matched_user
           |> Haytni.Token.tokens_from_user_query(Haytni.LockablePlugin.token_context())
           |> HaytniTest.Repo.all()
-        assert_delivered_email Haytni.LockableEmail.unlock_instructions_email(matched_user, Haytni.Token.encode_token(token), HaytniTestWeb.Haytni, config)
+        assert_delivered_email Haytni.LockableEmail.unlock_instructions_email(matched_user, Haytni.Token.url_encode(token), HaytniTestWeb.Haytni, config)
       end
 
       test "returns {:ok, nil} when targetted account is not locked (strategy: #{strategy})", %{unlocked_params: unlocked_params} do

@@ -13,7 +13,10 @@ defmodule Haytni.Confirmable.ConfirmationShowControllerTest do
 
     test "checks successful confirmation", %{conn: conn} do
       user = user_fixture()
-      confirmation_token = token_fixture(user, Haytni.ConfirmablePlugin, token: "7kB0dqV657")
+      confirmation_token =
+        user
+        |> token_fixture(Haytni.ConfirmablePlugin, token: "7kB0dqV657")
+        |> Haytni.Token.token()
 
       response =
         conn

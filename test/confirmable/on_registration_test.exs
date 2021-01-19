@@ -25,7 +25,7 @@ defmodule Haytni.Confirmable.OnRegistrationTest do
 
       state = Map.put(state, :confirmation_token, confirmation_token)
       assert {:ok, true} = fun2.(HaytniTest.Repo, state)
-      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, Haytni.Token.encode_token(confirmation_token), HaytniTestWeb.Haytni, config)
+      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, Haytni.Token.url_encode(confirmation_token), HaytniTestWeb.Haytni, config)
     end
   end
 end
