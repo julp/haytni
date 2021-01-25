@@ -153,7 +153,7 @@ defmodule Haytni.Token do
   @doc ~S"""
   TODO (doc/experimental)
   """
-  @spec purge_expired_tokens(module :: module) :: String.t
+  @spec purge_expired_tokens(module :: module) :: {String.t(), [term()]}
   def purge_expired_tokens(module) do
     conditions =
       module.plugins_with_config()

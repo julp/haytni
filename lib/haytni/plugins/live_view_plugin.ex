@@ -169,8 +169,8 @@ defmodule Haytni.LiveViewPlugin do
     end
   end
 
-  @spec connect(module :: module, config :: Config.t, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t} | :error
-  def connect(module, config, params, socket, connect_info) do
+  @spec do_connect(module :: module, config :: Config.t, params :: map, connect_info :: map) :: {:ok, atom, Haytni.user} | :error
+  defp do_connect(module, config, params, connect_info) do
     remote_ip_as_string = if is_nil(config.remote_ip_header) do
       connect_info.peer_data.address
       |> :inet_parse.ntoa()
@@ -189,8 +189,18 @@ defmodule Haytni.LiveViewPlugin do
       user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(), config.token_validity),
       false <- Haytni.invalid_user?(module, user)
     ) do
-      {:ok, Phoenix.Socket.assign(socket, :"current_#{module.scope()}", user)} # TODO: Phoenix.LiveView.assign pour live view ? (retourner {:ok, :"current_#{module.scope()}", user} | :error  pour ensuite appeler la bonne fonction assign ?)
+      {:ok, :"current_#{module.scope()}", user}
     else
+      _ ->
+        :error
+    end
+  end
+
+  @spec connect(module :: module, config :: Config.t, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t} | :error
+  def connect(module, config, params, socket, connect_info) do
+    case do_connect(module, config, params, connect_info) do
+      {:ok, scoped_key, user} ->
+        {:ok, Phoenix.Socket.assign(socket, scoped_key, user)}
       _ ->
         :error
     end
@@ -206,7 +216,7 @@ defmodule Haytni.LiveViewPlugin do
       defmodule YourAppWeb.UserSocket do
         @impl Phoenix.Socket
         def connect(params, socket, connect_info) do
-          Haytni.LiveViewPlugin.connect(YourApp.Haytni, params, socket, connect_info)
+          Haytni.LiveViewPlugin.connect(YourApp.Haytni, params, connect_info)
         end
       end
   """
@@ -219,12 +229,22 @@ defmodule Haytni.LiveViewPlugin do
   @doc ~S"""
   TODO: destiné à être appelé depuis la callback mount (live view)
   """
+  # NOTE: (about spec) Phoenix.LiveView.get_connect_info/1:
+  # - raises if called after mount
+  # - returns `nil` if called in a disconnected state
+  @spec mount_user(module :: module, params :: map, _session :: map, socket :: Phoenix.Socket.t) :: {:ok, Phoenix.Socket.t} | no_return | :error
   def mount_user(module, params, _session, socket) do
     # params sont les mount_params qui sont différents des connect_params ? => Phoenix.LiveView.get_connect_params(socket)
-    case connect(module, params, socket, Phoenix.LiveView.get_connect_info(socket)) do
-      # TODO
-      _ ->
-        :error
+    if Phoenix.LiveView.connected?(socket) do
+      config = module.fetch_config(__MODULE__)
+      case do_connect(module, config, params, Phoenix.LiveView.get_connect_info(socket)) do
+        {:ok, scoped_key, user} ->
+          {:ok, Phoenix.LiveView.assign(socket, scoped_key, user)}
+        _ ->
+          :error
+      end
+    else
+      {:ok, socket}
     end
   end
 end
