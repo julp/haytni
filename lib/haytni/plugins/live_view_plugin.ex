@@ -183,6 +183,7 @@ defmodule Haytni.LiveViewPlugin do
       end
     end
     with(
+      true <- is_map(params),
       token when not is_nil(token) <- Map.get(params, "token"),
       {:ok, %{"ip" => ^remote_ip_as_string, "token" => token}} <- decode_token(config, token),
       {:ok, token} <- Haytni.Token.url_decode(token),
@@ -232,19 +233,41 @@ defmodule Haytni.LiveViewPlugin do
   # NOTE: (about spec) Phoenix.LiveView.get_connect_info/1:
   # - raises if called after mount
   # - returns `nil` if called in a disconnected state
-  @spec mount_user(module :: module, params :: map, _session :: map, socket :: Phoenix.Socket.t) :: {:ok, Phoenix.Socket.t} | no_return | :error
-  def mount_user(module, params, _session, socket) do
+  @spec mount(module :: module, params :: map, session :: map, socket :: Phoenix.Socket.t) :: Phoenix.Socket.t | no_return
+  def mount(module, params, session, socket) do
+    # <TEST et DEBUG>
+    if false do
+      IO.inspect(params, label: "#{__MODULE__}.mount")
+
+      socket
+      |> Phoenix.LiveView.get_connect_params()
+      |> IO.inspect(label: "connect_params")
+
+      socket
+      |> Phoenix.LiveView.get_connect_info()
+      |> IO.inspect(label: "connect_infos")
+    end
+    # </TEST et DEBUG>
+
+    #socket = assign_new(socket, :current_user, fn -> Accounts.get_user!(user_id) end)
     # params sont les mount_params qui sont différents des connect_params ? => Phoenix.LiveView.get_connect_params(socket)
-    if Phoenix.LiveView.connected?(socket) do
-      config = module.fetch_config(__MODULE__)
-      case do_connect(module, config, params, Phoenix.LiveView.get_connect_info(socket)) do
-        {:ok, scoped_key, user} ->
-          {:ok, Phoenix.LiveView.assign(socket, scoped_key, user)}
-        _ ->
-          :error
+    config = module.fetch_config(__MODULE__)
+    scoped_key = :"current_#{module.scope()}"
+    user = if Phoenix.LiveView.connected?(socket) do
+      case do_connect(module, config, Phoenix.LiveView.get_connect_params(socket), Phoenix.LiveView.get_connect_info(socket)) do
+        {:ok, _scoped_key, user} ->
+          user
+        :error ->
+          nil
       end
     else
-      {:ok, socket}
+      case Map.fetch(session, scoped_key) do
+        {:ok, user_id} ->
+          Haytni.get_user_by(module, id: user_id)
+        :error ->
+          nil
+      end
     end
+    Phoenix.LiveView.assign(socket, scoped_key, user)
   end
 end
