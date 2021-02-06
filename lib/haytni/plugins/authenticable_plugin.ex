@@ -98,8 +98,8 @@ defmodule Haytni.AuthenticablePlugin do
   def fields(_module) do
     quote do
       field :email, :string # UNIQUE
-      field :encrypted_password, :string
-      field :password, :string, virtual: true
+      field :encrypted_password, :string, redact: true # TODO: load_in_query: false
+      field :password, :string, virtual: true, redact: true
 
       timestamps(updated_at: false, type: :utc_datetime)
     end
