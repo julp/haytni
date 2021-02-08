@@ -93,7 +93,6 @@ defmodule YourApp.User do
 
   # ...
 
-  @derive {Inspect, except: [:password]}
   schema "..." do
     # ...
 
