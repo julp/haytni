@@ -193,7 +193,7 @@ defmodule Haytni.LiveViewPlugin do
       {:ok, :"current_#{module.scope()}", user}
     else
       _ ->
-        :error
+        :error # TODO: retourner nil plutôt si l'utilisateur est faculatif ?
     end
   end
 
