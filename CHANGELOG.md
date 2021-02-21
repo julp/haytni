@@ -5,35 +5,8 @@
 - [Authenticable] added *inserted_at* field (`Ecto.Schema.timestamps/1` + `Ecto.Migration.timestamps/1`) to user schemas
 - the X-Suspicious-Activity header is also set by HaytniWeb.Registerable.RegistrationController.create
 - fixed `ON UPDATE CASCADE ON DELETE CASCADE` options in migrations on foreign keys (Trackable + Invitable)
-
-```elixir
-# priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_2_to_?_?_?.exs
-
-defmodule YourRepo.Migrations.HaytniUpgradeFrom062To??? do
-  @stacks [HaytniTestWeb.Haytni] # a list of your Haytni stacks (module names) related to the current Repo
-
-  use Ecto.Migration
-
-  def change do
-    for stack <- @stacks do
-      source = stack.schema().__schema__(:source)
-      if Haytni.plugin_enabled?(stack, Haytni.AuthenticablePlugin) do
-        alter table(source) do
-          timestamps(updated_at: false, type: :utc_datetime, default: fragment("NOW()"))
-        end
-      end
-    end
-  end
-end
-```
-
-```
-find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0 perl -pi \
-    -e 's/\@user\.(unlock_token|reset_password_token|confirmation_token|unconfirmed_email)/\@\1/;'
-```
-
-* unified tokens handling
-  + add (authentication) support to channels (and, by extension, live view)
+- unified tokens handling (inspired from phx_gen_auth)
+  + add (authentication) support to channels (and, by extension, live view) if the *\_csrf\_token* cookie is not available
   + removal of:
     * fields
       + [Lockable] unlock_token
@@ -48,43 +21,28 @@ find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0
   + added:
     * config
       + [Lockable] unlock_within
-* [callbacks] `on_logout/2` becomes `on_logout/3` to add *module* (Haytni stack's module)
+- [callbacks] `on_logout/2` becomes `on_logout/3` to add *module* (Haytni stack's module)
 
-```
-# TODO: unconfirmed_email cas à part/spécifique ?
-find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0 perl -pi \
-    -e 's/<%= if \@config\.reconfirmable, do: \@user\.unconfirmed_email, else: \@user\.email %>/<%= \@user.email %>/;' \
-    -e 's/\@user\.(unlock_token|reset_password_token|confirmation_token|unconfirmed_email)/\@\1/;'
-# TODO: registration/edit.html virer le if qui affiche que le changement d'email est en attente
-# TODO: confirmation_url => reconfirmation_url
-```
 
 ```elixir
-# priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_1_to_?_?_?.exs
+# priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_2_to_?_?_?.exs
 
-defmodule YourRepo.Migrations.HaytniUpgradeFrom061To??? do
+defmodule YourRepo.Migrations.HaytniUpgradeFrom062To??? do
   @stacks [HaytniTestWeb.Haytni] # a list of your Haytni stacks (module names) related to the current Repo
 
   use Ecto.Migration
-
-  defp insert_select(source, email_field, token_field, inserted_at_field, context) do
-    # TODO: decode(remember_token, 'base64') ?
-    """
-    INSERT INTO #{source}_tokens(user_id, sent_to, token, inserted_at, context)
-      SELECT id, #{email_field}, #{token_field}, #{inserted_at_field}, #{context} FROM #{source}
-        WHERE #{token_field} IS NOT NULL
-        /* AND remember_created_at > NOW() + (X * INTERVAL '1 second') */
-    """
-  end
 
   def change do
     for stack <- @stacks do
       source = stack.schema().__schema__(:source)
 
+      if Haytni.plugin_enabled?(stack, Haytni.AuthenticablePlugin) do
+        alter table(source) do
+          timestamps(updated_at: false, type: :utc_datetime, default: fragment("NOW()"))
+        end
+      end
+
       if Haytni.plugin_enabled?(stack, Haytni.RememberablePlugin) do
-        #source
-        #|> insert_select("email", "remember_token", "remember_created_at", "'rememberable'")
-        #|> execute("/* reverse query */")
         drop_if_exists index(source, [:remember_token])
         alter table(source) do
           remove_if_exists :remember_token, :string, default: nil
@@ -93,9 +51,6 @@ defmodule YourRepo.Migrations.HaytniUpgradeFrom061To??? do
       end
 
       if Haytni.plugin_enabled?(stack, Haytni.LockablePlugin) do
-        #source
-        #|> insert_select("email", "unlock_token", "locked_at", "'lockable'")
-        #|> execute("/* reverse query */")
         drop_if_exists index(source, [:unlock_token])
         alter table(source) do
           remove_if_exists :unlock_token, :string, default: nil
@@ -103,9 +58,6 @@ defmodule YourRepo.Migrations.HaytniUpgradeFrom061To??? do
       end
 
       if Haytni.plugin_enabled?(stack, Haytni.RecoverablePlugin) do
-        #source
-        #|> insert_select("email", "reset_password_token", "reset_password_sent_at", "'recoverable'")
-        #|> execute("/* reverse query */")
         drop_if_exists index(source, [:reset_password_token])
         alter table(source) do
           remove_if_exists :reset_password_token, :string, default: nil
@@ -114,9 +66,6 @@ defmodule YourRepo.Migrations.HaytniUpgradeFrom061To??? do
       end
 
       if Haytni.plugin_enabled?(stack, Haytni.ConfirmablePlugin) do
-        #source
-        #|> insert_select("COALESCE(unconfirmed_email, email)", "confirmation_token", "confirmation_sent_at", "CASE WHEN unconfirmed_email IS NULL THEN 'confirmable' ELSE CONCAT('reconfirmable:', email) END")
-        #|> execute("/* reverse query */")
         drop_if_exists index(source, [:confirmation_token])
         alter table(source) do
           remove_if_exists :unconfirmed_email, :string, default: nil
@@ -124,9 +73,32 @@ defmodule YourRepo.Migrations.HaytniUpgradeFrom061To??? do
           remove_if_exists :confirmation_sent_at, :utc_datetime, null: false
         end
       end
+
+      cistring = Haytni.Migration.case_insensitive_string_type()
+      tokens_table = "#{source}_tokens"
+      create table(tokens_table) do
+        add :token, :binary, null: false
+        add :user_id, references(source, on_delete: :delete_all, on_update: :update_all), null: false
+        add :context, :string, null: false
+        add :sent_to, cistring
+        timestamps(updated_at: false, type: :utc_datetime)
+      end
+
+      create index(tokens_table, ~W[user_id]a)
+      create unique_index(tokens_table, ~W[token context]a)
     end
   end
 end
+```
+
+```
+find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0 perl -pi \
+    -e 'BEGIN {undef $/}' \
+    -e 's/<%= if \@config\.reconfirmable, do: \@user\.unconfirmed_email, else: \@user\.email %>/<%= \@user.email %>/g;' \
+    -e 's/\@user\.(unlock_token|reset_password_token|confirmation_token|unconfirmed_email)/\@\1/g;' \
+    -e 's/<%= if Haytni\.plugin_enabled\?\(\@module, Haytni\.ConfirmablePlugin\) && \@changeset\.data\.unconfirmed_email do %>.+?<% end %>//gs;'
+
+find lib/your_app_web/templates/haytni/ -type f -name "reconfirmation_instructions.*.eex" -print0 | xargs -0 perl -pi -e 's/_confirmation_url/_reconfirmation_url/g;'
 ```
 
 
@@ -156,13 +128,13 @@ Upgrade notes:
 - to keep your Haytni templates (both html and mail), you have to apply the following replacements: `\b(session|registration|unlock|confirmation|password)_(url|path)` to `haytni_<scope>_\1_\2` (`<scope>` has to match the scope defined in your config/\*.exs files, default is `user`). You can use a command like this one to make the changes:
 
 ```
-find lib/your_app_web/ test/ -type f \( -name "*.ex" -o -name "*.eex" -o -name "*.exs" \) -print0 | xargs -0 perl -pi -e 's/\b(session|registration|unlock|confirmation|password)_(url|path)/haytni_user_\1_\2/'
+find lib/your_app_web/ test/ -type f \( -name "*.ex" -o -name "*.eex" -o -name "*.exs" \) -print0 | xargs -0 perl -pi -e 's/\b(session|registration|unlock|confirmation|password)_(url|path)/haytni_user_\1_\2/g;'
 ```
 
 - name of views (modules) have also be renamed to incorporate the scope in it: `(YourAppWeb\.Haytni\.)(\S*)View` becomes `\1<Scope>.\2View` **but** you can keep your old one if you want to share the exact same views **and** templates between several Haytni stacks. To perform the migration, **if needed**, you can also do it with some commands:
 
 ```
-find lib/your_app_web/views/haytni -type f -name "*.ex" -print0 | xargs -0 perl -pi -e 's/\b(YourAppWeb\.Haytni\.)(\S*)View/\1User.\2View/'
+find lib/your_app_web/views/haytni -type f -name "*.ex" -print0 | xargs -0 perl -pi -e 's/\b(YourAppWeb\.Haytni\.)(\S*)View/\1User.\2View/g;'
 (git) mv lib/your_app_web/views/haytni lib/your_app_web/views/temporary
 mkdir lib/your_app_web/views/haytni
 (git) mv lib/your_app_web/views/temporary lib/your_app_web/views/haytni/user

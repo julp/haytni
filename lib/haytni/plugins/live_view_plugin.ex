@@ -193,7 +193,7 @@ defmodule Haytni.LiveViewPlugin do
       {:ok, :"current_#{module.scope()}", user}
     else
       _ ->
-        :error # TODO: retourner nil plutôt si l'utilisateur est faculatif ?
+        :error # TODO: better to return nil in regard of LiveView where user is "optional"?
     end
   end
 
@@ -228,46 +228,51 @@ defmodule Haytni.LiveViewPlugin do
   end
 
   @doc ~S"""
-  TODO: destiné à être appelé depuis la callback mount (live view)
+  For live view, to be called in `c:Phoenix.LiveView.mount/3` callback in order to set the current user
+  in assigns (named `:current_user` by default - same way as it is done for Plug.Conn).
+
+  Example:
+
+      # lib/your_app_web/live/your_view_live.ex
+      defmodule YourAppWeb.YourViewLive do
+        @impl Phoenix.LiveView
+        def mount(params, session, socket) do
+          socket = Haytni.LiveViewPlugin.mount(YourApp.Haytni, params, session, socket)
+
+          {:ok, socket}
+        end
+      end
   """
   # NOTE: (about spec) Phoenix.LiveView.get_connect_info/1:
   # - raises if called after mount
   # - returns `nil` if called in a disconnected state
   @spec mount(module :: module, params :: map, session :: map, socket :: Phoenix.Socket.t) :: Phoenix.Socket.t | no_return
-  def mount(module, params, session, socket) do
-    # <TEST et DEBUG>
-    if false do
-      IO.inspect(params, label: "#{__MODULE__}.mount")
-
-      socket
-      |> Phoenix.LiveView.get_connect_params()
-      |> IO.inspect(label: "connect_params")
-
-      socket
-      |> Phoenix.LiveView.get_connect_info()
-      |> IO.inspect(label: "connect_infos")
-    end
-    # </TEST et DEBUG>
-
+  def mount(module, _params, session, socket) do
     #socket = assign_new(socket, :current_user, fn -> Accounts.get_user!(user_id) end)
-    # params sont les mount_params qui sont différents des connect_params ? => Phoenix.LiveView.get_connect_params(socket)
     config = module.fetch_config(__MODULE__)
     scoped_key = :"current_#{module.scope()}"
-    user = if Phoenix.LiveView.connected?(socket) do
-      case do_connect(module, config, Phoenix.LiveView.get_connect_params(socket), Phoenix.LiveView.get_connect_info(socket)) do
-        {:ok, _scoped_key, user} ->
-          user
-        :error ->
-          nil
-      end
-    else
-      case Map.fetch(session, scoped_key) do
-        {:ok, user_id} ->
-          Haytni.get_user_by(module, id: user_id)
-        :error ->
-          nil
-      end
-    end
+    #Phoenix.LiveView.assign_new(
+      #socket,
+      #scoped_key,
+      #fn ->
+        #IO.inspect("Phoenix.LiveView.assign_new/3 executed")
+        user = if Phoenix.LiveView.connected?(socket) do
+          case do_connect(module, config, Phoenix.LiveView.get_connect_params(socket), Phoenix.LiveView.get_connect_info(socket)) do
+            {:ok, _scoped_key, user} ->
+              user
+            :error ->
+              nil
+          end
+        else
+          case Map.fetch(session, scoped_key) do
+            {:ok, user_id} ->
+              Haytni.get_user_by(module, id: user_id)
+            :error ->
+              nil
+          end
+        end
+      #end
+    #)
     Phoenix.LiveView.assign(socket, scoped_key, user)
   end
 end

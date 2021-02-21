@@ -7,9 +7,9 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "To
     tokens_table = "#{users_table}_tokens"
     create table(tokens_table) do
       add :token, :binary, null: false
-      add :user_id, references(users_table, on_delete: :delete_all, on_update: :update_all), null: false # TODO: :user_id vs "#{scope}_id"
-      add :context, :string, null: false # TODO
-      add :sent_to, cistring # TODO utilisé pour la confirmation d'email
+      add :user_id, references(users_table, on_delete: :delete_all, on_update: :update_all), null: false # TODO: :user_id vs "#{scope}_id"?
+      add :context, :string, null: false
+      add :sent_to, cistring
       timestamps(updated_at: false, type: :utc_datetime)
     end
 
