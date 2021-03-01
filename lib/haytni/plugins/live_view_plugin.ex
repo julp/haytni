@@ -171,7 +171,7 @@ defmodule Haytni.LiveViewPlugin do
     end
   end
 
-  @spec do_connect(module :: module, config :: Config.t, params :: map, connect_info :: map) :: {:ok, atom, Haytni.user} | :error
+  @spec do_connect(module :: module, config :: Config.t, params :: map, connect_info :: map) :: {:ok, atom, Haytni.nilable(Haytni.user)}
   defp do_connect(module, config, params, connect_info) do
     remote_ip_as_string = if is_nil(config.remote_ip_header) do
       connect_info.peer_data.address
@@ -184,7 +184,7 @@ defmodule Haytni.LiveViewPlugin do
         false -> :key_not_found
       end
     end
-    with(
+    user = with(
       true <- is_map(params),
       token when not is_nil(token) <- Map.get(params, "token"),
       {:ok, %{"ip" => ^remote_ip_as_string, "token" => token}} <- decode_token(config, token),
@@ -192,38 +192,40 @@ defmodule Haytni.LiveViewPlugin do
       user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(nil), config.token_validity),
       false <- Haytni.invalid_user?(module, user)
     ) do
-      {:ok, :"current_#{module.scope()}", user}
+      user
     else
       _ ->
-        :error # TODO: better to return nil in regard of LiveView where user is "optional"?
+        nil
     end
+    {:ok, :"current_#{module.scope()}", user}
   end
 
-  @spec connect(module :: module, config :: Config.t, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t} | :error
+  @spec connect(module :: module, config :: Config.t, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t}
   def connect(module, config, params, socket, connect_info) do
-    case do_connect(module, config, params, connect_info) do
-      {:ok, scoped_key, user} ->
-        {:ok, Phoenix.Socket.assign(socket, scoped_key, user)}
-      _ ->
-        :error
-    end
+    {:ok, scoped_key, user} = do_connect(module, config, params, connect_info)
+    {:ok, Phoenix.Socket.assign(socket, scoped_key, user)}
   end
 
   @doc ~S"""
   For channels, to be called in `c:Phoenix.Socket.connect/3` callback in order to set the current user
   in assigns (named `:current_user` by default - same way as it is done for Plug.Conn).
 
-  Example:
+  Example rejecting anonymous connections:
 
       # lib/your_app_web/channels/user_socket.ex
       defmodule YourAppWeb.UserSocket do
         @impl Phoenix.Socket
         def connect(params, socket, connect_info) do
-          Haytni.LiveViewPlugin.connect(YourApp.Haytni, params, connect_info)
+          result = {:ok, socket} = Haytni.LiveViewPlugin.connect(YourApp.Haytni, params, connect_info)
+          if socket.assigns.current_user do
+            result
+          else
+            :error
+          end
         end
       end
   """
-  @spec connect(module :: module, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t} | :error
+  @spec connect(module :: module, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t}
   def connect(module, params, socket, connect_info) do
     config = module.fetch_config(__MODULE__)
     connect(module, config, params, socket, connect_info)

@@ -79,12 +79,14 @@ defmodule Haytni.LiveView.ConnectTest do
     test "socket authentication with invalid token", %{module: module, conn: conn, token: token} do
       config = Haytni.LiveViewPlugin.build_config(remote_ip_header: nil)
       token = Haytni.LiveViewPlugin.encode_token(conn, %{token | token: "not a match"}, config)
-      assert :error = do_connect(module, config, token)
+      {:ok, socket} = do_connect(module, config, token)
+      assert is_nil(socket.assigns.current_user)
     end
 
     test "socket authentication with IP missmatch", %{module: module, conn: conn, token: token} do
       config = Haytni.LiveViewPlugin.build_config(remote_ip_header: nil)
-      assert :error = do_connect(module, config, Haytni.LiveViewPlugin.encode_token(%{conn | remote_ip: {43, 72, 58, 56}}, token, config))
+      {:ok, socket} = do_connect(module, config, Haytni.LiveViewPlugin.encode_token(%{conn | remote_ip: {43, 72, 58, 56}}, token, config))
+      assert is_nil(socket.assigns.current_user)
     end
   end
 end
