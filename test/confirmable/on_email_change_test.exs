@@ -45,12 +45,12 @@ defmodule Haytni.Confirmable.OnEmailChangeTest do
       # simulates Haytni.handle_email_change
       state = %{user: user, old_email: @old_email, new_email: @new_email}
 
-      #assert [] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.ConfirmablePlugin.token_context()))
+      #assert [] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.ConfirmablePlugin.token_context(nil)))
       assert {:ok, confirmation_token = %HaytniTest.UserToken{}} = fun1.(HaytniTest.Repo, state)
       assert confirmation_token.user_id == user.id
       assert confirmation_token.context == Haytni.ConfirmablePlugin.token_context(@old_email)
       assert is_binary(confirmation_token.token)
-      #assert [%HaytniTest.UserToken{^id: ^confirmation_token.id}] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.ConfirmablePlugin.token_context()))
+      #assert [%HaytniTest.UserToken{^id: ^confirmation_token.id}] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.ConfirmablePlugin.token_context(nil)))
 
       state = Map.put(state, :confirmation_token, confirmation_token)
       assert {:ok, true} = fun2.(HaytniTest.Repo, state)

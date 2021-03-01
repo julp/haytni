@@ -2,7 +2,7 @@ defmodule Haytni.Tokenable do
   @doc ~S"""
   TODO (doc)
   """
-  @callback token_context() :: String.t
+  @callback token_context(Haytni.nilable(String.t)) :: String.t
 
   @doc ~S"""
   TODO (doc)

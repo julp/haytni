@@ -60,7 +60,7 @@ defmodule Haytni.RememberablePlugin do
     conn = Plug.Conn.fetch_cookies(conn, signed: [config.remember_cookie_name])
     with(
       {:ok, token} <- Map.fetch(conn.cookies, config.remember_cookie_name),
-      user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(), config.remember_for)
+      user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(nil), config.remember_for)
     ) do
       {conn, user}
     else
@@ -73,7 +73,7 @@ defmodule Haytni.RememberablePlugin do
   # The checkbox "remember me" is checked (present in params)
   # NOTE: it isn't necessary to check if the client has already one, if he goes through the authentication form, he obviously has not
   def on_successful_authentication(conn = %Plug.Conn{params: %{"session" => %{"remember" => _}}}, user = %_{}, multi = %Ecto.Multi{}, keyword, _module, config) do
-    token = Haytni.Token.build_and_assoc_token(user, user.email, token_context())
+    token = Haytni.Token.build_and_assoc_token(user, user.email, token_context(nil))
 
     {add_rememberme_cookie(conn, Haytni.Token.url_encode(token), config), Ecto.Multi.insert(multi, :rememberable_token, token), keyword}
   end
@@ -83,8 +83,10 @@ defmodule Haytni.RememberablePlugin do
     {conn, multi, keyword}
   end
 
-  @spec token_context() :: String.t
-  def token_context do
+  use Haytni.Tokenable
+
+  @impl Haytni.Tokenable
+  def token_context(nil) do
     "rememberable"
   end
 

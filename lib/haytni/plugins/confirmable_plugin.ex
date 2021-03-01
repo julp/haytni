@@ -143,7 +143,7 @@ defmodule Haytni.ConfirmablePlugin do
   @impl Haytni.Plugin
   def on_registration(multi = %Ecto.Multi{}, module, config) do
     multi
-    |> Haytni.Token.insert_token_in_multi(:confirmation_token, :user, token_context())
+    |> Haytni.Token.insert_token_in_multi(:confirmation_token, :user, token_context(nil))
     |> send_confirmation_instructions_in_multi(:user, :confirmation_token, module, config)
   end
 
@@ -174,14 +174,12 @@ defmodule Haytni.ConfirmablePlugin do
   use Haytni.Tokenable
 
   # NOTE: MUST only be used for confirmation, not reconfirmation ("reconfirmable:" <> user.email)
-  #@spec token_context() :: String.t
   @impl Haytni.Tokenable
-  def token_context do
+  def token_context(nil) do
     "confirmable"
   end
 
   @context_reconfirmation_prefix "reconfirmable:"
-  @spec token_context(old_email :: String.t) :: String.t
   def token_context(old_email) do
     @context_reconfirmation_prefix <> old_email
   end
@@ -190,12 +188,12 @@ defmodule Haytni.ConfirmablePlugin do
   @impl Haytni.Tokenable
   def expired_tokens_query(config) do
     [
-      "context == #{token_context()} AND inserted_at > ago(#{config.confirm_within}, \"second\")",
+      "context == #{token_context(nil)} AND inserted_at > ago(#{config.confirm_within}, \"second\")",
       "context LIKE 'reconfirmable:%' AND inserted_at > ago(#{config.reconfirm_within}, \"second\")",
     ]
     import Ecto.Query
 
-    conditions = dynamic([t], t.context == ^token_context() and t.inserted_at > ago(^config.confirm_within, "second"))
+    conditions = dynamic([t], t.context == ^token_context(nil) and t.inserted_at > ago(^config.confirm_within, "second"))
     _conditions = dynamic([t], ^conditions or like(t.context, ^@context_reconfirmation_pattern) and t.inserted_at > ago(^config.reconfirm_within, "second"))
   end
 
@@ -296,7 +294,7 @@ defmodule Haytni.ConfirmablePlugin do
   """
   @spec confirm(module :: module, config :: Config.t, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
   def confirm(module, config, token) do
-    context = token_context()
+    context = token_context(nil)
     case Haytni.Token.user_from_token_with_mail_match(module, token, context, config.confirm_within) do
       nil ->
         {:error, invalid_token_message()}
@@ -369,7 +367,7 @@ defmodule Haytni.ConfirmablePlugin do
           user = %_{} ->
             {:ok, %{token: token}} =
               Ecto.Multi.new()
-              |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context())
+              |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context(nil))
               |> send_confirmation_instructions_in_multi(user, :token, module, config)
               |> module.repo().transaction()
             {:ok, token}

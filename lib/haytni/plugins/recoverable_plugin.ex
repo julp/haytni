@@ -71,8 +71,10 @@ defmodule Haytni.RecoverablePlugin do
     end
   end
 
-  @spec token_context() :: String.t
-  def token_context do
+  use Haytni.Tokenable
+
+  @impl Haytni.Tokenable
+  def token_context(nil) do
     "recoverable"
   end
 
@@ -140,7 +142,7 @@ defmodule Haytni.RecoverablePlugin do
           user = %_{} ->
             {:ok, %{token: token}} =
               Ecto.Multi.new()
-              |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context())
+              |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context(nil))
               |> send_instructions_in_multi(user, :token, module, config)
               |> module.repo().transaction()
             {:ok, token}
@@ -183,14 +185,14 @@ defmodule Haytni.RecoverablePlugin do
     |> Ecto.Changeset.apply_action(:insert)
     |> case do
       {:ok, password_change} ->
-        case Haytni.Token.user_from_token_with_mail_match(module, password_change.reset_password_token, token_context(), config.reset_password_within) do
+        case Haytni.Token.user_from_token_with_mail_match(module, password_change.reset_password_token, token_context(nil), config.reset_password_within) do
           nil ->
             set_reset_token_error(changeset, invalid_token_message())
           user = %_{} ->
             {:ok, %{user: user}} =
               Ecto.Multi.new()
               |> Haytni.update_user_in_multi_with(:user, user, new_password_attributes(module, password_change.password))
-              |> Haytni.Token.delete_tokens_in_multi(:tokens, user, token_context())
+              |> Haytni.Token.delete_tokens_in_multi(:tokens, user, token_context(nil))
               |> module.repo().transaction()
             {:ok, user}
         end

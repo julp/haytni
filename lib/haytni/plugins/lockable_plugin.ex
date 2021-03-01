@@ -157,7 +157,7 @@ defmodule Haytni.LockablePlugin do
       # the amount of maximum attempts is reached, lock the account
       multi = if email_strategy_enabled?(config) do
         multi
-        |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context())
+        |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context(nil))
         |> send_instructions_in_multi(user, :token, module, config)
       else
         multi
@@ -204,7 +204,7 @@ defmodule Haytni.LockablePlugin do
                 |> Haytni.update_user_in_multi_with(:user, user, lock_attributes())
               multi = if email_strategy_enabled?(config) do
                 multi
-                |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context())
+                |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context(nil))
                 |> send_instructions_in_multi(user, :token, module, config)
               else
                 multi
@@ -225,7 +225,7 @@ defmodule Haytni.LockablePlugin do
   @impl Haytni.Plugin
   def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config) do
     # reset failed_attempts and revoke tokens intended for unlocking the current account
-    {conn, Haytni.Token.delete_tokens_in_multi(multi, :tokens, user, token_context()), Keyword.put(keywords, :failed_attempts, 0)}
+    {conn, Haytni.Token.delete_tokens_in_multi(multi, :tokens, user, token_context(nil)), Keyword.put(keywords, :failed_attempts, 0)}
   end
 
   @doc ~S"""
@@ -278,21 +278,20 @@ defmodule Haytni.LockablePlugin do
 
   use Haytni.Tokenable
 
-  #@spec token_context() :: String.t
   @impl Haytni.Tokenable
-  def token_context do
+  def token_context(nil) do
     "lockable"
   end
 
   @impl Haytni.Tokenable
   def expired_tokens_query(config) do
-    # mais l'appelant devrait pouvoir appeler la callback token_context/0 de lui-même
+    # TODO: mais l'appelant devrait pouvoir appeler la callback token_context/1 de lui-même
     # en fait la seule partie qui change (que l'on devrait renvoyer ?) c'est config.unlock_within
-    "context == #{token_context()} AND inserted_at > ago(#{config.unlock_within}, \"second\")"
+    "context == #{token_context(nil)} AND inserted_at > ago(#{config.unlock_within}, \"second\")"
 
     import Ecto.Query
 
-    dynamic([t], t.context == ^token_context() and t.inserted_at > ago(^config.unlock_within, "second"))
+    dynamic([t], t.context == ^token_context(nil) and t.inserted_at > ago(^config.unlock_within, "second"))
   end
 
   @doc ~S"""
@@ -322,12 +321,12 @@ defmodule Haytni.LockablePlugin do
     if email_strategy_enabled?(config) do
       with(
         {:ok, unlock_token} <- Haytni.Token.url_decode(token),
-        user = %_{} <- Haytni.Token.user_from_token_with_mail_match(module, unlock_token, token_context(), config.unlock_within)
+        user = %_{} <- Haytni.Token.user_from_token_with_mail_match(module, unlock_token, token_context(nil), config.unlock_within)
       ) do
         {:ok, %{user: user}} =
           Ecto.Multi.new()
           |> Haytni.update_user_in_multi_with(:user, user, unlock_attributes())
-          |> Haytni.Token.delete_tokens_in_multi(:tokens, user, token_context())
+          |> Haytni.Token.delete_tokens_in_multi(:tokens, user, token_context(nil))
           |> module.repo().transaction()
         {:ok, user}
       else
@@ -383,7 +382,7 @@ defmodule Haytni.LockablePlugin do
             user = %_{} ->
               {:ok, _changes} =
                 Ecto.Multi.new()
-                |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context())
+                |> Haytni.Token.insert_token_in_multi(:token, user, user.email, token_context(nil))
                 |> send_instructions_in_multi(user, :token, module, config)
                 |> module.repo().transaction()
               {:ok, user}

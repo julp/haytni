@@ -14,7 +14,7 @@ defmodule HaytniWeb.Tokenable.TokenController do
   def create(conn, _params, current_user, module, config) do
     {:ok, token} =
       current_user
-      |> Haytni.Token.build_and_assoc_token(current_user.email, Haytni.LiveViewPlugin.token_context())
+      |> Haytni.Token.build_and_assoc_token(current_user.email, Haytni.LiveViewPlugin.token_context(nil))
       |> module.repo().insert()
 
     conn

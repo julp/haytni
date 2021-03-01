@@ -18,7 +18,7 @@ defmodule Haytni.LiveView.ConnectTest do
 
       {:ok, token} =
         user
-        |> Haytni.Token.build_and_assoc_token(user.email, Haytni.LiveViewPlugin.token_context())
+        |> Haytni.Token.build_and_assoc_token(user.email, Haytni.LiveViewPlugin.token_context(nil))
         |> HaytniTest.Repo.insert()
 
       conn =

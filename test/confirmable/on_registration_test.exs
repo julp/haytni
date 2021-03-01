@@ -20,7 +20,7 @@ defmodule Haytni.Confirmable.OnRegistrationTest do
 
       assert {:ok, confirmation_token = %HaytniTest.UserToken{}} = fun1.(HaytniTest.Repo, state)
       assert confirmation_token.user_id == user.id
-      assert confirmation_token.context == Haytni.ConfirmablePlugin.token_context()
+      assert confirmation_token.context == Haytni.ConfirmablePlugin.token_context(nil)
       assert is_binary(confirmation_token.token)
 
       state = Map.put(state, :confirmation_token, confirmation_token)

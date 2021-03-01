@@ -35,7 +35,7 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
           assert updated_user.id == user.id
           assert updated_user.failed_attempts == user.failed_attempts + 1
           assert is_nil(updated_user.locked_at)
-          assert [] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.RememberablePlugin.token_context()))
+          assert [] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.RememberablePlugin.token_context(nil)))
 
           updated_user
         end

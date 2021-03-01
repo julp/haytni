@@ -54,7 +54,7 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
         assert {:ok, matched_user = %User{id: ^id}} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, locked_params)
         [token] =
           matched_user
-          |> Haytni.Token.tokens_from_user_query(Haytni.LockablePlugin.token_context())
+          |> Haytni.Token.tokens_from_user_query(Haytni.LockablePlugin.token_context(nil))
           |> HaytniTest.Repo.all()
         assert_delivered_email Haytni.LockableEmail.unlock_instructions_email(matched_user, Haytni.Token.url_encode(token), HaytniTestWeb.Haytni, config)
       end

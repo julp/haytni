@@ -88,7 +88,7 @@ defmodule Haytni.TestHelpers do
   end
 
   @doc ~S"""
-  Creates a token associated to *user* and with the value returned by plugin.token_context/0 as context
+  Creates a token associated to *user* and with the value returned by plugin.token_context/1 as context
   (if not overridden by *:context* key in attributes).
 
   The following attributes are supported:
@@ -96,13 +96,13 @@ defmodule Haytni.TestHelpers do
     * sent_to (default: `user.email`): the email address the token was sent to
     * inserted_at (default: `0`): the number of seconds ago the token has been generated
     * token (default: some random string): the raw token
-    * context (default: `plugin.token_context()`): the context associated to the token
+    * context (default: `plugin.token_context(nil)`): the context associated to the token
   """
   @spec token_fixture(user :: Haytni.user, plugin :: module, attrs :: Keyword.t) :: Haytni.Token.t
   def token_fixture(user, plugin, attrs \\ []) do
     sent_to = Keyword.get(attrs, :sent_to, user.email)
     inserted_at = Keyword.get(attrs, :inserted_at, 0)
-    context = Keyword.get(attrs, :context, plugin.token_context())
+    context = Keyword.get(attrs, :context, plugin.token_context(nil))
     token = Keyword.get_lazy(attrs, :token, fn -> Haytni.Token.new(16) end)
 
     {:ok, token} =

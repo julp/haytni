@@ -82,8 +82,10 @@ defmodule Haytni.LiveViewPlugin do
     "#{module.scope()}_socket:#{user.id}"
   end
 
-  @spec token_context() :: String.t
-  def token_context do
+  use Haytni.Tokenable
+
+  @impl Haytni.Tokenable
+  def token_context(nil) do
     "channel+live_view"
   end
 
@@ -187,7 +189,7 @@ defmodule Haytni.LiveViewPlugin do
       token when not is_nil(token) <- Map.get(params, "token"),
       {:ok, %{"ip" => ^remote_ip_as_string, "token" => token}} <- decode_token(config, token),
       {:ok, token} <- Haytni.Token.url_decode(token),
-      user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(), config.token_validity),
+      user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(nil), config.token_validity),
       false <- Haytni.invalid_user?(module, user)
     ) do
       {:ok, :"current_#{module.scope()}", user}
