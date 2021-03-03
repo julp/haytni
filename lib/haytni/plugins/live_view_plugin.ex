@@ -254,10 +254,10 @@ defmodule Haytni.LiveViewPlugin do
   def mount(module, _params, session, socket) do
     #socket = assign_new(socket, :current_user, fn -> Accounts.get_user!(user_id) end)
     config = module.fetch_config(__MODULE__)
-    scoped_key = :"current_#{module.scope()}"
+    scoped_assign = :"current_#{module.scope()}"
     #Phoenix.LiveView.assign_new(
       #socket,
-      #scoped_key,
+      #scoped_assign,
       #fn ->
         #IO.inspect("Phoenix.LiveView.assign_new/3 executed")
         user = if Phoenix.LiveView.connected?(socket) do
@@ -268,7 +268,8 @@ defmodule Haytni.LiveViewPlugin do
               nil
           end
         else
-          case Map.fetch(session, scoped_key) do
+          scoped_session_key = "#{module.scope()}_id" # NOTE: from Haytni.find_user/2 but as a string, not an atom
+          case Map.fetch(session, scoped_session_key) do
             {:ok, user_id} ->
               Haytni.get_user_by(module, id: user_id)
             :error ->
@@ -277,6 +278,6 @@ defmodule Haytni.LiveViewPlugin do
         end
       #end
     #)
-    Phoenix.LiveView.assign(socket, scoped_key, user)
+    Phoenix.LiveView.assign(socket, scoped_assign, user)
   end
 end
