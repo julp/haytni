@@ -84,7 +84,7 @@ defmodule Haytni.Recoverable.PasswordControllerTest do
       token =
         user
         |> token_fixture(Haytni.RecoverablePlugin)
-        |> Haytni.Token.token()
+        |> Haytni.Token.url_encode()
 
       response =
         conn

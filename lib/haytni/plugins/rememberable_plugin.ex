@@ -60,7 +60,8 @@ defmodule Haytni.RememberablePlugin do
     conn = Plug.Conn.fetch_cookies(conn, signed: [config.remember_cookie_name])
     with(
       {:ok, token} <- Map.fetch(conn.cookies, config.remember_cookie_name),
-      user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, token, token_context(nil), config.remember_for)
+      {:ok, rememberable_token} <- Haytni.Token.url_decode(token),
+      user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, rememberable_token, token_context(nil), config.remember_for)
     ) do
       {conn, user}
     else

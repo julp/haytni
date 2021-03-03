@@ -14,7 +14,7 @@ defmodule Haytni.Confirmable.ConfirmTest do
       confirmation_token =
         user
         |> token_fixture(Haytni.ConfirmablePlugin, token: "baL4R2KoOm", inserted_at: config.confirm_within - 1)
-        |> Haytni.Token.token()
+        |> Haytni.Token.url_encode()
 
       assert {:ok, updated_user} = Haytni.ConfirmablePlugin.confirm(HaytniTestWeb.Haytni, config, confirmation_token)
       assert updated_user.id == user.id
@@ -32,7 +32,7 @@ defmodule Haytni.Confirmable.ConfirmTest do
       confirmation_token =
         user
         |> token_fixture(Haytni.ConfirmablePlugin, inserted_at: config.confirm_within + 1)
-        |> Haytni.Token.token()
+        |> Haytni.Token.url_encode()
 
       assert {:error, Haytni.ConfirmablePlugin.invalid_token_message()} == Haytni.ConfirmablePlugin.confirm(HaytniTestWeb.Haytni, config, confirmation_token)
     end

@@ -185,16 +185,19 @@ defmodule Haytni.RecoverablePlugin do
     |> Ecto.Changeset.apply_action(:insert)
     |> case do
       {:ok, password_change} ->
-        case Haytni.Token.user_from_token_with_mail_match(module, password_change.reset_password_token, token_context(nil), config.reset_password_within) do
-          nil ->
+        with(
+          {:ok, recover_token} <- Haytni.Token.url_decode(password_change.reset_password_token),
+          user = %_{} <- Haytni.Token.user_from_token_with_mail_match(module, recover_token, token_context(nil), config.reset_password_within)
+        ) do
+          {:ok, %{user: user}} =
+            Ecto.Multi.new()
+            |> Haytni.update_user_in_multi_with(:user, user, new_password_attributes(module, password_change.password))
+            |> Haytni.Token.delete_tokens_in_multi(:tokens, user, token_context(nil))
+            |> module.repo().transaction()
+          {:ok, user}
+        else
+          _ ->
             set_reset_token_error(changeset, invalid_token_message())
-          user = %_{} ->
-            {:ok, %{user: user}} =
-              Ecto.Multi.new()
-              |> Haytni.update_user_in_multi_with(:user, user, new_password_attributes(module, password_change.password))
-              |> Haytni.Token.delete_tokens_in_multi(:tokens, user, token_context(nil))
-              |> module.repo().transaction()
-            {:ok, user}
         end
       error = {:error, %Ecto.Changeset{}} ->
         error

@@ -295,16 +295,19 @@ defmodule Haytni.ConfirmablePlugin do
   @spec confirm(module :: module, config :: Config.t, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
   def confirm(module, config, token) do
     context = token_context(nil)
-    case Haytni.Token.user_from_token_with_mail_match(module, token, context, config.confirm_within) do
-      nil ->
+    with(
+      {:ok, confirmation_token} <- Haytni.Token.url_decode(token),
+      user = %_{} <- Haytni.Token.user_from_token_with_mail_match(module, confirmation_token, context, config.confirm_within)
+    ) do
+      {:ok, %{user: updated_user}} =
+        Ecto.Multi.new()
+        |> Haytni.update_user_in_multi_with(:user, user, confirmed_attributes())
+        |> Haytni.Token.delete_tokens_in_multi(:tokens, user, context)
+        |> module.repo().transaction()
+      {:ok, updated_user}
+    else
+      _ ->
         {:error, invalid_token_message()}
-      user = %_{} ->
-        {:ok, %{user: updated_user}} =
-          Ecto.Multi.new()
-          |> Haytni.update_user_in_multi_with(:user, user, confirmed_attributes())
-          |> Haytni.Token.delete_tokens_in_multi(:tokens, user, context)
-          |> module.repo().transaction()
-        {:ok, updated_user}
     end
   end
 
@@ -314,11 +317,11 @@ defmodule Haytni.ConfirmablePlugin do
   Returns `{:error, reason}` if token is expired or invalid else the (updated) user as `{:ok, user}`.
   """
   @spec reconfirm(module :: module, config :: Config.t, user :: Haytni.user, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
-  def reconfirm(module, config, user, confirmation_token) do
+  def reconfirm(module, config, user, token) do
     context = token_context(user.email)
     with(
-      {:ok, confirmation_token} <- Haytni.Token.url_decode(confirmation_token),
-      token = %_{} <- Haytni.Token.user_from_token_without_mail_match(module, user, confirmation_token, context, config.reconfirm_within)
+      {:ok, reconfirmation_token} <- Haytni.Token.url_decode(token),
+      token = %_{} <- Haytni.Token.user_from_token_without_mail_match(module, user, reconfirmation_token, context, config.reconfirm_within)
     ) do
       {:ok, %{user: updated_user}} =
         Ecto.Multi.new()

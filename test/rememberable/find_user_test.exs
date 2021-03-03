@@ -7,7 +7,7 @@ defmodule Haytni.Rememberable.FindUserTest do
       token =
         user
         |> token_fixture(Haytni.RememberablePlugin)
-        |> Haytni.Token.token()
+        |> Haytni.Token.url_encode()
 
       [
         user: user,
