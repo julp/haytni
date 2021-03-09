@@ -8,7 +8,7 @@ defmodule Haytni.MixProject do
     [
       app: :haytni,
       docs: docs(),
-      version: "0.6.2",
+      version: "0.6.3",
       elixir: "~> 1.9",
       compilers: ~W[phoenix gettext]a ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,

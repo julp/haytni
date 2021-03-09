@@ -1,6 +1,6 @@
 **DISCLAIMER**: commands given to upgrade are purely informative, make sure to understand them and to do a backup of your project and database before running any of it, especially if your project is not (yet) versionned. (of course any improvement or rectification is welcome)
 
-?.?.?
+0.6.3
 
 - [Authenticable] added *inserted_at* field (`Ecto.Schema.timestamps/1` + `Ecto.Migration.timestamps/1`) to user schemas
 - the X-Suspicious-Activity header is also set by HaytniWeb.Registerable.RegistrationController.create
