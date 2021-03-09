@@ -1,8 +1,13 @@
+**DISCLAIMER**: commands given to upgrade are purely informative, make sure to understand them and to do a backup of your project and database before running any of it, especially if your project is not (yet) versionned. (of course any improvement or rectification is welcome)
+
 ?.?.?
 
 - [Authenticable] added *inserted_at* field (`Ecto.Schema.timestamps/1` + `Ecto.Migration.timestamps/1`) to user schemas
 - the X-Suspicious-Activity header is also set by HaytniWeb.Registerable.RegistrationController.create
 - fixed `ON UPDATE CASCADE ON DELETE CASCADE` options in migrations on foreign keys (Trackable + Invitable)
+- Bamboo updated to 2.0
+
+The following migration should take care of the upgrade (except fixing the foreign keys options):
 
 ```elixir
 # priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_2_to_?_?_?.exs
@@ -24,6 +29,8 @@ defmodule YourRepo.Migrations.HaytniUpgradeFrom062To??? do
   end
 end
 ```
+
+The following command should handle the replacement of @user.(unlock_token|reset_password_token|confirmation_token|unconfirmed_email) to @\1 in email templates:
 
 ```
 find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0 perl -pi \
@@ -112,8 +119,6 @@ defmodule YourRepo.Migrations.HaytniUpgradeFrom060To061 do
   end
 end
 ```
-
-DISCLAIMER: these commands are purely informative, make sure to understand them and to do a backup of your project before running any of it, especially if your project is not (yet) versioned
 
 
 0.6.0

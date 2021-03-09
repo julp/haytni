@@ -284,7 +284,7 @@ defmodule Haytni.ConfirmablePlugin do
     {:ok, true}
   end
 
-  @spec send_notice_about_email_change(user :: Haytni.user, old_email :: String.t, module :: module, config :: Config.t) :: Bamboo.Email.t
+  @spec send_notice_about_email_change(user :: Haytni.user, old_email :: String.t, module :: module, config :: Config.t) :: {:ok, Bamboo.Email.t}
   defp send_notice_about_email_change(user = %_{}, old_email, module, config) do
     user
     |> Haytni.ConfirmableEmail.email_changed(old_email, module, config)

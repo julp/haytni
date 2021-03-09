@@ -168,7 +168,7 @@ config :your_app, YourApp.Mailer,
   auth: :never
 ```
 
-And add `{:bamboo_smtp, "~> 1.7.0", only: :prod}` to `deps` in your mix.exs file. [See Bamboo's documentation for details and other methods to send emails](https://hexdocs.pm/bamboo/readme.html)
+And add `{:bamboo_smtp, "~> 4.0", only: :prod}` to `deps` in your mix.exs file. [See Bamboo's documentation for details and other methods to send emails](https://hexdocs.pm/bamboo/readme.html)
 
 General configuration:
 

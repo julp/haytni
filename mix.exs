@@ -50,7 +50,7 @@ defmodule Haytni.MixProject do
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       # jason is "optional" to phoenix and bamboo
       {:jason, "~> 1.2"},
-      {:bamboo, "~> 1.5"}, # required by plugins: confirmable, lockable, recoverable and invitable
+      {:bamboo, "~> 2.0"}, # required by plugins: confirmable, lockable, recoverable and invitable
       {:dialyxir, "~> 1.0", only: ~W[dev test]a, runtime: false},
       {:ecto_network, "~> 1.3", only: :test}, # required by plugin: trackable with PostgreSQL
       {:excoveralls, "~> 0.13", only: :test},
