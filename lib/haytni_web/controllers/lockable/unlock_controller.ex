@@ -33,8 +33,9 @@ defmodule HaytniWeb.Lockable.UnlockController do
   # GET /unlock/new
   # To request a new key to unlock its account to be sent by mail
   def new(conn, _params, _module, config) do
-    changeset = conn
-    |> HaytniWeb.Shared.add_referer_to_changeset(Haytni.LockablePlugin.unlock_request_changeset(config))
+    changeset =
+      conn
+      |> HaytniWeb.Shared.add_referer_to_changeset(Haytni.LockablePlugin.unlock_request_changeset(config))
     conn
     |> render_new(changeset)
   end

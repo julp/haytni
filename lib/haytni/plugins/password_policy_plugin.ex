@@ -14,7 +14,7 @@ defmodule Haytni.PasswordPolicyPlugin do
       allow a length beyond 72 bytes because bcrypt silently truncates keys to this length.
     * `password_classes_to_match` (default: `#{inspect(@default_password_classes_to_match)}`): the minimum character classes between digit, lowercase, uppercase and others a password has to match to be accepted
 
-        stack Haytni.RegisterablePlugin,
+        stack #{inspect(__MODULE__)},
           password_length: #{inspect(@default_password_length)},
           password_classes_to_match: #{inspect(@default_password_classes_to_match)}
 

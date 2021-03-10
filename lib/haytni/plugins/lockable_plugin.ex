@@ -31,7 +31,7 @@ defmodule Haytni.LockablePlugin do
       + `:both`: enables both strategies
       + `:none`: no unlock strategy. You should handle unlocking by yourself.
 
-            stack Haytni.LockablePlugin,
+            stack #{inspect(__MODULE__)},
               maximum_attempts: #{inspect @default_maximum_attempts},
               unlock_in: #{inspect @default_unlock_in},
               unlock_strategy: #{inspect @default_unlock_strategy},

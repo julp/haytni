@@ -75,9 +75,10 @@ defmodule Haytni.TrackablePlugin do
 
   @impl Haytni.Plugin
   def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config) do
-    changes = keywords
-    |> Keyword.put(:current_sign_in_at, Haytni.Helpers.now())
-    |> Keyword.put(:last_sign_in_at, user.current_sign_in_at)
+    changes =
+      keywords
+      |> Keyword.put(:current_sign_in_at, Haytni.Helpers.now())
+      |> Keyword.put(:last_sign_in_at, user.current_sign_in_at)
 
     # user.__struct__.__schema__(:association, :connections).related
     connection = Ecto.build_assoc(user, :connections)
