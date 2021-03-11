@@ -331,7 +331,7 @@ defmodule Haytni.InvitablePlugin do
     end)
   end
 
-  @spec send_invitation_mail(user :: Haytni.user, invitation :: invitation, module :: module, config :: Config.t) :: {:ok, Haytni.irrelevant}
+  @spec send_invitation_mail(user :: Haytni.user, invitation :: invitation, module :: module, config :: Config.t) :: {:ok, true}
   defp send_invitation_mail(user, invitation, module, config) do
     user
     |> Haytni.InvitableEmail.invitation_email(invitation, module, config)
@@ -348,7 +348,7 @@ defmodule Haytni.InvitablePlugin do
     @spec invitation_changeset(config :: Config.t, invitation_params :: Haytni.params) :: Ecto.Changeset.t
     def invitation_changeset(_config, invitation_params \\ %{}) do
       invitation_params
-      |> Haytni.Helpers.to_changeset(~W[email]a)
+      |> Haytni.Helpers.to_changeset(nil, ~W[email]a)
       # TODO: reuse, move or share code from Haytni.RegisterablePlugin, config.email_regexp
       |> Ecto.Changeset.validate_format(:email, ~R/^[^@\s]+@[^@\s]+$/)
     end
@@ -417,13 +417,23 @@ defmodule Haytni.InvitablePlugin do
   end
 
   @doc ~S"""
+  Generates a *length* long random code
+  """
+  def random_code(length) do
+    length
+    |> :crypto.strong_rand_bytes()
+    |> Base.url_encode64()
+    |> binary_part(0, length)
+  end
+
+  @doc ~S"""
   Sends an invitation (by email) from *user* after checking if its quota (`invitation_quota`) allows it to
   """
   @spec send_invitation(module :: module, config :: Config.t, invitation_params :: Haytni.params, user :: Haytni.user) :: Haytni.repo_nobang_operation(invitation)
   def send_invitation(module, config, invitation_params, user) do
     changeset =
       user
-      |> build_and_assoc_invitation(code: Haytni.Token.generate(64))
+      |> build_and_assoc_invitation(code: random_code(64))
       |> invitation_to_changeset(config, invitation_params)
     Ecto.Multi.new()
     |> Ecto.Multi.run(

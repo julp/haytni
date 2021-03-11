@@ -6,11 +6,16 @@ defmodule Haytni.Lockable.UnlockedTest do
       _unlocked = user_fixture() # to not just have an unlocked user in the database
 
       locked =
-        Haytni.LockablePlugin.build_config()
-        |> Haytni.LockablePlugin.lock_attributes()
+        Haytni.LockablePlugin.lock_attributes()
         |> user_fixture()
 
+      token =
+        locked
+        |> token_fixture(Haytni.LockablePlugin)
+        |> Haytni.Token.url_encode()
+
       [
+        token: token,
         locked: locked,
       ]
     end
@@ -30,18 +35,18 @@ defmodule Haytni.Lockable.UnlockedTest do
     end
 
     for strategy <- Haytni.LockablePlugin.Config.available_strategies() -- Haytni.LockablePlugin.Config.email_strategies() do
-      test "returns error when strategy doesn't include email (strategy: #{strategy})", %{locked: locked} do
+      test "returns error when strategy doesn't include email (strategy: #{strategy})", %{token: unlock_token} do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
 
-        assert {:error, Haytni.LockablePlugin.email_strategy_disabled_message()} == Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, locked.unlock_token)
+        assert {:error, Haytni.LockablePlugin.email_strategy_disabled_message()} == Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, unlock_token)
       end
     end
 
     for strategy <- Haytni.LockablePlugin.Config.email_strategies() do
-      test "returns updated and unlocked user after unlock (strategy: #{strategy})", %{locked: locked} do
+      test "returns updated and unlocked user after unlock (strategy: #{strategy})", %{locked: locked, token: unlock_token} do
         config = Haytni.LockablePlugin.build_config(unlock_strategy: unquote(strategy))
 
-        assert {:ok, updated_user} = Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, locked.unlock_token)
+        assert {:ok, updated_user} = Haytni.LockablePlugin.unlock(HaytniTestWeb.Haytni, config, unlock_token)
         assert updated_user.id == locked.id
         # assert lock was reseted
         assert is_nil(updated_user.locked_at)

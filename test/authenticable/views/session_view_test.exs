@@ -19,10 +19,10 @@ defmodule Haytni.Authenticable.SessionViewTest do
       changeset
     end
     content = render_to_string(view, "new.html", conn: conn, changeset: changeset, config: config, module: HaytniTestWeb.Haytni)
-    assert String.contains?(content, "name=\"session[password]\"")
+    assert content =~ "name=\"session[password]\""
 
     for key <- config.authentication_keys do
-      assert String.contains?(content, "name=\"session[#{key}]\"")
+      assert content =~ "name=\"session[#{key}]\""
     end
 
     if map_size(params) != 0 do

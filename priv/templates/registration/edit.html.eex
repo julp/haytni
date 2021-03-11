@@ -5,11 +5,6 @@
     <%%= email_input f, :email, class: "form-control", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "your email") %>
     <%%= error_tag f, :email %>
   </div>
-  <%%= if Haytni.plugin_enabled?(@module, Haytni.ConfirmablePlugin) && @changeset.data.unconfirmed_email do %>
-    <small id="passwordHelpBlock" class="form-text text-muted">
-      <%%= Haytni.Gettext.dgettext("haytni", "Currently waiting confirmation for: %{email}", email: @changeset.data.unconfirmed_email) %>
-    </small>
-  <%% end %>
 
   <div class="form-group">
     <%%= label f, :password, Haytni.Gettext.dgettext("haytni", "New password"), class: "control-label" %>

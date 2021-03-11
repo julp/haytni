@@ -42,11 +42,7 @@ defmodule HaytniWeb.Lockable.UnlockController do
 
   @spec new_token_sent_message() :: String.t
   def new_token_sent_message do
-    if Application.get_env(:haytni, :mode) == :strict do
-      dgettext("haytni", "If the provided informations match our database, you will shortly receive the instructions by mail to recover your account.")
-    else
-      dgettext("haytni", "Check your emails, a new key to unlock your account has been sent.")
-    end
+    dgettext("haytni", "If the provided informations match our database, you will shortly receive the instructions by mail to recover your account.")
     |> Haytni.Helpers.concat_spam_check_hint_message()
   end
 

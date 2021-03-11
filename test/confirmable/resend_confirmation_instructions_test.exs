@@ -12,17 +12,14 @@ defmodule Haytni.Recoverable.ResendConfirmationInstructionsTest do
 
   describe "Haytni.ConfirmablePlugin.resend_confirmation_instructions/3" do
     setup do
-      config = Haytni.ConfirmablePlugin.build_config()
-      confirmed_user = user_fixture()
-      unconfirmed_user =
-        config
-        |> Haytni.ConfirmablePlugin.new_confirmation_attributes()
+      confirmed_user =
+        Haytni.ConfirmablePlugin.confirmed_attributes()
         |> user_fixture()
 
       [
-        config: config,
         confirmed_user: confirmed_user,
-        unconfirmed_user: unconfirmed_user,
+        unconfirmed_user: user_fixture(),
+        config: Haytni.ConfirmablePlugin.build_config(),
       ]
     end
 
@@ -34,42 +31,19 @@ defmodule Haytni.Recoverable.ResendConfirmationInstructionsTest do
     end
 
     test "ensures no email is sent if no one (email) match", %{config: config} do
-      assert {:error, changeset} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation("no match"))
-      refute is_nil(changeset.action)
-      assert %{email: [Haytni.Helpers.no_match_message()]} == errors_on(changeset)
+      assert {:ok, nil} == Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation("no match"))
       assert_no_emails_delivered()
     end
 
     test "ensures no email is sent if account is already confirmed", %{config: config, confirmed_user: confirmed_user} do
-      assert {:error, changeset} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(confirmed_user.email))
-      refute is_nil(changeset.action)
-      assert %{email: [Haytni.ConfirmablePlugin.alreay_confirmed_message()]} == errors_on(changeset)
+      assert {:ok, nil} == Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(confirmed_user.email))
       assert_no_emails_delivered()
     end
 
-    test "ensures a new confirmation is sent by email with the same token if last one is not expired", %{config: config, unconfirmed_user: user} do
-      assert {:ok, updated_user} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(user.email))
-      assert updated_user.id == user.id
-      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, user.confirmation_token, HaytniTestWeb.Haytni, config)
-    end
-
-    test "ensures a new confirmation is sent by email with the a new token if last one is expired", %{config: config, unconfirmed_user: user} do
-      new_confirmation_sent_at =
-        config.confirm_within
-        |> Kernel.+(1)
-        |> seconds_ago()
-
-      expired_user =
-        user
-        |> Ecto.Changeset.change(confirmation_sent_at: new_confirmation_sent_at)
-        |> HaytniTest.Repo.update!()
-
-      {:ok, updated_user} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(user.email))
-
-      assert updated_user.id == user.id
-      refute updated_user.confirmation_token == expired_user.confirmation_token
-      refute updated_user.confirmation_sent_at == expired_user.confirmation_sent_at
-      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(updated_user, updated_user.confirmation_token, HaytniTestWeb.Haytni, config)
+    test "ensures a new confirmation is sent by email if account is not already confirmed", %{config: config, unconfirmed_user: user} do
+      assert {:ok, confirmation_token} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, create_confirmation(user.email))
+      assert confirmation_token.user_id == user.id
+      assert_delivered_email Haytni.ConfirmableEmail.confirmation_email(user, Haytni.Token.url_encode(confirmation_token), HaytniTestWeb.Haytni, config)
     end
   end
 end

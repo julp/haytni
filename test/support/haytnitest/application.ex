@@ -10,6 +10,8 @@ defmodule HaytniTest.Application do
     children = [
       # Start the Ecto repository
       HaytniTest.Repo,
+      # Start the PubSub system
+      {Phoenix.PubSub, name: HaytniTest.PubSub},
       # Start the endpoint when the application starts
       HaytniTestWeb.Endpoint,
     ]

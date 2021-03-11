@@ -34,13 +34,16 @@ defmodule Haytni.Lockable.UnlockControllerTest do
 
     test "checks successful unlocking", %{conn: conn} do
       user =
-        Haytni.LockablePlugin.build_config()
-        |> Haytni.LockablePlugin.lock_attributes()
+        Haytni.LockablePlugin.lock_attributes()
         |> user_fixture()
+      unlock_token =
+        user
+        |> token_fixture(Haytni.LockablePlugin)
+        |> Haytni.Token.url_encode()
 
       response =
         conn
-        |> get(Routes.haytni_user_unlock_path(conn, :show), %{"unlock_token" => user.unlock_token})
+        |> get(Routes.haytni_user_unlock_path(conn, :show), %{"unlock_token" => unlock_token})
         |> html_response(200)
 
       assert contains_text?(response, HaytniWeb.Lockable.UnlockController.unlock_message())
@@ -56,31 +59,28 @@ defmodule Haytni.Lockable.UnlockControllerTest do
     end
   end
 
+  defp maybe_succeed(conn, params) do
+    response =
+      conn
+      |> post(Routes.haytni_user_unlock_path(conn, :create), params)
+      |> html_response(200)
+
+    assert contains_formatted_text?(response, HaytniWeb.Lockable.UnlockController.new_token_sent_message())
+  end
+
   describe "HaytniWeb.Lockable.UnlockController#create" do
     for keys <- @keys do
       test "checks error on invalid unlock request with #{inspect(keys)} as key(s)", %{conn: conn} do
-        response =
-          conn
-          |> post(Routes.haytni_user_unlock_path(conn, :create), unlock_params())
-          |> html_response(200)
-
-        check_for_new_form(response)
-        assert contains_text?(response, Haytni.Helpers.no_match_message())
+        maybe_succeed(conn, unlock_params())
       end
 
       test "checks successful unlock request with #{inspect(keys)} as key(s)", %{conn: conn} do
         user =
-          Haytni.LockablePlugin.build_config()
-          |> Haytni.LockablePlugin.lock_attributes()
+          Haytni.LockablePlugin.lock_attributes()
           |> Keyword.merge(email: "parker.peter@daily-bugle.com", first_name: "Peter", last_name: "Parker")
           |> user_fixture()
 
-        response =
-          conn
-          |> post(Routes.haytni_user_unlock_path(conn, :create), unlock_params(user))
-          |> html_response(200)
-
-        assert contains_formatted_text?(response, HaytniWeb.Lockable.UnlockController.new_token_sent_message())
+        maybe_succeed(conn, unlock_params(user))
       end
     end
   end

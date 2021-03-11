@@ -58,6 +58,9 @@ defmodule Haytni.MixProject do
       #{:sobelow, "~> 0.10", only: :test},
       #{:myxql, ">= 0.0.0", only: :test},
       {:postgrex, ">= 0.0.0", only: :test},
+      # for LiveViewPlugin
+      {:phoenix_live_view, ">= 0.15.4", only: :test},
+      {:floki, ">= 0.27.0", only: :test},
     ]
   end
 
@@ -109,6 +112,7 @@ defmodule Haytni.MixProject do
         Haytni.TrackablePlugin,
         Haytni.PasswordPolicyPlugin,
         Haytni.InvitablePlugin,
+        Haytni.LiveViewPlugin,
       ],
       Authenticable: [
         Haytni.AuthenticablePlugin,
@@ -151,6 +155,10 @@ defmodule Haytni.MixProject do
         Haytni.InvitablePlugin,
         Haytni.InvitablePlugin.Config,
         Haytni.InvitableEmail,
+      ],
+      LiveView: [
+        Haytni.LiveViewPlugin,
+        Haytni.LiveViewPlugin.Config,
       ],
       Helpers: [
         Haytni.Params,

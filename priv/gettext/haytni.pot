@@ -16,42 +16,22 @@ msgid "Your account has been confirmed."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/controllers/confirmable/confirmation_controller.ex:18
-msgid "A new confirmation has been sent."
-msgstr ""
-
-#, elixir-format
-#: lib/haytni_web/emails/confirmable_email.ex:22
+#: lib/haytni_web/emails/confirmable_email.ex:23
 msgid "Please confirm your account"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/confirmable_plugin.ex:191
-msgid "The given confirmation token is invalid."
-msgstr ""
-
-#, elixir-format
-#: lib/haytni_web/emails/recoverable_email.ex:15
+#: lib/haytni_web/emails/recoverable_email.ex:16
 msgid "Reset password instructions"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/confirmable_plugin.ex:199
-msgid "The given confirmation token is expired, request a new one."
-msgstr ""
-
-#, elixir-format
-#: lib/haytni/plugins/lockable_plugin.ex:259
+#: lib/haytni/plugins/lockable_plugin.ex:311
 msgid "The given unlock token is invalid."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/lockable_plugin.ex:302
-msgid "This account is not currently locked"
-msgstr ""
-
-#, elixir-format
-#: lib/haytni_web/emails/lockable_email.ex:15
+#: lib/haytni_web/emails/lockable_email.ex:16
 msgid "Unlock instructions"
 msgstr ""
 
@@ -61,47 +41,42 @@ msgid "Your account has been unlocked."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/controllers/recoverable/password_controller.ex:58
+#: lib/haytni_web/controllers/recoverable/password_controller.ex:54
 msgid "Your password has been successfully changed."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/lockable_plugin.ex:117
+#: lib/haytni/plugins/lockable_plugin.ex:127
 msgid "account is locked due to an excessive number of unsuccessful sign in attempts, please check your emails."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/confirmable_plugin.ex:103
+#: lib/haytni/plugins/confirmable_plugin.ex:163
 msgid "account is pending confirmation, please check your emails."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/authenticable_plugin.ex:141
+#: lib/haytni/plugins/authenticable_plugin.ex:149
 msgid "password mismatch"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/emails/confirmable_email.ex:50
+#: lib/haytni_web/emails/confirmable_email.ex:53
 msgid "Attention: email was changed"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/emails/confirmable_email.ex:35
+#: lib/haytni_web/emails/confirmable_email.ex:38
 msgid "Please confirm your email address change"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/confirmable_plugin.ex:315
-msgid "This account has already been confirmed"
-msgstr ""
-
-#, elixir-format
-#: lib/haytni/helpers.ex:104
+#: lib/haytni/helpers.ex:108
 msgid "doesn't match to any account"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/lockable_plugin.ex:251
+#: lib/haytni/plugins/lockable_plugin.ex:303
 msgid "Unlocking accounts through email is currently disabled."
 msgstr ""
 
@@ -116,57 +91,53 @@ msgid "I get it, continue to sign in"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/controllers/registerable/registration_controller.ex:97
+#: lib/haytni_web/controllers/registerable/registration_controller.ex:99
 msgid "Informations have been updated"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/controllers/recoverable/password_controller.ex:67
+#: lib/haytni_web/controllers/recoverable/password_controller.ex:63
 msgid "Password changed, continue to sign in"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/controllers/confirmable/confirmation_controller.ex:29
+#: lib/haytni_web/controllers/confirmable/confirmation_controller.ex:25
+#: lib/haytni_web/controllers/confirmable/reconfirmation_controller.ex:25
 msgid "Continue to sign in"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/authenticable_plugin.ex:177
+#: lib/haytni/plugins/authenticable_plugin.ex:185
 msgid "Invalid combination of credentials"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/recoverable_plugin.ex:200
-msgid "The given password recovery token is expired."
-msgstr ""
-
-#, elixir-format
-#: lib/haytni/plugins/recoverable_plugin.ex:192
+#: lib/haytni/plugins/recoverable_plugin.ex:167
 msgid "The given password recovery token is invalid."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/password_policy_plugin.ex:50
+#: lib/haytni/plugins/password_policy_plugin.ex:54
 msgid "a digit"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/password_policy_plugin.ex:51
+#: lib/haytni/plugins/password_policy_plugin.ex:55
 msgid "a lowercase letter"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/password_policy_plugin.ex:52
+#: lib/haytni/plugins/password_policy_plugin.ex:56
 msgid "a uppercase letter"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/password_policy_plugin.ex:53
+#: lib/haytni/plugins/password_policy_plugin.ex:57
 msgid "a different character"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/password_policy_plugin.ex:74
+#: lib/haytni/plugins/password_policy_plugin.ex:78
 msgid "should contains at least %{count} character types among %{classes}"
 msgstr ""
 
@@ -181,17 +152,12 @@ msgid "An invitation has been successfully sent"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/controllers/lockable/unlock_controller.ex:47
-msgid "Check your emails, a new key to unlock your account has been sent."
-msgstr ""
-
-#, elixir-format
-#: lib/haytni_web/controllers/confirmable/confirmation_controller.ex:16
+#: lib/haytni_web/controllers/confirmable/confirmation_controller.ex:15
 msgid "If the provided informations match our database and your email address has not been confirmed yet, you will shortly receive the instructions to do so."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/controllers/recoverable/password_controller.ex:24
+#: lib/haytni_web/controllers/recoverable/password_controller.ex:23
 msgid "If the provided informations match our database, you will shortly receive in your mailbox the instructions to allow you to reset your password."
 msgstr ""
 
@@ -201,12 +167,7 @@ msgid "If the provided informations match our database, you will shortly receive
 msgstr ""
 
 #, elixir-format
-#: lib/haytni_web/controllers/recoverable/password_controller.ex:26
-msgid "To reset your password we sent you an email containing a link you will need to follow."
-msgstr ""
-
-#, elixir-format
-#: lib/haytni/helpers.ex:114
+#: lib/haytni/helpers.ex:118
 msgid "You may need to look at the spams folder."
 msgstr ""
 
@@ -216,33 +177,48 @@ msgid "You've been invited"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:162
+#: lib/haytni/plugins/invitable_plugin.ex:163
 msgid "the given email address mismatch the invitation it was sent to"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:146
+#: lib/haytni/plugins/invitable_plugin.ex:147
 msgid "the given invitation does not exist"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:154
+#: lib/haytni/plugins/invitable_plugin.ex:155
 msgid "the given invitation has expired"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:138
+#: lib/haytni/plugins/invitable_plugin.ex:139
 msgid "you can't register without having received an invitation"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:170
+#: lib/haytni/plugins/invitable_plugin.ex:171
 msgid "your quota of %{count} invitation(s) has been exceeded"
 msgstr ""
 
 #, elixir-format
 #: lib/haytni_web/controllers/registerable/registration_controller.ex:50
 msgid "A final step is required before you fully dispose of your account: in order to confirm your address, an email has been sent to %{email}, which contains a link you need to activate. Once done, you will be able to login."
+msgstr ""
+
+#, elixir-format
+#: lib/haytni/plugins/confirmable_plugin.ex:171
+msgid "The given confirmation token is invalid or has expired."
+msgstr ""
+
+#, elixir-format
+#: lib/haytni_web/controllers/confirmable/reconfirmation_controller.ex:15
+msgid "To proceed to email change you have to be logged in"
+msgstr ""
+
+#, elixir-format
+#: lib/haytni_web/controllers/confirmable/reconfirmation_controller.ex:10
+msgid "Your email address has been updated"
 msgstr ""
 
 #, elixir-format
@@ -293,58 +269,53 @@ msgstr ""
 
 #, elixir-format
 #: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:10
-msgid "Currently waiting confirmation for: %{email}"
-msgstr ""
-
-#, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:15
 #: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:9
 msgid "New password"
 msgstr ""
 
 #, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:16
-#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:25
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:11
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:20
 #: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:10
-#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:21
+#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:20
 msgid "your new password"
 msgstr ""
 
 #, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:21
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:16
 #: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:30
-#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:16
+#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:15
 msgid "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long."
 msgstr ""
 
 #, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:24
-#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:20
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:19
+#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:19
 msgid "Confirm new password"
 msgstr ""
 
 #, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:30
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:25
 msgid "Current password"
 msgstr ""
 
 #, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:31
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:26
 msgid "your current password"
 msgstr ""
 
 #, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:35
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:30
 msgid "Required only if you change your email and/or your current password."
 msgstr ""
 
 #, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:39
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:34
 msgid "Update"
 msgstr ""
 
 #, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:40
+#: /usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.eex:35
 #: /usr/home/julp/elixir/haytni/priv/templates/registration/new.html.eex:40
 #: /usr/home/julp/elixir/haytni/priv/templates/invitation/new.html.eex:15
 msgid "Cancel"
@@ -449,7 +420,7 @@ msgid "Change your password"
 msgstr ""
 
 #, elixir-format
-#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:26
+#: /usr/home/julp/elixir/haytni/priv/templates/password/edit.html.eex:25
 msgid "Change my password"
 msgstr ""
 

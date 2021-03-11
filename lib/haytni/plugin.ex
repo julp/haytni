@@ -148,7 +148,7 @@ defmodule Haytni.Plugin do
         multi
         |> Ecto.Multi.run(:send_welcome_email, fn _repo, %{user: user} ->
           send_welcome_email_to(user)
-          {:ok, :success}
+          {:ok, true}
         end)
       end
   """

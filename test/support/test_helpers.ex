@@ -14,7 +14,6 @@ defmodule Haytni.TestHelpers do
       |> Enum.into(
         %{
           email: "test#{id}@test.com",
-          confirmation_sent_at: Haytni.Helpers.now(),
           password: attrs[:password] || "not so SECRET!",
         }
       )
@@ -57,7 +56,7 @@ defmodule Haytni.TestHelpers do
     Enum.each(
       routes,
       fn %{route: route, method: method, action: action, controller: controller} ->
-        assert %{route: ^route, plug: ^controller, plug_opts: ^action} = Phoenix.Router.route_info(router, method, route, "test.com")
+        %{route: ^route, plug: ^controller, plug_opts: ^action} = Phoenix.Router.route_info(router, method, route, "test.com")
       end
     )
   end
@@ -65,7 +64,6 @@ defmodule Haytni.TestHelpers do
   @doc ~S"""
   Creates a user with the following attributes:
 
-    * confirmed
     * `"notasecret"` as password by default
     * an auto-generated email address unless one is specified in *attrs*
     * the password is automatically hashed, no need to handle this aspect
@@ -90,6 +88,32 @@ defmodule Haytni.TestHelpers do
   end
 
   @doc ~S"""
+  Creates a token associated to *user* and with the value returned by plugin.token_context/1 as context
+  (if not overridden by *:context* key in attributes).
+
+  The following attributes are supported:
+
+    * sent_to (default: `user.email`): the email address the token was sent to
+    * inserted_at (default: `0`): the number of seconds ago the token has been generated
+    * token (default: some random string): the raw token
+    * context (default: `plugin.token_context(nil)`): the context associated to the token
+  """
+  @spec token_fixture(user :: Haytni.user, plugin :: module, attrs :: Keyword.t) :: Haytni.Token.t
+  def token_fixture(user, plugin, attrs \\ []) do
+    sent_to = Keyword.get(attrs, :sent_to, user.email)
+    inserted_at = Keyword.get(attrs, :inserted_at, 0)
+    context = Keyword.get(attrs, :context, plugin.token_context(nil))
+    token = Keyword.get_lazy(attrs, :token, fn -> Haytni.Token.new(16) end)
+
+    {:ok, token} =
+      user
+      |> Ecto.build_assoc(:tokens, token: token, context: context, sent_to: sent_to, inserted_at: seconds_ago(inserted_at))
+      |> HaytniTest.Repo.insert()
+
+    token
+  end
+
+  @doc ~S"""
   Creates an invitation from *user* to *sent_to* email address.
 
   Optional attributes:
@@ -101,7 +125,7 @@ defmodule Haytni.TestHelpers do
   @spec invitation_fixture(user :: Haytni.user, sent_to :: String.t, attrs :: Keyword.t) :: Haytni.InvitablePlugin.invitation
   def invitation_fixture(user, sent_to, attrs \\ []) do
     sent_at = Keyword.get(attrs, :sent_at, 0)
-    code = Keyword.get_lazy(attrs, :code, fn -> Haytni.Token.generate(16) end)
+    code = Keyword.get_lazy(attrs, :code, fn -> Haytni.InvitablePlugin.random_code(16) end)
     accepter_id = case Keyword.get(attrs, :accepted_by, nil) do
       %_{id: id} when is_integer(id) ->
         id
@@ -203,7 +227,16 @@ defmodule Haytni.TestHelpers do
       |> Phoenix.HTML.safe_to_string()
       |> IO.iodata_to_binary()
 
-    String.contains?(response, html)
+    response =~ html
+  end
+
+  defp max_age(config) do
+    case Keyword.fetch(config.remember_cookie_options, :max_age) do
+      {:ok, value} ->
+        [max_age: value]
+      :error ->
+        []
+    end
   end
 
   @doc ~S"""
@@ -211,29 +244,8 @@ defmodule Haytni.TestHelpers do
   """
   @spec add_rememberme_cookie(conn :: Plug.Conn.t, token :: String.t, config :: Haytni.config) :: Plug.Conn.t
   def add_rememberme_cookie(conn = %Plug.Conn{}, token, config) do
-    signed_token = Haytni.RememberablePlugin.sign_token(conn, token, config)
+    signed_token = Plug.Crypto.sign(conn.secret_key_base, config.remember_cookie_name <> "_cookie", token, max_age(config))
     Phoenix.ConnTest.put_req_cookie(conn, config.remember_cookie_name, signed_token)
-  end
-
-  @doc ~S"""
-  Asserts the server requested the deletion of the cookie named *name* to the client in the HTTP response.
-  """
-  @spec assert_cookie_deletion(conn :: Plug.Conn.t, name :: String.t) :: falsy | no_return
-  def assert_cookie_deletion(conn, name) do
-    cookie = Map.get(conn.resp_cookies, name)
-
-    # NOTE: keep in mind that when you want to delete a cookie, you (the server) send a Set-Cookie
-    # header with the same name but without value and an expiration date in the past!
-    assert %{max_age: 0, universal_time: {{1970, 1, 1}, {0, 0, 0}}} = cookie
-    refute Map.has_key?(cookie, :value)
-  end
-
-  @doc ~S"""
-  Refutes any presence of the cookie named *name*
-  """
-  @spec refute_cookie_presence(conn :: Plug.Conn.t, name :: String.t) :: falsy | no_return
-  def refute_cookie_presence(conn, name) do
-    refute Map.has_key?(conn.resp_cookies, name)
   end
 
   @doc ~S"""
@@ -245,9 +257,32 @@ defmodule Haytni.TestHelpers do
   """
   @spec assert_rememberme_presence(conn :: Plug.Conn.t, config :: Haytni.RememberablePlugin.Config.t, token :: String.t) :: {:ok, String.t}
   def assert_rememberme_presence(conn, config, token) do
+    conn = Plug.Conn.fetch_cookies(conn, signed: [config.remember_cookie_name])
     {:ok, cookie} = Map.fetch(conn.resp_cookies, config.remember_cookie_name)
     true = DateTime.diff(DateTime.from_unix!(cookie.max_age), DateTime.utc_now()) >= config.remember_for
-    {:ok, ^token} = Haytni.RememberablePlugin.verify_token(conn, cookie.value, config)
+    {:ok, ^token} = Plug.Crypto.verify(conn.secret_key_base, config.remember_cookie_name <> "_cookie", cookie.value, max_age(config))
+  end
+
+  @doc ~S"""
+  Asserts the server requested the deletion of the cookie named *name* to the client in the HTTP response.
+  """
+  @spec assert_cookie_deletion(conn :: Plug.Conn.t, name :: String.t) :: falsy | no_return
+  def assert_cookie_deletion(conn, name) do
+    conn = Plug.Conn.fetch_cookies(conn, signed: [name])
+    cookie = Map.get(conn.resp_cookies, name)
+
+    # NOTE: keep in mind that when you want to delete a cookie, you (the server) send a Set-Cookie
+    # header with the same name but without value and an expiration date in the past!
+    %{max_age: 0, universal_time: {{1970, 1, 1}, {0, 0, 0}}} = cookie
+    refute Map.has_key?(cookie, :value)
+  end
+
+  @doc ~S"""
+  Refutes any presence of the cookie named *name*
+  """
+  @spec refute_cookie_presence(conn :: Plug.Conn.t, name :: String.t) :: falsy | no_return
+  def refute_cookie_presence(conn, name) do
+    refute Map.has_key?(conn.resp_cookies, name)
   end
 
   @doc ~S"""

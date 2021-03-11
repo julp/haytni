@@ -26,15 +26,19 @@ defmodule Haytni.Recoverable.PasswordControllerTest do
     #~W[first_name last_name]a, # NOTE: to work we'd need to override HatyniTestWeb.Haytni plugins_with_config/0
   ]
 
+  defp maybe_succeed(conn, params) do
+    response =
+      conn
+      |> post(Routes.haytni_user_password_path(conn, :create), params)
+      |> html_response(200)
+
+    assert contains_formatted_text?(response, HaytniWeb.Recoverable.PasswordController.recovery_token_sent_message())
+  end
+
   describe "HaytniWeb.Recoverable.PasswordController#create" do
     for keys <- @keys do
       test "checks error on invalid password recovery request with #{inspect(keys)} as key(s)", %{conn: conn} do
-        response =
-          conn
-          |> post(Routes.haytni_user_password_path(conn, :create), recover_params())
-          |> html_response(200)
-
-        assert contains_text?(response, Haytni.Helpers.no_match_message())
+        maybe_succeed(conn, recover_params())
       end
 
       test "checks successful password recovery request with #{inspect(keys)} as key(s)", %{conn: conn} do
@@ -46,12 +50,7 @@ defmodule Haytni.Recoverable.PasswordControllerTest do
           ]
           |> user_fixture()
 
-        response =
-          conn
-          |> post(Routes.haytni_user_password_path(conn, :create), recover_params(user))
-          |> html_response(200)
-
-        assert contains_formatted_text?(response, HaytniWeb.Recoverable.PasswordController.recovery_token_sent_message())
+        maybe_succeed(conn, recover_params(user))
       end
     end
   end
@@ -81,14 +80,15 @@ defmodule Haytni.Recoverable.PasswordControllerTest do
     end
 
     test "checks successful password change", %{conn: conn} do
-      user =
-        Haytni.RecoverablePlugin.build_config()
-        |> Haytni.RecoverablePlugin.reset_password_attributes()
-        |> user_fixture()
+      user = user_fixture()
+      token =
+        user
+        |> token_fixture(Haytni.RecoverablePlugin)
+        |> Haytni.Token.url_encode()
 
       response =
         conn
-        |> patch(Routes.haytni_user_password_path(conn, :update), change_params(user.reset_password_token))
+        |> patch(Routes.haytni_user_password_path(conn, :update), change_params(token))
         |> html_response(200)
 
       assert contains_text?(response, HaytniWeb.Recoverable.PasswordController.password_changed_message())

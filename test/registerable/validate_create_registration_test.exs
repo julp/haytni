@@ -30,6 +30,7 @@ defmodule Haytni.Registerable.ValidateCreateRegistrationTest do
       changeset =
         registration_params()
         |> to_changeset(config)
+
       assert changeset.valid?
       assert %{} == errors_on(changeset)
     end
@@ -87,7 +88,7 @@ defmodule Haytni.Registerable.ValidateCreateRegistrationTest do
       input_changeset =
         registration_params()
         |> to_changeset(config)
-        |> Ecto.Changeset.change(encrypted_password: "", confirmation_sent_at: ~U[1970-01-01 00:00:00Z])
+        |> Ecto.Changeset.change(encrypted_password: "")
 
       {:ok, _user} = HaytniTest.Repo.insert(input_changeset)
       # NOTE: unique_constraint will only pop up after a Repo.insert

@@ -11,6 +11,7 @@ config :bcrypt_elixir,
 
 config :haytni, HaytniTestWeb.Endpoint,
   http: [port: 4001],
+  pubsub_server: HaytniTest.PubSub,
   secret_key_base: "s1heawGXF5+zpOvg+mrGJoKQhQ4kVMNLSgW+TShHIDqisLiwd2Wqjf478JZR3xXv",
   server: false
 
@@ -39,6 +40,13 @@ config :haytni, HaytniTestWeb.HaytniCustomRoutes,
   scope: :cr,
   repo: HaytniTest.Repo,
   schema: HaytniTest.Admin,
+  mailer: HaytniTest.Mailer
+
+config :haytni, HaytniTestWeb.HaytniEmpty,
+  layout: false,
+  scope: :empty,
+  repo: HaytniTest.Repo,
+  schema: HaytniTest.User,
   mailer: HaytniTest.Mailer
 
 config :haytni, HaytniTest.Mailer,

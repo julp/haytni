@@ -16,7 +16,7 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
     end
 
     test "ensures failed_attempts is (only) incremented while it doesn't exceed maximum_attempts", %{config: config} do
-      #user = %User{id: 0, locked_at: nil, unlock_token: nil, failed_attempts: 0}
+      #user = %User{id: 0, locked_at: nil, failed_attempts: 0}
       user = user_fixture()
       updates = [inc: [failed_attempts: 1]]
 
@@ -35,7 +35,7 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
           assert updated_user.id == user.id
           assert updated_user.failed_attempts == user.failed_attempts + 1
           assert is_nil(updated_user.locked_at)
-          assert is_nil(updated_user.unlock_token)
+          assert [] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.RememberablePlugin.token_context(nil)))
 
           updated_user
         end
@@ -46,18 +46,21 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
       test "ensures account becomes locked if failed_attempts >= maximum_attempts (strategy: #{strategy})", %{config: config} do
         config = %{config | unlock_strategy: unquote(strategy)}
         # NOTE: user needs an email for email based strategies
-        user = %User{email: "test@notadomain.com", locked_at: nil, unlock_token: nil, failed_attempts: 0}
+        user = %User{email: "test@notadomain.com", locked_at: nil, failed_attempts: 0}
 
         Range.new(config.maximum_attempts - 1, config.maximum_attempts + 1) # ensures locking takes place even if failed_attempts > maximum_attempts
         |> Enum.each(
           fn attempt ->
-            {_multi, changes} = on_failed_authentication(config, %{user | failed_attempts: attempt})
+            {multi, changes} = on_failed_authentication(config, %{user | failed_attempts: attempt})
             changes_as_map = Enum.into(changes, %{})
 
-            assert %{locked_at: at, unlock_token: token} = changes_as_map
-
+            assert %{locked_at: at} = changes_as_map
             assert %DateTime{} = at
-            assert is_binary(token)
+            if Haytni.LockablePlugin.email_strategy_enabled?(config) do
+              assert [{:token, {:insert, %Ecto.Changeset{}, []}}, {:send_unlock_instructions, {:run, _function}}] = Ecto.Multi.to_list(multi)
+            else
+              assert [] == Ecto.Multi.to_list(multi)
+            end
           end
         )
       end
@@ -74,9 +77,9 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
           |> Ecto.Changeset.change(changes)
           |> Ecto.Changeset.apply_changes()
 
-        assert [{:send_unlock_instructions, {:run, fun}}] = Ecto.Multi.to_list(multi)
-        assert {:ok, :success} = fun.(HaytniTest.Repo, %{user: updated_user})
-        assert_delivered_email Haytni.LockableEmail.unlock_instructions_email(updated_user, updated_user.unlock_token, HaytniTestWeb.Haytni, config)
+        assert [{:token, {:insert, changeset = %Ecto.Changeset{}, []}}, {:send_unlock_instructions, {:run, fun}}] = Ecto.Multi.to_list(multi)
+        assert {:ok, true} = fun.(HaytniTest.Repo, %{user: updated_user, token: changeset.data})
+        assert_delivered_email Haytni.LockableEmail.unlock_instructions_email(updated_user, Haytni.Token.url_encode(changeset.data), HaytniTestWeb.Haytni, config)
       end
     end
   end

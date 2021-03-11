@@ -12,14 +12,15 @@ defmodule Haytni.Confirmable.ConfirmationShowControllerTest do
     end
 
     test "checks successful confirmation", %{conn: conn} do
-      user =
-        Haytni.ConfirmablePlugin.build_config()
-        |> Haytni.ConfirmablePlugin.new_confirmation_attributes()
-        |> user_fixture()
+      user = user_fixture()
+      confirmation_token =
+        user
+        |> token_fixture(Haytni.ConfirmablePlugin, token: "7kB0dqV657")
+        |> Haytni.Token.url_encode()
 
       response =
         conn
-        |> get(Routes.haytni_user_confirmation_path(conn, :show), %{"confirmation_token" => user.confirmation_token})
+        |> get(Routes.haytni_user_confirmation_path(conn, :show), %{"confirmation_token" => confirmation_token})
         |> html_response(200)
 
       assert contains_text?(response, HaytniWeb.Confirmable.ConfirmationController.confirmed_message())

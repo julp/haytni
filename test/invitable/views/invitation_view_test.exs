@@ -25,7 +25,7 @@ defmodule Haytni.Invitable.InvitationViewTest do
     end
     content = render_to_string(HaytniTestWeb.Haytni.User.InvitationView, "new.html", conn: conn, changeset: changeset, config: config, module: HaytniTestWeb.Haytni)
 
-    assert String.contains?(content, "name=\"invitation[sent_to]\"")
+    assert content =~ "name=\"invitation[sent_to]\""
 
     if map_size(params) != 0 do
       assert contains_text?(content, invalid_format_message())

@@ -1,7 +1,7 @@
 defmodule Haytni.Confirmable.FieldsTest do
   use HaytniWeb.ConnCase, async: true
 
-  @fields ~W[confirmed_at unconfirmed_email confirmation_token confirmation_sent_at]a
+  @fields ~W[confirmed_at]a
   describe "Haytni.ConfirmablePlugin.fields/0 (callback)" do
     test "ensures User schema contains necessary fields" do
       user = %HaytniTest.User{}

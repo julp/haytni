@@ -5,7 +5,7 @@ defmodule HaytniTestWeb.Router do
   require HaytniTestWeb.HaytniCustomRoutes
 
   pipeline :browser do
-    plug :accepts, ~W[html]
+    plug :accepts, ~W[html json]
     plug :fetch_session
     plug :fetch_flash
     plug :protect_from_forgery

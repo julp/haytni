@@ -10,4 +10,5 @@ defmodule HaytniTestWeb.Haytni do
   stack Haytni.TrackablePlugin
   stack Haytni.PasswordPolicyPlugin
   stack Haytni.InvitablePlugin, invitation_required: false
+  stack Haytni.LiveViewPlugin
 end

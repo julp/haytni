@@ -18,7 +18,7 @@ defmodule Haytni.Lockable.OnSuccessfulAuthentificationTest do
       |> Enum.each(
         fn user ->
           assert {%Plug.Conn{}, multi, [failed_attempts: 0]} = Haytni.LockablePlugin.on_successful_authentication(conn, user, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, config)
-          assert [] == Ecto.Multi.to_list(multi)
+          assert [{:tokens, {:delete_all, %Ecto.Query{}, []}}] = Ecto.Multi.to_list(multi)
         end
       )
     end

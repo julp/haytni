@@ -23,8 +23,7 @@ defmodule Haytni.Authenticable.AuthenticateTest do
       admin = admin_fixture(password: @pass)
       config = HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin)
       user =
-        #HaytniTestWeb.Haytni.fetch_config(Haytni.ConfirmablePlugin)
-        Haytni.ConfirmablePlugin.reset_confirmation_attributes()
+        Haytni.ConfirmablePlugin.confirmed_attributes()
         |> Keyword.put(:password, @pass)
         |> user_fixture()
 

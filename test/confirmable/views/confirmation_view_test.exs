@@ -34,18 +34,17 @@ defmodule Haytni.Confirmable.ConfirmationViewTest do
     {Haytni.ConfirmablePlugin.build_config(confirmation_keys: ~W[firstname lastname]a), %{"firstname" => "Iron", "lastname" => "Man"}},
   ]
 
-  for {config, params} <- @configs do
-    keys = Enum.join(config.confirmation_keys, ", ")
-
-    test "renders \"empty\" new.html with #{keys} as key(s)", %{conn: conn} do
+  for {config, _params} <- @configs do
+    test "renders \"empty\" new.html with #{inspect(config.confirmation_keys)} as key(s)", %{conn: conn} do
       do_test(conn, unquote(Macro.escape(config)), %{})
     end
 
     # NOTE: the purpose of this test is to check that changeset errors are displayed
     # previously I've forgotten to apply an action so they weren't shown in several places
     # we kinda simulate a create action (which renders also new.html)
-    test "renders new.html with #{keys} as key(s) and bad params", %{conn: conn} do
-      do_test(conn, unquote(Macro.escape(config)), unquote(Macro.escape(params)))
-    end
+    # NOTE: to uncomment if/when validation are added to values on confirmation_keys
+    #test "renders new.html with #{keys} as key(s) and bad params", %{conn: conn} do
+      #do_test(conn, unquote(Macro.escape(config)), unquote(Macro.escape(params)))
+    #end
   end
 end

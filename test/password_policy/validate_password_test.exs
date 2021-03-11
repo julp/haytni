@@ -5,8 +5,9 @@ defmodule Haytni.PasswordPolicy.ValidatePasswordTest do
     test "checks password length complies to password_length" do
       password = "12345678"
       length = String.length(password)
-      changeset = %HaytniTest.User{}
-      |> Ecto.Changeset.change(password: password)
+      changeset =
+        %HaytniTest.User{}
+        |> Ecto.Changeset.change(password: password)
 
       for l <- Range.new(length + 1, length + 5) do
         config = Haytni.PasswordPolicyPlugin.build_config(password_length: l..128, password_classes_to_match: 0)
@@ -29,9 +30,10 @@ defmodule Haytni.PasswordPolicy.ValidatePasswordTest do
       for a <- chars, b <- chars, c <- chars, d <- chars, l <- 0..4 do
         config = Haytni.PasswordPolicyPlugin.build_config(password_length: 0..128, password_classes_to_match: l)
         password = Enum.join([a, b, c, d])
-        changeset = %HaytniTest.User{}
-        |> Ecto.Changeset.change(password: password)
-        |> Haytni.PasswordPolicyPlugin.validate_password(HaytniTestWeb.Haytni, config)
+        changeset =
+          %HaytniTest.User{}
+          |> Ecto.Changeset.change(password: password)
+          |> Haytni.PasswordPolicyPlugin.validate_password(HaytniTestWeb.Haytni, config)
 
         cond do
           password == "" ->

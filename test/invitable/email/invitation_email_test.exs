@@ -13,11 +13,11 @@ defmodule Haytni.InvitableEmail.InvitationEmailTest do
       assert email.from == HaytniTest.Mailer.from()
 
       hello_message = "Hello #{invitation.sent_to}!"
-      assert String.contains?(email.text_body, hello_message)
-      assert String.contains?(email.html_body, "<p>#{hello_message}</p>")
+      assert email.text_body =~ hello_message
+      assert email.html_body =~ "<p>#{hello_message}</p>"
 
       href = HaytniTestWeb.Router.Helpers.haytni_user_registration_url(HaytniTestWeb.Endpoint, :new, invitation: invitation.code, email: invitation.sent_to)
-      assert String.contains?(email.text_body, href)
+      assert email.text_body =~ href
       assert Haytni.TestHelpers.contains_text?(email.html_body, href)
     end
   end
