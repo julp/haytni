@@ -144,7 +144,11 @@ find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0
 - paths used to generate the routes created by plugins can be customized at your YourApp.Haytni.routes/1 call, see their respective documentation for further details
 - [Lockable] Incrementation of failed_attempts has been moved into the *multi* to make the UPDATE atomic and makes this counter reliable
 - routes created for Haytni are now prefixed by `haytni_<scope>_` to avoid conflicts and permit the use of several Haytni stacks (note that prefixes herited from Phoenix.Router.scope or outer Phoenix.Router.resources still apply)
-- [callbacks] `files_to_install/0` becomes `files_to_install/4` to receive (in that order) the base_path (the lib/your_app directory), web_path (the lib/your_app_web directory), the scope and a timestamp (included in migration filenames)
+- [callbacks] `files_to_install/0` becomes `files_to_install/4` to receive (in that order):
+  1. *the base_path* (the lib/your_app directory)
+  2. the *web_path* (the lib/your_app_web directory)
+  3. the *scope*
+  4. a timestamp (included in migration filenames)
 - [Registerable] fix installation of edit.html.eex template, it was simply copied as is instead being evaluated as an EEx template like the others
 - replaced `:string` for PostgreSQL by `:citext` on email addresses in migrations
 
