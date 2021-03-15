@@ -99,6 +99,35 @@ defmodule Haytni do
       def init(_options), do: nil
 
       @impl Plug
+      def call(conn = %Plug.Conn{private: %{haytni: module}}, _options) do
+        raise ArgumentError, """
+        More than one Haytni stack can't be applied to a same URL. A review of your router is required.
+
+        If you have defined several stacks in a same router, it is required to replace:
+
+          pipeline :browser do
+            # ...
+            plug #{inspect(module)}
+            plug #{inspect(__MODULE__)}
+            # ...
+          end
+
+        By distinct pipelines. One way to do it is as follows:
+
+          scope "..." do
+            pipe_through [:browser, #{inspect(module)}]
+
+            # ...
+          end
+
+          scope "..." do
+            pipe_through [:browser, #{inspect(__MODULE__)}]
+
+            # ...
+          end
+        """
+      end
+
       def call(conn, _options) do
         scope = :"current_#{scope()}"
         if Map.get(conn.assigns, scope) do

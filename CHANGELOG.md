@@ -18,6 +18,7 @@
   + added:
     * config
       + [Lockable] unlock_within
+- several Haytni modules cannot be stacked (raises if so)
 
  ```
 find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0 perl -pi \

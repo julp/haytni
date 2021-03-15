@@ -9,7 +9,6 @@ defmodule Haytni.Authenticable.SessionControllerTest do
   @spec conn_to_admin_session_path(conn :: Plug.Conn.t, user :: map | struct) :: Plug.Conn.t
   defp conn_to_admin_session_path(conn, user \\ %{}) do
     conn
-    |> Plug.Conn.put_private(:haytni, HaytniTestWeb.Haytni2)
     |> post(Routes.admin_haytni_admin_session_path(conn, :create), session_params_without_rememberme(user))
   end
 
