@@ -32,13 +32,13 @@ defmodule Haytni.Authenticable.SessionControllerTest do
       user = user_fixture()
       conn =
         conn
-        |> Plug.Test.init_test_session(%{user_id: user.id})
+        |> Plug.Test.init_test_session(%{user_token: "jBvWdCaxo0Ie"})
         |> Plug.Conn.assign(:current_user, user)
         |> delete(Routes.haytni_user_session_path(conn, :delete))
 
       assert conn.halted
       assert Phoenix.ConnTest.redirected_to(conn) == "/"
-      refute Plug.Conn.get_session(conn, :user_id)
+      assert is_nil(Plug.Conn.get_session(conn, :user_token))
     end
   end
 

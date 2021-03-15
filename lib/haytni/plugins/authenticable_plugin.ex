@@ -5,6 +5,7 @@ defmodule Haytni.AuthenticablePlugin do
   @logout_path_key :logout_path
   @logout_method_key :logout_method
 
+  @default_session_maxlifetime {2, :hour}
   @default_authentication_keys ~W[email]a
   @default_password_hash_fun &Bcrypt.hash_pwd_salt/1
   @default_password_check_fun &Bcrypt.check_pass/3
@@ -23,6 +24,7 @@ defmodule Haytni.AuthenticablePlugin do
     * password hashing algorithm (default: bcrypt):
       + `password_hash_fun` (default: `#{inspect(@default_password_hash_fun)}`): the function to hash a password
       + `password_check_fun` (default: `#{inspect(@default_password_check_fun)}`): the function to check if a password matches its hash
+    * session_maxlifetime (default: `#{inspect(@default_session_maxlifetime)}`): nowadays, by default, browsers (Chrom* or Firefox for example) don't delete session cookies when you close them. This setting enforces session to not last longer than they should.
 
   To use:
 
@@ -31,6 +33,7 @@ defmodule Haytni.AuthenticablePlugin do
 
   ```elixir
   stack #{inspect(__MODULE__)},
+    session_maxlifetime: #{inspect(@default_session_maxlifetime)},
     authentication_keys: #{inspect(@default_authentication_keys)},
     password_check_fun: #{inspect(@default_password_check_fun)},
     password_hash_fun: #{inspect(@default_password_hash_fun)}
@@ -63,6 +66,7 @@ defmodule Haytni.AuthenticablePlugin do
 
   defmodule Config do
     defstruct authentication_keys: ~W[email]a,
+      session_maxlifetime: {2, :hour},
       # NOTE/TODO: have a library like password_* functions from PHP
       # to allow you to change at any time of algorithm between bcrypt,
       # argon2 and pbkdf2
@@ -71,6 +75,7 @@ defmodule Haytni.AuthenticablePlugin do
 
     @type t :: %__MODULE__{
       authentication_keys: [atom, ...],
+      session_maxlifetime: Haytni.duration,
       password_check_fun: (struct, Comeonin.PasswordHash.password_hash, Comeonin.PasswordHash.opts -> {:ok, struct} | {:error, String.t}),
       password_hash_fun: (Comeonin.PasswordHash.password -> Comeonin.PasswordHash.password_hash),
     }
@@ -81,7 +86,7 @@ defmodule Haytni.AuthenticablePlugin do
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
     %Haytni.AuthenticablePlugin.Config{}
-    |> Haytni.Helpers.merge_config(options)
+    |> Haytni.Helpers.merge_config(options, ~W[session_maxlifetime]a)
   end
 
   @impl Haytni.Plugin
@@ -157,6 +162,63 @@ defmodule Haytni.AuthenticablePlugin do
     changeset
   end
 
+  use Haytni.Tokenable
+
+  @impl Haytni.Tokenable
+  def token_context(nil) do
+    "authenticable"
+  end
+
+  @spec module_to_session_key(module :: module) :: atom
+  defp module_to_session_key(module) do
+    :"#{module.scope()}_token"
+  end
+
+  # TODO: move find_user + on_successful_authentication + on_logout (session handling) to a separate plugin?
+  @impl Haytni.Plugin
+  def find_user(conn = %Plug.Conn{}, module, config) do
+    scoped_session_key = module_to_session_key(module)
+    if token = Plug.Conn.get_session(conn, scoped_session_key) do
+      with(
+        {:ok, authenticable_token} <- Haytni.Token.url_decode(token),
+        user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, authenticable_token, token_context(nil), config.session_maxlifetime)
+      ) do
+        {conn, user}
+      else
+        _ ->
+          {Plug.Conn.delete_session(conn, scoped_session_key), nil}
+      end
+    else
+      {conn, nil}
+    end
+  end
+
+  @impl Haytni.Plugin
+  def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi = %Ecto.Multi{}, keyword, module, _config) do
+    token = Haytni.Token.build_and_assoc_token(user, user.email, token_context(nil))
+
+    conn =
+      conn
+      |> Plug.Conn.put_session(module_to_session_key(module), Haytni.Token.url_encode(token))
+      |> Plug.Conn.configure_session(renew: true)
+
+    {conn, Ecto.Multi.insert(multi, :authenticable_token, token), keyword}
+  end
+
+  @impl Haytni.Plugin
+  def on_logout(conn = %Plug.Conn{}, module, _config) do
+    options = [] # TODO
+    case Keyword.get(options, :scope) do
+      :all ->
+        Plug.Conn.clear_session(conn)
+        #Plug.Conn.configure_session(conn, drop: true)
+      _ ->
+        conn
+        |> Plug.Conn.configure_session(renew: true)
+        |> Plug.Conn.delete_session(module_to_session_key(module))
+    end
+  end
+
   @doc ~S"""
   Converts the parameters received for authentication by the controller in a `%Ecto.Changeset{}` to handle and validate
   user inputs according to plugin's configuration (`authentication_keys`).
@@ -197,7 +259,7 @@ defmodule Haytni.AuthenticablePlugin do
         |> check_password(sanitized_params.password, config, hide_user: true)
         |> case do
           {:ok, user} ->
-            case Haytni.login(conn, module, user) do
+            case Haytni.set_user(conn, module, user) do
               result = {:ok, _conn} ->
                 result
               {:error, message} ->

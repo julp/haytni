@@ -264,11 +264,16 @@ defmodule Haytni.LiveViewPlugin do
           {:ok, _scoped_key, user} = do_connect(module, config, Phoenix.LiveView.get_connect_params(socket), Phoenix.LiveView.get_connect_info(socket))
           user
         else
-          scoped_session_key = "#{module.scope()}_id" # NOTE: from Haytni.find_user/2 but as a string, not an atom
-          case Map.fetch(session, scoped_session_key) do
-            {:ok, user_id} ->
-              Haytni.get_user_by(module, id: user_id)
-            :error ->
+          authenticable_config = module.fetch_config(Haytni.AuthenticablePlugin)
+          scoped_session_key = "#{module.scope()}_token" # NOTE: from Haytni.AuthenticablePlugin.find_user/2 but as a string, not an atom
+          with(
+            {:ok, session_token} <- Map.fetch(session, scoped_session_key),
+            {:ok, authenticable_token} <- Haytni.Token.url_decode(session_token),
+            user when not is_nil(user) <- Haytni.Token.user_from_token_with_mail_match(module, authenticable_token, Haytni.AuthenticablePlugin.token_context(nil), authenticable_config.session_maxlifetime)
+          ) do
+            user
+          else
+            _ ->
               nil
           end
         end

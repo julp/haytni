@@ -40,7 +40,7 @@ defmodule Haytni.Authenticable.AuthenticateTest do
 
       assert {:ok, conn} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, session)
       assert user.id == conn.assigns.current_user.id
-      assert user.id == Plug.Conn.get_session(conn, :user_id)
+      assert is_binary(Plug.Conn.get_session(conn, :user_token))
     end
 
     test "check user/admin scopes do not mix", %{conn: conn, config: config, user: user, admin: admin} do
@@ -53,7 +53,7 @@ defmodule Haytni.Authenticable.AuthenticateTest do
 
       assert {:ok, conn} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.HaytniAdmin, config, session)
       assert admin.id == conn.assigns.current_admin.id
-      assert admin.id == Plug.Conn.get_session(conn, :admin_id)
+      assert is_binary(Plug.Conn.get_session(conn, :admin_token))
     end
 
     test "returns error with empty credentials", %{conn: conn, config: config} do
