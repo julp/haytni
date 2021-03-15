@@ -348,12 +348,14 @@ defmodule Haytni do
   @spec create_user(module :: module, attrs :: map, options :: Keyword.t) :: Haytni.multi_result
   def create_user(module, attrs = %{}, options \\ []) do
     schema = module.schema()
-    changeset = schema
-    |> struct()
-    |> schema.create_registration_changeset(attrs)
+    changeset =
+      schema
+      |> struct()
+      |> schema.create_registration_changeset(attrs)
 
-    multi = Ecto.Multi.new()
-    |> Ecto.Multi.insert(:user, changeset, options)
+    multi =
+      Ecto.Multi.new()
+      |> Ecto.Multi.insert(:user, changeset, options)
 
     module.plugins_with_config()
     |> Enum.reduce(

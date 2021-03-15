@@ -157,17 +157,6 @@ defmodule Haytni.AuthenticablePlugin do
     changeset
   end
 
-  if false do
-    @impl Haytni.Plugin
-    def shared_links(:new_session), do: []
-
-    def shared_links(_) do
-      [
-        {dgettext("haytni", "Sign in"), session_path(...Endpoint, :new)}
-      ]
-    end
-  end
-
   @doc ~S"""
   Converts the parameters received for authentication by the controller in a `%Ecto.Changeset{}` to handle and validate
   user inputs according to plugin's configuration (`authentication_keys`).
