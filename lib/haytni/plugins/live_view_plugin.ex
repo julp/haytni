@@ -92,7 +92,7 @@ defmodule Haytni.LiveViewPlugin do
   @impl Haytni.Plugin
   def on_logout(conn = %Plug.Conn{}, module, config) do
     socket_id = config.socket_id || &default_socket_id/2
-    user = conn.assigns[:"current_#{module.scope()}"] # TODO: provide user to on_logout callbacks?
+    user = conn.assigns[Haytni.scoped_assign(module)] # TODO: provide user to on_logout callbacks?
 
     module
     |> socket_id.(user)
@@ -197,7 +197,7 @@ defmodule Haytni.LiveViewPlugin do
       _ ->
         nil
     end
-    {:ok, :"current_#{module.scope()}", user}
+    {:ok, Haytni.scoped_assign(module), user}
   end
 
   @spec connect(module :: module, config :: Config.t, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t}
@@ -254,7 +254,7 @@ defmodule Haytni.LiveViewPlugin do
   def mount(module, _params, session, socket) do
     #socket = assign_new(socket, :current_user, fn -> Accounts.get_user!(user_id) end)
     config = module.fetch_config(__MODULE__)
-    scoped_assign = :"current_#{module.scope()}"
+    scoped_assign = Haytni.scoped_assign(module)
     #Phoenix.LiveView.assign_new(
       #socket,
       #scoped_assign,
@@ -264,7 +264,7 @@ defmodule Haytni.LiveViewPlugin do
           {:ok, _scoped_key, user} = do_connect(module, config, Phoenix.LiveView.get_connect_params(socket), Phoenix.LiveView.get_connect_info(socket))
           user
         else
-          scoped_session_key = "#{module.scope()}_id" # NOTE: from Haytni.find_user/2 but as a string, not an atom
+          scoped_session_key = Haytni.scoped_session_key(module)
           case Map.fetch(session, scoped_session_key) do
             {:ok, user_id} ->
               Haytni.get_user_by(module, id: user_id)

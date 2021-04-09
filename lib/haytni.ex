@@ -302,6 +302,27 @@ defmodule Haytni do
   end
 
   @doc ~S"""
+  Returns the name of the session key which carries the user
+  """
+  # NOTE: we return a binary instead of an atom for compatibility with LiveView were session keys should be strings
+  @spec scoped_session_key(module :: module) :: String.t
+  def scoped_session_key(module)
+    when is_atom(module)
+  do
+    "#{module.scope()}_id"
+  end
+
+  @doc ~S"""
+  Returns the name of the assign (in Plug.Conn and templates) of the current user
+  """
+  @spec scoped_assign(module :: module) :: atom
+  def scoped_assign(module)
+    when is_atom(module)
+  do
+    :"current_#{module.scope()}"
+  end
+
+  @doc ~S"""
   Checks if a user is valid according to plugins.
 
   Returns `false` if the user is valid else `{:error, reason}`.
@@ -318,7 +339,7 @@ defmodule Haytni do
   """
   @spec find_user(module :: module, conn :: Plug.Conn.t) :: {Plug.Conn.t, Haytni.user | nil}
   def find_user(module, conn = %Plug.Conn{}) do
-    scoped_session_key = :"#{module.scope()}_id"
+    scoped_session_key = scoped_session_key(module)
     {conn, user, from_session?} = case Plug.Conn.get_session(conn, scoped_session_key) do
       nil ->
         module.plugins_with_config()
@@ -512,7 +533,7 @@ defmodule Haytni do
       _ ->
         conn
         |> Plug.Conn.configure_session(renew: true)
-        |> Plug.Conn.delete_session(:"#{module.scope()}_id")
+        |> Plug.Conn.delete_session(scoped_session_key(module))
     end
   end
 
@@ -546,9 +567,9 @@ defmodule Haytni do
         {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user)
         conn =
           conn
-          |> Plug.Conn.put_session(:"#{module.scope()}_id", user.id)
+          |> Plug.Conn.put_session(scoped_session_key(module), user.id)
           |> Plug.Conn.configure_session(renew: true)
-          |> Plug.Conn.assign(:"current_#{module.scope()}", user)
+          |> Plug.Conn.assign(scoped_assign(module), user)
         {:ok, conn}
     end
   end
