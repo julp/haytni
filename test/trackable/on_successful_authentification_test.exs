@@ -24,7 +24,7 @@ defmodule Haytni.Trackable.OnSuccessfulAuthentificationTest do
 
       {^conn, multi, changes} = Haytni.TrackablePlugin.on_successful_authentication(conn, user, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, nil)
 
-      assert [connection: {:insert, changeset = %Ecto.Changeset{}, []}] = Ecto.Multi.to_list(multi)
+      assert [connection: {:insert, %Ecto.Changeset{}, []}] = Ecto.Multi.to_list(multi)
       #assert ip in changes?
 
       assert contains?(Keyword.keys(changes), ~W[last_sign_in_at current_sign_in_at]a)

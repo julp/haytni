@@ -24,7 +24,7 @@ defmodule Haytni.LiveView.OnLogoutTest do
         |> Haytni.LiveViewPlugin.on_logout(module, config)
 
       assert_receive %Phoenix.Socket.Broadcast{
-        topic: socked_id,
+        topic: ^socket_id,
         event: "disconnect",
       }
     end
