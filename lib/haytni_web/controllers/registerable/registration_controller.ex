@@ -105,10 +105,10 @@ defmodule HaytniWeb.Registerable.RegistrationController do
 
   def update(conn, %{"registration" => registration_params}, current_user, module, _config) do
     case Haytni.update_registration(module, current_user, registration_params) do
-      {:ok, %{user: _current_user}} ->
+      {:ok, %{user: updated_user}} ->
         conn
         |> put_flash(:info, successful_edition_message())
-        |> render_edit(Haytni.change_user(current_user))
+        |> render_edit(Haytni.change_user(updated_user))
       {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} ->
         render_edit(conn, changeset)
       # other error case: let it crash
