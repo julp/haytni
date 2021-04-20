@@ -186,15 +186,14 @@ defmodule Haytni.ConfirmablePlugin do
 
   @context_reconfirmation_pattern @context_reconfirmation_prefix <> "%"
   @impl Haytni.Tokenable
-  def expired_tokens_query(config) do
-    [
-      "context == #{token_context(nil)} AND inserted_at > ago(#{config.confirm_within}, \"second\")",
-      "context LIKE 'reconfirmable:%' AND inserted_at > ago(#{config.reconfirm_within}, \"second\")",
-    ]
+  def expired_tokens_query(query, config) do
     import Ecto.Query
 
-    conditions = dynamic([t], t.context == ^token_context(nil) and t.inserted_at > ago(^config.confirm_within, "second"))
-    _conditions = dynamic([t], ^conditions or like(t.context, ^@context_reconfirmation_pattern) and t.inserted_at > ago(^config.reconfirm_within, "second"))
+    from(
+      t in query,
+      or_where: t.context == ^token_context(nil) and t.inserted_at > ago(^config.confirm_within, "second"),
+      or_where: like(t.context, ^@context_reconfirmation_pattern) and t.inserted_at > ago(^config.reconfirm_within, "second")
+    )
   end
 
   @doc ~S"""

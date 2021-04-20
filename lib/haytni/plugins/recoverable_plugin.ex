@@ -78,12 +78,23 @@ defmodule Haytni.RecoverablePlugin do
     "recoverable"
   end
 
+  @impl Haytni.Tokenable
+  def expired_tokens_query(query, config) do
+    import Ecto.Query
+
+    from(
+      t in query,
+      or_where: t.context == ^token_context(nil) and t.inserted_at > ago(^config.reset_password_within, "second")
+    )
+  end
+
   @doc ~S"""
   The (database) attributes as a keyword-list to redefine the password (after hashing) and void previous password recovery token
   """
   @spec new_password_attributes(module :: module, new_password :: String.t) :: Keyword.t
   def new_password_attributes(module, new_password) do
     config = module.fetch_config(Haytni.AuthenticablePlugin)
+
     [
       encrypted_password: Haytni.AuthenticablePlugin.hash_password(new_password, config),
     ]

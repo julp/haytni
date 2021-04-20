@@ -284,14 +284,13 @@ defmodule Haytni.LockablePlugin do
   end
 
   @impl Haytni.Tokenable
-  def expired_tokens_query(config) do
-    # TODO: mais l'appelant devrait pouvoir appeler la callback token_context/1 de lui-même
-    # en fait la seule partie qui change (que l'on devrait renvoyer ?) c'est config.unlock_within
-    "context == #{token_context(nil)} AND inserted_at > ago(#{config.unlock_within}, \"second\")"
-
+  def expired_tokens_query(query, config) do
     import Ecto.Query
 
-    dynamic([t], t.context == ^token_context(nil) and t.inserted_at > ago(^config.unlock_within, "second"))
+    from(
+      t in query,
+      or_where: t.context == ^token_context(nil) and t.inserted_at > ago(^config.unlock_within, "second")
+    )
   end
 
   @doc ~S"""

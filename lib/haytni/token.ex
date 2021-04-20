@@ -151,25 +151,26 @@ defmodule Haytni.Token do
   end
 
   @doc ~S"""
-  TODO (doc/experimental)
+  Purges all expired tokens.
+
+  Returns the number of deleted tokens.
   """
-  @spec purge_expired_tokens(module :: module) :: {String.t, [term]}
+  @spec purge_expired_tokens(module :: module) :: non_neg_integer
   def purge_expired_tokens(module) do
-    conditions =
+    {count, nil} =
       module.plugins_with_config()
       |> Enum.reduce(
-        false,
-        fn {plugin, config}, conditions_as_acc ->
-          if function_exported?(plugin, :expired_tokens_query, 1) do
-            dynamic([t], ^conditions_as_acc or ^plugin.expired_tokens_query(config))
+        from(t in user_module_to_token_module(module.schema())),
+        fn {plugin, config}, query_as_acc ->
+          if function_exported?(plugin, :expired_tokens_query, 2) do
+            plugin.expired_tokens_query(query_as_acc, config)
           else
-            conditions_as_acc
+            query_as_acc
           end
         end
       )
-    q = from t in user_module_to_token_module(module.schema()), where: ^conditions
-    #{query, _params} =
-    Ecto.Adapters.SQL.to_sql(:all, module.repo(), q)
+      |> module.repo().delete_all()
+    count
   end
 
   @doc ~S"""
@@ -209,15 +210,17 @@ defmodule Haytni.Token do
     Ecto.Multi.insert(multi, name, build_and_assoc_token(user, email, context))
   end
 
-  if false do
-    @doc ~S"""
-    TODO (doc or removal)
-    """
-    @spec revoke_user_tokens(module :: module, user :: Haytni.user) :: {integer, nil}
-    def revoke_user_tokens(module, user = %_{}) do
+  @doc ~S"""
+  Deletes all tokens associated to a given user.
+
+  Returns the number of tokens that were actually deleted (expired tokens included).
+  """
+  @spec revoke_user_tokens(module :: module, user :: Haytni.user) :: non_neg_integer
+  def revoke_user_tokens(module, user = %_{}) do
+    {count, nil} =
       user
       |> Ecto.assoc(@token_association)
       |> module.repo().delete_all()
-    end
+    count
   end
 end

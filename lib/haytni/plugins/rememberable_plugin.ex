@@ -91,6 +91,16 @@ defmodule Haytni.RememberablePlugin do
     "rememberable"
   end
 
+  @impl Haytni.Tokenable
+  def expired_tokens_query(query, config) do
+    import Ecto.Query
+
+    from(
+      t in query,
+      or_where: t.context == ^token_context(nil) and t.inserted_at > ago(^config.remember_for, "second")
+    )
+  end
+
   @doc ~S"""
   Sign *remember_token* then add it to *conn* response's cookies.
 

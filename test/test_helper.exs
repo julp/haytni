@@ -70,10 +70,5 @@ Haytni.TestHelpers.onfly_module_from_eex(Path.join(view_root, "session_view.ex")
 # Simulate a shared view (HaytniTestWeb.Haytni.UnlockView)
 Haytni.TestHelpers.onfly_module_from_eex(Path.join(view_root, "unlock_view.ex"), binding |> Keyword.put(:scope, nil) |> Keyword.put(:camelized_scope, nil))
 
-# TODO: test/removal
-HaytniTestWeb.Haytni
-|> Haytni.Token.purge_expired_tokens()
-|> IO.inspect()
-
 Process.flag(:trap_exit, true)
 Ecto.Adapters.SQL.Sandbox.mode(HaytniTest.Repo, :manual)

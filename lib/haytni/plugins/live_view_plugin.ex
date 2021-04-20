@@ -89,6 +89,16 @@ defmodule Haytni.LiveViewPlugin do
     "channel+live_view"
   end
 
+  @impl Haytni.Tokenable
+  def expired_tokens_query(query, config) do
+    import Ecto.Query
+
+    from(
+      t in query,
+      or_where: t.context == ^token_context(nil) and t.inserted_at > ago(^config.token_validity, "second")
+    )
+  end
+
   @impl Haytni.Plugin
   def on_logout(conn = %Plug.Conn{}, module, config) do
     socket_id = config.socket_id || &default_socket_id/2
