@@ -14,7 +14,7 @@ end
 
 Then run `mix deps.get`.
 
-Configure Haytni *your_app*/config/config.exs
+Configure Haytni config/config.exs
 
 ```elixir
 config :haytni, YourApp.Haytni,
@@ -25,7 +25,7 @@ config :haytni, YourApp.Haytni,
   schema: YourApp.User
 ```
 
-For testing, you may also want to add the following settings to *your_app*/config/test.exs :
+For testing, you may also want to add the following settings to config/test.exs :
 
 ```elixir
 config :bcrypt_elixir,
@@ -42,7 +42,7 @@ Run `mix haytni.install` which has the following options (command arguments):
   * `--table <table>` (default: `"users"`): the name of your table (used to generate migrations)
   * `--plugin Module1 --plugin Module2 ... --plugin ModuleN`: the names of the (Elixir) modules/plugins to enable
 
-Create *your_app*/lib/*your_app*_web/haytni.ex :
+Create lib/*your_app*_web/haytni.ex :
 
 ```elixir
 defmodule YourApp.Haytni do
@@ -50,7 +50,7 @@ defmodule YourApp.Haytni do
 
   stack Haytni.AuthenticablePlugin
   stack Haytni.RegisterablePlugin
-  stack Haytni.RememberablePlugin, remember_salt: "a random string"
+  stack Haytni.RememberablePlugin
   stack Haytni.ConfirmablePlugin
   stack Haytni.LockablePlugin
   stack Haytni.RecoverablePlugin
@@ -59,7 +59,7 @@ defmodule YourApp.Haytni do
 end
 ```
 
-Change *your_app*/lib/*your_app*_web/router.ex
+Change lib/*your_app*_web/router.ex
 
 ```elixir
 defmodule YourAppWeb.Router do
@@ -85,7 +85,7 @@ defmodule YourAppWeb.Router do
 end
 ```
 
-Change *your_app*/lib/*your_app*/user.ex
+Change lib/*your_app*/user.ex
 
 ```elixir
 defmodule YourApp.User do
@@ -125,7 +125,7 @@ end
 
 For plugins which send emails (Confirmable, Lockable and Recoverable):
 
-Create *your_app*/lib/mailer.ex as follows:
+Create lib/mailer.ex as follows:
 
 ```elixir
 defmodule YourApp.Mailer do
@@ -135,7 +135,7 @@ defmodule YourApp.Mailer do
 end
 ```
 
-Add to *your_app*/lib/*your_app*_web/router.ex
+Add to lib/*your_app*_web/router.ex
 
 ```elixir
   if Mix.env() == :dev do
@@ -145,7 +145,7 @@ Add to *your_app*/lib/*your_app*_web/router.ex
   end
 ```
 
-Configure email sending in *your_app*/config/dev.exs:
+Configure email sending in config/dev.exs:
 
 ```elixir
 config :your_app, YourApp.Mailer,
@@ -155,7 +155,7 @@ config :haytni, YourApp.Haytni,
   mailer: YourApp.Mailer # <= add/change this line
 ```
 
-For production (*your_app*/config/prod.exs), if you pass by your own SMTP server:
+For production (config/prod.exs), if you pass by your own SMTP server:
 
 ```elixir
 config :your_app, YourApp.Mailer,
