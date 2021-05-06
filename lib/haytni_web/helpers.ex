@@ -2,14 +2,16 @@ defmodule HaytniWeb.Helpers do
   @moduledoc false
 
   def put_view(conn, module, view_suffix) do
-    view_module = Module.concat([module.web_module(), :Haytni, Phoenix.Naming.camelize(to_string(module.scope())), view_suffix])
-    |> Code.ensure_compiled()
-    |> case do
-      {:module, module} ->
-        module
-      _ ->
-        Module.concat([module.web_module(), :Haytni, view_suffix])
-    end
+    view_module =
+      [module.web_module(), :Haytni, Phoenix.Naming.camelize(to_string(module.scope())), view_suffix]
+      |> Module.concat()
+      |> Code.ensure_compiled()
+      |> case do
+        {:module, module} ->
+          module
+        _ ->
+          Module.concat([module.web_module(), :Haytni, view_suffix])
+      end
     conn
     |> Phoenix.Controller.put_view(view_module)
   end
