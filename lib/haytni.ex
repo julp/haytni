@@ -477,8 +477,9 @@ defmodule Haytni do
   """
   @spec update_registration(module :: module, user :: Haytni.user, attrs :: map, options :: Keyword.t) :: Haytni.multi_result
   def update_registration(module, user = %_{}, attrs = %{}, options \\ []) do
-    changeset = user
-    |> module.schema().update_registration_changeset(attrs)
+    changeset =
+      user
+      |> module.schema().update_registration_changeset(attrs)
     changeset = handle_password_change(module, changeset) # TODO: better to be done in RegisterablePlugin.validate_(update|create)_registration?
     {multi = %Ecto.Multi{}, changeset} = handle_email_change(module, Ecto.Multi.new(), changeset) # TODO: better to be done in RegisterablePlugin.validate_(update|create)_registration?
     # create a multi to update user and merge into it the multi from plugins then execute it
