@@ -418,10 +418,10 @@ defmodule Haytni do
   end
 
   @doc ~S"""
-  Runs any custom password validations from the plugins (via their `validate_password/2` callback) of the *module* Haytni
+  Runs any custom password validations from the plugins (via their `validate_password/3` callback) of the *module* Haytni
   stack. An `%Ecto.Changeset{}` is returned with the potential validation errors added by the plugins.
 
-  Do **NOT** call it from your function `validate_update_registration/2`, it will be called internally only if needed.
+  Do **NOT** call it from your function `validate_update_registration/3`, it will be called internally only if needed.
   """
   @spec validate_password(module :: module, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
   def validate_password(module, changeset) do
@@ -613,7 +613,7 @@ defmodule Haytni do
   end
 
   @doc ~S"""
-  Same than `validate_update_registration/2` but at registration's edition.
+  Same than `validate_update_registration/3` but at registration's edition.
   """
   @spec validate_update_registration(module :: module, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
   def validate_update_registration(module, changeset = %Ecto.Changeset{}) do
