@@ -123,7 +123,7 @@ defmodule Haytni.Plugin do
 
   @doc ~S"""
   This callback is invoked when a user is editing its registration and change its email address.
-  It is a facility (subset) to avoid you to handle it by yourself via `validate_update_registration/1`.
+  It is a facility (subset) to avoid you to handle it by yourself via `validate_update_registration/3`.
 
   It returns a tuple of `{Ecto.Multi, Ecto.Changeset}`, same as its arguments, to permit to the
   callback to add any operation to *multi* or change to *changeset*.
