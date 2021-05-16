@@ -154,10 +154,6 @@ defmodule Haytni.Plugin do
   """
   @callback on_registration(multi :: Ecto.Multi.t, module :: module, config :: Haytni.config) :: Ecto.Multi.t
 
-if false do
-  @callback shared_links(atom :: atom) :: []
-end
-
   #@callback on_session_start(conn :: Plug.Conn.t, user :: Haytni.user) :: Plug.Conn.t
 
   defmacro __using__(_options) do
@@ -175,9 +171,6 @@ end
         end
       end
 
-if false do
-      def shared_links(_), do: []
-end
       # NOTE: return a truthy value by default if options/config is not used at all
       # by the plugin to avoid to execute the second part of the || operator
       def build_config(_options), do: true
