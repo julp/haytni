@@ -73,6 +73,23 @@ defmodule Haytni.TrackablePlugin do
     end
   end
 
+  @spec add_connection_to_multi(multi :: Ecto.Multi.t, conn :: Plug.Conn.t, user :: Haytni.user) :: Ecto.Multi.t
+  defp add_connection_to_multi(multi = %Ecto.Multi{}, conn = %Plug.Conn{}, user = %_{}) do
+    # user.__struct__.__schema__(:association, :connections).related
+    connection = Ecto.build_assoc(user, :connections)
+    connection = connection.__struct__.changeset(connection, %{ip: to_string(:inet_parse.ntoa(conn.remote_ip))})
+
+    Ecto.Multi.insert(multi, :connection, connection)
+  end
+
+if false do
+  # TODO: requires conn (%Plug.Conn{})
+  @impl Haytni.Plugin
+  def on_registration(multi = %Ecto.Multi{}, _module, _config) do
+    add_connection_to_multi(multi, conn, user)
+  end
+end
+
   @impl Haytni.Plugin
   def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config) do
     changes =
@@ -80,11 +97,8 @@ defmodule Haytni.TrackablePlugin do
       |> Keyword.put(:current_sign_in_at, Haytni.Helpers.now())
       |> Keyword.put(:last_sign_in_at, user.current_sign_in_at)
 
-    # user.__struct__.__schema__(:association, :connections).related
-    connection = Ecto.build_assoc(user, :connections)
-    connection = connection.__struct__.changeset(connection, %{ip: to_string(:inet_parse.ntoa(conn.remote_ip))})
 
-    {conn, Ecto.Multi.insert(multi, :connection, connection), changes}
+    {conn, add_connection_to_multi(multi, conn, user), changes}
   end
 
   defmodule QueryHelpers do
