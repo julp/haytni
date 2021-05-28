@@ -120,7 +120,7 @@ defmodule Haytni.Token do
   Returns the user associated to the given non-expired token, `nil` if none matches but, in opposition to `user_from_token_with_mail_match/4`, the email
   address between the user and the token is expected (has) to be different. This behaviour (and function) is primarily intended to change its email address.
   """
-  @spec user_from_token_without_mail_match(module :: module, user :: Haytni.user, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.nilable(Haytni.user)
+  @spec user_from_token_without_mail_match(module :: module, user :: Haytni.user, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.nilable(t)
   def user_from_token_without_mail_match(module, user, token, context, duration) do
     #from([t, u] in user_from_token_query(module, token, context, duration), where: t.sent_to != u.email)
     from(
