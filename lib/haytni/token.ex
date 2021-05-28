@@ -92,17 +92,56 @@ defmodule Haytni.Token do
     module.__schema__(:association, @token_association).related
   end
 
+_ = """
+SET enable_seqscan = FALSE;
+
+EXPLAIN
+  SELECT *
+  FROM utilisateurs_tokens t
+  JOIN utilisateurs u ON t.user_id = u.id
+  WHERE t.token = '123'
+  AND t.context = '456'
+  AND t.inserted_at > (NOW() - INTERVAL '30 SECOND')
+  AND t.sent_to = u.email
+;
+
+EXPLAIN
+  SELECT *
+  FROM utilisateurs u
+  JOIN utilisateurs_tokens t ON t.user_id = u.id
+  WHERE t.token = '123'
+  AND t.context = '456'
+  AND t.inserted_at > (NOW() - INTERVAL '30 SECOND')
+  AND t.sent_to = u.email
+;
+
+=> same query plan
+"""
   @spec user_from_token_query(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Ecto.Query.t
   defp user_from_token_query(module, token, context, duration) do
-    from t in user_module_to_token_module(module.schema()),
+    _ = """
+    from(
+      t in user_module_to_token_module(module.schema()),
+      as: :token,
       join: u in assoc(t, :user),
+      as: :user,
       where: t.token == ^token and t.context == ^context and t.inserted_at > ago(^duration, "second"), # and (not) is_nil(u.confirmed_at)
       select: u
+    )
+    """
+    from(
+      from u in module.schema(),
+      as: :user,
+      join: t in assoc(u, ^@token_association),
+      as: :token,
+      where: t.token == ^token and t.context == ^context and t.inserted_at > ago(^duration, "second") # and (not) is_nil(u.confirmed_at)
+      #select: u
+    )
   end
 
   @spec user_from_token_with_mail_query(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Ecto.Query.t
   defp user_from_token_with_mail_query(module, token, context, duration) do
-    from([t, u] in user_from_token_query(module, token, context, duration), where: t.sent_to == u.email)
+    from([u, t] in user_from_token_query(module, token, context, duration), where: t.sent_to == u.email)
   end
 
   @doc ~S"""
@@ -113,6 +152,7 @@ defmodule Haytni.Token do
   def user_from_token_with_mail_match(module, token, context, duration) do
     module
     |> user_from_token_with_mail_query(token, context, duration)
+    |> module.user_query()
     |> module.repo().one()
   end
 

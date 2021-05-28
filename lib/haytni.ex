@@ -16,6 +16,8 @@ defmodule Haytni do
   @type repo_nobang_operation(type) :: {:ok, type} | {:error, Ecto.Changeset.t}
   @type multi_result :: {:ok, %{required(Ecto.Multi.name) => any}} | {:error, Ecto.Multi.name, any, %{optional(Ecto.Multi.name) => any}}
 
+  #@callback user_query(query :: Ecto.Queryable.t) :: Ecto.Queryable.t
+
   @spec app_base(atom | module) :: String.t
   defp app_base(app) do
     case Application.get_env(app, :namespace, app) do
@@ -44,6 +46,16 @@ defmodule Haytni do
 
     quote do
       import unquote(__MODULE__)
+
+      use Haytni.Callbacks
+      #@behaviour unquote(__MODULE__)
+
+      #@impl unquote(__MODULE__)
+      #def user_query(query), do: query
+
+      #defoverridable [
+        #user_query: 1,
+      #]
 
       Module.register_attribute(__MODULE__, :plugins, accumulate: true)
 
@@ -670,7 +682,9 @@ defmodule Haytni do
   """
   @spec get_user_by(module :: module, clauses :: Keyword.t | map) :: Haytni.nilable(Haytni.user)
   def get_user_by(module, clauses) do
-    module.repo().get_by(module.schema(), clauses)
+    module.schema()
+    |> module.user_query()
+    |> module.repo().get_by(clauses)
   end
 
   @doc ~S"""
@@ -689,7 +703,9 @@ defmodule Haytni do
   """
   @spec get_user(module :: module, id :: any) :: Haytni.nilable(Haytni.user)
   def get_user(module, id) do
-    module.repo().get(module.schema(), id)
+    module.schema()
+    |> module.user_query()
+    |> module.repo().get(id)
   end
 
   @doc ~S"""

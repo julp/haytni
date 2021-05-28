@@ -4,6 +4,17 @@ defmodule Haytni.TestHelpers do
 
   @type falsy :: false | nil
 
+  @spec language_fixture(name :: String.t) :: HaytniTest.Language.t
+  def language_fixture(name)
+    when is_binary(name)
+  do
+    {:ok, language} =
+      %HaytniTest.Language{name: name}
+      |> HaytniTest.Repo.insert()
+
+    language
+  end
+
   @spec fixture(attrs :: Enumerable.t, schema :: module) :: Haytni.user
   defp fixture(attrs, schema) do
     id = System.unique_integer([:positive])

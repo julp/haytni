@@ -9,6 +9,8 @@ defmodule HaytniTest.User do
     field :dummy, :boolean, default: false
     field :lastname, :string
     field :firstname, :string
+
+    belongs_to :language, HaytniTest.Language
   end
 
   def changeset(struct, params) do
