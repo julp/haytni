@@ -110,16 +110,38 @@ defmodule Haytni.LiveViewPlugin do
     conn
   end
 
+  if System.otp_release() |> String.to_integer() >= 23 do
+    @aeadtype :aes_256_gcm
+
+    defp crypto_block_encrypt(aeadtype, key, ivec, {aad, plaintext}) do
+      :crypto.crypto_one_time_aead(aeadtype, key, ivec, plaintext, aad, true)
+    end
+
+    defp crypto_block_decrypt(aeadtype, key, ivec, {aad, ciphertext, ciphertag}) do
+      :crypto.crypto_one_time_aead(aeadtype, key, ivec, ciphertext, aad, ciphertag, false)
+    end
+  else
+    @aeadtype :aes_gcm
+
+    defp crypto_block_encrypt(aeadtype, key, ivec, tuple = {_aad, _plaintext}) do
+      :crypto.block_encrypt(aeadtype, key, ivec, tuple)
+    end
+
+    defp crypto_block_decrypt(aeadtype, key, ivec, tuple = {_aad, _ciphertext, _ciphertag}) do
+      :crypto.block_decrypt(aeadtype, key, ivec, tuple)
+    end
+  end
+
   defp encrypt(content, config) do
     iv = :crypto.strong_rand_bytes(32)
-    {ct, tag} = :crypto.block_encrypt(:aes_gcm, config.key, iv, {config.algorithm, content})
+    {ct, tag} = crypto_block_encrypt(@aeadtype, config.key, iv, {config.algorithm, content})
     Base.encode16(iv <> tag <> ct)
   end
 
   defp decrypt(payload, config) do
     with(
       {:ok, <<iv::binary-32, tag::binary-16, ct::binary>>} <- Base.decode16(payload),
-      data when data != :error <- :crypto.block_decrypt(:aes_gcm, config.key, iv, {config.algorithm, ct, tag})
+      data when data != :error <- crypto_block_decrypt(@aeadtype, config.key, iv, {config.algorithm, ct, tag})
     ) do
       {:ok, data}
     else
