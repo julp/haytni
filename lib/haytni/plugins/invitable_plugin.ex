@@ -71,11 +71,11 @@ defmodule Haytni.InvitablePlugin do
     [
       # HTML
       {:eex, "views/invitation_view.ex", Path.join([web_path, "views", "haytni", scope, "invitation_view.ex"])},
-      {:eex, "templates/invitation/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "invitation", "new.html.eex"])},
+      {:eex, "templates/invitation/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "invitation", "new.html.heex"])},
       # email
       {:eex, "views/email/invitable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "invitable_view.ex"])},
       {:eex, "templates/email/invitable/invitation.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "invitable", "invitation.text.eex"])},
-      {:eex, "templates/email/invitable/invitation.html.eex", Path.join([web_path, "templates", "haytni", scope, "email", "invitable", "invitation.html.eex"])},
+      {:eex, "templates/email/invitable/invitation.html.heex", Path.join([web_path, "templates", "haytni", scope, "email", "invitable", "invitation.html.heex"])},
       # migration
       {:eex, "migrations/0-invitable_creation.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_invitable_#{scope}_creation.exs"])},
     ]

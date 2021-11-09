@@ -251,9 +251,9 @@ defmodule Haytni do
     [
       {:eex, "haytni.ex", Path.join([base_path, "haytni.ex"])},
       {:eex, "views/shared_view.ex", Path.join([web_path, "views", "haytni", scope, "shared_view.ex"])},
-      {:eex, "templates/shared/keys.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.eex"])},
-      {:eex, "templates/shared/links.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "links.html.eex"])},
-      {:eex, "templates/shared/message.html.eex", Path.join([web_path, "templates", "haytni", scope, "shared", "message.html.eex"])},
+      {:eex, "templates/shared/keys.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.heex"])},
+      {:eex, "templates/shared/links.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "links.html.heex"])},
+      {:eex, "templates/shared/message.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "message.html.heex"])},
       # migration
       {:eex, "migrations/0-tokens_creation.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_#{scope}_tokens_creation.exs"])},
       # test

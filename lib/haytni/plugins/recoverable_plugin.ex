@@ -51,12 +51,12 @@ defmodule Haytni.RecoverablePlugin do
     [
       # HTML
       {:eex, "views/password_view.ex", Path.join([web_path, "views", "haytni", scope, "password_view.ex"])},
-      {:eex, "templates/password/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "password", "new.html.eex"])},
-      {:eex, "templates/password/edit.html.eex", Path.join([web_path, "templates", "haytni", scope, "password", "edit.html.eex"])},
+      {:eex, "templates/password/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "password", "new.html.heex"])},
+      {:eex, "templates/password/edit.html.heex", Path.join([web_path, "templates", "haytni", scope, "password", "edit.html.heex"])},
       # email
       {:eex, "views/email/recoverable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "recoverable_view.ex"])},
       {:eex, "templates/email/recoverable/reset_password_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "recoverable", "reset_password_instructions.text.eex"])},
-      {:eex, "templates/email/recoverable/reset_password_instructions.html.eex", Path.join([web_path, "templates", "haytni", scope, "email", "recoverable", "reset_password_instructions.html.eex"])},
+      {:eex, "templates/email/recoverable/reset_password_instructions.html.heex", Path.join([web_path, "templates", "haytni", scope, "email", "recoverable", "reset_password_instructions.html.heex"])},
     ]
   end
 

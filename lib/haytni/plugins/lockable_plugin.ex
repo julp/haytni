@@ -94,11 +94,11 @@ defmodule Haytni.LockablePlugin do
     [
       # HTML
       {:eex, "views/unlock_view.ex", Path.join([web_path, "views", "haytni", scope, "unlock_view.ex"])},
-      {:eex, "templates/unlock/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "unlock", "new.html.eex"])},
+      {:eex, "templates/unlock/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "unlock", "new.html.heex"])},
       # email
       {:eex, "views/email/lockable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "lockable_view.ex"])},
       {:eex, "templates/email/lockable/unlock_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "lockable", "unlock_instructions.text.eex"])},
-      {:eex, "templates/email/lockable/unlock_instructions.html.eex", Path.join([web_path, "templates", "haytni", scope, "email", "lockable", "unlock_instructions.html.eex"])},
+      {:eex, "templates/email/lockable/unlock_instructions.html.heex", Path.join([web_path, "templates", "haytni", scope, "email", "lockable", "unlock_instructions.html.heex"])},
       # migration
       {:eex, "migrations/0-lockable_changes.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_lockable_#{scope}_changes.exs"])},
     ]

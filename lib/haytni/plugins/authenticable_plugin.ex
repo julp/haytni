@@ -88,7 +88,7 @@ defmodule Haytni.AuthenticablePlugin do
   def files_to_install(_base_path, web_path, scope, timestamp) do
     [
       {:eex, "views/session_view.ex", Path.join([web_path, "views", "haytni", scope, "session_view.ex"])},
-      {:eex, "templates/session/new.html.eex", Path.join([web_path, "templates", "haytni", scope, "session", "new.html.eex"])},
+      {:eex, "templates/session/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "session", "new.html.heex"])},
       # migration
       {:eex, "migrations/0-authenticable_changes.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_authenticable_#{scope}_changes.exs"])},
     ]

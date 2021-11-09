@@ -24,9 +24,9 @@ defmodule Haytni.InstallTaskTest do
         "defmodule HaytniWeb.Haytni.#{camelized_scope}.SharedView do",
       ]},
       # templates
-      {"lib/haytni_web/templates/haytni/#{scope}/shared/keys.html.eex", []},
-      {"lib/haytni_web/templates/haytni/#{scope}/shared/message.html.eex", []},
-      {"lib/haytni_web/templates/haytni/#{scope}/shared/links.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/shared/keys.html.heex", []},
+      {"lib/haytni_web/templates/haytni/#{scope}/shared/message.html.heex", []},
+      {"lib/haytni_web/templates/haytni/#{scope}/shared/links.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_session_path(",
       ]},
       # migration
@@ -48,7 +48,7 @@ defmodule Haytni.InstallTaskTest do
         "defmodule HaytniWeb.Haytni.#{camelized_scope}.SessionView do"
       ]},
       # templates
-      {"lib/haytni_web/templates/haytni/#{scope}/session/new.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/session/new.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_session_path(",
       ]},
       # migration
@@ -66,10 +66,10 @@ defmodule Haytni.InstallTaskTest do
         "defmodule HaytniWeb.Haytni.#{camelized_scope}.RegistrationView do",
       ]},
       # templates
-      {"lib/haytni_web/templates/haytni/#{scope}/registration/new.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/registration/new.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_registration_path(",
       ]},
-      {"lib/haytni_web/templates/haytni/#{scope}/registration/edit.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/registration/edit.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_registration_path(",
       ]},
     ]
@@ -95,11 +95,11 @@ defmodule Haytni.InstallTaskTest do
         "defmodule HaytniWeb.Haytni.#{camelized_scope}.Email.InvitableView do",
       ]},
       # templates
-      {"lib/haytni_web/templates/haytni/#{scope}/invitation/new.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/invitation/new.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_invitation_path(",
       ]},
       {"lib/haytni_web/templates/haytni/#{scope}/email/invitable/invitation.text.eex", []},
-      {"lib/haytni_web/templates/haytni/#{scope}/email/invitable/invitation.html.eex", []},
+      {"lib/haytni_web/templates/haytni/#{scope}/email/invitable/invitation.html.heex", []},
       # migration
       {"priv/repo/migrations/*_haytni_invitable_#{scope}_creation.exs", [
         ~s'def change(users_table \\\\ "#{table}", _scope \\\\ "#{scope}") do',
@@ -118,13 +118,13 @@ defmodule Haytni.InstallTaskTest do
         "defmodule HaytniWeb.Haytni.#{camelized_scope}.Email.LockableView do",
       ]},
       # templates
-      {"lib/haytni_web/templates/haytni/#{scope}/unlock/new.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/unlock/new.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_unlock_path(",
       ]},
       {"lib/haytni_web/templates/haytni/#{scope}/email/lockable/unlock_instructions.text.eex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_unlock_url(",
       ]},
-      {"lib/haytni_web/templates/haytni/#{scope}/email/lockable/unlock_instructions.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/email/lockable/unlock_instructions.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_unlock_url(",
       ]},
       # migration
@@ -145,16 +145,16 @@ defmodule Haytni.InstallTaskTest do
         "defmodule HaytniWeb.Haytni.#{camelized_scope}.Email.RecoverableView do",
       ]},
       # templates
-      {"lib/haytni_web/templates/haytni/#{scope}/password/new.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/password/new.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_password_path(",
       ]},
-      {"lib/haytni_web/templates/haytni/#{scope}/password/edit.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/password/edit.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_password_path(",
       ]},
       {"lib/haytni_web/templates/haytni/#{scope}/email/recoverable/reset_password_instructions.text.eex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_password_url(",
       ]},
-      {"lib/haytni_web/templates/haytni/#{scope}/email/recoverable/reset_password_instructions.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/email/recoverable/reset_password_instructions.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_password_url(",
       ]},
     ]
@@ -170,21 +170,21 @@ defmodule Haytni.InstallTaskTest do
         "defmodule HaytniWeb.Haytni.#{camelized_scope}.Email.ConfirmableView do",
       ]},
       # templates
-      {"lib/haytni_web/templates/haytni/#{scope}/confirmation/new.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/confirmation/new.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_confirmation_path(",
       ]},
       {"lib/haytni_web/templates/haytni/#{scope}/email/confirmable/email_changed.text.eex", []},
-      {"lib/haytni_web/templates/haytni/#{scope}/email/confirmable/email_changed.html.eex", []},
+      {"lib/haytni_web/templates/haytni/#{scope}/email/confirmable/email_changed.html.heex", []},
       {"lib/haytni_web/templates/haytni/#{scope}/email/confirmable/confirmation_instructions.text.eex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_confirmation_url(",
       ]},
-      {"lib/haytni_web/templates/haytni/#{scope}/email/confirmable/confirmation_instructions.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/email/confirmable/confirmation_instructions.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_confirmation_url(",
       ]},
       {"lib/haytni_web/templates/haytni/#{scope}/email/confirmable/reconfirmation_instructions.text.eex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_reconfirmation_url(",
       ]},
-      {"lib/haytni_web/templates/haytni/#{scope}/email/confirmable/reconfirmation_instructions.html.eex", [
+      {"lib/haytni_web/templates/haytni/#{scope}/email/confirmable/reconfirmation_instructions.html.heex", [
         "HaytniWeb.Router.Helpers.haytni_#{scope}_reconfirmation_url(",
       ]},
       # migration
