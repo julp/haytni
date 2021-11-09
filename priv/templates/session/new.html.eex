@@ -1,6 +1,6 @@
 <%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_session_path(@conn, :create), [as: :session], fn f -> %>
 
-<% if false do %>
+<%= if false do %>
   <%%= if Haytni.plugin_enabled?(@module, Haytni.LockablePlugin) && Haytni.LockablePlugin.last_attempt?(TODO) do %>
     <p><%%= Haytni.Gettext.dgettext("haytni", "Warning: at the next failed attempt, the account will be locked") %></p>
   <%% end %>
