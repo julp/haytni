@@ -36,14 +36,16 @@ defmodule Haytni.Mail do
   """
   @spec put_view(email :: Bamboo.Email.t, module :: module, view_suffix :: atom | String.t) :: Bamboo.Email.t
   def put_view(email = %Bamboo.Email{}, module, view_suffix) do
-    view_module = Module.concat([module.web_module(), :Haytni, Phoenix.Naming.camelize(to_string(module.scope())), view_suffix])
-    |> Code.ensure_compiled()
-    |> case do
-      {:module, module} ->
-        module
-      _ ->
-        Module.concat([module.web_module(), :Haytni, view_suffix])
-    end
+    view_module =
+      [module.web_module(), :Haytni, module.scope() |> to_string() |> Phoenix.Naming.camelize(), view_suffix]
+      |> Module.concat()
+      |> Code.ensure_compiled()
+      |> case do
+        {:module, module} ->
+          module
+        _ ->
+          Module.concat([module.web_module(), :Haytni, view_suffix])
+      end
 
     email
     |> put_view(view_module)
