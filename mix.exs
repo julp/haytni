@@ -43,24 +43,24 @@ defmodule Haytni.MixProject do
       {:bcrypt_elixir, "~> 2.2"}, # implies erlang > 20
       #{:argon2_elixir, "~> 2.0"},
       #{:pbkdf2_elixir, "~> 1.0"},
-      {:ecto_sql, "~> 3.4"},
-      {:phoenix, "~> 1.5"},
-      {:phoenix_ecto, "~> 4.1"},
-      {:phoenix_html, "~> 2.14"},
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:ecto_sql, "~> 3.7"},
+      {:phoenix, "~> 1.6"},
+      {:phoenix_ecto, "~> 4.4"},
+      {:phoenix_html, "~> 3.0"},
+      {:ex_doc, "~> 0.25", only: :dev, runtime: false},
       # jason is "optional" to phoenix and bamboo
       {:jason, "~> 1.2"},
-      {:bamboo, "~> 2.0"}, # required by plugins: confirmable, lockable, recoverable and invitable
+      {:bamboo, "~> 2.2"}, # required by plugins: confirmable, lockable, recoverable and invitable
       {:dialyxir, "~> 1.0", only: ~W[dev test]a, runtime: false},
       {:ecto_network, "~> 1.3", only: :test}, # required by plugin: trackable with PostgreSQL
-      {:excoveralls, "~> 0.13", only: :test},
+      {:excoveralls, "~> 0.14", only: :test},
       #{:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       #{:sobelow, "~> 0.10", only: :test},
       #{:myxql, ">= 0.0.0", only: :test},
       {:postgrex, ">= 0.0.0", only: :test},
       # for LiveViewPlugin
-      {:phoenix_live_view, ">= 0.15.4", only: :test},
-      {:floki, ">= 0.27.0", only: :test},
+      {:phoenix_live_view, "~> 0.17", only: :test},
+      {:floki, ">= 0.30.0", only: :test},
     ]
   end
 
