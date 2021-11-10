@@ -11,19 +11,20 @@ bar.com
 
 In the following implementation, the pattern "foo" wil be considered, comparatively to a regular expression (but we directly use pattern matching) to: `^foo.*` on the hostname part of the email address.
 
-Create lib/*your_app*/validations/validations/email_provider_validation.ex with the following code:
+Create lib/*your_app*/validations/email_provider_validation.ex with the following code:
 
 ```elixir
-# lib/your_app/validations/validations/email_provider_validation.ex
+# lib/your_app/validations/email_provider_validation.ex
 defmodule YourApp.EmailProviderValidation do
   import Ecto.Changeset
   #import YourApp.Gettext
 
   @external_resource providers_path = Path.join([__DIR__, "forbidden_email_providers.txt"])
   for line <- File.stream!(providers_path, [], :line) do
-    provider = line
-    |> String.trim_trailing()
-    |> String.downcase()
+    provider =
+      line
+      |> String.trim_trailing()
+      |> String.downcase()
 
     defp valid_email_provider?(unquote(provider) <> _rest), do: false
   end
@@ -34,9 +35,10 @@ defmodule YourApp.EmailProviderValidation do
     when is_atom(field)
   do
     validate_change changeset, field, {:format, nil}, fn _, value ->
-      [_head, provider] = value
-      |> String.downcase()
-      |> String.split("@", parts: 2)
+      [_head, provider] =
+        value
+        |> String.downcase()
+        |> String.split("@", parts: 2)
       if valid_email_provider?(provider) do
         []
       else
@@ -45,7 +47,7 @@ defmodule YourApp.EmailProviderValidation do
     end
   end
 
-  def validate_email_provider(%Ecto.Changeset{} = changeset, _field), do: changeset
+  def validate_email_provider(changeset = %Ecto.Changeset{}, _field), do: changeset
 end
 ```
 
