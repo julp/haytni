@@ -51,8 +51,8 @@ defmodule YourApp.Admin.IpSearch do
 
   @types %{
     ip: :string,
-    first: :naive_datetime,
-    last: :naive_datetime,
+    first: :utc_datetime,
+    last: :utc_datetime,
   }
 
   @attributes Map.keys(@types)
