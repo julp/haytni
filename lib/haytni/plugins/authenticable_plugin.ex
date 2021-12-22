@@ -6,8 +6,6 @@ defmodule Haytni.AuthenticablePlugin do
   @logout_method_key :logout_method
 
   @default_authentication_keys ~W[email]a
-  @default_password_hash_fun &Bcrypt.hash_pwd_salt/1
-  @default_password_check_fun &Bcrypt.check_pass/3
 
   @moduledoc """
   This is a base plugin as it handles basic informations of a user (which are email and hashed password) and their authentication.
@@ -20,20 +18,25 @@ defmodule Haytni.AuthenticablePlugin do
   Configuration:
 
     * `authentication_keys` (default: `#{inspect(@default_authentication_keys)}`): the key(s), in addition to the password, requested to login. You can redefine it to `~W[name]a`, for example, to ask the username instead of its email address.
-    * password hashing algorithm (default: bcrypt):
-      + `password_hash_fun` (default: `#{inspect(@default_password_hash_fun)}`): the function to hash a password
-      + `password_check_fun` (default: `#{inspect(@default_password_check_fun)}`): the function to check if a password matches its hash
+    * `hashing_method` (no default): a module implementing the behaviour `ExPassword.Algorithm` to hash and verify passwords
+    * `hashing_options` (a map, no default since they are hash-specific): ExPassword settings for hashing passwords
 
-  To use:
+  To support:
 
-    * `pbkdf2` add `{:pbkdf2_elixir, "~> 1.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Pbkdf2.hash_pwd_salt/1` and `password_check_fun` to `&Pbkdf2.check_pass/2` in config/config.exs
-    * `argon2` add `{:argon2_elixir, "~> 2.0"}` as `deps` to your `mix.exs` then set `password_hash_fun` to `&Argon2.hash_pwd_salt/1` and `password_check_fun` to ` &Argon2.check_pass/2` in config/config.exs
+    * bcrypt:
+      + add `{:expassword_bcrypt, "~> 0.2"}` in `deps/0` to your `mix.exs`
+      + set `:hashing_method` to `ExPassword.Bcrypt` on the line `stack #{inspect(__MODULE__)}` and also `hashing_options: %{cost: 10}`
+    * argon2:
+      + add `{:expassword_argon2, "~> 0.2"}` in `deps/0` to your `mix.exs`
+      + set `:hashing_method` to `ExPassword.Argon2` on the line `stack #{inspect(__MODULE__)}` and also `hashing_options: %{type: :argon2id, threads: 2, time_cost: 4, memory_cost: 131072}`
 
   ```elixir
   stack #{inspect(__MODULE__)},
     authentication_keys: #{inspect(@default_authentication_keys)},
-    password_check_fun: #{inspect(@default_password_check_fun)},
-    password_hash_fun: #{inspect(@default_password_hash_fun)}
+    hashing_method: ExPassword.Bcrypt,
+    hashing_options: %{
+      cost: 10,
+    }
   ```
 
   Routes:
@@ -62,17 +65,12 @@ defmodule Haytni.AuthenticablePlugin do
   import Haytni.Gettext
 
   defmodule Config do
-    defstruct authentication_keys: ~W[email]a,
-      # NOTE/TODO: have a library like password_* functions from PHP
-      # to allow you to change at any time of algorithm between bcrypt,
-      # argon2 and pbkdf2
-      password_check_fun: &Bcrypt.check_pass/3,
-      password_hash_fun: &Bcrypt.hash_pwd_salt/1
+    defstruct hashing_method: nil, hashing_options: nil, authentication_keys: ~W[email]a
 
     @type t :: %__MODULE__{
+      hashing_method: module,
+      hashing_options: %{optional(atom) => any},
       authentication_keys: [atom, ...],
-      password_check_fun: (struct, Comeonin.PasswordHash.password_hash, Comeonin.PasswordHash.opts -> {:ok, struct} | {:error, String.t}),
-      password_hash_fun: (Comeonin.PasswordHash.password -> Comeonin.PasswordHash.password_hash),
     }
   end
 
@@ -148,6 +146,7 @@ defmodule Haytni.AuthenticablePlugin do
           changeset
           |> Ecto.Changeset.add_error(:current_password, dgettext("haytni", "password mismatch"))
       end
+      |> Ecto.Changeset.delete_change(:current_password)
     else
       changeset
     end
@@ -194,16 +193,16 @@ defmodule Haytni.AuthenticablePlugin do
         user = Haytni.get_user_by(module, Map.delete(sanitized_params, :password))
 
         user
-        |> check_password(sanitized_params.password, config, hide_user: true)
+        |> ExPassword.verify_and_rehash_if_needed(sanitized_params.password, :encrypted_password, config.hashing_method, config.hashing_options)
         |> case do
-          {:ok, user} ->
-            case Haytni.login(conn, module, user) do
+          {:ok, changes} ->
+            case Haytni.login(conn, module, user, changes) do
               result = {:ok, _conn} ->
                 result
               {:error, message} ->
                 Haytni.Helpers.apply_base_error(changeset, message)
             end
-          {:error, _message} ->
+          {:error, _reason} ->
             Haytni.authentication_failed(module, user)
             Haytni.Helpers.apply_base_error(changeset, invalid_credentials_message())
         end
@@ -214,24 +213,36 @@ defmodule Haytni.AuthenticablePlugin do
 
   @doc ~S"""
   Returns `true` if *password* matches *user*'s current hash (*encrypted_password* field)
-
-  *options* is a keyword-list passed to Comeonin:
-    * `hide_user` (boolean, default: `true`): if not `false`, protects against timing attacks
-    * `hash_key` (atom, looks by default for a `password_hash` and `encrypted_password` key): the name of the key containing the hash in *user*
   """
-  @spec check_password(user :: Haytni.user | nil, password :: String.t, config :: Config.t, options :: Keyword.t) :: {:ok, Haytni.user} | {:error, String.t}
-  def check_password(user, password, config, options \\ []) do
-    config.password_check_fun.(user, password, options)
+  @spec check_password(user :: Haytni.nilable(Haytni.user), password :: String.t, config :: Config.t) :: {:ok, Haytni.user} | {:error, :user_is_nil | :password_missmatch}
+  def check_password(user, password, config)
+
+  def check_password(nil, password, config = %Config{})
+    when is_binary(password)
+  do
+    hash_password(password, config) # for timing attacks
+    {:error, :user_is_nil}
+  end
+
+  def check_password(user = %_{}, password, _config)
+    when is_binary(password)
+  do
+    case ExPassword.verify?(password, user.encrypted_password) do
+      true ->
+        {:ok, user}
+      _ ->
+        {:error, :password_missmatch}
+    end
   end
 
   @doc ~S"""
   Hashes a password.
 
-  Returns the hash of the password after having hashed it with `config.password_hash_fun`
+  Returns the hash of the password after having hashed it
   """
   @spec hash_password(password :: String.t, config :: Config.t) :: String.t
   def hash_password(password, config) do
-    config.password_hash_fun.(password)
+    ExPassword.hash(config.hashing_method, password, config.hashing_options)
   end
 
 if false do

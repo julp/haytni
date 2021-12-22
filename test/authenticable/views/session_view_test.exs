@@ -38,8 +38,8 @@ defmodule Haytni.Authenticable.SessionViewTest do
   ]
 
   @configs [
-    {Haytni.AuthenticablePlugin.build_config(), %{"email" => @email, "password" => "not a match"}},
-    {Haytni.AuthenticablePlugin.build_config(authentication_keys: ~W[firstname lastname]a), %{"firstname" => @firstname, "lastname" => @lastname, "password" => "not a match"}},
+    {HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin), %{"email" => @email, "password" => "not a match"}},
+    {%{HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin) | authentication_keys: ~W[firstname lastname]a}, %{"firstname" => @firstname, "lastname" => @lastname, "password" => "not a match"}},
   ]
 
   for {config, params} <- @configs, {scope, view} <- @scopes do

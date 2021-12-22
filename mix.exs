@@ -40,9 +40,6 @@ defmodule Haytni.MixProject do
   defp deps do
     [
       {:gettext, ">= 0.0.0"},
-      {:bcrypt_elixir, "~> 2.2"}, # implies erlang > 20
-      #{:argon2_elixir, "~> 2.0"},
-      #{:pbkdf2_elixir, "~> 1.0"},
       {:ecto_sql, "~> 3.7"},
       {:phoenix, "~> 1.6"},
       {:phoenix_ecto, "~> 4.4"},
@@ -61,6 +58,8 @@ defmodule Haytni.MixProject do
       # for LiveViewPlugin
       {:phoenix_live_view, "~> 0.17", only: :test},
       {:floki, ">= 0.30.0", only: :test},
+      {:expassword, "~> 0.2"},
+      {:expassword_bcrypt, "~> 0.2", only: :test},
     ]
   end
 

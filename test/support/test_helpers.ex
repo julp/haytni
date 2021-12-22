@@ -17,7 +17,7 @@ defmodule Haytni.TestHelpers do
           password: attrs[:password] || "not so SECRET!",
         }
       )
-    attrs = Map.put(attrs, :encrypted_password, config.password_hash_fun.(attrs.password))
+    attrs = Map.put(attrs, :encrypted_password, Haytni.AuthenticablePlugin.hash_password(attrs.password, config))
 
     {:ok, user} =
       schema

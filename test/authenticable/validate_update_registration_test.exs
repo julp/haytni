@@ -8,7 +8,7 @@ defmodule Haytni.Authenticable.ValidateUpdateRegistrationTest do
     setup do
       [
         user: user_fixture(password: @password),
-        config: Haytni.AuthenticablePlugin.build_config(),
+        config: HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin),
       ]
     end
 

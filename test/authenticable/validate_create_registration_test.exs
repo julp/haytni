@@ -9,7 +9,7 @@ defmodule Haytni.Authenticable.ValidateCreateRegistrationTest do
   describe "Haytni.AuthenticablePlugin.validate_create_registration/3" do
     setup do
       [
-        config: Haytni.AuthenticablePlugin.build_config(),
+        config: HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin),
       ]
     end
 

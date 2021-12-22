@@ -6,9 +6,6 @@ config :haytni,
 config :logger,
   level: :error
 
-config :bcrypt_elixir,
-  log_rounds: 4
-
 config :haytni, HaytniTestWeb.Endpoint,
   http: [port: 4001],
   pubsub_server: HaytniTest.PubSub,

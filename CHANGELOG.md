@@ -19,6 +19,8 @@
     * config
       + [Lockable] unlock_within
 - several Haytni modules cannot be stacked (raises if so)
+- templates moved from EEx to HEEx (you can still use EEx)
+- replaced :bcrypt_elixir with :expassword(_bcrypt)
 
  ```
 find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0 perl -pi \

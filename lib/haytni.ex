@@ -171,7 +171,7 @@ defmodule Haytni do
 
   defmacro stack(module, options \\ []) do
     quote do
-      Module.put_attribute(__MODULE__, :plugins, {unquote(module), unquote(Macro.escape(options))})
+      Module.put_attribute(__MODULE__, :plugins, {unquote(module), unquote(Macro.expand(options, __ENV__))})
     end
   end
 
@@ -538,12 +538,12 @@ defmodule Haytni do
     end
   end
 
-  @spec on_successful_authentication(module :: module, conn :: Plug.Conn.t, user :: Haytni.user) :: Haytni.multi_result
-  defp on_successful_authentication(module, conn, user) do
+  @spec on_successful_authentication(module :: module, conn :: Plug.Conn.t, user :: Haytni.user, changes :: Keyword.t) :: Haytni.multi_result
+  defp on_successful_authentication(module, conn, user, changes \\ []) do
     {conn, multi, changes} =
       module.plugins_with_config()
       |> Enum.reduce(
-        {conn, Ecto.Multi.new(), Keyword.new()},
+        {conn, Ecto.Multi.new(), changes},
         fn {plugin, config}, {conn, multi, changes} ->
           plugin.on_successful_authentication(conn, user, multi, changes, module, config)
         end
@@ -559,13 +559,13 @@ defmodule Haytni do
   @doc ~S"""
   To be called on (manual) login
   """
-  @spec login(conn :: Plug.Conn.t, module :: module, user :: Haytni.user) :: {:ok, Plug.Conn.t} | {:error, String.t}
-  def login(conn = %Plug.Conn{}, module, user = %_{}) do
+  @spec login(conn :: Plug.Conn.t, module :: module, user :: Haytni.user, changes :: Keyword.t) :: {:ok, Plug.Conn.t} | {:error, String.t}
+  def login(conn = %Plug.Conn{}, module, user = %_{}, changes \\ []) do
     case invalid_user?(module, user) do
       error = {:error, _message} ->
         error
       false ->
-        {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user)
+        {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user, changes)
         conn =
           conn
           |> Plug.Conn.put_session(scoped_session_key(module), user.id)

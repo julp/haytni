@@ -1,7 +1,7 @@
 defmodule HaytniTestWeb.Haytni do
   use Haytni, otp_app: :haytni_test
 
-  stack Haytni.AuthenticablePlugin
+  stack Haytni.AuthenticablePlugin, hashing_method: ExPassword.Bcrypt, hashing_options: %{cost: 4}
   stack Haytni.RegisterablePlugin
   stack Haytni.RememberablePlugin
   stack Haytni.ConfirmablePlugin

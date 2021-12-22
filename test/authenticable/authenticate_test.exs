@@ -43,6 +43,20 @@ defmodule Haytni.Authenticable.AuthenticateTest do
       assert user.id == Plug.Conn.get_session(conn, :user_id)
     end
 
+    test "user's password is updated on successful authentication", %{conn: conn, config: config, user: user} do
+      session = create_session(user.email, @pass)
+
+      assert String.starts_with?(user.encrypted_password, "$2b$04$")
+      config = %{config | hashing_options: %{cost: 5}}
+      assert {:ok, conn} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, session)
+      assert user.id == conn.assigns.current_user.id
+      assert user.id == Plug.Conn.get_session(conn, :user_id)
+
+      updated_user = HaytniTestWeb.Haytni.repo().get(user.__struct__, user.id)
+      assert String.starts_with?(updated_user.encrypted_password, "$2b$05$")
+      assert Haytni.AuthenticablePlugin.check_password(updated_user, @pass, config)
+    end
+
     test "check user/admin scopes do not mix", %{conn: conn, config: config, user: user, admin: admin} do
       assert_invalid_credentials(conn, config, HaytniTestWeb.HaytniAdmin, create_session(user.email, @pass))
       assert_invalid_credentials(conn, config, HaytniTestWeb.Haytni, create_session(admin.email, @pass))

@@ -47,7 +47,7 @@ defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
       assert get_flash(new_conn, :info) == HaytniWeb.Registerable.RegistrationController.successful_edition_message()
       assert [updated_user] = HaytniTest.Users.list_users()
       assert updated_user.id == user.id
-      assert {:ok, _user} = HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin).password_check_fun.(updated_user, new_password, [])
+      assert {:ok, _user} = Haytni.AuthenticablePlugin.check_password(updated_user, new_password, HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin))
     end
   end
 end
