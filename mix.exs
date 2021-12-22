@@ -15,7 +15,7 @@ defmodule Haytni.MixProject do
       description: description(),
       package: package(),
       deps: deps(),
-      dialyzer: [plt_add_apps: [:mix, :ex_unit]],
+      dialyzer: [plt_add_apps: ~W[mix ex_unit]a],
       name: "Haytni",
       source_url: "https://github.com/julp/haytni",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -32,7 +32,7 @@ defmodule Haytni.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: ~W[logger]a,
     ]
   end
 
@@ -64,14 +64,14 @@ defmodule Haytni.MixProject do
     ]
   end
 
-  defp description() do
+  defp description do
     "A flexible authentication (and more) solution for Phoenix"
   end
 
-  defp package() do
+  defp package do
     [
-      files: ["lib", "priv", "mix.exs", "README*", "CHANGELOG*"],
-      licenses: ["BSD"],
+      files: ~W[lib priv mix.exs README* CHANGELOG*],
+      licenses: ~W[BSD],
       links: %{"GitHub" => "https://github.com/julp/haytni"}
     ]
   end

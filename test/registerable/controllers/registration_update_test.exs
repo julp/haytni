@@ -2,7 +2,11 @@ defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
   use HaytniWeb.ConnCase, async: true
 
   defp registration_params(attrs) do
-    [email: "", password: "", current_password: ""]
+    [
+      email: "",
+      password: "",
+      current_password: "",
+    ]
     |> Params.create(attrs)
     |> Params.confirm(~W[password]a)
     |> Params.wrap(:registration)
@@ -11,14 +15,17 @@ defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
   @password "azerty"
   describe "HaytniWeb.Registerable.RegistrationController#update" do
     setup do
-      {:ok, user: user_fixture(password: @password)}
+      [
+        user: user_fixture(password: @password),
+      ]
     end
 
     if false do
       test "checks error on invalid edition", %{conn: conn, user: user} do
-        new_conn = conn
-        |> assign(:current_user, user)
-        |> patch(Routes.haytni_user_registration_path(conn, :update), registration_params())
+        new_conn =
+          conn
+          |> assign(:current_user, user)
+          |> patch(Routes.haytni_user_registration_path(conn, :update), registration_params())
 
         response = html_response(new_conn, 200)
         assert response =~ "<form "
@@ -31,9 +38,10 @@ defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
     test "checks successful edition", %{conn: conn, user: user} do
       new_password = "0123456789+abcdef+ABCDEF"
 
-      new_conn = conn
-      |> assign(:current_user, user)
-      |> patch(Routes.haytni_user_registration_path(conn, :update), registration_params(email: user.email, password: new_password, current_password: @password))
+      new_conn =
+        conn
+        |> assign(:current_user, user)
+        |> patch(Routes.haytni_user_registration_path(conn, :update), registration_params(email: user.email, password: new_password, current_password: @password))
 
       assert html_response(new_conn, 200)
       assert get_flash(new_conn, :info) == HaytniWeb.Registerable.RegistrationController.successful_edition_message()

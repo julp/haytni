@@ -41,6 +41,8 @@ defmodule HaytniWeb.ConnCase do
       |> Map.replace!(:secret_key_base, HaytniTestWeb.Endpoint.config(:secret_key_base))
       |> Plug.Conn.put_private(:phoenix_endpoint, HaytniTestWeb.Endpoint)
 
-    {:ok, conn: conn}
+    [
+      conn: conn,
+    ]
   end
 end

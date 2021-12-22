@@ -8,7 +8,11 @@ defmodule Haytni.Registerable.ValidateUpdateRegistrationTest do
 
   @password "not a secret"
   defp registration_params(attrs) do
-    [email: "", password: "", current_password: ""]
+    [
+      email: "",
+      password: "",
+      current_password: "",
+    ]
     |> Params.create(attrs)
     |> Params.confirm(~W[password]a)
   end
@@ -21,29 +25,46 @@ defmodule Haytni.Registerable.ValidateUpdateRegistrationTest do
 
   describe "Haytni.RegisterablePlugin.validate_update_registration/3" do
     setup do
-      {:ok, config: Haytni.RegisterablePlugin.build_config(), user: user_fixture(password: @password)}
+      [
+        config: Haytni.RegisterablePlugin.build_config(),
+        user: user_fixture(password: @password),
+      ]
     end
 
     test "ensures email presence", %{config: config, user: user} do
-      changeset = registration_params(current_password: @password)
-      |> to_changeset(user, config)
+      changeset =
+        [
+          current_password: @password,
+        ]
+        |> registration_params()
+        |> to_changeset(user, config)
 
       refute changeset.valid?
       assert %{email: [empty_message()]} == errors_on(changeset)
     end
 
     test "ensures password confirmation", %{config: config, user: user} do
-      changeset = registration_params(email: user.email, current_password: @password, password: "0123456789")
-      |> Map.put("password_confirmation", "9876543210")
-      |> to_changeset(user, config)
+      changeset =
+        [
+          email: user.email,
+          current_password: @password,
+          password: "0123456789",
+        ]
+        |> registration_params()
+        |> Map.put("password_confirmation", "9876543210")
+        |> to_changeset(user, config)
 
       refute changeset.valid?
       assert %{password_confirmation: [confirmation_mismatch_message()]} == errors_on(changeset)
     end
 
     test "ensures current password is requested on email change", %{config: config, user: user}  do
-      changeset = registration_params(email: "new@mail.com")
-      |> to_changeset(user, config)
+      changeset =
+        [
+          email: "new@mail.com",
+        ]
+        |> registration_params()
+        |> to_changeset(user, config)
 
       #{:error, output_changeset} = HaytniTest.Repo.update(changeset)
       refute changeset.valid?
@@ -52,8 +73,13 @@ defmodule Haytni.Registerable.ValidateUpdateRegistrationTest do
 
     test "ensures email change with current password", %{config: config, user: user}  do
       new_email = "new@mail.com"
-      changeset = registration_params(email: new_email, current_password: @password)
-      |> to_changeset(user, config)
+      changeset =
+        [
+          email: new_email,
+          current_password: @password,
+        ]
+        |> registration_params()
+        |> to_changeset(user, config)
 
       assert {:ok, updated_user} = HaytniTest.Repo.update(changeset)
       assert updated_user.email == new_email
@@ -61,8 +87,13 @@ defmodule Haytni.Registerable.ValidateUpdateRegistrationTest do
 
     test "ensures current password is requested on password change", %{config: config, user: user}  do
       # NOTE: even if you change the password, the (same) email has to be part of params
-      changeset = registration_params(email: user.email, password: "0123456789")
-      |> to_changeset(user, config)
+      changeset =
+        [
+          email: user.email,
+          password: "0123456789",
+        ]
+        |> registration_params()
+        |> to_changeset(user, config)
 
       refute changeset.valid?
       assert %{current_password: [empty_message()]} == errors_on(changeset)
@@ -71,8 +102,14 @@ defmodule Haytni.Registerable.ValidateUpdateRegistrationTest do
     test "ensures password change with current password", %{config: config, user: user}  do
       new_password = "neither a secret"
       # NOTE: even if you change the password, the (same) email has to be part of params
-      changeset = registration_params(email: user.email, password: new_password, current_password: @password)
-      |> to_changeset(user, config)
+      changeset =
+        [
+          email: user.email,
+          password: new_password,
+          current_password: @password,
+        ]
+        |> registration_params()
+        |> to_changeset(user, config)
 
       assert {:ok, updated_user} = HaytniTest.Repo.update(changeset)
       assert Haytni.AuthenticablePlugin.check_password(updated_user, new_password, Haytni.AuthenticablePlugin.build_config())
@@ -80,8 +117,13 @@ defmodule Haytni.Registerable.ValidateUpdateRegistrationTest do
 
     test "ensures email uniqueness", %{config: config, user: user} do
       other_user = user_fixture()
-      input_changeset = registration_params(email: other_user.email, current_password: @password)
-      |> to_changeset(user, config)
+      input_changeset =
+        [
+          email: other_user.email,
+          current_password: @password,
+        ]
+        |> registration_params()
+        |> to_changeset(user, config)
 
       # NOTE: unique_constraint will only pop up after a Repo.update
       {:error, output_changeset} = HaytniTest.Repo.update(input_changeset)
@@ -92,8 +134,13 @@ defmodule Haytni.Registerable.ValidateUpdateRegistrationTest do
     # stolen from validate_create_registration test
     test "ensures email format", %{config: config, user: user} do
       for email <- ~W[dummy.com] do
-        changeset = registration_params(email: email, current_password: @password)
-        |> to_changeset(user, config)
+        changeset =
+          [
+            email: email,
+            current_password: @password,
+          ]
+          |> registration_params()
+          |> to_changeset(user, config)
 
         refute changeset.valid?
         assert %{email: [invalid_format_message()]} == errors_on(changeset)

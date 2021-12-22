@@ -8,7 +8,9 @@ defmodule Haytni.Lockable.UnlockViewTest do
   setup %{conn: conn} do
     user_fixture(email: @email, firstname: @firstname, lastname: @lastname, password: "not a secret")
 
-    {:ok, conn: get(conn, Routes.haytni_user_unlock_path(conn, :new))}
+    [
+      conn: get(conn, Routes.haytni_user_unlock_path(conn, :new)),
+    ]
   end
 
   defp do_test(conn, view, config, params) do

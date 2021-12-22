@@ -16,7 +16,9 @@ defmodule Haytni.Trackable.OnSuccessfulAuthentificationTest do
 
   describe "Haytni.TrackablePlugin.on_successful_authentication/6 (callback)" do
     setup do
-      {:ok, user: user_fixture()}
+      [
+        user: user_fixture(),
+      ]
     end
 
     test "ensures *sign_in_at fields are updated and there is a new record in connections table", %{conn: conn, user: user = %User{id: id}} do

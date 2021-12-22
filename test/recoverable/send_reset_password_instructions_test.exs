@@ -11,7 +11,10 @@ defmodule Haytni.Recoverable.SendResetPasswordInstructionsTest do
     setup do
       _some_random_user = user_fixture()
 
-      {:ok, user: user_fixture(email: "mrvovnhv3l44@test.com"), config: Haytni.RecoverablePlugin.build_config()}
+      [
+        config: Haytni.RecoverablePlugin.build_config(),
+        user: user_fixture(email: "mrvovnhv3l44@test.com"),
+      ]
     end
 
 #     @keys [

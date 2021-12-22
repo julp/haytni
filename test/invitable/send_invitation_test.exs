@@ -6,7 +6,10 @@ defmodule Haytni.Invitable.SendInvitationTest do
   @valid_params %{"sent_to" => @email}
   describe "Haytni.InvitablePlugin.send_invitation/4" do
     setup do
-      {:ok, user: user_fixture(), config: Haytni.InvitablePlugin.build_config(invitation_quota: {1, :total})}
+      [
+        user: user_fixture(),
+        config: Haytni.InvitablePlugin.build_config(invitation_quota: {1, :total}),
+      ]
     end
 
     test "ensures no invitation is sent if user quota is exceeded", %{user: user, config: config} do

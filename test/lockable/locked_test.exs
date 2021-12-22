@@ -12,7 +12,12 @@ defmodule Haytni.Lockable.LockedTest do
       expired = %User{locked_at: seconds_ago(config.unlock_in - @delay)}
       unexpired = %User{locked_at: seconds_ago(config.unlock_in + @delay)}
 
-      {:ok, config: config, unlocked: unlocked, expired: expired, unexpired: unexpired}
+      [
+        config: config,
+        unlocked: unlocked,
+        expired: expired,
+        unexpired: unexpired,
+      ]
     end
 
     for strategy <- Haytni.LockablePlugin.Config.available_strategies() do

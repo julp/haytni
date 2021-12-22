@@ -8,13 +8,16 @@ defmodule Haytni.Authenticable.ValidateCreateRegistrationTest do
   @password "1234"
   describe "Haytni.AuthenticablePlugin.validate_create_registration/3" do
     setup do
-      {:ok, config: Haytni.AuthenticablePlugin.build_config()}
+      [
+        config: Haytni.AuthenticablePlugin.build_config(),
+      ]
     end
 
     test "ensures password is hashed (bcrypt) on registration (encrypted_password field populated)", %{config: config} do
-      changeset = %User{}
-      |> Ecto.Changeset.change(password: @password)
-      |> Haytni.AuthenticablePlugin.validate_create_registration(HaytniTestWeb.Haytni, config)
+      changeset =
+        %User{}
+        |> Ecto.Changeset.change(password: @password)
+        |> Haytni.AuthenticablePlugin.validate_create_registration(HaytniTestWeb.Haytni, config)
 
       assert changeset.valid?
       assert String.starts_with?(Ecto.Changeset.get_change(changeset, :encrypted_password), "$2b$")

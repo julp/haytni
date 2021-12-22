@@ -4,7 +4,10 @@ defmodule Haytni.Invitable.OnRegistrationTest do
 
   describe "Haytni.InvitablePlugin.on_registration/3" do
     setup do
-      {:ok, sender: user_fixture(), config: Haytni.InvitablePlugin.build_config(invitation_required: true)}
+      [
+        sender: user_fixture(),
+        config: Haytni.InvitablePlugin.build_config(invitation_required: true),
+      ]
     end
 
     for email_match <- [true, false], invitation_required <- [true, false] do
@@ -12,9 +15,10 @@ defmodule Haytni.Invitable.OnRegistrationTest do
         invitation = invitation_fixture(sender, "abc.def@ghi")
         accepter = %HaytniTest.User{email: invitation.sent_to, invitation: invitation.code}
 
-        actions = Ecto.Multi.new()
-        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | email_matching_invitation: unquote(email_match), invitation_required: unquote(invitation_required)})
-        |> Ecto.Multi.to_list()
+        actions =
+          Ecto.Multi.new()
+          |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | email_matching_invitation: unquote(email_match), invitation_required: unquote(invitation_required)})
+          |> Ecto.Multi.to_list()
 
         assert [{:acceptation, {:run, fun}}] = actions
         assert {:ok, true} = fun.(HaytniTest.Repo, %{user: accepter})
@@ -30,9 +34,10 @@ defmodule Haytni.Invitable.OnRegistrationTest do
       invitation = invitation_fixture(sender, "abc.def@ghi", code: "azerty")
       accepter = %HaytniTest.User{email: String.reverse(invitation.sent_to), invitation: invitation.code}
 
-      actions = Ecto.Multi.new()
-      |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | email_matching_invitation: true})
-      |> Ecto.Multi.to_list()
+      actions =
+        Ecto.Multi.new()
+        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | email_matching_invitation: true})
+        |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
       assert {:error, :invitation_required} = fun.(HaytniTest.Repo, %{user: accepter})
@@ -41,9 +46,10 @@ defmodule Haytni.Invitable.OnRegistrationTest do
     test "invitation is optional and none provided", %{config: config} do
       accepter = %HaytniTest.User{email: "abracadabra@magic.com", invitation: nil}
 
-      actions = Ecto.Multi.new()
-      |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | invitation_required: false})
-      |> Ecto.Multi.to_list()
+      actions =
+        Ecto.Multi.new()
+        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | invitation_required: false})
+        |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
       assert {:ok, false} = fun.(HaytniTest.Repo, %{user: accepter})
@@ -52,9 +58,10 @@ defmodule Haytni.Invitable.OnRegistrationTest do
     test "invitation required but none provided", %{config: config} do
       accepter = %HaytniTest.User{email: "abracadabra@magic.com", invitation: nil}
 
-      actions = Ecto.Multi.new()
-      |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, config)
-      |> Ecto.Multi.to_list()
+      actions =
+        Ecto.Multi.new()
+        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, config)
+        |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
       assert {:error, :invitation_required} = fun.(HaytniTest.Repo, %{user: accepter})
@@ -64,9 +71,10 @@ defmodule Haytni.Invitable.OnRegistrationTest do
       invitation = invitation_fixture(sender, "abc.def@ghi", sent_at: config.invitation_within + 1)
       accepter = %HaytniTest.User{email: invitation.sent_to, invitation: invitation.code}
 
-      actions = Ecto.Multi.new()
-      |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, config)
-      |> Ecto.Multi.to_list()
+      actions =
+        Ecto.Multi.new()
+        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, config)
+        |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
       assert {:error, :invitation_required} = fun.(HaytniTest.Repo, %{user: accepter})
@@ -76,9 +84,10 @@ defmodule Haytni.Invitable.OnRegistrationTest do
       invitation = invitation_fixture(sender, "abc.def@ghi", sent_at: config.invitation_within + 1)
       accepter = %HaytniTest.User{email: invitation.sent_to, invitation: invitation.code}
 
-      actions = Ecto.Multi.new()
-      |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | invitation_required: false})
-      |> Ecto.Multi.to_list()
+      actions =
+        Ecto.Multi.new()
+        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | invitation_required: false})
+        |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
       assert {:ok, false} = fun.(HaytniTest.Repo, %{user: accepter})
@@ -88,9 +97,10 @@ defmodule Haytni.Invitable.OnRegistrationTest do
       invitation = invitation_fixture(sender, "abc.def@ghi", accepted_by: sender)
       accepter = %HaytniTest.User{email: invitation.sent_to, invitation: invitation.code}
 
-      actions = Ecto.Multi.new()
-      |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, config)
-      |> Ecto.Multi.to_list()
+      actions =
+        Ecto.Multi.new()
+        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, config)
+        |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
       assert {:error, :invitation_required} = fun.(HaytniTest.Repo, %{user: accepter})
@@ -100,9 +110,10 @@ defmodule Haytni.Invitable.OnRegistrationTest do
       invitation = invitation_fixture(sender, "abc.def@ghi", accepted_by: sender)
       accepter = %HaytniTest.User{email: invitation.sent_to, invitation: invitation.code}
 
-      actions = Ecto.Multi.new()
-      |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | invitation_required: false})
-      |> Ecto.Multi.to_list()
+      actions =
+        Ecto.Multi.new()
+        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | invitation_required: false})
+        |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
       assert {:ok, false} = fun.(HaytniTest.Repo, %{user: accepter})
