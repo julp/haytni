@@ -59,7 +59,7 @@ end
 If you need a starting point for the corresponding template, here it is:
 
 ```eex
-# lib/your_app_web/templates/invitation/index.html.eex
+# lib/your_app_web/templates/invitation/index.html.heex
 
 <%= if Enum.any?(@invitations) do %>
   <table>

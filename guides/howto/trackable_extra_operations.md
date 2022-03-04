@@ -31,7 +31,7 @@ In your controller:
 
 Part of the template:
 
-```eex
+```heex
 <ul>
   <%= for connection <- @connections do %>
     <li><%= c.ip %> (<%= c.inserted_at %>)</li>
@@ -130,7 +130,9 @@ defmodule YourAppWeb.Admin.IpSearchController do
   end
 
   def create(conn, params) do
-    case Admin.create_ipsearch(search_params) do
+    search_params
+    |> Admin.create_ipsearch()
+    |> case do
       {:ok, search} ->
         conn
         |> assign(:search, search)
@@ -145,8 +147,8 @@ end
 
 The `new` template:
 
-```eex
-# lib/your_app_web/templates/admin/ip_search/new.html.eex
+```heex
+# lib/your_app_web/templates/admin/ip_search/new.html.heex
 
 <%= form_for @changeset, Routes.admin_ip_search_path(@conn, :create), [as: :search], fn f ->  %>
   <div class="form-group">
@@ -171,15 +173,15 @@ The `new` template:
 
 The `create` template:
 
-```eex
-# lib/your_app_web/templates/admin/ip_search/create.html.eex
+```heex
+# lib/your_app_web/templates/admin/ip_search/create.html.heex
 
 <h2>Results for <b><%= @search.ip %></b></h2>
 
-<%= if Enum.empty? @results do %>
+<%= if Enum.empty?(@results) do %>
   <p>This address has not been used</p>
 <% else %>
-  <p><%= Enum.count @results %> résult(s) found.</p>
+  <p><%= Enum.count(@results) %> résult(s) found.</p>
   <table>
     <thead>
       <tr>
