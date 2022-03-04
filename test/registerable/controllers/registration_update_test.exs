@@ -1,15 +1,15 @@
 defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
   use HaytniWeb.ConnCase, async: true
 
-  defp registration_params(attrs) do
+  defp password_params(current_password, attrs) do
     [
-      email: "",
       password: "",
-      current_password: "",
     ]
     |> Params.create(attrs)
     |> Params.confirm(~W[password]a)
-    |> Params.wrap(:registration)
+    |> Params.wrap(:password)
+    |> Map.put("action", "update_password")
+    |> Map.put("current_password", current_password)
   end
 
   @password "azerty"
@@ -25,7 +25,7 @@ defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
         new_conn =
           conn
           |> assign(:current_user, user)
-          |> patch(Routes.haytni_user_registration_path(conn, :update), registration_params())
+          |> patch(Routes.haytni_user_registration_path(conn, :update), password_params())
 
         response = html_response(new_conn, 200)
         assert response =~ "<form "
@@ -41,13 +41,13 @@ defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
       new_conn =
         conn
         |> assign(:current_user, user)
-        |> patch(Routes.haytni_user_registration_path(conn, :update), registration_params(email: user.email, password: new_password, current_password: @password))
+        |> patch(Routes.haytni_user_registration_path(conn, :update), password_params(@password, password: new_password))
 
       assert html_response(new_conn, 200)
       assert get_flash(new_conn, :info) == HaytniWeb.Registerable.RegistrationController.successful_edition_message()
       assert [updated_user] = HaytniTest.Users.list_users()
       assert updated_user.id == user.id
-      assert {:ok, _user} = Haytni.AuthenticablePlugin.check_password(updated_user, new_password, HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin))
+      assert Haytni.AuthenticablePlugin.valid_password?(updated_user, new_password, HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin))
     end
   end
 end

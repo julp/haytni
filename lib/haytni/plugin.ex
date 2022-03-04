@@ -122,8 +122,7 @@ defmodule Haytni.Plugin do
   @callback on_successful_authentication(conn :: Plug.Conn.t, user :: Haytni.user, multi :: Ecto.Multi.t, keywords :: Keyword.t, module :: module, config :: Haytni.config) :: {Plug.Conn.t, Ecto.Multi.t, Keyword.t}
 
   @doc ~S"""
-  This callback is invoked when a user is editing its registration and change its email address.
-  It is a facility (subset) to avoid you to handle it by yourself via `validate_update_registration/3`.
+  This callback should be invoked when a user is editing its registration and change its email address.
 
   It returns a tuple of `{Ecto.Multi, Ecto.Changeset}`, same as its arguments, to permit to the
   callback to add any operation to *multi* or change to *changeset*.

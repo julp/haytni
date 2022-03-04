@@ -31,9 +31,10 @@ defmodule Haytni.Params do
   @spec create(defaults :: Enumerable.t | struct, attrs :: Enumerable.t | struct) :: Haytni.params | no_return
   def create(defaults, attrs \\ %{}) do
     defaults = to_stringified_map(defaults)
-    attrs = attrs
-    |> to_stringified_map()
-    |> Map.take(Map.keys(defaults))
+    attrs =
+      attrs
+      |> to_stringified_map()
+      |> Map.take(Map.keys(defaults))
 
     defaults
     |> Map.merge(attrs, fn _k, v1, v2 -> coalesce(v1, v2) end)

@@ -99,19 +99,20 @@ defmodule YourApp.User do
     YourApp.Haytni.fields() # <= add this line
   end
 
-  @attributes ~W[email password]a
-  def create_registration_changeset(%__MODULE__{} = struct, params) do
+  def create_registration_changeset(struct = %__MODULE__{}, params = %{}) do
     struct
-    |> cast(params, @attributes)
+    # add any needed field by registration from your own fields in the list below
+    |> Ecto.Changeset.cast(params, [:email, :password])
     |> YourApp.Haytni.validate_password()
     # ... (your custom validations) ...
     |> YourApp.Haytni.validate_create_registration()
   end
 
-  @attributes ~W[email password current_password]a
-  def update_registration_changeset(%__MODULE__{} = struct, params) do
+  def update_registration_changeset(struct = %__MODULE__{}, params = %{}) do
     struct
-    |> cast(params, @attributes)
+    # put the names of the fields the user is allowed to change himself in the following empty list
+    # but don't mention :email nor :password here, they are specifically handled by Haytni
+    |> Ecto.Changeset.cast(params, [])
     # ... (your custom validations) ...
     |> YourApp.Haytni.validate_update_registration()
   end

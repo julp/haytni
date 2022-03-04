@@ -418,10 +418,8 @@ defmodule Haytni do
   end
 
   @doc ~S"""
-  Runs any custom password validations from the plugins (via their `validate_password/3` callback) of the *module* Haytni
-  stack. An `%Ecto.Changeset{}` is returned with the potential validation errors added by the plugins.
-
-  Do **NOT** call it from your function `validate_update_registration/3`, it will be called internally only if needed.
+  Runs any custom password validations from the plugins (via their `c:Haytni.Plugin.validate_password/3` callback) of
+  the *module* Haytni stack. An `%Ecto.Changeset{}` is returned with the potential validation errors added by the plugins.
   """
   @spec validate_password(module :: module, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
   def validate_password(module, changeset) do
@@ -439,54 +437,49 @@ defmodule Haytni do
     Ecto.Multi.run(multi, name, fn _repo, _changes -> {:ok, data} end)
   end
 
-  @spec handle_email_change(module :: module, multi :: Ecto.Multi.t, changeset :: Ecto.Changeset.t) :: {Ecto.Multi.t, Ecto.Changeset.t}
-  defp handle_email_change(module, multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{changes: %{email: new_email}}) do
+  @doc ~S"""
+  Function to be called, for the user, to modify its own email address: it actually updates it in the database but also
+  invokes, first, the `c:Haytni.Plugin.on_email_change/4` callback of the plugins registered in the *module* Haytni stack.
+
+  Note: caller is responsible for validations against *new_email_address*
+  """
+  @spec email_changed(module :: module, user :: Haytni.user, new_email_address :: String.t) :: Haytni.multi_result
+  def email_changed(module, user = %_{}, new_email_address)
+    when is_binary(new_email_address)
+  do
     multi =
-      multi
-      |> assign_in_multi(:new_email, new_email)
-      |> assign_in_multi(:old_email, changeset.data.email)
-    module.plugins_with_config()
-    |> Enum.reduce(
-      {multi, changeset},
-      fn {plugin, config}, {multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}} ->
-        plugin.on_email_change(multi, changeset, module, config)
-      end
-    )
+      Ecto.Multi.new()
+      |> assign_in_multi(:old_email, user.email)
+      |> assign_in_multi(:new_email, new_email_address)
+
+    changeset =
+      user
+      # TODO: here a unique constraint can still fail
+      |> Ecto.Changeset.change(email: new_email_address)
+
+    {multi, changeset} =
+      module.plugins_with_config()
+      |> Enum.reduce(
+        {multi, changeset},
+        fn {plugin, config}, {multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}} ->
+          plugin.on_email_change(multi, changeset, module, config)
+        end
+      )
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.update(:user, changeset)
+    |> Ecto.Multi.append(multi)
+    |> module.repo().transaction()
   end
-
-  defp handle_email_change(_module, multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}), do: {multi, changeset}
-
-  @spec handle_password_change(module :: module, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
-  defp handle_password_change(module, changeset = %Ecto.Changeset{changes: %{password: _}}) do
-    validate_password(module, changeset)
-  end
-
-  defp handle_password_change(_module, changeset = %Ecto.Changeset{}), do: changeset
 
   @doc ~S"""
   Update user's registration, its own registration.
-
-  Works exactly as `create_user`. The only difference is the additionnal parameter: the user to update as first one.
-
-  NOTE: the callbacks of `Ecto.Multi.run` added to the multi by the `on_email_change/4` callback will receive from the
-  `Map` they get as their (single) argument the following predefined elements:
-
-    * the updated user as the `:user` key
-    * the previous email as `:old_email`
-    * `:new_email`: the new email
   """
-  @spec update_registration(module :: module, user :: Haytni.user, attrs :: map, options :: Keyword.t) :: Haytni.multi_result
+  @spec update_registration(module :: module, user :: Haytni.user, attrs :: map, options :: Keyword.t) :: Haytni.repo_nobang_operation(Haytni.user)
   def update_registration(module, user = %_{}, attrs = %{}, options \\ []) do
-    changeset =
-      user
-      |> module.schema().update_registration_changeset(attrs)
-    changeset = handle_password_change(module, changeset) # TODO: better to be done in RegisterablePlugin.validate_(update|create)_registration?
-    {multi = %Ecto.Multi{}, changeset} = handle_email_change(module, Ecto.Multi.new(), changeset) # TODO: better to be done in RegisterablePlugin.validate_(update|create)_registration?
-    # create a multi to update user and merge into it the multi from plugins then execute it
-    Ecto.Multi.new()
-    |> Ecto.Multi.update(:user, changeset, options)
-    |> Ecto.Multi.append(multi)
-    |> module.repo().transaction()
+    user
+    |> module.schema().update_registration_changeset(attrs)
+    |> module.repo().update(options)
   end
 
   @doc ~S"""
@@ -621,7 +614,9 @@ defmodule Haytni do
     |> Enum.reduce(changeset, fn {plugin, config}, changeset -> plugin.validate_update_registration(changeset, module, config) end)
   end
 
-  def user_and_changes_to_changeset(user, changes) do
+  @typep changes :: %{required(atom) => term} | nonempty_list({Keyword.key, Keyword.value})
+  @spec user_and_changes_to_changeset(user :: Haytni.user, changes :: Haytni.changes) :: Ecto.Changeset.t
+  defp user_and_changes_to_changeset(user, changes) do
     Ecto.Changeset.change(user, changes)
   end
 

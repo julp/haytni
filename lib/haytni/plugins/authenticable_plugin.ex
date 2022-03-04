@@ -131,31 +131,6 @@ defmodule Haytni.AuthenticablePlugin do
     changeset
   end
 
-  @impl Haytni.Plugin
-  def validate_update_registration(changeset = %Ecto.Changeset{valid?: true, changes: %{current_password: current_password}}, _module, config) do
-    new_password = Ecto.Changeset.get_change(changeset, :password)
-    if Ecto.Changeset.get_change(changeset, :email) || new_password do
-      case check_password(changeset.data, current_password, config) do
-        {:ok, _user} ->
-          if new_password do
-            hash_password(changeset, new_password, config)
-          else
-            changeset
-          end
-        {:error, _message} ->
-          changeset
-          |> Ecto.Changeset.add_error(:current_password, dgettext("haytni", "password mismatch"))
-      end
-      |> Ecto.Changeset.delete_change(:current_password)
-    else
-      changeset
-    end
-  end
-
-  def validate_update_registration(changeset = %Ecto.Changeset{}, _module, _config) do
-    changeset
-  end
-
   @doc ~S"""
   Converts the parameters received for authentication by the controller in a `%Ecto.Changeset{}` to handle and validate
   user inputs according to plugin's configuration (`authentication_keys`).
@@ -214,25 +189,20 @@ defmodule Haytni.AuthenticablePlugin do
   @doc ~S"""
   Returns `true` if *password* matches *user*'s current hash (*encrypted_password* field)
   """
-  @spec check_password(user :: Haytni.nilable(Haytni.user), password :: String.t, config :: Config.t) :: {:ok, Haytni.user} | {:error, :user_is_nil | :password_missmatch}
-  def check_password(user, password, config)
+  @spec valid_password?(user :: Haytni.nilable(Haytni.user), password :: String.t, config :: Config.t) :: boolean
+  def valid_password?(user, password, config)
 
-  def check_password(nil, password, config = %Config{})
+  def valid_password?(nil, password, config = %Config{})
     when is_binary(password)
   do
     hash_password(password, config) # for timing attacks
-    {:error, :user_is_nil}
+    false
   end
 
-  def check_password(user = %_{}, password, _config)
+  def valid_password?(user = %_{}, password, _config)
     when is_binary(password)
   do
-    case ExPassword.verify?(password, user.encrypted_password) do
-      true ->
-        {:ok, user}
-      _ ->
-        {:error, :password_missmatch}
-    end
+    ExPassword.verify?(password, user.encrypted_password)
   end
 
   @doc ~S"""

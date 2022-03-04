@@ -21,6 +21,7 @@
 - several Haytni modules cannot be stacked (raises if so)
 - templates moved from EEx to HEEx (you can still use EEx)
 - replaced :bcrypt_elixir with :expassword(_bcrypt)
+- `Haytni.update_registration/4` has been changed to not handle email nor password changes at the same time: the single form and changeset used to edit its profile has been splitted in 3 separated changesets/forms. See priv/templates/registration/edit.html.heex on how to update this template. Consequently, the fields `:current_password`, `:email` and `:password` are no longer required to be whitelisted (`Ecto.Changeset.cast/4`) by your `update_registration_changeset/2` functions.
 
  ```
 find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0 perl -pi \

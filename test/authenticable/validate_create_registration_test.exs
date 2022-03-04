@@ -21,7 +21,7 @@ defmodule Haytni.Authenticable.ValidateCreateRegistrationTest do
 
       assert changeset.valid?
       assert String.starts_with?(Ecto.Changeset.get_change(changeset, :encrypted_password), "$2b$")
-      assert Haytni.AuthenticablePlugin.check_password(Ecto.Changeset.apply_changes(changeset), @password, config)
+      assert Haytni.AuthenticablePlugin.valid_password?(Ecto.Changeset.apply_changes(changeset), @password, config)
     end
   end
 end

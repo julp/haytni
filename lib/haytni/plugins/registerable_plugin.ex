@@ -41,7 +41,7 @@ defmodule Haytni.RegisterablePlugin do
         # called when a user try to edit its own account (logic is completely different)
         def update_registration_changeset(%__MODULE__{} = struct, params) do
           struct
-          |> cast(params, ~W[email password current_password]a) # add any field you'll may need (but only fields that user is allowed to redefine!)
+          |> cast(params, ~W[]a) # add any field in the list you'll may need (but only fields that user is allowed to redefine!)
           # add any custom validation here
           |> YourApp.Haytni.validate_update_registration()
         end
@@ -78,6 +78,9 @@ defmodule Haytni.RegisterablePlugin do
       - #{@edit_registration_path_key} (default: `registration_path <> "/edit"`): same for *edit* action (profile edition)
   """
 
+  require Haytni.Gettext
+  import Haytni.Helpers
+
   defmodule Config do
     defstruct registration_disabled?: false,
       strip_whitespace_keys: ~W[email]a,
@@ -113,83 +116,189 @@ defmodule Haytni.RegisterablePlugin do
   end
 
   @impl Haytni.Plugin
-  def fields(_module) do
-    quote do
-      field :current_password, :string, virtual: true
-    end
-  end
-
-  @impl Haytni.Plugin
   def routes(prefix_name, options) do
-    prefix_name = :"#{prefix_name}_registration"
+    registration_prefix_name = :"#{prefix_name}_registration"
     registration_path = Keyword.get(options, @registration_path_key, @default_registration_path)
     new_registration_path = Keyword.get(options, @new_registration_path_key, registration_path <> "/new")
     edit_registration_path = Keyword.get(options, @edit_registration_path_key, registration_path <> "/edit")
     #cancel_registration_path = Keyword.get(options, :cancel_registration_path)
-    quote bind_quoted: [prefix_name: prefix_name, registration_path: registration_path, new_registration_path: new_registration_path, edit_registration_path: edit_registration_path] do
-      #resources "/registration", HaytniWeb.Registerable.RegistrationController, singleton: true, only: ~W[new create edit update]a, as: prefix_name
-      get new_registration_path, HaytniWeb.Registerable.RegistrationController, :new, as: prefix_name
-      post registration_path, HaytniWeb.Registerable.RegistrationController, :create, as: prefix_name
-      get edit_registration_path, HaytniWeb.Registerable.RegistrationController, :edit, as: prefix_name
-      put registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: prefix_name
-      patch registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: prefix_name
+    quote bind_quoted: [registration_prefix_name: registration_prefix_name, registration_path: registration_path, new_registration_path: new_registration_path, edit_registration_path: edit_registration_path] do
+      #resources "/registration", HaytniWeb.Registerable.RegistrationController, singleton: true, only: ~W[new create edit update]a, as: registration_prefix_name
+      get new_registration_path, HaytniWeb.Registerable.RegistrationController, :new, as: registration_prefix_name
+      post registration_path, HaytniWeb.Registerable.RegistrationController, :create, as: registration_prefix_name
+      get edit_registration_path, HaytniWeb.Registerable.RegistrationController, :edit, as: registration_prefix_name
+      put registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: registration_prefix_name
+      patch registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: registration_prefix_name
       #if cancel_registration_path do
-        #delete cancel_registration_path, HaytniWeb.Registerable.RegistrationController, :delete, as: prefix_name
+        #delete cancel_registration_path, HaytniWeb.Registerable.RegistrationController, :delete, as: registration_prefix_name
       #end
     end
   end
 
-  defp validate_both_registration(changeset = %Ecto.Changeset{}, config) do
+  defp validate_email(changeset = %Ecto.Changeset{}, module, config = %Config{}) do
     changeset
-    # "normalization"
-    |> strip_whitespace_changes(config)
-    |> case_insensitive_changes(config)
-    # email
-    #|> Ecto.Changeset.unsafe_validate_unique(:email)
+    |> Ecto.Changeset.validate_required([:email])
+    |> Ecto.Changeset.unsafe_validate_unique(:email, module.repo())
     |> Ecto.Changeset.validate_format(:email, config.email_regexp)
     |> Ecto.Changeset.unique_constraint(:email, name: config.email_index_name)
   end
 
-  defp validate_password(changeset = %Ecto.Changeset{}) do
+  defp base_validate_password(changeset = %Ecto.Changeset{}) do
     changeset
+    |> Ecto.Changeset.validate_required([:password])
     |> Ecto.Changeset.validate_confirmation(:password, required: true)
   end
 
+  @doc ~S"""
+  The translated string to display when user's current password is incorrect
+  """
+  @spec invalid_current_password_message() :: String.t
+  def invalid_current_password_message do
+    Haytni.Gettext.dgettext("haytni", "is invalid")
+  end
+
+  @doc ~S"""
+  The translated string to display when email hasn't changed
+  """
+  @spec has_not_changed_message() :: String.t
+  def has_not_changed_message do
+    Haytni.Gettext.dgettext("haytni", "has not changed")
+  end
+
+  defp validate_current_password(changeset = %Ecto.Changeset{}, password, module) do
+    config = module.fetch_config(Haytni.AuthenticablePlugin)
+    if Haytni.AuthenticablePlugin.valid_password?(changeset.data, password, config) do
+      changeset
+    else
+      Ecto.Changeset.add_error(changeset, :current_password, invalid_current_password_message())
+    end
+  end
+
   @impl Haytni.Plugin
-  def validate_create_registration(changeset = %Ecto.Changeset{}, _module, config) do
+  def validate_create_registration(changeset = %Ecto.Changeset{}, module, config) do
     changeset
-    |> Ecto.Changeset.validate_required(~W[email password]a)
-    |> validate_both_registration(config)
+    # <normalization>
+    |> strip_whitespace_changes(config)
+    |> case_insensitive_changes(config)
+    # </normalization>
     |> Ecto.Changeset.validate_confirmation(:email, required: true)
-    |> validate_password()
+    |> validate_email(module, config)
+    |> base_validate_password()
   end
 
-  defp add_validate_required_current_password(changeset = %Ecto.Changeset{}) do
+  @spec validate_change(changeset :: Ecto.Changeset.t, field :: atom) :: Ecto.Changeset.t
+  defp validate_change(changeset = %Ecto.Changeset{}, field)
+    when is_atom(field)
+  do
+if true do
+    # NOTE: we can't distinguish an empty value to an unchanged value since both generates no changes
+    # to "leverage" it, we first check the field doesn't already have an error associated to it
+    if is_nil(changeset.errors[field]) and :error == Ecto.Changeset.fetch_change(changeset, field) do
+      Ecto.Changeset.add_error(changeset, field, has_not_changed_message())
+    else
+      changeset
+    end
+else
     changeset
-    |> Ecto.Changeset.validate_required(:current_password)
+    |> Ecto.Changeset.fetch_change(field)
+    |> case do
+      {:ok, _value} ->
+        changeset
+      :error ->
+        Ecto.Changeset.add_error(changeset, field, has_not_changed_message())
+    end
+end
   end
 
-  # registration edition helpers
-
-  # current password is needed/checked if at least one of the password or email is changed
-  defp handle_current_password_requirement(changeset = %Ecto.Changeset{changes: %{email: _}}), do: add_validate_required_current_password(changeset)
-  defp handle_current_password_requirement(changeset = %Ecto.Changeset{changes: %{password: _}}), do: add_validate_required_current_password(changeset)
-  defp handle_current_password_requirement(changeset = %Ecto.Changeset{}), do: changeset
-
-  defp handle_password(changeset = %Ecto.Changeset{changes: %{password: _}}, _config) do
-    changeset
-    |> validate_password()
+  @spec email_changeset(module :: module, config :: Config.t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
+  defp email_changeset(module, config = %Config{}, user = %_{}, attrs = %{}) do
+    user
+    |> Ecto.Changeset.cast(attrs, [:email])
+    |> validate_email(module, config)
+    |> validate_change(:email)
   end
-  defp handle_password(changeset = %Ecto.Changeset{}, _config), do: changeset
 
-  @impl Haytni.Plugin
-  def validate_update_registration(changeset = %Ecto.Changeset{}, _module, config) do
+  @doc ~S"""
+  Returns an `%Ecto.Changeset{}` to modify its email address.
+  """
+  @spec change_email(module :: module, config :: Config.t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
+  def change_email(module, config = %Config{}, user = %_{}, attrs \\ %{}) do
+    email_changeset(module, config, user, attrs)
+  end
+
+  @doc ~S"""
+  Updates *user*'s email address if *current_password* matches *user*'s actual password. 
+  """
+  @spec update_email(module :: module, config :: Config.t, user :: Haytni.user, current_password :: String.t, attrs :: Haytni.params) :: Haytni.repo_nobang_operation(Haytni.user)
+  def update_email(module, config = %Config{}, user = %_{}, current_password, attrs = %{}) do
+    module
+    |> email_changeset(config, user, attrs)
+    |> validate_current_password(current_password, module)
+    |> Ecto.Changeset.apply_action(:update)
+    |> case do
+      {:ok, changeset_user} ->
+        module
+        |> Haytni.email_changed(user, changeset_user.email)
+        |> multi_to_regular_result(:user)
+      error = {:error, %Ecto.Changeset{}} ->
+        error
+    end
+  end
+
+  @spec password_changeset(module :: module, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
+  defp password_changeset(module, user = %_{}, attrs = %{}) do
+    changeset =
+      user
+      |> Ecto.Changeset.cast(attrs, [:password])
+      |> base_validate_password()
+    Haytni.validate_password(module, changeset)
+  end
+
+  @doc ~S"""
+  Returns an `%Ecto.Changeset{}` to modify its password.
+  """
+  @spec change_password(module :: module, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
+  def change_password(module, user = %_{}, attrs \\ %{}) do
+    password_changeset(module, user, attrs)
+  end
+
+  defp maybe_hash_password(changeset = %Ecto.Changeset{valid?: true, changes: %{password: new_password}}, module) do
+    config = module.fetch_config(Haytni.AuthenticablePlugin)
     changeset
-    # NOTE: in the opposite of validate_create_registration, password is NOT required here
-    |> Ecto.Changeset.validate_required(~W[email]a)
-    |> validate_both_registration(config)
-    |> handle_current_password_requirement()
-    |> handle_password(config)
+    |> Ecto.Changeset.put_change(:encrypted_password, Haytni.AuthenticablePlugin.hash_password(new_password, config))
+    |> Ecto.Changeset.delete_change(:password)
+  end
+
+  defp maybe_hash_password(changeset = %Ecto.Changeset{}, _module), do: changeset
+
+  @doc ~S"""
+  Updates *user*'s password if:
+
+    + *current_password* matches *user*'s actual password
+    + the new password meets the requirements against the active plugins implementing the `c:Haytni.Plugin.validate_password/3` callback
+
+  When the password is changed, the tokens associated to *user* are also deleted.
+  """
+  @spec update_password(module :: module, user :: Haytni.user, current_password :: String.t, attrs :: Haytni.params) :: Haytni.repo_nobang_operation(Haytni.user)
+  def update_password(module, user = %_{}, current_password, attrs = %{}) do
+    changeset =
+      module
+      |> password_changeset(user, attrs)
+      |> validate_current_password(current_password, module)
+      |> maybe_hash_password(module)
+
+    changeset
+    |> Ecto.Changeset.apply_action(:update)
+    |> case do
+      {:ok, _changeset_user} ->
+        Ecto.Multi.new()
+        |> Ecto.Multi.update(:user, changeset)
+        |> Haytni.Token.delete_tokens_in_multi(:tokens, user, :all)
+        |> module.repo().transaction()
+        |> multi_to_regular_result(:user)
+      error = {:error, %Ecto.Changeset{}} ->
+        error
+    end
   end
 
 if false do

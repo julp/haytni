@@ -194,4 +194,28 @@ defmodule Haytni.Helpers do
       end
     )
   end
+
+if true do
+  defmacro multi_to_regular_result(result, name) do
+    quote do
+      case unquote(result) do
+        {:ok, %{unquote(name) => value}} ->
+          {:ok, value}
+        {:error, unquote(name), changeset = %Ecto.Changeset{}, _changes_so_far} ->
+          {:error, changeset}
+      end
+    end
+  end
+else
+  @spec multi_to_regular_result(result :: Shop.Types.multi_result, name :: Ecto.Multi.name) :: Shop.Types.repo_nobang_operation
+  def multi_to_regular_result(result, name) do
+    result
+    |> case do
+      {:ok, %{^name => value = %_{}}} ->
+        {:ok, value}
+      {:error, ^name, changeset = %Ecto.Changeset{}, _changes_so_far} ->
+        {:error, changeset}
+    end
+  end
+end
 end

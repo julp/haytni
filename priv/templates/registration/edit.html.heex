@@ -1,11 +1,23 @@
-<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :update), [as: :registration], fn f  -> %>
-
+<%%= form_for @email_changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :update), [as: :email], fn f  -> %>
+  <%%= hidden_input f, :action, name: "action", value: "update_email" %>
   <div class="form-group">
     <%%= label f, :email, Haytni.Gettext.dgettext("haytni", "Email"), class: "control-label" %>
     <%%= email_input f, :email, class: "form-control", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "your email") %>
     <%%= error_tag f, :email %>
   </div>
+  <div class="form-group">
+    <%%= label f, :current_password, Haytni.Gettext.dgettext("haytni", "Current password"), class: "control-label" %>
+    <%%= password_input f, :current_password, class: "form-control", placeholder: Haytni.Gettext.dgettext("haytni", "your current password") %>
+    <%%= error_tag f, :current_password %>
+  </div>
+  <div class="form-group">
+    <%%= submit Haytni.Gettext.dgettext("haytni", "Update"), class: "btn btn-primary" %>
+    <%%= link Haytni.Gettext.dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
+  </div>
+<%% end %>
 
+<%%= form_for @password_changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :update), [as: :password], fn f  -> %>
+  <%%= hidden_input f, :action, name: "action", value: "update_password" %>
   <div class="form-group">
     <%%= label f, :password, Haytni.Gettext.dgettext("haytni", "New password"), class: "control-label" %>
     <%%= password_input f, :password, class: "form-control", placeholder: Haytni.Gettext.dgettext("haytni", "your new password") %>
@@ -22,15 +34,21 @@
     <%%= password_input f, :password_confirmation, class: "form-control", placeholder: Haytni.Gettext.dgettext("haytni", "your new password") %>
     <%%= error_tag f, :password_confirmation %>
   </div>
-
   <div class="form-group">
     <%%= label f, :current_password, Haytni.Gettext.dgettext("haytni", "Current password"), class: "control-label" %>
     <%%= password_input f, :current_password, class: "form-control", placeholder: Haytni.Gettext.dgettext("haytni", "your current password") %>
     <%%= error_tag f, :current_password %>
   </div>
-  <small id="passwordHelpBlock" class="form-text text-muted">
-    <%%= Haytni.Gettext.dgettext("haytni", "Required only if you change your email and/or your current password.") %>
-  </small>
+  <div class="form-group">
+    <%%= submit Haytni.Gettext.dgettext("haytni", "Update"), class: "btn btn-primary" %>
+    <%%= link Haytni.Gettext.dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
+  </div>
+<%% end %>
+
+<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :update), [as: :registration], fn f  -> %>
+  <%% _ = f %><%%# remove this line used to silent a warning %>
+
+  <%%# set up your own fields here %>
 
   <div class="form-group">
     <%%= submit Haytni.Gettext.dgettext("haytni", "Update"), class: "btn btn-primary" %>

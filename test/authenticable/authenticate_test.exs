@@ -54,7 +54,7 @@ defmodule Haytni.Authenticable.AuthenticateTest do
 
       updated_user = HaytniTestWeb.Haytni.repo().get(user.__struct__, user.id)
       assert String.starts_with?(updated_user.encrypted_password, "$2b$05$")
-      assert Haytni.AuthenticablePlugin.check_password(updated_user, @pass, config)
+      assert Haytni.AuthenticablePlugin.valid_password?(updated_user, @pass, config)
     end
 
     test "check user/admin scopes do not mix", %{conn: conn, config: config, user: user, admin: admin} do

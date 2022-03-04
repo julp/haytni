@@ -24,7 +24,7 @@ defmodule HaytniTest.Admin do
 
   def update_registration_changeset(struct = %__MODULE__{}, params) do
     struct
-    |> cast(params, ~W[email password current_password]a)
+    |> cast(params, ~W[]a)
     |> HaytniTestWeb.HaytniAdmin.validate_update_registration()
   end
 end

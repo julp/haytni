@@ -56,7 +56,9 @@ defmodule HaytniWeb.Registerable.RegistrationController do
   end
 
   def create(conn, %{"registration" => registration_params}, nil, module, _config) do
-    case Haytni.create_user(module, registration_params) do
+    module
+    |> Haytni.create_user(registration_params)
+    |> case do
       {:ok, %{user: user}} ->
         session_path = HaytniWeb.Shared.session_path(conn, module)
         if Haytni.plugin_enabled?(module, Haytni.ConfirmablePlugin) do
@@ -80,9 +82,11 @@ defmodule HaytniWeb.Registerable.RegistrationController do
     handle_signed_in!(conn)
   end
 
-  defp render_edit(conn, changeset = %Ecto.Changeset{}) do
+  defp render_edit(conn, current_user = %_{}, module, config, changeset \\ nil, email_changeset \\ nil, password_changeset \\ nil) do
     conn
-    |> assign(:changeset, changeset)
+    |> assign(:changeset, changeset || Haytni.change_user(current_user))
+    |> assign(:email_changeset, email_changeset || Haytni.RegisterablePlugin.change_email(module, config, current_user))
+    |> assign(:password_changeset, password_changeset || Haytni.RegisterablePlugin.change_password(module, current_user))
     |> render("edit.html")
   end
 
@@ -90,8 +94,9 @@ defmodule HaytniWeb.Registerable.RegistrationController do
     handle_signed_in!(conn)
   end
 
-  def edit(conn, _params, current_user, _module, _config) do
-    render_edit(conn, Haytni.change_user(current_user))
+  def edit(conn, _params, current_user, module, config) do
+    conn
+    |> render_edit(current_user, module, config)
   end
 
   @spec successful_edition_message() :: String.t
@@ -103,15 +108,42 @@ defmodule HaytniWeb.Registerable.RegistrationController do
     handle_signed_in!(conn)
   end
 
-  def update(conn, %{"registration" => registration_params}, current_user, module, _config) do
-    case Haytni.update_registration(module, current_user, registration_params) do
-      {:ok, %{user: updated_user}} ->
+  def update(conn, %{"email" => email_params, "action" => "update_email", "current_password" => password}, current_user, module, config) do
+    module
+    |> Haytni.RegisterablePlugin.update_email(config, current_user, password, email_params)
+    |> case do
+      {:ok, _user} ->
         conn
         |> put_flash(:info, successful_edition_message())
-        |> render_edit(Haytni.change_user(updated_user))
-      {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} ->
-        render_edit(conn, changeset)
-      # other error case: let it crash
+        |> render_edit(current_user, module, config)
+      {:error, changeset} ->
+        render_edit(conn, current_user, module, config, nil, changeset)
+    end
+  end
+
+  def update(conn, %{"password" => password_params, "action" => "update_password", "current_password" => password}, current_user, module, config) do
+    module
+    |> Haytni.RegisterablePlugin.update_password(current_user, password, password_params)
+    |> case do
+      {:ok, _user} ->
+        conn
+        |> put_flash(:info, successful_edition_message())
+        |> render_edit(current_user, module, config)
+      {:error, changeset} ->
+        render_edit(conn, current_user, module, config, nil, nil, changeset)
+    end
+  end
+
+  def update(conn, %{"registration" => registration_params}, current_user, module, config) do
+    module
+    |> Haytni.update_registration(current_user, registration_params)
+    |> case do
+      {:ok, updated_user} ->
+        conn
+        |> put_flash(:info, successful_edition_message())
+        |> render_edit(updated_user, module, config)
+      {:error, changeset = %Ecto.Changeset{}} ->
+        render_edit(conn, current_user, module, config, changeset)
     end
   end
 end
