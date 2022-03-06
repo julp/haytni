@@ -6,7 +6,8 @@ The package can be installed by adding `haytni` to your list of dependencies in 
 def deps do
   [
     # ...
-    {:haytni, "~> 0.6.0"},
+    {:haytni, "~> 0.6.3"},
+    {:expassword_bcrypt, "~> 0.2"},
     {:ecto_network, "~> 1.3.0"}, # for TrackablePlugin only with PostgreSQL
   ]
 end
@@ -28,9 +29,6 @@ config :haytni, YourApp.Haytni,
 For testing, you may also want to add the following settings to config/test.exs :
 
 ```elixir
-config :bcrypt_elixir,
-  log_rounds: 4
-
 config :your_app, YourApp.Mailer,
   adapter: Bamboo.TestAdapter
 ```
@@ -48,13 +46,14 @@ Create lib/*your_app*_web/haytni.ex :
 defmodule YourApp.Haytni do
   use Haytni, otp_app: :your_app
 
-  stack Haytni.AuthenticablePlugin
+  stack Haytni.AuthenticablePlugin, hashing_method: ExPassword.Bcrypt, hashing_options: %{cost: (if Mix.env() == :test, do: 4, else: 10)}
   stack Haytni.RegisterablePlugin
   stack Haytni.RememberablePlugin
   stack Haytni.ConfirmablePlugin
   stack Haytni.LockablePlugin
   stack Haytni.RecoverablePlugin
   #stack Haytni.TrackablePlugin
+  stack Haytni.ClearSiteDataPlugin
   # add or remove/comment any plugin
 end
 ```
@@ -169,7 +168,7 @@ config :your_app, YourApp.Mailer,
   auth: :never
 ```
 
-And add `{:bamboo_smtp, "~> 4.0", only: :prod}` to `deps` in your mix.exs file. [See Bamboo's documentation for details and other methods to send emails](https://hexdocs.pm/bamboo/readme.html)
+And add `{:bamboo_smtp, "~> 4.1", only: :prod}` to `deps` in your mix.exs file. [See Bamboo's documentation for details and other methods to send emails](https://hexdocs.pm/bamboo/readme.html)
 
 General configuration:
 
