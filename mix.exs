@@ -112,6 +112,7 @@ defmodule Haytni.MixProject do
         Haytni.PasswordPolicyPlugin,
         Haytni.InvitablePlugin,
         Haytni.LiveViewPlugin,
+        Haytni.ClearSiteDataPlugin,
       ],
       Authenticable: [
         Haytni.AuthenticablePlugin,
@@ -158,6 +159,10 @@ defmodule Haytni.MixProject do
       LiveView: [
         Haytni.LiveViewPlugin,
         Haytni.LiveViewPlugin.Config,
+      ],
+      ClearSiteData: [
+        Haytni.ClearSiteDataPlugin,
+        Haytni.ClearSiteDataPlugin.Config,
       ],
       Helpers: [
         Haytni.Params,

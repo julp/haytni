@@ -35,7 +35,7 @@ Plugins:
 * [trackable](https://hexdocs.pm/haytni/Haytni.TrackablePlugin.html) (`Haytni.TrackablePlugin`): register users's connections (IP + when)
 * [invitable](https://hexdocs.pm/haytni/Haytni.InvitablePlugin.html) (`Haytni.InvitablePlugin`): registration on invitation or sponsorship
 * [liveview](https://hexdocs.pm/haytni/Haytni.LiveViewPlugin.html) (`Haytni.LiveViewPlugin`): provides authentication to channels and liveview if the *\_csrf\_token* cookie is not available
-* [clearsitedata](https://hexdocs.pm/haytni/Haytni.ClearSiteDataPlugin.html): set the HTTP header Clear-Site-Data on logout (and eventually login)
+* [clearsitedata](https://hexdocs.pm/haytni/Haytni.ClearSiteDataPlugin.html) (`Haytni.ClearSiteDataPlugin`): set the HTTP header Clear-Site-Data on logout (and eventually login)
 
 Documentation can be found at [https://hexdocs.pm/haytni](https://hexdocs.pm/haytni).
 
