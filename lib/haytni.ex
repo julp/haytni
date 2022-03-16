@@ -140,7 +140,12 @@ defmodule Haytni do
       end
 
       defmacro routes(options \\ []) do
-        unquote(__MODULE__).routes(__MODULE__, options)
+        routes = unquote(__MODULE__).routes(__MODULE__, options)
+        quote do
+          scope as: false, alias: false do
+            unquote(routes)
+          end
+        end
       end
 
       defmacro fields do

@@ -9,7 +9,7 @@ defmodule Haytni.Authenticable.SessionControllerTest do
   @spec conn_to_admin_session_path(conn :: Plug.Conn.t, user :: map | struct) :: Plug.Conn.t
   defp conn_to_admin_session_path(conn, user \\ %{}) do
     conn
-    |> post(Routes.admin_haytni_admin_session_path(conn, :create), session_params_without_rememberme(user))
+    |> post(Routes.haytni_admin_session_path(conn, :create), session_params_without_rememberme(user))
   end
 
   @spec check_for_new_form(response :: String.t) :: true | no_return
