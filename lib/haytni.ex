@@ -723,6 +723,27 @@ defmodule Haytni do
   end
 
   @doc ~S"""
+  To delete *user*.
+
+  This function doesn't actually do nothing except calling the `c:Haytni.Plugin.on_delete_user/4` callbacks
+  from the plugins in the Haytni's *module* stack. This way you can implement it the way you like and do
+  extra stuffs like deleting files associated to *user*.
+
+  See documentation of `c:Haytni.Plugin.on_delete_user/4` for some examples.
+  """
+  @spec delete_user(module :: module, user :: Haytni.user) :: Haytni.multi_result
+  def delete_user(module, user) do
+    module.plugins_with_config()
+    |> Enum.reduce(
+      Ecto.Multi.new(),
+      fn {plugin, config}, multi_as_acc ->
+        plugin.on_delete_user(multi_as_acc, user, module, config)
+      end
+    )
+    |> module.repo().transaction()
+  end
+
+  @doc ~S"""
   Creates an `%Ecto.Changeset{}` for a new user/account (at registration from a module)
   or from a user (when editing account from a struct)
   """

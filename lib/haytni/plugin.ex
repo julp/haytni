@@ -153,6 +153,32 @@ defmodule Haytni.Plugin do
   """
   @callback on_registration(multi :: Ecto.Multi.t, module :: module, config :: Haytni.config) :: Ecto.Multi.t
 
+  @doc ~S"""
+  This callback is meant for a user to delete its own account.
+
+  It could, for example, be used to soft-delete it:
+
+      def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, _config) do
+        Ecto.Multi.update(multi, :user, user, Ecto.Changeset.change(user, deleted: true))
+      end
+
+  Or remove associated files, like its avatar:
+
+      def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, _config) do
+        multi
+        # delete the user from the database
+        |> Ecto.Multi.delete(:user_deletion, user)
+        # then its avatar
+        |> Ecto.Multi.run(:avatar_deletion, fn _repo, _changes ->
+          case File.rm(user.avatar) do
+            :ok -> {:ok, nil}
+            error -> error
+          end
+        end)
+      end
+  """
+  @callback on_delete_user(multi :: Ecto.Multi.t, user :: Haytni.user, module :: module, config :: Haytni.config) :: Ecto.Multi.t
+
   #@callback on_session_start(conn :: Plug.Conn.t, user :: Haytni.user) :: Plug.Conn.t
 
   defmacro __using__(_options) do
@@ -184,6 +210,7 @@ defmodule Haytni.Plugin do
       def validate_update_registration(changeset = %Ecto.Changeset{}, _module, _config), do: changeset
       def on_email_change(multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}, _module, _config), do: {multi, changeset}
       def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config), do: {conn, multi, keywords}
+      def on_delete_user(multi = %Ecto.Multi{}, _user = %_{}, _module, _config), do: multi
 
       defoverridable [
         build_config: 1,
@@ -192,7 +219,7 @@ defmodule Haytni.Plugin do
         invalid?: 3,
         find_user: 3,
         on_logout: 3,
-        #shared_links: 1,
+        on_delete_user: 4,
         on_registration: 3,
         on_email_change: 4,
         files_to_install: 4,
