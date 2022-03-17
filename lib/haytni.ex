@@ -42,6 +42,14 @@ defmodule Haytni do
       |> Kernel.<>("Web")
       |> String.to_atom()
 
+    scope =
+      __CALLER__.module
+      |> fetch_env!()
+      |> Keyword.get(:scope, :user)
+
+    scoped_assign = :"current_#{scope}"
+    scoped_session_key = :"#{scope}_id"
+
     quote do
       import unquote(__MODULE__)
 
@@ -87,6 +95,7 @@ defmodule Haytni do
 
       @spec layout() :: false | {module, atom}
       def layout do
+        unquote(scope)
         unquote(Keyword.get(fetch_env!(__CALLER__.module), :layout, false))
       end
 
@@ -129,14 +138,35 @@ defmodule Haytni do
       end
 
       def call(conn, _options) do
-        scope = :"current_#{scope()}"
-        if Map.get(conn.assigns, scope) do
+        if Map.get(conn.assigns, unquote(scoped_assign)) do
           conn
         else
           {conn, user} = Haytni.find_user(__MODULE__, conn)
-          Plug.Conn.assign(conn, scope, user)
+          Plug.Conn.assign(conn, unquote(scoped_assign), user)
         end
         |> Plug.Conn.put_private(:haytni, __MODULE__)
+      end
+
+      def on_mount(_, _params, session, socket) do
+        {
+          :cont,
+          socket
+          |> Phoenix.LiveView.assign_new(
+            unquote(scoped_assign),
+            fn ->
+              with(
+                id when not is_nil(id) <- Map.get(session, unquote(scoped_session_key |> to_string())),
+                user = %_{} <- Haytni.get_user(__MODULE__, id),
+                false <- Haytni.invalid_user?(__MODULE__, user)
+              ) do
+                user
+              else
+                _ ->
+                  nil
+              end
+            end
+          )
+        }
       end
 
       defmacro routes(options \\ []) do

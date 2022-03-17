@@ -84,6 +84,37 @@ defmodule YourAppWeb.Router do
 end
 ```
 
+If you use Phoenix LiveView, you can include your Haytni stack as an `on_mount` callback to also handle the current user:
+
+```elixir
+defmodule YourAppWeb.Router do
+  use YourAppWeb, :router
+  require YourApp.Haytni # <= add this line
+
+  pipeline :browser do
+    # ...
+
+    plug YourApp.Haytni # <= add this line
+  end
+
+  live_session(
+    ...,
+    on_mount: [
+      YourApp.Haytni, # <= add this line
+      # your other on_mount callbacks
+    ]
+  ) do
+    # your dead and live routes
+    YourApp.Haytni.routes() # <= add this line
+  end
+
+  # ...
+
+end
+```
+
+Note: `YourApp.Haytni.on_mount/4`, like `YourApp.Haytni.call/2` (acting as a Plug), just set the current user (if he is valid according to `c:Haytni.Plugin.invalid?/3`), if you need to restrict access, you need to do it after (with an other Plug or directly in the controller for a dead view vs a following `on_mount/4` callback or by the live view itself)
+
 Change lib/*your_app*/user.ex
 
 ```elixir
