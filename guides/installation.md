@@ -7,7 +7,10 @@ def deps do
   [
     # ...
     {:haytni, "~> 0.6.3"},
+    # with bcrypt support (for past and/or present passwords)
     {:expassword_bcrypt, "~> 0.2"},
+    # with argon2 support (for past and/or present passwords)
+    #{:expassword_argon2, "~> 0.2"},
     {:ecto_network, "~> 1.3.0"}, # for TrackablePlugin only with PostgreSQL
   ]
 end
@@ -46,7 +49,10 @@ Create lib/*your_app*_web/haytni.ex :
 defmodule YourApp.Haytni do
   use Haytni, otp_app: :your_app
 
+  # with bcrypt to hash current passwords
   stack Haytni.AuthenticablePlugin, hashing_method: ExPassword.Bcrypt, hashing_options: %{cost: (if Mix.env() == :test, do: 4, else: 10)}
+  # with argon2 to hash current passwords
+  #stack Haytni.AuthenticablePlugin, hashing_method: ExPassword.Argon2, hashing_options: (if Mix.env() == :test, do: %{memory_cost: 256, threads: 1, time_cost: 2, type: :argon2id}, else: %{memory_cost: 131072, threads: 2, time_cost: 4, type: :argon2id})
   stack Haytni.RegisterablePlugin
   stack Haytni.RememberablePlugin
   stack Haytni.ConfirmablePlugin
