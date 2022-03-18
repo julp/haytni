@@ -101,7 +101,17 @@ defmodule Haytni do
 
       @spec scope() :: atom
       def scope do
-        unquote(Keyword.get(fetch_env!(__CALLER__.module), :scope, :user))
+        unquote(scope)
+      end
+
+      @spec scoped_assign() :: atom
+      def scoped_assign do
+        unquote(scoped_assign)
+      end
+
+      @spec scoped_session_key() :: atom
+      def scoped_session_key do
+        unquote(scoped_session_key)
       end
 
       @impl Plug
@@ -344,7 +354,7 @@ defmodule Haytni do
   def scoped_session_key(module)
     when is_atom(module)
   do
-    "#{module.scope()}_id"
+    module.scoped_session_key()
   end
 
   @doc ~S"""
@@ -354,7 +364,7 @@ defmodule Haytni do
   def scoped_assign(module)
     when is_atom(module)
   do
-    :"current_#{module.scope()}"
+    module.scoped_assign()
   end
 
   @doc ~S"""
