@@ -173,7 +173,7 @@ defmodule Haytni.ConfirmablePlugin do
 
   use Haytni.Tokenable
 
-  # NOTE: MUST only be used for confirmation, not reconfirmation ("reconfirmable:" <> user.email)
+  # NOTE: MUST only be used for confirmation, not reconfirmation (`"reconfirmable:" <> user.email`)
   @impl Haytni.Tokenable
   def token_context(nil) do
     "confirmable"

@@ -59,8 +59,9 @@ defmodule Haytni.PasswordPolicyPlugin do
 
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
-    config = %Config{}
-    |> Haytni.Helpers.merge_config(options)
+    config =
+      %Config{}
+      |> Haytni.Helpers.merge_config(options)
 
     if config.password_classes_to_match > length(@classes) do
       raise ArgumentError, "password_classes_to_match was overriden to #{config.password_classes_to_match} but it cannot be greater than #{length(@classes)}"

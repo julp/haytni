@@ -76,7 +76,7 @@ stack Haytni.LiveViewPlugin, remote_ip_header: "x-forwarded-for"
 
 ### Proper disconnection of channels and Live View
 
-For proper logout to channels and live view, you need to write the Phoenix.Socket.id/1 callback and, if last one does not return the string `"user_socket:#{socket.assigns.current_<scope>.id}"`, you'll need to write a function somewhere and give it (via capture) as `:socket_id` option. Let's see an example:
+For proper logout to channels and live view, you need to write the `c:Phoenix.Socket.id/1` callback and, if last one does not return the string `"user_socket:#{socket.assigns.current_<scope>.id}"`, you'll need to write a function somewhere and give it (via capture) as `:socket_id` option. Let's see an example:
 
 ```elixir
 # lib/your_app_web/channels/user_socket.ex
@@ -93,5 +93,5 @@ end
 ```
 
 ```elixir
-stack Haytni.LiveViewPlugin, socket_id: &("user_socket:#{&1.id}")
+  stack Haytni.LiveViewPlugin, socket_id: &("user_socket:#{&1.id}")
 ```

@@ -1,8 +1,8 @@
 # Haytni
 
-Haytni is a configurable authentication system for Phoenix, inspired (and yet the word is weak) by Devise (should be almost compatible with it).
+Haytni is a configurable authentication system for Phoenix, inspired by Devise and `mix phx.gen.auth`
 
-Goals:
+(end) goals:
 
 * security focused
 * provides a strong and ready to use base
