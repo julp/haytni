@@ -95,7 +95,6 @@ defmodule Haytni do
 
       @spec layout() :: false | {module, atom}
       def layout do
-        unquote(scope)
         unquote(Keyword.get(fetch_env!(__CALLER__.module), :layout, false))
       end
 
