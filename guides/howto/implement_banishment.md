@@ -3,7 +3,7 @@
 Create a migration to add a boolean field to your table:
 
 ```elixir
-# priv/repo/migrations/`date '+%Y%m%d%H%m%s'`_add_banned_field.ex
+# priv/repo/migrations/`date '+%Y%m%d%H%M%S'`_add_banned_field.ex
 
 defmodule YourApp.AddBannedField do
   use Ecto.Migration

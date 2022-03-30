@@ -5,7 +5,7 @@
 The first step would be to write a migration to add a field to your table in order to store users's locale and, if you want to, also its timezone:
 
 ```elixir
-# priv/repo/migrations/`date '+%Y%m%d%H%m%s'`_user_locale_field.ex
+# priv/repo/migrations/`date '+%Y%m%d%H%M%S'`_user_locale_field.ex
 
 defmodule YourApp.UserLocaleField do
   use Ecto.Migration
