@@ -412,6 +412,7 @@ defmodule Haytni do
             {conn, user}
           else
             {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user)
+            Plug.CSRFProtection.delete_csrf_token()
             conn =
               conn
               |> Plug.Conn.put_session(scoped_session_key, user.id)
@@ -602,6 +603,7 @@ defmodule Haytni do
         error
       false ->
         {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user, changes)
+        Plug.CSRFProtection.delete_csrf_token()
         conn =
           conn
           |> Plug.Conn.put_session(scoped_session_key(module), user.id)
