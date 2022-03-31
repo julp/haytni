@@ -3,6 +3,7 @@ defmodule Haytni.Registerable.RegistrationViewTest do
   import Phoenix.View
 
   defp do_new(conn, params \\ %{}) do
+    config = Haytni.RegisterablePlugin.build_config()
     conn = get(conn, Routes.haytni_user_registration_path(conn, :new))
     module = HaytniTestWeb.Haytni
     changeset = if map_size(params) == 0 do
@@ -11,7 +12,16 @@ defmodule Haytni.Registerable.RegistrationViewTest do
       {:error, :user, changeset = %Ecto.Changeset{}, _changes_so_far} = Haytni.create_user(module, params)
       changeset
     end
-    content = render_to_string(HaytniTestWeb.Haytni.User.RegistrationView, "new.html", conn: conn, changeset: changeset, module: module)
+    content = render_to_string(
+      HaytniTestWeb.Haytni.User.RegistrationView,
+      "new.html",
+      [
+        conn: conn,
+        module: module,
+        config: config,
+        changeset: changeset,
+      ]
+    )
 
     assert content =~ "name=\"registration[email]\""
     assert content =~ "name=\"registration[email_confirmation]\""
@@ -49,6 +59,7 @@ defmodule Haytni.Registerable.RegistrationViewTest do
       [
         conn: conn,
         module: module,
+        config: config,
         changeset: Haytni.change_user(user),
         email_changeset: email_changeset,
         password_changeset: Haytni.RegisterablePlugin.change_password(module, user),

@@ -195,6 +195,14 @@ defmodule Haytni.TestHelpers do
   end
 
   @doc ~S"""
+  The default message set by default by `Ecto.Changeset.validate_acceptance/3` as error
+  """
+  @spec acceptance_required_message() :: String.t
+  def acceptance_required_message do
+    "must be accepted"
+  end
+
+  @doc ~S"""
   The message set by default by `Ecto.Changeset.validate_confirmation/3` as error
   """
   @spec confirmation_mismatch_message() :: String.t

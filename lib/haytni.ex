@@ -753,6 +753,7 @@ defmodule Haytni do
         plugin.on_delete_user(multi_as_acc, user, module, config)
       end
     )
+    |> Haytni.Token.delete_tokens_in_multi(:tokens, user, :all)
     |> module.repo().transaction()
   end
 

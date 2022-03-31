@@ -87,7 +87,7 @@ msgid "I get it, continue to sign in"
 msgstr "J'ai compris, continuer vers l'identification"
 
 #, elixir-format
-#: lib/haytni_web/controllers/registerable/registration_controller.ex:104
+#: lib/haytni_web/controllers/registerable/registration_controller.ex:105
 msgid "Informations have been updated"
 msgstr "Informations mises à jour"
 
@@ -133,7 +133,7 @@ msgid "a different character"
 msgstr "un caractère autre"
 
 #, elixir-format
-#: lib/haytni/plugins/password_policy_plugin.ex:78
+#: lib/haytni/plugins/password_policy_plugin.ex:79
 msgid "should contains at least %{count} character types among %{classes}"
 msgstr "mot de passe doit contenir au moins %{count} types de caractères différents parmi %{classes}"
 
@@ -218,221 +218,237 @@ msgid "Your email address has been updated"
 msgstr "Votre adresse email a été mise à jour"
 
 #, elixir-format
-#: lib/haytni/plugins/registerable_plugin.ex:175
+#: lib/haytni/plugins/registerable_plugin.ex:181
 msgid "has not changed"
 msgstr "n'a pas changé"
 
 #, elixir-format
-#: lib/haytni/plugins/registerable_plugin.ex:167
+#: lib/haytni/plugins/registerable_plugin.ex:173
 msgid "is invalid"
 msgstr "est incorrect"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/invitation/new.html.heex:8
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:4
-#: usr/home/julp/elixir/haytni/priv/templates/registration/new.html.heex:13
+#: lib/haytni_web/controllers/registerable/registration_controller.ex:153
+msgid "Your account have been successfully deleted"
+msgstr "Votre compte a été supprimé avec succès"
+
+#, elixir-format
+#: priv/templates/invitation/new.html.heex:8
+#: priv/templates/registration/edit.html.heex:4
+#: priv/templates/registration/new.html.heex:13
 msgid "Email"
 msgstr "Courriel"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/invitation/new.html.heex:9
+#: priv/templates/invitation/new.html.heex:9
 msgid "email address of your friend"
 msgstr "courriel de votre connaissance"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/invitation/new.html.heex:14
+#: priv/templates/invitation/new.html.heex:14
 msgid "Invite"
 msgstr "Inviter"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/invitation/new.html.heex:15
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:15
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:44
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:55
-#: usr/home/julp/elixir/haytni/priv/templates/registration/new.html.heex:42
+#: priv/templates/invitation/new.html.heex:15
+#: priv/templates/registration/edit.html.heex:15
+#: priv/templates/registration/edit.html.heex:44
+#: priv/templates/registration/edit.html.heex:55
+#: priv/templates/registration/new.html.heex:42
 msgid "Cancel"
 msgstr "Annuler"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/invitation/index.html.heex:5
+#: priv/templates/invitation/index.html.heex:5
 msgid "Sent at"
 msgstr "Envoyée le"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/invitation/index.html.heex:6
+#: priv/templates/invitation/index.html.heex:6
 msgid "Sent to"
 msgstr "Adressée à"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/invitation/index.html.heex:7
+#: priv/templates/invitation/index.html.heex:7
 msgid "Accepted at"
 msgstr "Acceptée le"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/invitation/index.html.heex:8
+#: priv/templates/invitation/index.html.heex:8
 msgid "Accepted by"
 msgstr "Accepetée par"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/invitation/index.html.heex:19
+#: priv/templates/invitation/index.html.heex:19
 msgid "Revoke"
 msgstr "Révoquer"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/invitation/index.html.heex:26
+#: priv/templates/invitation/index.html.heex:26
 msgid "You have not send any invitation for now."
 msgstr "Vous n'avez encore invité personne jusqu'à présent"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/invitation/index.html.heex:31
+#: priv/templates/invitation/index.html.heex:31
 msgid "Do you have a friend you want to invite?"
 msgstr "Souhaitez-vous qu'une connaissance vous rejoigne ?"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/password/new.html.heex:1
-#: usr/home/julp/elixir/haytni/priv/templates/shared/links.html.heex:9
+#: priv/templates/password/new.html.heex:1
+#: priv/templates/shared/links.html.heex:9
 msgid "Forgot your password?"
 msgstr "Mot de passe oublié ?"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/password/new.html.heex:8
+#: priv/templates/password/new.html.heex:8
 msgid "Send me reset password instructions"
 msgstr "Instructions pour changer de mot de passe"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/password/edit.html.heex:1
+#: priv/templates/password/edit.html.heex:1
 msgid "Change your password"
 msgstr "Modifier votre mot de passe"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/password/edit.html.heex:9
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:22
+#: priv/templates/password/edit.html.heex:9
+#: priv/templates/registration/edit.html.heex:22
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/password/edit.html.heex:10
-#: usr/home/julp/elixir/haytni/priv/templates/password/edit.html.heex:20
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:23
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:34
+#: priv/templates/password/edit.html.heex:10
+#: priv/templates/password/edit.html.heex:20
+#: priv/templates/registration/edit.html.heex:23
+#: priv/templates/registration/edit.html.heex:34
 msgid "your new password"
 msgstr "votre nouveau mot de passe"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/password/edit.html.heex:15
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:29
-#: usr/home/julp/elixir/haytni/priv/templates/registration/new.html.heex:31
+#: priv/templates/password/edit.html.heex:15
+#: priv/templates/registration/edit.html.heex:29
+#: priv/templates/registration/new.html.heex:31
 msgid "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long."
 msgstr "Votre mot de passe doit être constitué de %{minimum_password_length} à %{maximum_password_length} caractères."
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/password/edit.html.heex:19
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:33
+#: priv/templates/password/edit.html.heex:19
+#: priv/templates/registration/edit.html.heex:33
 msgid "Confirm new password"
 msgstr "Confirmation du nouveau mot de passe"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/password/edit.html.heex:25
+#: priv/templates/password/edit.html.heex:25
 msgid "Change my password"
 msgstr "Modifier mon mot de passe"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/unlock/new.html.heex:1
-#: usr/home/julp/elixir/haytni/priv/templates/unlock/new.html.heex:8
+#: priv/templates/unlock/new.html.heex:1
+#: priv/templates/unlock/new.html.heex:8
 msgid "Resend unlock instructions"
 msgstr "Renvoyer les instructions de déblocage"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/confirmation/new.html.heex:1
-#: usr/home/julp/elixir/haytni/priv/templates/confirmation/new.html.heex:8
+#: priv/templates/confirmation/new.html.heex:1
+#: priv/templates/confirmation/new.html.heex:8
 msgid "Resend confirmation instructions"
 msgstr "Renvoyer le courriel de confirmation"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/session/new.html.heex:5
+#: priv/templates/session/new.html.heex:5
 msgid "Warning: at the next failed attempt, the account will be locked"
 msgstr "Attention : le prochain échec d'identification aura pour effet de bloquer le compte"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/session/new.html.heex:16
-#: usr/home/julp/elixir/haytni/priv/templates/registration/new.html.heex:24
+#: priv/templates/session/new.html.heex:16
+#: priv/templates/registration/new.html.heex:24
 msgid "Password"
 msgstr "Mot de passe"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/session/new.html.heex:24
+#: priv/templates/session/new.html.heex:24
 msgid "Remember Me?"
 msgstr "Se souvenir de moi ?"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/session/new.html.heex:30
+#: priv/templates/session/new.html.heex:30
 msgid "Sign In"
 msgstr "Se connecter"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/shared/message.html.heex:8
+#: priv/templates/shared/message.html.heex:8
 msgid "Back"
 msgstr "Retour"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/shared/links.html.heex:3
+#: priv/templates/shared/links.html.heex:3
 msgid "Sign in"
 msgstr "Se connecter"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/shared/links.html.heex:6
-#: usr/home/julp/elixir/haytni/priv/templates/registration/new.html.heex:41
+#: priv/templates/shared/links.html.heex:6
+#: priv/templates/registration/new.html.heex:41
 msgid "Sign up"
 msgstr "S'enregistrer"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/shared/links.html.heex:12
+#: priv/templates/shared/links.html.heex:12
 msgid "Didn't receive confirmation instructions?"
 msgstr "Vous n'avez pas reçu de courriel de confirmation ?"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/shared/links.html.heex:15
+#: priv/templates/shared/links.html.heex:15
 msgid "Didn't receive unlock instructions?"
 msgstr "Vous n'avez pas reçu de courriel de déverrouillage de votre compte ?"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:5
-#: usr/home/julp/elixir/haytni/priv/templates/registration/new.html.heex:14
-#: usr/home/julp/elixir/haytni/priv/templates/registration/new.html.heex:19
+#: priv/templates/registration/edit.html.heex:5
+#: priv/templates/registration/new.html.heex:14
+#: priv/templates/registration/new.html.heex:19
 msgid "your email"
 msgstr "votre courriel"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:9
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:38
+#: priv/templates/registration/edit.html.heex:9
+#: priv/templates/registration/edit.html.heex:38
 msgid "Current password"
 msgstr "Mot de passe actuel"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:10
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:39
+#: priv/templates/registration/edit.html.heex:10
+#: priv/templates/registration/edit.html.heex:39
+#: priv/templates/registration/edit.html.heex:62
 msgid "your current password"
 msgstr "votre mot de passe actuel"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:14
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:43
-#: usr/home/julp/elixir/haytni/priv/templates/registration/edit.html.heex:54
+#: priv/templates/registration/edit.html.heex:14
+#: priv/templates/registration/edit.html.heex:43
+#: priv/templates/registration/edit.html.heex:54
 msgid "Update"
 msgstr "Modifier"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/registration/new.html.heex:18
+#: priv/templates/registration/edit.html.heex:64
+msgid "I'm sure I want to delete my account and I understand the operation can't be reverted"
+msgstr "Je suis sûr de vouloir supprimer mon compte et je comprends que cette opération est irréversible"
+
+#, elixir-format
+#: priv/templates/registration/edit.html.heex:68
+msgid "Delete"
+msgstr "Supprimer"
+
+#, elixir-format
+#: priv/templates/registration/new.html.heex:18
 msgid "Confirm email"
 msgstr "Confirmation du courriel"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/registration/new.html.heex:25
-#: usr/home/julp/elixir/haytni/priv/templates/registration/new.html.heex:36
+#: priv/templates/registration/new.html.heex:25
+#: priv/templates/registration/new.html.heex:36
 msgid "your password"
 msgstr "votre mot de passe"
 
 #, elixir-format
-#: usr/home/julp/elixir/haytni/priv/templates/registration/new.html.heex:35
+#: priv/templates/registration/new.html.heex:35
 msgid "Confirm password"
 msgstr "Confirmation du mot de passe"

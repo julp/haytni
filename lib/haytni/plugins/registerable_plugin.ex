@@ -9,6 +9,8 @@ defmodule Haytni.RegisterablePlugin do
   @default_strip_whitespace_keys ~W[email]a
   @default_registration_disabled? false
   @default_email_index_name nil
+  @default_with_delete false
+  @default_logout_on_deletion true
 
   @moduledoc """
   This plugin allows the user to register and edit their account.
@@ -62,6 +64,10 @@ defmodule Haytni.RegisterablePlugin do
     * `email_index_name` (default: `#{inspect(@default_email_index_name)}`, translated to `<source>_email_index` by `Ecto.Changeset.unique_constraint/3`): the name of the unique
       index/constraint on email field
     * `registration_disabled?` (default: `#{inspect(@default_registration_disabled?)}`): disable any new registration (existing users are still able to login, edit their profile, ...)
+    * `with_delete` (default: `#{inspect(@default_with_delete)}`): `true` to allow users to delete their own account (this mainly (en|dis)ables the route to reach the delete action of
+      the `HaytniWeb.Registerable.RegistrationController` controller)
+    * `logout_on_deletion` (default: `#{inspect(@default_logout_on_deletion)}`): when `true` the user is also logged out. Set it to `false` if the user should keep its session active
+      and navigating as this user
 
           stack #{inspect(__MODULE__)},
             registration_disabled?: #{inspect(@default_registration_disabled?)},
@@ -86,7 +92,9 @@ defmodule Haytni.RegisterablePlugin do
       strip_whitespace_keys: ~W[email]a,
       case_insensitive_keys: ~W[email]a,
       email_regexp: ~R/^[^@\s]+@[^@\s]+$/,
-      email_index_name: nil
+      email_index_name: nil,
+      with_delete: false,
+      logout_on_deletion: true
 
     @typep index_name :: atom | String.t | nil
 
@@ -95,6 +103,8 @@ defmodule Haytni.RegisterablePlugin do
       email_index_name: index_name,
       strip_whitespace_keys: [atom],
       case_insensitive_keys: [atom],
+      with_delete: boolean,
+      logout_on_deletion: boolean,
     }
   end
 
@@ -121,17 +131,23 @@ defmodule Haytni.RegisterablePlugin do
     registration_path = Keyword.get(options, @registration_path_key, @default_registration_path)
     new_registration_path = Keyword.get(options, @new_registration_path_key, registration_path <> "/new")
     edit_registration_path = Keyword.get(options, @edit_registration_path_key, registration_path <> "/edit")
-    #cancel_registration_path = Keyword.get(options, :cancel_registration_path)
-    quote bind_quoted: [registration_prefix_name: registration_prefix_name, registration_path: registration_path, new_registration_path: new_registration_path, edit_registration_path: edit_registration_path] do
+    delete_registration_path = config.with_delete && Keyword.get(options, :delete_registration_path, registration_path)
+    quote bind_quoted: [
+      registration_prefix_name: registration_prefix_name,
+      registration_path: registration_path,
+      new_registration_path: new_registration_path,
+      edit_registration_path: edit_registration_path,
+      delete_registration_path: delete_registration_path
+    ] do
       #resources "/registration", HaytniWeb.Registerable.RegistrationController, singleton: true, only: ~W[new create edit update]a, as: registration_prefix_name
       get new_registration_path, HaytniWeb.Registerable.RegistrationController, :new, as: registration_prefix_name
       post registration_path, HaytniWeb.Registerable.RegistrationController, :create, as: registration_prefix_name
       get edit_registration_path, HaytniWeb.Registerable.RegistrationController, :edit, as: registration_prefix_name
       put registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: registration_prefix_name
       patch registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: registration_prefix_name
-      #if cancel_registration_path do
-        #delete cancel_registration_path, HaytniWeb.Registerable.RegistrationController, :delete, as: registration_prefix_name
-      #end
+      if delete_registration_path do
+        delete delete_registration_path, HaytniWeb.Registerable.RegistrationController, :delete, as: registration_prefix_name
+      end
     end
   end
 
@@ -298,6 +314,60 @@ end
         |> multi_to_regular_result(:user)
       error = {:error, %Ecto.Changeset{}} ->
         error
+    end
+  end
+
+if false do
+  @doc ~S"""
+  The translated string to display when account deletion is disabled
+  """
+  @spec account_deletion_disabled_message() :: String.t
+  def account_deletion_disabled_message do
+    Haytni.Gettext.dgettext("haytni", "account deletion is not available")
+  end
+
+  defp check_account_deletion(changeset, %Config{with_delete: true}), do: changeset
+  defp check_account_deletion(changeset, %Config{with_delete: false}) do
+    Haytni.Helpers.add_base_error(changeset, account_deletion_disabled_message())
+  end
+end
+
+  @spec deletion_changeset(module :: module, config :: Config.t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
+  defp deletion_changeset(_module, _config = %Config{}, user = %_{}, attrs = %{}) do
+    user
+    |> Ecto.Changeset.cast(attrs, [])
+    |> Ecto.Changeset.validate_acceptance(:accept_deletion)
+    #|> check_account_deletion(config)
+  end
+
+  @doc ~S"""
+  Returns an `%Ecto.Changeset{}` to delete its own account.
+  """
+  @spec change_deletion(module :: module, config :: Config.t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
+  def change_deletion(module, config = %Config{}, user = %_{}, attrs \\ %{}) do
+    deletion_changeset(module, config, user, attrs)
+  end
+
+  @doc ~S"""
+  Triggers *user*'s account deletion, by calling `Haytni.delete_user/2`, if *current_password* matches *user*'s password.
+
+  Returns the result of `Haytni.delete_user/2` or `{:error, :validation_failed, %Ecto.Changeset{}, %{}}` if *current_password* is incorrect
+  and/or user has not accepted the terms
+  """
+  @spec delete_account(module :: module, config :: Config.t, user :: Haytni.user, current_password :: String.t, attrs :: Haytni.params) :: Haytni.multi_result
+  def delete_account(module, config = %Config{}, user = %_{}, current_password, attrs = %{}) do
+    changeset =
+      module
+      |> deletion_changeset(config, user, attrs)
+      |> validate_current_password(current_password, module)
+
+    changeset
+    |> Ecto.Changeset.apply_action(:delete)
+    |> case do
+      {:ok, _} ->
+        Haytni.delete_user(module, user)
+      {:error, changeset = %Ecto.Changeset{}} ->
+        {:error, :validation_failed, changeset, %{}}
     end
   end
 

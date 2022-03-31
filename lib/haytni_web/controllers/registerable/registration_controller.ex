@@ -82,11 +82,12 @@ defmodule HaytniWeb.Registerable.RegistrationController do
     handle_signed_in!(conn)
   end
 
-  defp render_edit(conn, current_user = %_{}, module, config, changeset \\ nil, email_changeset \\ nil, password_changeset \\ nil) do
+  defp render_edit(conn, current_user = %_{}, module, config, changeset \\ nil, email_changeset \\ nil, password_changeset \\ nil, deletion_changeset \\ nil) do
     conn
     |> assign(:changeset, changeset || Haytni.change_user(current_user))
     |> assign(:email_changeset, email_changeset || Haytni.RegisterablePlugin.change_email(module, config, current_user))
     |> assign(:password_changeset, password_changeset || Haytni.RegisterablePlugin.change_password(module, current_user))
+    |> assign(:deletion_changeset, deletion_changeset || Haytni.RegisterablePlugin.change_deletion(module, config, current_user))
     |> render("edit.html")
   end
 
@@ -116,7 +117,7 @@ defmodule HaytniWeb.Registerable.RegistrationController do
         conn
         |> put_flash(:info, successful_edition_message())
         |> render_edit(current_user, module, config)
-      {:error, changeset} ->
+      {:error, changeset = %Ecto.Changeset{}} ->
         render_edit(conn, current_user, module, config, nil, changeset)
     end
   end
@@ -129,7 +130,7 @@ defmodule HaytniWeb.Registerable.RegistrationController do
         conn
         |> put_flash(:info, successful_edition_message())
         |> render_edit(current_user, module, config)
-      {:error, changeset} ->
+      {:error, changeset = %Ecto.Changeset{}} ->
         render_edit(conn, current_user, module, config, nil, nil, changeset)
     end
   end
@@ -144,6 +145,33 @@ defmodule HaytniWeb.Registerable.RegistrationController do
         |> render_edit(updated_user, module, config)
       {:error, changeset = %Ecto.Changeset{}} ->
         render_edit(conn, current_user, module, config, changeset)
+    end
+  end
+
+  @spec successful_deletion_message() :: String.t
+  def successful_deletion_message do
+    dgettext("haytni", "Your account have been successfully deleted")
+  end
+
+  def delete(conn, _params, nil, _module, _config) do
+    handle_signed_in!(conn)
+  end
+
+  def delete(conn, %{"deletion" => deletion_params, "current_password" => password}, current_user, module, config) do
+    %{with_delete: true} = config
+    module
+    |> Haytni.RegisterablePlugin.delete_account(config, current_user, password, deletion_params)
+    |> case do
+      {:ok, _user} ->
+        if config.logout_on_deletion do
+          Haytni.logout(conn, module, scope: :all)
+        else
+          conn
+        end
+        |> put_flash(:info, successful_deletion_message())
+        |> handle_signed_in!()
+      {:error, _failed_operation, changeset = %Ecto.Changeset{}, _changes_so_far} ->
+        render_edit(conn, current_user, module, config, nil, nil, nil, changeset)
     end
   end
 end

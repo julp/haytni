@@ -54,5 +54,18 @@
     <%%= submit Haytni.Gettext.dgettext("haytni", "Update"), class: "btn btn-primary" %>
     <%%= link Haytni.Gettext.dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
   </div>
+<%% end %>
 
+<%%= if @config.with_delete do %>
+  <%%= form_for @deletion_changeset, Routes.haytni_<%= scope %>_registration_path(@conn, :delete), [as: :deletion, method: :delete], fn f  -> %>
+    <div class="form-group">
+      <%%= password_input f, :current_password, class: "form-control", placeholder: Haytni.Gettext.dgettext("haytni", "your current password") %>
+      <label>
+        <%%= checkbox f, :accept_deletion %> <%%= submit Haytni.Gettext.dgettext("haytni", "I'm sure I want to delete my account and I understand the operation can't be reverted"), class: "danger" %>
+      </label>
+    </div>
+    <div class="form-group">
+      <%%= submit Haytni.Gettext.dgettext("haytni", "Delete"), class: "danger" %>
+    </div>
+  <%% end %>
 <%% end %>

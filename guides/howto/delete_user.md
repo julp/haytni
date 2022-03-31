@@ -1,6 +1,6 @@
 # How to delete a user
 
-Haytni does not currently assume user deletion (account removal) because everyone might want to do it in different ways:
+Haytni does not directly handle account deletion (account removal) because everyone might want to do it in very different ways:
 
 * delay it to give some time to the user to think about it and cancel it if wished
 * confirm the action
@@ -8,56 +8,68 @@ Haytni does not currently assume user deletion (account removal) because everyon
 * remove extra data, even non-SQL
 * ...
 
-So, you have to do it by yourself but it's not difficult. Here are some guidelines:
+So, it has to be written as a plugin which implements the `c:Haytni.Plugin.on_delete_user/4` callback. Let's see some use cases as examples and guidelines.
 
-First, add a route in your router to your own controller, called here YourAppWeb.UserController (we will write it next):
+## Hard deletion
+
+To delete the user from the database (meaning issue a `DELETE` SQL statement), your `c:Haytni.Plugin.on_delete_user/4` callback just need to add a `c:Ecto.Multi.delete/4` operation to the `Ecto.Multi` received from its parameters :
 
 ```elixir
-# lib/your_app_web/router.ex
-resources "/users", YourAppWeb.UserController, only: ~W[delete]a
-# or, if you prefer to use the delete helper/macro:
-#delete "/users", YourAppWeb.UserController, :delete
+defmodule YourApp.HaytniPlugin do
+  use Haytni.Plugin
+
+  @impl Haytni.Plugin
+  def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, _config) do
+    multi
+    |> Ecto.Multi.delete(:deletion, user)
+  end
+end
 ```
 
-Secondly, write the controller YourAppWeb.UserController with this delete action:
+## Soft deletion
+
+The idea is the same but instead of deleting the user, we update (`c:Ecto.Multi.update/4`) it to turn off some field and flag reflecting this state.
 
 ```elixir
-# lib/your_app_web/controllers/user_controller.ex
-defmodule YourAppWeb.UserController do
-  use YourAppWeb, :controller
+defmodule YourApp.HaytniPlugin do
+  use Haytni.Plugin
 
-  def delete(conn, _params) do
-    if user = conn.assigns[:current_user] do
-      Accounts.delete_user!(user)
-      conn
-      |> Haytni.logout(YourAppWeb.Haytni) # force logout in the process
-      |> put_flash(:info, "Your account has been successfully deleted")
-    else
-      conn
+  @impl Haytni.Plugin
+  def fields(_module) do
+    quote do
+      field :deleted, :boolean, default: true
     end
-    |> redirect(to: "/")
-    |> halt()
+  end
+
+  @impl Haytni.Plugin
+  def invalid?(user = %_{}, _module, _config) do
+    user.deleted && {:error, :deleted}
+  end
+
+  @impl Haytni.Plugin
+  def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, _config) do
+    multi
+    |> Ecto.Multi.update(:deletion, Ecto.Changeset.change(user, [deleted: true]))
   end
 end
 ```
 
-Lastly, in the context to manage your users, add a function to delete users:
+The callbacks `c:Haytni.Plugin.fields/1` and `c:Haytni.Plugin.invalid?/3` were also implemented to deal with this additional information.
+
+## Anonymize account
+
+In this scenario, the idea is to issue an `UPDATE` to nullify (at least) the password and email.
 
 ```elixir
-# lib/your_app/accounts.ex
-defmodule YourApp.Accounts do
-  import Ecto.Query, warn: false
-  alias YourApp.Repo
+defmodule YourApp.HaytniPlugin do
+  use Haytni.Plugin
 
-  # ...
-
-  def delete_user!(user) do
-    user
-    |> Repo.delete!()
+  @impl Haytni.Plugin
+  def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, _config) do
+    multi
+    |> Ecto.Multi.update(:deletion, Ecto.Changeset.change(user, [encrypted_password: nil, email: nil]))
   end
 end
 ```
 
-Knowing that you can put whatever logic you want in this `YourApp.Accounts.delete_user!/1` function: you can, of course, replace this DELETE query by an UPDATE (soft deletion), do some extra operations like deleting files and so on.
-
-Note: don't forget to adapt `YourApp`, `YourAppWeb` and `Accounts` parts in module names to the modules you actually use
+But don't forget to write a migration for encrypted_password and email to be nullable.
