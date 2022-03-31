@@ -35,7 +35,7 @@ Open3.popen3("grep --color=never -HnorE '#{GREP_REGEXP}' #{__dir__}/priv/") do |
     file, line, string = line.split(':', 3)
     /(?:Haytni\.Gettext\.)?dgettext\("haytni",\s*"(?<msgid>[^"]*)"(?:,\s*[[:alpha:]][[:alnum:]_]+:\s*[^,]+)*\)/ =~ string
     translations[msgid] = [] unless translations.has_key?(msgid)
-    translations[msgid] << Match.new(file, line.to_i)
+    translations[msgid] << Match.new(file.delete_prefix("#{__dir__}/"), line.to_i)
   end
 end
 
