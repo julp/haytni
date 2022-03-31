@@ -476,11 +476,6 @@ defmodule Haytni do
     )
   end
 
-  @spec assign_in_multi(multi :: Ecto.Multi.t, name :: Ecto.Multi.name, data :: any) :: Ecto.Multi.t
-  defp assign_in_multi(multi = %Ecto.Multi{}, name, data) do
-    Ecto.Multi.run(multi, name, fn _repo, _changes -> {:ok, data} end)
-  end
-
   @doc ~S"""
   Function to be called, for the user, to modify its own email address: it actually updates it in the database but also
   invokes, first, the `c:Haytni.Plugin.on_email_change/4` callback of the plugins registered in the *module* Haytni stack.
@@ -493,8 +488,8 @@ defmodule Haytni do
   do
     multi =
       Ecto.Multi.new()
-      |> assign_in_multi(:old_email, user.email)
-      |> assign_in_multi(:new_email, new_email_address)
+      |> Ecto.Multi.put(:old_email, user.email)
+      |> Ecto.Multi.put(:new_email, new_email_address)
 
     changeset =
       user
@@ -591,7 +586,7 @@ defmodule Haytni do
       )
 
     Ecto.Multi.new()
-    |> assign_in_multi(:conn, conn)
+    |> Ecto.Multi.put(:conn, conn)
     |> Ecto.Multi.update(:user, Ecto.Changeset.change(user, changes))
     |> Ecto.Multi.append(multi)
     |> module.repo().transaction()
