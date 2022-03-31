@@ -39,8 +39,9 @@ defmodule HaytniWeb.Confirmable.ConfirmationController do
   # GET /confirmation/new
   # Request a new confirmation mail to be sent (and a new token to be generated)
   def new(conn, _params, _module, config) do
-    changeset = conn
-    |> HaytniWeb.Shared.add_referer_to_changeset(Haytni.ConfirmablePlugin.confirmation_request_changeset(config))
+    changeset =
+      conn
+      |> HaytniWeb.Shared.add_referer_to_changeset(Haytni.ConfirmablePlugin.confirmation_request_changeset(config))
     conn
     |> render_new(changeset)
   end
