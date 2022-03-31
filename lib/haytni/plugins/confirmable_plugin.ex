@@ -378,4 +378,50 @@ defmodule Haytni.ConfirmablePlugin do
         error
     end
   end
+
+  @doc ~S"""
+  Allows a privilegied user (administrator) to manually confirm a user.
+
+  Example: you could add a route in your administration panel:
+
+  ```elixir
+  scope "/admin" do
+    pipe_through ~W[browser restricted_to_admin]a
+
+    resources "/users" do
+      resources "/confirm", YourAppWeb.Admin.User.ConfirmController, singleton: true, only: ~W[update]a
+    end
+  end
+  ```
+
+  With the above controller calling this function:
+
+  ```elixir
+  defmodule YourAppWeb.Admin.User.ConfirmController do
+    def update(conn, %{"user_id" => user_id}) do
+      user = YourApp.UserContext.get_user!(user_id)
+      {:ok, user} = Haytni.ConfirmablePlugin.confirm_user(YourAppWeb.Haytni, user)
+
+      conn
+      |> put_flash(:info, "user has been confirmed")
+      |> redirect(to: Routes.admin_user_path(conn, :index))
+      |> halt()
+    end
+  end
+  ```
+
+  And do the link in your templates with:
+
+  ```heex
+  Status: <%= if Haytni.ConfirmablePlugin.confirmed?(user) do %>
+    Confirmed
+  <% else %>
+    Not confirmed (<%= link "force confirmation?", to: Routes.admin_user_confirm_path(@conn, user, :update) %>)
+  <% end %>
+  ```
+  """
+  @spec confirm_user(module :: module, user :: Haytni.user) :: Haytni.repo_nobang_operation(Haytni.user)
+  def confirm_user(module, user = %_{}) do
+    Haytni.update_user_with(module, user, confirmed_attributes())
+  end
 end

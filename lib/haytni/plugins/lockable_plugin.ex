@@ -393,4 +393,20 @@ defmodule Haytni.LockablePlugin do
         error
     end
   end
+
+  @doc ~S"""
+  Allows a privilegied user (administrator) to manually lock a user.
+  """
+  @spec lock_user(module :: module, user :: Haytni.user) :: Haytni.repo_nobang_operation(Haytni.user)
+  def lock_user(module, user = %_{}) do
+    Haytni.update_user_with(module, user, lock_attributes())
+  end
+
+  @doc ~S"""
+  Allows a privilegied user (administrator) to manually unlock a user.
+  """
+  @spec unlock_user(module :: module, user :: Haytni.user) :: Haytni.repo_nobang_operation(Haytni.user)
+  def unlock_user(module, user = %_{}) do
+    Haytni.update_user_with(module, user, unlock_attributes())
+  end
 end
