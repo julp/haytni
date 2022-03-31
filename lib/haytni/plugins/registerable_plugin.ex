@@ -116,7 +116,7 @@ defmodule Haytni.RegisterablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(prefix_name, options) do
+  def routes(config = %Config{}, prefix_name, options) do
     registration_prefix_name = :"#{prefix_name}_registration"
     registration_path = Keyword.get(options, @registration_path_key, @default_registration_path)
     new_registration_path = Keyword.get(options, @new_registration_path_key, registration_path <> "/new")

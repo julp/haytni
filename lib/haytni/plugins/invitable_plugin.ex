@@ -123,7 +123,7 @@ defmodule Haytni.InvitablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(prefix_name, options) do
+  def routes(_config, prefix_name, options) do
     prefix_name = :"#{prefix_name}_invitation"
     invitation_path = Keyword.get(options, @invitation_path_key, @default_invitation_path)
     quote bind_quoted: [prefix_name: prefix_name, invitation_path: invitation_path] do

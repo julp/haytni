@@ -539,8 +539,12 @@ defmodule Haytni do
       scope ->
         :"haytni_#{scope}"
     end
-    module.plugins()
-    |> Enum.map(&(&1.routes(as, options)))
+    module.plugins_with_config()
+    |> Enum.map(
+      fn {module, config} ->
+        module.routes(config, as, options)
+      end
+    )
   end
 
   @doc ~S"""

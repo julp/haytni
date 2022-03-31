@@ -20,11 +20,12 @@
       + [Lockable] unlock_within
 - several Haytni modules cannot be stacked (raises if so)
 - templates moved from EEx to HEEx (you can still use EEx)
-- replaced :bcrypt_elixir with :expassword(_bcrypt)
+- replaced :bcrypt_elixir with [:expassword](https://hex.pm/packages/expassword)([_bcrypt](https://hex.pm/packages/expassword_bcrypt))
 - `Haytni.update_registration/4` has been changed to not handle email nor password changes at the same time: the single form and changeset used to edit its profile has been splitted in 3 separated changesets/forms. See priv/templates/registration/edit.html.heex on how to update this template. Consequently, the fields `:current_password`, `:email` and `:password` are no longer required to be whitelisted (`Ecto.Changeset.cast/4`) by your `update_registration_changeset/2` functions
 - added new plugin [ClearSiteData] to set the HTTP header Clear-Site-Data as (and if) you want
 - added support for LiveView 0.17: a Haytni stack (module) can be defined as a `on_mount/4` callback in `Phoenix.LiveView.Router.live_session/3` to set the current user from session
-- [callbacks] added `on_delete_user/4`
+- [callbacks] added `c:Haytni.Plugin.on_delete_user/4`
+- [callbacks] changed `c:Haytni.Plugin.routes/2` to `c:Haytni.Plugin.routes/3` (its arity) to get configuration datas of the plugin back
 
  ```
 find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0 perl -pi \

@@ -61,7 +61,7 @@ defmodule Haytni.RecoverablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(prefix_name, options) do
+  def routes(_config, prefix_name, options) do
     prefix_name = :"#{prefix_name}_password"
     password_path = Keyword.get(options, @password_path_key, @default_password_path)
     quote bind_quoted: [prefix_name: prefix_name, password_path: password_path] do

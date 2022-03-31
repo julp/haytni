@@ -35,7 +35,7 @@ defmodule Haytni.Plugin do
   @doc ~S"""
   Returns the routes as a quoted fragment to be injected in application's Router
   """
-  @callback routes(prefix_name :: atom, options :: Keyword.t) :: Macro.t
+  @callback routes(config :: Haytni.config, prefix_name :: atom, options :: Keyword.t) :: Macro.t
 
   @doc ~S"""
   Returns a list of files to be (un)installed by the mix tasks haytni.(un)install
@@ -191,7 +191,7 @@ defmodule Haytni.Plugin do
         end
       end
 
-      def routes(_prefix_name, _options) do
+      def routes(_config, _prefix_name, _options) do
         quote do
         end
       end
@@ -215,7 +215,7 @@ defmodule Haytni.Plugin do
       defoverridable [
         build_config: 1,
         fields: 1,
-        routes: 2,
+        routes: 3,
         invalid?: 3,
         find_user: 3,
         on_logout: 3,

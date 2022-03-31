@@ -104,7 +104,7 @@ defmodule Haytni.AuthenticablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(prefix_name, options) do
+  def routes(_config, prefix_name, options) do
     prefix_name = :"#{prefix_name}_session"
     login_path_set? = Keyword.has_key?(options, @login_path_key)
     login_path = Keyword.get(options, @login_path_key, @default_login_path)

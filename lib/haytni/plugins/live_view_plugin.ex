@@ -70,7 +70,7 @@ defmodule Haytni.LiveViewPlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(prefix_name, options) do
+  def routes(_config, prefix_name, options) do
     prefix_name = :"#{prefix_name}_token"
     token_path = Keyword.get(options, @token_path_key, @default_token_path)
     quote bind_quoted: [prefix_name: prefix_name, token_path: token_path] do

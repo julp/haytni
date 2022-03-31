@@ -91,7 +91,7 @@ defmodule Haytni.ConfirmablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(prefix_name, options) do
+  def routes(_config, prefix_name, options) do
     # TODO: better to have only one controller (HaytniWeb.Confirmable.ConfirmationController) and add a custom action to it for reconfirmation?
     #prefix_name = :"#{prefix_name}_confirmation"
     confirmation_path = Keyword.get(options, @confirmation_path_key, @default_confirmation_path)

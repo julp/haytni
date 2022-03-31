@@ -113,7 +113,7 @@ defmodule Haytni.LockablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(prefix_name, options) do
+  def routes(_config, prefix_name, options) do
     prefix_name = :"#{prefix_name}_unlock"
     unlock_path = Keyword.get(options, @unlock_path_key, @default_unlock_path)
     quote bind_quoted: [prefix_name: prefix_name, unlock_path: unlock_path] do
