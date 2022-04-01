@@ -96,7 +96,7 @@ defmodule Haytni.AuthenticablePlugin do
   def fields(_module) do
     quote do
       field :email, :string # UNIQUE
-      field :encrypted_password, :string, redact: true # TODO: load_in_query: false
+      field :encrypted_password, :string, redact: true, load_in_query: false # TODO: load_in_query: false ?
       field :password, :string, virtual: true, redact: true
 
       timestamps(updated_at: false, type: :utc_datetime)
@@ -165,7 +165,7 @@ defmodule Haytni.AuthenticablePlugin do
     |> Ecto.Changeset.apply_action(:insert)
     |> case do
       {:ok, sanitized_params} ->
-        user = Haytni.get_user_by(module, Map.delete(sanitized_params, :password))
+        user = Haytni.get_user_by(module, Map.delete(sanitized_params, :password), with_sensitive_data: true)
 
         user
         |> ExPassword.verify_and_rehash_if_needed(sanitized_params.password, :encrypted_password, config.hashing_method, config.hashing_options)

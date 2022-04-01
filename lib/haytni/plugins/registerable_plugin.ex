@@ -143,8 +143,8 @@ defmodule Haytni.RegisterablePlugin do
       get new_registration_path, HaytniWeb.Registerable.RegistrationController, :new, as: registration_prefix_name
       post registration_path, HaytniWeb.Registerable.RegistrationController, :create, as: registration_prefix_name
       get edit_registration_path, HaytniWeb.Registerable.RegistrationController, :edit, as: registration_prefix_name
-      put registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: registration_prefix_name
-      patch registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: registration_prefix_name
+      put registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: registration_prefix_name, private: %{haytni_with_sensitive_data: true}
+      patch registration_path, HaytniWeb.Registerable.RegistrationController, :update, as: registration_prefix_name, private: %{haytni_with_sensitive_data: true}
       if delete_registration_path do
         delete delete_registration_path, HaytniWeb.Registerable.RegistrationController, :delete, as: registration_prefix_name
       end

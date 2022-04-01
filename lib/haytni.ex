@@ -401,7 +401,7 @@ defmodule Haytni do
         #)
         |> Tuple.append(false)
       id ->
-        {conn, get_user(module, id), true}
+        {conn, get_user(module, id, with_sensitive_data: Map.get(conn.private, :haytni_with_sensitive_data, false)), true}
     end
     if user do
       case invalid_user?(module, user) do
@@ -659,7 +659,8 @@ defmodule Haytni do
     |> Enum.reduce(changeset, fn {plugin, config}, changeset -> plugin.validate_update_registration(changeset, module, config) end)
   end
 
-  @typep changes :: %{required(atom) => term} | nonempty_list({Keyword.key, Keyword.value})
+  @typep non_empty_keyword_list :: nonempty_list({Keyword.key, Keyword.value})
+  @typep changes :: %{required(atom) => term} | non_empty_keyword_list
   @spec user_and_changes_to_changeset(user :: Haytni.user, changes :: Haytni.changes) :: Ecto.Changeset.t
   defp user_and_changes_to_changeset(user, changes) do
     Ecto.Changeset.change(user, changes)
@@ -698,6 +699,21 @@ defmodule Haytni do
     Ecto.Multi.update(multi, name, user_and_changes_to_changeset(user, changes))
   end
 
+  defp user_query(module, options) do
+    import Ecto.Query
+    if Keyword.get(options, :with_sensitive_data, false) do
+      from(
+        u in module.schema(),
+        select: ^module.schema().__schema__(:fields),
+      )
+    else
+      from(
+        u in module.schema(),
+        select: u,
+      )
+    end
+  end
+
   @doc ~S"""
   Fetches a user from the *Ecto.Repo* specified in `config :haytni, YourApp.Haytni` as `repo` subkey via the
   attributes specified by *clauses* as a map or a keyword-list.
@@ -708,9 +724,11 @@ defmodule Haytni do
 
       hulk = Haytni.get_user_by(YourApp.Haytni, first_name: "Robert", last_name: "Banner")
   """
-  @spec get_user_by(module :: module, clauses :: Keyword.t | map) :: Haytni.nilable(Haytni.user)
-  def get_user_by(module, clauses) do
-    module.repo().get_by(module.schema(), clauses)
+  @spec get_user_by(module :: module, clauses :: non_empty_keyword_list | map, options :: Keyword.t) :: Haytni.nilable(Haytni.user)
+  def get_user_by(module, clauses, options \\ []) do
+    module
+    |> user_query(options)
+    |> module.repo().get_by(clauses)
   end
 
   @doc ~S"""
@@ -727,9 +745,11 @@ defmodule Haytni do
           # do something of user
       end
   """
-  @spec get_user(module :: module, id :: any) :: Haytni.nilable(Haytni.user)
-  def get_user(module, id) do
-    module.repo().get(module.schema(), id)
+  @spec get_user(module :: module, id :: any, options :: Keyword.t) :: Haytni.nilable(Haytni.user)
+  def get_user(module, id, options \\ []) do
+    module
+    |> user_query(options)
+    |> module.repo().get(id)
   end
 
   @doc ~S"""

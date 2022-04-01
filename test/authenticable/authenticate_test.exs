@@ -31,28 +31,29 @@ defmodule Haytni.Authenticable.AuthenticateTest do
         user: user,
         admin: admin,
         config: config,
+        module: HaytniTestWeb.Haytni,
         conn: Plug.Test.init_test_session(conn, %{}),
       ]
     end
 
-    test "returns user with correct password", %{conn: conn, config: config, user: user} do
+    test "returns user with correct password", %{conn: conn, module: module, config: config, user: user} do
       session = create_session(user.email, @pass)
 
-      assert {:ok, conn} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, session)
+      assert {:ok, conn} = Haytni.AuthenticablePlugin.authenticate(conn, module, config, session)
       assert user.id == conn.assigns.current_user.id
       assert user.id == Plug.Conn.get_session(conn, :user_id)
     end
 
-    test "user's password is updated on successful authentication", %{conn: conn, config: config, user: user} do
+    test "user's password is updated on successful authentication", %{conn: conn, module: module, config: config, user: user} do
       session = create_session(user.email, @pass)
 
       assert String.starts_with?(user.encrypted_password, "$2b$04$")
       config = %{config | hashing_options: %{cost: 5}}
-      assert {:ok, conn} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, session)
+      assert {:ok, conn} = Haytni.AuthenticablePlugin.authenticate(conn, module, config, session)
       assert user.id == conn.assigns.current_user.id
       assert user.id == Plug.Conn.get_session(conn, :user_id)
 
-      updated_user = HaytniTestWeb.Haytni.repo().get(user.__struct__, user.id)
+      updated_user = Haytni.get_user(module, user.id, with_sensitive_data: true)
       assert String.starts_with?(updated_user.encrypted_password, "$2b$05$")
       assert Haytni.AuthenticablePlugin.valid_password?(updated_user, @pass, config)
     end
@@ -70,20 +71,20 @@ defmodule Haytni.Authenticable.AuthenticateTest do
       assert admin.id == Plug.Conn.get_session(conn, :admin_id)
     end
 
-    test "returns error with empty credentials", %{conn: conn, config: config} do
+    test "returns error with empty credentials", %{conn: conn, module: module, config: config} do
       session = create_session("", "")
 
-      assert {:error, changeset} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, session)
+      assert {:error, changeset} = Haytni.AuthenticablePlugin.authenticate(conn, module, config, session)
       refute is_nil(changeset.action)
       assert %{email: [empty_message()], password: [empty_message()]} == Haytni.DataCase.errors_on(changeset)
     end
 
-    test "returns unauthorized error with invalid password", %{conn: conn, config: config, user: user} do
-      assert_invalid_credentials(conn, config, HaytniTestWeb.Haytni, create_session(user.email, "badpass"))
+    test "returns unauthorized error with invalid password", %{conn: conn, module: module, config: config, user: user} do
+      assert_invalid_credentials(conn, config, module, create_session(user.email, "badpass"))
     end
 
-    test "returns not found error with no matching user for email", %{conn: conn, config: config} do
-      assert_invalid_credentials(conn, config, HaytniTestWeb.Haytni, create_session("nomatch", @pass))
+    test "returns not found error with no matching user for email", %{conn: conn, module: module, config: config} do
+      assert_invalid_credentials(conn, config, module, create_session("nomatch", @pass))
     end
   end
 end
