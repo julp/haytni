@@ -8,10 +8,10 @@ Haytni is a configurable authentication system for Phoenix, inspired by Devise a
 * provides a strong and ready to use base
 * non-bloatware:
   + all logics are not located in controllers
-  + minimize changes (upgrade)
+  + minimize changes on upgrades
 * easily customisable and extendable:
   + enable (or disable) any plugin
-  + add your own plugin(s) to the stack
+  + add your own plugins to the stack
 
 The only things you install in your project are:
 
@@ -19,7 +19,7 @@ The only things you install in your project are:
 * views (you may need some custom helpers for your templates)
 * templates (for emails and web pages)
 
-If you need your own feature(s), you write (and test) your own plugin(s):
+If you need your own features, you write (and test) your own plugins:
 
 * no need to change some obscur and very long code you may not understand, you just need to implement the callbacks that feet your needs
 * your changes will not impact and break anything else (starting by tests)
