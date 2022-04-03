@@ -3,7 +3,12 @@ defmodule HaytniWeb.Helpers do
 
   def put_view(conn, module, view_suffix) do
     view_module =
-      [module.web_module(), :Haytni, Phoenix.Naming.camelize(to_string(module.scope())), view_suffix]
+      [
+        module.web_module(),
+        :Haytni,
+        module.scope() |> to_string() |> Phoenix.Naming.camelize(),
+        view_suffix,
+      ]
       |> Module.concat()
       |> Code.ensure_compiled()
       |> case do
