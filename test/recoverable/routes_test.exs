@@ -11,7 +11,7 @@ defmodule Haytni.Recoverable.RoutesTest do
     ]
   end
 
-  describe "Haytni.RecoverablePlugin.routes/2 (callback)" do
+  describe "Haytni.RecoverablePlugin.routes/3 (callback)" do
     test "ensures password recovering routes are part of the router" do
       "/password"
       |> expected_recoverable_routes()

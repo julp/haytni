@@ -9,7 +9,7 @@ defmodule Haytni.Confirmable.RoutesTest do
     ]
   end
 
-  describe "Haytni.ConfirmablePlugin.routes/2 (callback)" do
+  describe "Haytni.ConfirmablePlugin.routes/3 (callback)" do
     test "ensures confirmation routes are part of the router" do
       "/confirmation"
       |> expected_confirmation_routes()

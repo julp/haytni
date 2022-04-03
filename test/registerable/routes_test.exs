@@ -8,6 +8,7 @@ defmodule Haytni.Registerable.RoutesTest do
       %{route: edit_prefix, method: "GET", action: :edit, controller: HaytniWeb.Registerable.RegistrationController},
       %{route: prefix, method: "PUT", action: :update, controller: HaytniWeb.Registerable.RegistrationController},
       %{route: prefix, method: "PATCH", action: :update, controller: HaytniWeb.Registerable.RegistrationController},
+      #%{route: prefix, method: "DELETE", action: :delete, controller: HaytniWeb.Registerable.RegistrationController},
     ]
   end
 
@@ -15,7 +16,7 @@ defmodule Haytni.Registerable.RoutesTest do
     expected_registerable_routes(prefix, prefix <> "/new", prefix <> "/edit")
   end
 
-  describe "Haytni.RegisterablePlugin.routes/2 (callback)" do
+  describe "Haytni.RegisterablePlugin.routes/3 (callback)" do
     test "ensures unlock routes are part of the router" do
       expected_registerable_routes("/registration")
       |> check_routes(HaytniTestWeb.Router)

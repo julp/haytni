@@ -9,7 +9,7 @@ defmodule Haytni.Authenticable.RoutesTest do
     ]
   end
 
-  describe "Haytni.AuthenticablePlugin.routes/2 (callback)" do
+  describe "Haytni.AuthenticablePlugin.routes/3 (callback)" do
     test "ensures authenticable routes are part of the router" do
       expected_authenticable_routes("/session", "/session", "DELETE")
       |> check_routes(HaytniTestWeb.Router)

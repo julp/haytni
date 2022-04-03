@@ -8,7 +8,7 @@ defmodule Haytni.Invitable.RoutesTest do
     ]
   end
 
-  describe "Haytni.LockablePlugin.routes/2 (callback)" do
+  describe "Haytni.LockablePlugin.routes/3 (callback)" do
     test "ensures invitation routes are part of the router for scope = :user" do
       "/invitations"
       |> expected_invitable_routes()

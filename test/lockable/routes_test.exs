@@ -9,7 +9,7 @@ defmodule Haytni.Lockable.RoutesTest do
     ]
   end
 
-  describe "Haytni.LockablePlugin.routes/2 (callback)" do
+  describe "Haytni.LockablePlugin.routes/3 (callback)" do
     test "ensures unlock routes are part of the router for scope = :user" do
       "/unlock"
       |> expected_lockable_routes()
