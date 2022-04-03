@@ -25,14 +25,14 @@ defmodule HaytniWeb.Shared do
 
   Example:
 
-      iex> #{__MODULE__}.Shared.haytni_path(conn, YourApp.Haytni, &(:"haytni_\#{&1}_invitation_path"), :new, invitation: "ABCD", email: "me@mydomain.com")
+      iex> #{__MODULE__}.haytni_path(conn, YourApp.Haytni, &(:"haytni_\#{&1}_invitation_path"), :new, [[invitation: "ABCD", email: "me@mydomain.com"]])
       "/invitations/new?invitation=ABCD&email=me%40mydomain.com"
   """
   @spec haytni_path(conn_or_endpoint :: Plug.Conn.t | module, module :: module, fun :: (atom -> atom), action :: atom, args :: Keyword.t) :: String.t
   def haytni_path(conn_or_endpoint, module, fun, action, args \\ [])
-    when is_function(fun, 1) and is_atom(action)
+    when is_function(fun, 1) and is_atom(action) and is_list(args)
   do
-    apply(module.router(), fun.(module.scope()), [conn_or_endpoint, action, args])
+    apply(module.router(), fun.(module.scope()), [conn_or_endpoint, action] ++ args)
   end
 
   @doc ~S"""
