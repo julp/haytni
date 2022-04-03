@@ -42,7 +42,7 @@ defmodule HaytniWeb.Helpers do
 
       {plugin, extra_args} = case options do
         {plugin, :with_current_user} ->
-          {plugin, [quote(do: conn.assigns[:"current_#{module.scope()}"])]}
+          {plugin, [quote(do: conn.assigns[module.scoped_assign()])]}
         plugin when is_atom(plugin) ->
           {plugin, []}
       end
