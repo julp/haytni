@@ -30,14 +30,15 @@ defmodule Mix.Tasks.Haytni.Install do
       )
 
     binding =
-      Keyword.new()
-      |> Keyword.put(:otp_app, otp_app)
-      |> Keyword.put(:plugins, plugins)
-      |> Keyword.put(:web_module, web_module)
-      |> Keyword.put(:base_module, base_module)
-      |> Keyword.put(:scope, String.to_atom(scope_as_string))
-      |> Keyword.put(:table, Keyword.get(opts, :table, "users"))
-      |> Keyword.put(:camelized_scope, Phoenix.Naming.camelize(scope_as_string))
+      [
+        otp_app: otp_app,
+        plugins: plugins,
+        web_module: web_module,
+        base_module: base_module,
+        scope: String.to_atom(scope_as_string),
+        table: Keyword.get(opts, :table, "users"),
+        camelized_scope: Phoenix.Naming.camelize(scope_as_string),
+      ]
 
     Mix.Phoenix.copy_from([".", :haytni], "priv/", binding, files_to_install)
   end
