@@ -12,7 +12,7 @@ So, it has to be written as a plugin which implements the `c:Haytni.Plugin.on_de
 
 ## Hard deletion
 
-To delete the user from the database (meaning issue a `DELETE` SQL statement), your `c:Haytni.Plugin.on_delete_user/4` callback just need to add a `c:Ecto.Multi.delete/4` operation to the `Ecto.Multi` received from its parameters :
+To delete the user from the database (meaning issue a `DELETE` SQL statement), your `c:Haytni.Plugin.on_delete_user/4` callback just need to add a `Ecto.Multi.delete/4` operation to the `Ecto.Multi` received from its parameters :
 
 ```elixir
 defmodule YourApp.HaytniPlugin do
@@ -28,7 +28,7 @@ end
 
 ## Soft deletion
 
-The idea is the same but instead of deleting the user, we update (`c:Ecto.Multi.update/4`) it to turn off some field and flag reflecting this state.
+The idea is the same but instead of deleting the user, we update (`Ecto.Multi.update/4`) it to turn off some field and flag reflecting this state.
 
 ```elixir
 defmodule YourApp.HaytniPlugin do
