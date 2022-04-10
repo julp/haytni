@@ -6,7 +6,7 @@ The package can be installed by adding `haytni` to your list of dependencies in 
 def deps do
   [
     # ...
-    {:haytni, "~> 0.6.3"},
+    {:haytni, "~> 0.7.0"},
     # with bcrypt support (for past and/or present passwords)
     {:expassword_bcrypt, "~> 0.2"},
     # with argon2 support (for past and/or present passwords)

@@ -1,6 +1,6 @@
 **DISCLAIMER**: commands given to upgrade are purely informative, make sure to understand them and to do a backup of your project and database before running any of it, especially if your project is not (yet) versionned. (of course any improvement or rectification is welcome)
 
-?.?.?
+0.7.0
 
 - unified tokens handling (inspired from phx_gen_auth)
   + add (authentication) support to channels (and, by extension, live view) if the *\_csrf\_token* cookie is not available
