@@ -51,9 +51,9 @@ defmodule YourApp.EmailProviderValidation do
 end
 ```
 
-Then edit lib/*your_app*/user.ex to add to the end of the functions `validate_create_registration/2` and `validate_update_registration/2`, the following line: `|> YourApp.EmailProviderValidation.validate_email_provider(:email)`
+Then edit lib/*your_app*/user.ex to add to the end of the functions `c:Haytni.Plugin.validate_create_registration/3` and `c:Haytni.Plugin.validate_update_registration/3`, the following line: `|> YourApp.EmailProviderValidation.validate_email_provider(:email)`
 
-You can also write this functionnality as a plugin by implemenenting the `validate_create_registration/2` and `validate_update_registration/2` callbacks instead of modifying your lib/*your_app*/user.ex.
+You can also write this functionnality as a plugin by implemenenting the `c:Haytni.Plugin.validate_create_registration/3` and `c:Haytni.Plugin.validate_update_registration/3` callbacks instead of modifying your lib/*your_app*/user.ex.
 
 If so:
 

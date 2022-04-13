@@ -37,8 +37,8 @@ find lib/your_app_web/templates/haytni/ -type f -name "reconfirmation_instructio
  ```
 
 ```elixir
-# priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_3_to_?_?_?.exs
-defmodule YourRepo.Migrations.HaytniUpgradeFrom063To??? do
+# priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_3_to_0_7_0.exs
+defmodule YourRepo.Migrations.HaytniUpgradeFrom063To070 do
   @stacks [HaytniTestWeb.Haytni] # a list of your Haytni stacks (module names) related to the current Repo
 
   use Ecto.Migration
