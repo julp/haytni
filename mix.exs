@@ -1,6 +1,8 @@
 defmodule Haytni.MixProject do
   use Mix.Project
 
+  @version "0.7.0"
+
   defp elixirc_paths(:test), do: ~W[lib test/support]
   defp elixirc_paths(_), do: ~W[lib]
 
@@ -8,7 +10,7 @@ defmodule Haytni.MixProject do
     [
       app: :haytni,
       docs: docs(),
-      version: "0.7.0",
+      version: @version,
       elixir: "~> 1.9",
       compilers: ~W[phoenix gettext]a ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -77,6 +79,7 @@ defmodule Haytni.MixProject do
 
   defp docs do
     [
+      source_ref: @version,
       extras: extras(),
       groups_for_extras: groups_for_extras(),
       groups_for_modules: groups_for_modules()
