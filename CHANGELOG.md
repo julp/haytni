@@ -1,6 +1,8 @@
 **DISCLAIMER**: commands given to upgrade are purely informative, make sure to understand them and to do a backup of your project and database before running any of it, especially if your project is not (yet) versionned. (of course any improvement or rectification is welcome)
 
-0.7.0
+## 0.7.0 (2022-04-10)
+
+### Details
 
 - unified tokens handling (inspired from phx_gen_auth)
   + add (authentication) support to channels (and, by extension, live view) if the *\_csrf\_token* cookie is not available
@@ -27,14 +29,24 @@
 - [callbacks] added `c:Haytni.Plugin.on_delete_user/4`
 - [callbacks] changed `c:Haytni.Plugin.routes/2` to `c:Haytni.Plugin.routes/3` (its arity) to get configuration datas of the plugin back
 
- ```
+### Upgrade procedure
+
+In mix.exs, replace the `:bcrypt_elixir` dependency by `{:expassword_bcrypt, "~> 0.2"}` and/or `{:expassword_argon2, "~> 0.2"}` (to support bcrypt and/or argon2). If you can't build a NIF on dev and/or test environment, you can instead use `:expassword_external_bcrypt`/`:expassword_external_argon2`.
+
+Then the lines `stack Haytni.AuthenticablePlugin` need to be updated to specify, as options, how to hash passwords (new registrations or password changes) with `stack Haytni.AuthenticablePlugin, hashing_method: ExPassword.Bcrypt, hashing_options: %{cost: (if Mix.env() == :test, do: 4, else: 10)}` for bcrypt.
+
+The following commands should handle the changes about reconfirmation:
+
+```
 find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0 perl -pi \
     -e 'BEGIN {undef $/}' \
     -e 's/<%= if \@config\.reconfirmable, do: \@user\.unconfirmed_email, else: \@user\.email %>/<%= \@user.email %>/g;' \
     -e 's/<%= if Haytni\.plugin_enabled\?\(\@module, Haytni\.ConfirmablePlugin\) && \@changeset\.data\.unconfirmed_email do %>.+?<% end %>//gs;'
 
 find lib/your_app_web/templates/haytni/ -type f -name "reconfirmation_instructions.*.eex" -print0 | xargs -0 perl -pi -e 's/_confirmation_url/_reconfirmation_url/g;'
- ```
+```
+
+The following migration should take care of new tokens handling (removing old individual fields and creating the new table):
 
 ```elixir
 # priv/repo/migrations/<current timestamp or custom version number>_haytni_upgrade_from_0_6_3_to_0_7_0.exs
@@ -96,13 +108,17 @@ end
 ```
 
 
-0.6.3
+## 0.6.3 (2021-03-09)
+
+### Details
 
 - [Authenticable] added *inserted_at* field (`Ecto.Schema.timestamps/1` + `Ecto.Migration.timestamps/1`) to user schemas
 - the X-Suspicious-Activity header is also set by HaytniWeb.Registerable.RegistrationController.create
 - fixed `ON UPDATE CASCADE ON DELETE CASCADE` options in migrations on foreign keys (Trackable + Invitable)
 - Bamboo updated to 2.0
 - [callbacks] `on_logout/2` becomes `on_logout/3` to add *module* (Haytni stack's module)
+
+### Upgrade procedure
 
 The following migration should take care of the upgrade (except fixing the foreign keys options):
 
@@ -135,13 +151,15 @@ find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0
 ```
 
 
-0.6.2
+## 0.6.2 (2020-09-19)
 
 - [Rememberable] fixed wrong checkbox's name in template session/new.html.eex
 - fixed session was not created except if Rememberable was involved
 
 
-0.6.1
+## 0.6.1 (2020-09-05)
+
+### Details
 
 - introduced new Invitable plugin
 - fix wrong extension for migrations (.ex => .exs)
@@ -160,7 +178,7 @@ find lib/your_app_web/templates/haytni/ -type f -name "*.eex" -print0 | xargs -0
 - [Registerable] fix installation of edit.html.eex template, it was simply copied as is instead being evaluated as an EEx template like the others
 - replaced `:string` for PostgreSQL by `:citext` on email addresses in migrations
 
-Upgrade notes:
+### Upgrade procedure
 
 - to keep your Haytni templates (both html and mail), you have to apply the following replacements: `\b(session|registration|unlock|confirmation|password)_(url|path)` to `haytni_<scope>_\1_\2` (`<scope>` has to match the scope defined in your config/\*.exs files, default is `user`). You can use a command like this one to make the changes:
 
@@ -222,7 +240,7 @@ end
 ```
 
 
-0.6.0
+## 0.6.0 (2020-05-17)
 
 - fix Mix.Project unavailable at runtime (application deployed without being recompiled)
 - fix compatibility with ecto 3.0.0:
@@ -249,7 +267,7 @@ end
 - set an HTTP header X-Suspicious-Activity: 1 (401 neither 403 status code are suitable for this) on authentication failure in order to offer the ability to a proxy to take action
 
 
-0.0.2
+## 0.0.2 (2019-05-14)
 
 - phoenix 1.4/ecto 3.0 compatibility
 - fix missing and untranslated strings in priv/templates/\*
