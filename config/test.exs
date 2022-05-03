@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :haytni,
   ecto_repos: [HaytniTest.Repo]
