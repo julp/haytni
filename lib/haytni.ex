@@ -551,7 +551,12 @@ defmodule Haytni do
   """
   def fields(module) do
     module.plugins()
-    |> Enum.into([Haytni.Token.fields(module)], &(&1.fields(module)))
+    |> Enum.reduce(
+      [Haytni.Token.fields(module)],
+      fn plugin, acc ->
+        [plugin.fields(module) | acc]
+      end
+    )
   end
 
   @doc ~S"""
