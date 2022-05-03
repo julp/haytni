@@ -1,5 +1,10 @@
 **DISCLAIMER**: commands given to upgrade are purely informative, make sure to understand them and to do a backup of your project and database before running any of it, especially if your project is not (yet) versionned. (of course any improvement or rectification is welcome)
 
+## ?.?.? (????-??-??)
+
+- [Rememberable] fixed wrong cookie max-age value (expiration)
+
+
 ## 0.7.0 (2022-04-10)
 
 ### Details

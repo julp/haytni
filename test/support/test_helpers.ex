@@ -267,7 +267,7 @@ defmodule Haytni.TestHelpers do
   def assert_rememberme_presence(conn, config, token) do
     conn = Plug.Conn.fetch_cookies(conn, signed: [config.remember_cookie_name])
     {:ok, cookie} = Map.fetch(conn.resp_cookies, config.remember_cookie_name)
-    true = DateTime.diff(DateTime.from_unix!(cookie.max_age), DateTime.utc_now()) >= config.remember_for
+    true = cookie.max_age == config.remember_for
     {:ok, ^token} = Plug.Crypto.verify(conn.secret_key_base, config.remember_cookie_name <> "_cookie", cookie.value, max_age(config))
   end
 

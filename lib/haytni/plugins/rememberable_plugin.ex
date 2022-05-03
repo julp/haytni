@@ -25,8 +25,6 @@ defmodule Haytni.RememberablePlugin do
   Routes: none
   """
 
-  import Plug.Conn
-
   defmodule Config do
     defstruct remember_for: {2, :week},
       remember_cookie_name: "remember_token",
@@ -109,19 +107,19 @@ defmodule Haytni.RememberablePlugin do
   @spec add_rememberme_cookie(conn :: Plug.Conn.t, remember_token :: String.t, config :: Config.t) :: Plug.Conn.t
   def add_rememberme_cookie(conn = %Plug.Conn{}, remember_token, config) do
     conn
-    |> put_resp_cookie(config.remember_cookie_name, remember_token, remember_cookie_options_with_max_age(config))
+    |> Plug.Conn.put_resp_cookie(config.remember_cookie_name, remember_token, remember_cookie_options_with_max_age(config))
   end
 
   @spec remove_rememberme_cookie(conn :: Plug.Conn.t, config :: Config.t) :: Plug.Conn.t
   defp remove_rememberme_cookie(conn = %Plug.Conn{}, config) do
-    delete_resp_cookie(conn, config.remember_cookie_name, remember_cookie_options_with_max_age(config))
+    Plug.Conn.delete_resp_cookie(conn, config.remember_cookie_name, remember_cookie_options_with_max_age(config))
   end
 
   @spec remember_cookie_options_with_max_age(config :: Config.t) :: Keyword.t
   defp remember_cookie_options_with_max_age(config) do
     config.remember_cookie_options
     |> Keyword.put_new(:sign, true)
-    |> Keyword.put_new(:max_age, DateTime.to_unix(Haytni.Helpers.now()) + config.remember_for)
+    |> Keyword.put_new(:max_age, config.remember_for)
   end
 
   @impl Haytni.Plugin
