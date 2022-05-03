@@ -2,6 +2,9 @@
 
 ## ?.?.? (????-??-??)
 
+- fixed various depreciations:
+  + `Mix.Config` => `Config`
+  + [LiveViewPlugin] `Phoenix.LiveView.get_connect_info/1` => `Phoenix.LiveView.get_connect_info/2`
 - [Rememberable] fixed wrong cookie max-age value (expiration)
 
 

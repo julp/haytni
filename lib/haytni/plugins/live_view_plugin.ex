@@ -166,7 +166,7 @@ defmodule Haytni.LiveViewPlugin do
         config.pepper,
         %{
           "ip" => conn.remote_ip |> :inet_parse.ntoa() |> to_string(),
-          "token" => Haytni.Token.url_encode(token)
+          "token" => Haytni.Token.url_encode(token),
         }
         |> Phoenix.json_library().encode!()
       ]
@@ -263,6 +263,25 @@ defmodule Haytni.LiveViewPlugin do
     connect(module, config, params, socket, connect_info)
   end
 
+  # function_exported?(Phoenix.LiveView, :get_connect_info, 2)
+  Application.spec(:phoenix_live_view, :vsn)
+  |> to_string()
+  |> Version.match?("< 0.17.6")
+  |> if do
+    # LiveView < 0.17.6
+    defp connect_info(socket = %Phoenix.LiveView.Socket{}) do
+      Phoenix.LiveView.get_connect_info(socket)
+    end
+  else
+    # LivewView >= 0.17.6
+    defp connect_info(socket = %Phoenix.LiveView.Socket{}) do
+      %{
+        x_headers: Phoenix.LiveView.get_connect_info(socket, :x_headers),
+        peer_data: Phoenix.LiveView.get_connect_info(socket, :peer_data),
+      }
+    end
+  end
+
   @doc ~S"""
   For live view, to be called in `c:Phoenix.LiveView.mount/3` callback in order to set the current user
   in assigns (named `:current_user` by default - same way as it is done for Plug.Conn).
@@ -293,7 +312,7 @@ defmodule Haytni.LiveViewPlugin do
       #fn ->
         #IO.inspect("Phoenix.LiveView.assign_new/3 executed")
         user = if Phoenix.LiveView.connected?(socket) do
-          {:ok, _scoped_key, user} = do_connect(module, config, Phoenix.LiveView.get_connect_params(socket), Phoenix.LiveView.get_connect_info(socket))
+          {:ok, _scoped_key, user} = do_connect(module, config, Phoenix.LiveView.get_connect_params(socket), connect_info(socket))
           user
         else
           scoped_session_key = Haytni.scoped_session_key(module)
