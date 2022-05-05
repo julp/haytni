@@ -82,7 +82,7 @@ defmodule Haytni.RecoverablePlugin do
 
     from(
       t in query,
-      or_where: t.context == ^token_context(nil) and t.inserted_at > ago(^config.reset_password_within, "second")
+      where: not (t.context == ^token_context(nil) and t.inserted_at > ago(^config.reset_password_within, "second"))
     )
   end
 

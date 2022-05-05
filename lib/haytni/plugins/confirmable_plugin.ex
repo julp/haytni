@@ -191,8 +191,8 @@ defmodule Haytni.ConfirmablePlugin do
 
     from(
       t in query,
-      or_where: t.context == ^token_context(nil) and t.inserted_at > ago(^config.confirm_within, "second"),
-      or_where: like(t.context, ^@context_reconfirmation_pattern) and t.inserted_at > ago(^config.reconfirm_within, "second")
+      where: not (t.context == ^token_context(nil) and t.inserted_at > ago(^config.confirm_within, "second")),
+      where: not (like(t.context, ^@context_reconfirmation_pattern) and t.inserted_at > ago(^config.reconfirm_within, "second"))
     )
   end
 

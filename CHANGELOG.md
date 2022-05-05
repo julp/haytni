@@ -7,6 +7,7 @@
   + collecting into a non-empty list
   + [LiveViewPlugin] `Phoenix.LiveView.get_connect_info/1` => `Phoenix.LiveView.get_connect_info/2`
 - [Rememberable] fixed wrong cookie max-age value (expiration)
+- fixed missing SQL negation in `Haytni.Token.purge_expired_tokens/1`, removing valid tokens instead of expired
 
 
 ## 0.7.0 (2022-04-10)
