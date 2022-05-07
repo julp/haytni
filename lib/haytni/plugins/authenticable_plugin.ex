@@ -6,6 +6,8 @@ defmodule Haytni.AuthenticablePlugin do
   @logout_method_key :logout_method
 
   @default_authentication_keys ~W[email]a
+  @default_sign_in_return_path "/"
+  @default_sign_out_return_path "/"
 
   @moduledoc """
   This is a base plugin as it handles basic informations of a user (which are email and hashed password) and their authentication.
@@ -18,6 +20,8 @@ defmodule Haytni.AuthenticablePlugin do
   Configuration:
 
     * `authentication_keys` (default: `#{inspect(@default_authentication_keys)}`): the key(s), in addition to the password, requested to login. You can redefine it to `~W[name]a`, for example, to ask the username instead of its email address.
+    * `sign_in_return_path` (default: `#{@default_sign_in_return_path}`): the path on which to redirect the user after being logged in
+    * `sign_out_return_path` (default: `#{@default_sign_out_return_path}`): the path on which to redirect the user after being logged out
     * `hashing_method` (no default): a module implementing the behaviour `ExPassword.Algorithm` to hash and verify passwords
     * `hashing_options` (a map, no default since they are hash-specific): ExPassword settings for hashing passwords
 
@@ -33,6 +37,8 @@ defmodule Haytni.AuthenticablePlugin do
   ```elixir
   stack #{inspect(__MODULE__)},
     authentication_keys: #{inspect(@default_authentication_keys)},
+    sign_in_return_path: #{inspect(@default_sign_in_return_path)},
+    sign_out_return_path: #{inspect(@default_sign_out_return_path)},
     hashing_method: ExPassword.Bcrypt,
     hashing_options: %{
       cost: 10,
@@ -65,12 +71,18 @@ defmodule Haytni.AuthenticablePlugin do
   import Haytni.Gettext
 
   defmodule Config do
-    defstruct hashing_method: nil, hashing_options: nil, authentication_keys: ~W[email]a
+    defstruct hashing_method: nil,
+      hashing_options: nil,
+      authentication_keys: ~W[email]a,
+      sign_in_return_path: "/",
+      sign_out_return_path: "/"
 
     @type t :: %__MODULE__{
       hashing_method: module,
       hashing_options: %{optional(atom) => any},
       authentication_keys: [atom, ...],
+      sign_in_return_path: String.t,
+      sign_out_return_path: String.t,
     }
   end
 
