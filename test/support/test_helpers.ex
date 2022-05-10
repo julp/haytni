@@ -102,7 +102,7 @@ defmodule Haytni.TestHelpers do
   def token_fixture(user, plugin, attrs \\ []) do
     sent_to = Keyword.get(attrs, :sent_to, user.email)
     inserted_at = Keyword.get(attrs, :inserted_at, 0)
-    context = Keyword.get(attrs, :context, plugin.token_context(nil))
+    context = Keyword.get_lazy(attrs, :context, fn -> plugin.token_context(nil) end)
     token = Keyword.get_lazy(attrs, :token, fn -> Haytni.Token.new(16) end)
 
     {:ok, token} =
