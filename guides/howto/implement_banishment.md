@@ -1,11 +1,11 @@
 # How to implement banishment
 
-Create a migration to add a boolean field to your table:
+Create a migration (`mix ecto.gen.migration user_banned_field`) to add a boolean field to your table:
 
 ```elixir
-# priv/repo/migrations/`date '+%Y%m%d%H%M%S'`_add_banned_field.ex
+# priv/repo/migrations/`date '+%Y%m%d%H%M%S'`_user_banned_field.ex
 
-defmodule YourApp.AddBannedField do
+defmodule YourApp.Repo.Migrations.UserBannedField do
   use Ecto.Migration
 
   def change do
