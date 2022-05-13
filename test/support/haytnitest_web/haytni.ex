@@ -11,4 +11,16 @@ defmodule HaytniTestWeb.Haytni do
   stack Haytni.PasswordPolicyPlugin
   stack Haytni.InvitablePlugin, invitation_required: false
   stack Haytni.LiveViewPlugin
+
+  @impl Haytni.Callbacks
+  def user_query(query) do
+    import Ecto.Query
+
+    from(
+      u in query,
+      #[{:user, u}] in query,
+      left_join: l in assoc(u, :language),
+      preload: [language: l]
+    )
+  end
 end

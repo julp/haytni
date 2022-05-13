@@ -94,15 +94,13 @@ defmodule Haytni.Token do
 
   @spec user_from_token_query(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Ecto.Query.t
   defp user_from_token_query(module, token, context, duration) do
-    from t in user_module_to_token_module(module.schema()),
-      join: u in assoc(t, :user),
-      where: t.token == ^token and t.context == ^context and t.inserted_at > ago(^duration, "second"), # and (not) is_nil(u.confirmed_at)
-      select: u
-  end
-
-  @spec user_from_token_with_mail_query(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Ecto.Query.t
-  defp user_from_token_with_mail_query(module, token, context, duration) do
-    from([t, u] in user_from_token_query(module, token, context, duration), where: t.sent_to == u.email)
+    from(
+      u in module.schema(),
+      as: :user,
+      join: t in assoc(u, ^@token_association),
+      as: :token,
+      where: t.token == ^token and t.context == ^context and t.inserted_at > ago(^duration, "second") # and (not) is_nil(u.confirmed_at)
+    )
   end
 
   @doc ~S"""
@@ -111,8 +109,11 @@ defmodule Haytni.Token do
   """
   @spec user_from_token_with_mail_match(module :: module, token :: String.t, context :: String.t, duration :: pos_integer) :: Haytni.nilable(Haytni.user)
   def user_from_token_with_mail_match(module, token, context, duration) do
-    module
-    |> user_from_token_with_mail_query(token, context, duration)
+    from(
+      [{:token, t}, {:user, u}] in user_from_token_query(module, token, context, duration),
+      where: t.sent_to == u.email
+    )
+    |> module.user_query()
     |> module.repo().one()
   end
 
@@ -125,10 +126,13 @@ defmodule Haytni.Token do
     #from([t, u] in user_from_token_query(module, token, context, duration), where: t.sent_to != u.email)
     from(
       u in user.__struct__, # <=> module.schema(),
+      #as: :user,
       join: t in assoc(u, ^@token_association),
+      #as: :token,
       where: t.sent_to != u.email and t.token == ^token and t.context == ^context and t.inserted_at > ago(^duration, "second"),
       select: t
     )
+    #|> module.user_query()
     |> module.repo().one()
   end
 

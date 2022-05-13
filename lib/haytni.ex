@@ -53,6 +53,8 @@ defmodule Haytni do
     quote do
       import unquote(__MODULE__)
 
+      use Haytni.Callbacks
+
       Module.register_attribute(__MODULE__, :plugins, accumulate: true)
 
       @behaviour Plug
@@ -703,6 +705,16 @@ defmodule Haytni do
     Ecto.Multi.update(multi, name, user_and_changes_to_changeset(user, changes))
   end
 
+  defp user_base_query(module) do
+    import Ecto.Query
+
+    from(
+      u in module.schema(),
+      as: :user
+    )
+    |> module.user_query()
+  end
+
   @doc ~S"""
   Fetches a user from the *Ecto.Repo* specified in `config :haytni, YourApp.Haytni` as `repo` subkey via the
   attributes specified by *clauses* as a map or a keyword-list.
@@ -715,7 +727,9 @@ defmodule Haytni do
   """
   @spec get_user_by(module :: module, clauses :: Keyword.t | map) :: Haytni.nilable(Haytni.user)
   def get_user_by(module, clauses) do
-    module.repo().get_by(module.schema(), clauses)
+    module
+    |> user_base_query()
+    |> module.repo().get_by(clauses)
   end
 
   @doc ~S"""
@@ -734,7 +748,9 @@ defmodule Haytni do
   """
   @spec get_user(module :: module, id :: any) :: Haytni.nilable(Haytni.user)
   def get_user(module, id) do
-    module.repo().get(module.schema(), id)
+    module
+    |> user_base_query()
+    |> module.repo().get(id)
   end
 
   @doc ~S"""
