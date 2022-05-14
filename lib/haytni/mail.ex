@@ -6,8 +6,6 @@ defmodule Haytni.Mail do
   and troubles to deal with views/templates path.
   """
 
-  import Bamboo.Email
-
   @doc ~S"""
   Sets an assign for the email. These will be available when rendering the email.
   """
@@ -24,7 +22,7 @@ defmodule Haytni.Mail do
   @spec put_view(email :: Bamboo.Email.t, view :: module) :: Bamboo.Email.t
   def put_view(email = %Bamboo.Email{}, view) do
     email
-    |> put_private(:view, view)
+    |> Bamboo.Email.put_private(:view, view)
   end
 
   @doc ~S"""
@@ -66,7 +64,7 @@ defmodule Haytni.Mail do
     when not is_nil(view)
   do
     email
-    |> text_body(Phoenix.View.render_to_string(view, template, email.assigns))
+    |> Bamboo.Email.text_body(Phoenix.View.render_to_string(view, template, email.assigns))
   end
 
   @doc ~S"""
@@ -79,6 +77,6 @@ defmodule Haytni.Mail do
     when not is_nil(view)
   do
     email
-    |> html_body(Phoenix.View.render_to_string(view, template, email.assigns))
+    |> Bamboo.Email.html_body(Phoenix.View.render_to_string(view, template, email.assigns))
   end
 end
