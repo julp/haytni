@@ -12,7 +12,6 @@ defmodule Haytni.MixProject do
       docs: docs(),
       version: @version,
       elixir: "~> 1.9",
-      compilers: ~W[phoenix gettext]a ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
@@ -41,7 +40,7 @@ defmodule Haytni.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:gettext, ">= 0.0.0"},
+      {:gettext, "~> 0.20"},
       {:ecto_sql, "~> 3.7"},
       {:phoenix, "~> 1.6"},
       {:phoenix_ecto, "~> 4.4"},
