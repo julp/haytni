@@ -333,9 +333,8 @@ defmodule Haytni.InvitablePlugin do
 
   @spec send_invitation_mail(user :: Haytni.user, invitation :: invitation, module :: module, config :: Config.t) :: {:ok, true}
   defp send_invitation_mail(user, invitation, module, config) do
-    user
-    |> Haytni.InvitableEmail.invitation_email(invitation, module, config)
-    |> module.mailer().deliver_later()
+    email = Haytni.InvitableEmail.invitation_email(user, invitation, module, config)
+    Haytni.send_email(module, email)
 
     {:ok, true}
   end

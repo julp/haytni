@@ -92,7 +92,9 @@ defmodule Haytni do
 
       @spec mailer() :: module
       def mailer do
-        unquote(fetch_env!(__CALLER__.module)[:mailer])
+        unquote(@application)
+        |> Application.get_env(__MODULE__, [])
+        |> Keyword.get(:mailer)
       end
 
       @spec layout() :: false | {module, atom}
@@ -803,5 +805,15 @@ defmodule Haytni do
   @spec fetch_module_from_conn!(conn :: Plug.Conn.t) :: module
   def fetch_module_from_conn!(conn = %Plug.Conn{}) do
     Map.fetch!(conn.private, :haytni)
+  end
+
+  @doc ~S"""
+  Sends an email
+  """
+  @type email :: Bamboo.Email.t
+  @type email_sent_result :: {:ok, Haytni.email} | {:error, Exception.t | String.t}
+  @spec send_email(module :: module, email :: Haytni.email) :: Haytni.email_sent_result
+  def send_email(module, email = %Bamboo.Email{}) do
+    module.mailer().deliver_later(email)
   end
 end

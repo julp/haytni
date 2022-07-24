@@ -241,11 +241,10 @@ defmodule Haytni.LockablePlugin do
     config.unlock_strategy in ~W[both time]a and DateTime.diff(DateTime.utc_now(), user.locked_at) >= config.unlock_in
   end
 
-  @spec send_unlock_instructions_mail_to_user(user :: Haytni.user, token :: String.t, module :: module, config :: Config.t) :: {:ok, Bamboo.Email.t}
+  @spec send_unlock_instructions_mail_to_user(user :: Haytni.user, token :: String.t, module :: module, config :: Config.t) :: Haytni.email_sent_result
   defp send_unlock_instructions_mail_to_user(user, token, module, config) do
-    user
-    |> Haytni.LockableEmail.unlock_instructions_email(token, module, config)
-    |> module.mailer().deliver_later()
+    email = Haytni.LockableEmail.unlock_instructions_email(user, token, module, config)
+    Haytni.send_email(module, email)
   end
 
   @spec send_instructions_in_multi(multi :: Ecto.Multi.t, user :: Haytni.user, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t

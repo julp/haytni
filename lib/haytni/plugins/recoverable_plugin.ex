@@ -98,11 +98,10 @@ defmodule Haytni.RecoverablePlugin do
     ]
   end
 
-  @spec send_reset_password_instructions_mail_to_user(user :: Haytni.user, reset_password_token :: String.t, module :: module, config :: Haytni.config) :: {:ok, Bamboo.Email.t}
+  @spec send_reset_password_instructions_mail_to_user(user :: Haytni.user, reset_password_token :: String.t, module :: module, config :: Haytni.config) :: Haytni.email_sent_result
   defp send_reset_password_instructions_mail_to_user(user, reset_password_token, module, config) do
-    user
-    |> Haytni.RecoverableEmail.reset_password_email(reset_password_token, module, config)
-    |> module.mailer().deliver_later()
+    email = Haytni.RecoverableEmail.reset_password_email(user, reset_password_token, module, config)
+    Haytni.send_email(module, email)
   end
 
   @doc ~S"""

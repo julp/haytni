@@ -206,11 +206,10 @@ defmodule Haytni.ConfirmablePlugin do
     ]
   end
 
-  @spec send_confirmation_instructions(user :: Haytni.user, confirmation_token :: String.t, module :: module, config :: Haytni.config) :: {:ok, Bamboo.Email.t}
+  @spec send_confirmation_instructions(user :: Haytni.user, confirmation_token :: String.t, module :: module, config :: Haytni.config) :: Haytni.email_sent_result
   defp send_confirmation_instructions(user, confirmation_token, module, config) do
-    user
-    |> Haytni.ConfirmableEmail.confirmation_email(confirmation_token, module, config)
-    |> module.mailer().deliver_later()
+    email = Haytni.ConfirmableEmail.confirmation_email(user, confirmation_token, module, config)
+    Haytni.send_email(module, email)
   end
 
   @spec send_confirmation_instructions_in_multi(multi :: Ecto.Multi.t, user_or_user_name :: Haytni.user | Ecto.Multi.name, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
@@ -236,11 +235,10 @@ defmodule Haytni.ConfirmablePlugin do
     )
   end
 
-  @spec send_reconfirmation_instructions(user :: Haytni.user, unconfirmed_email :: String.t, confirmation_token :: String.t, module :: module, config :: Haytni.config) :: {:ok, Bamboo.Email.t}
+  @spec send_reconfirmation_instructions(user :: Haytni.user, unconfirmed_email :: String.t, confirmation_token :: String.t, module :: module, config :: Haytni.config) :: Haytni.email_sent_result
   defp send_reconfirmation_instructions(user, unconfirmed_email, confirmation_token, module, config) do
-    user
-    |> Haytni.ConfirmableEmail.reconfirmation_email(unconfirmed_email, confirmation_token, module, config)
-    |> module.mailer().deliver_later()
+    email = Haytni.ConfirmableEmail.reconfirmation_email(user, unconfirmed_email, confirmation_token, module, config)
+    Haytni.send_email(module, email)
   end
 
   @spec send_reconfirmation_instructions_in_multi(multi :: Ecto.Multi.t, user_name :: Ecto.Multi.name, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
@@ -258,11 +256,10 @@ defmodule Haytni.ConfirmablePlugin do
     )
   end
 
-  @spec send_notice_about_email_change(user :: Haytni.user, old_email :: String.t, module :: module, config :: Config.t) :: {:ok, Bamboo.Email.t}
+  @spec send_notice_about_email_change(user :: Haytni.user, old_email :: String.t, module :: module, config :: Config.t) :: Haytni.email_sent_result
   defp send_notice_about_email_change(user = %_{}, old_email, module, config) do
-    user
-    |> Haytni.ConfirmableEmail.email_changed(old_email, module, config)
-    |> module.mailer().deliver_later()
+    email = Haytni.ConfirmableEmail.email_changed(user, old_email, module, config)
+    Haytni.send_email(module, email)
   end
 
   @spec send_notice_about_email_change_in_multi(multi :: Ecto.Multi.t, user_name :: Ecto.Multi.name, old_email_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
