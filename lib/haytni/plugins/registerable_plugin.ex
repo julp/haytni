@@ -206,7 +206,6 @@ defmodule Haytni.RegisterablePlugin do
   defp validate_change(changeset = %Ecto.Changeset{}, field)
     when is_atom(field)
   do
-if true do
     # NOTE: we can't distinguish an empty value to an unchanged value since both generates no changes
     # to "leverage" it, we first check the field doesn't already have an error associated to it
     if is_nil(changeset.errors[field]) and :error == Ecto.Changeset.fetch_change(changeset, field) do
@@ -214,16 +213,6 @@ if true do
     else
       changeset
     end
-else
-    changeset
-    |> Ecto.Changeset.fetch_change(field)
-    |> case do
-      {:ok, _value} ->
-        changeset
-      :error ->
-        Ecto.Changeset.add_error(changeset, field, has_not_changed_message())
-    end
-end
   end
 
   @spec email_changeset(module :: module, config :: Config.t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
