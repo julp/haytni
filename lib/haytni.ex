@@ -163,7 +163,7 @@ defmodule Haytni do
       def on_mount(_, _params, session, socket) do
         {
           :cont,
-          socket
+          %{socket | private: Map.put(socket.private, :haytni, __MODULE__)}
           |> Phoenix.LiveView.assign_new(
             unquote(scoped_assign),
             fn ->
@@ -798,13 +798,13 @@ defmodule Haytni do
   end
 
   @doc ~S"""
-  Extracts an Haytni stack (module) from a Plug connection
+  Extracts an Haytni stack (module) from a `%Plug.Conn{}` or `%Phoenix.LiveView.Socket{}`
 
-  Raises if no Haytni's stack was defined (through the router).
+  Raises if no Haytni's stack is currently set (through the router).
   """
-  @spec fetch_module_from_conn!(conn :: Plug.Conn.t) :: module
-  def fetch_module_from_conn!(conn = %Plug.Conn{}) do
-    Map.fetch!(conn.private, :haytni)
+  @spec fetch_module_from_conn!(conn_or_socket :: Plug.Conn.t | Phoenix.LiveView.Socket.t) :: module | no_return
+  def fetch_module_from_conn!(conn_or_socket) do
+    Map.fetch!(conn_or_socket.private, :haytni)
   end
 
   @doc ~S"""
