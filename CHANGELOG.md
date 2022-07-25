@@ -2,6 +2,7 @@
 
 ## ?.?.? (????-??-??)
 
+- :gettext updated to 0.20
 - fixed various depreciations:
   + `Mix.Config` => `Config`
   + collecting into a non-empty list
@@ -9,8 +10,9 @@
 - [Rememberable] fixed wrong cookie max-age value (expiration)
 - fixed missing SQL negation in `Haytni.Token.purge_expired_tokens/1`, removing valid tokens instead of expired
 - [Authenticable] added `sign_in_return_path` and `sign_out_return_path` options
+- added `Haytni.send_email/2` to centralize emails sending
 - experimental features:
-  + added a module `Haytni.Callbacks` which defines the optional callbacks that a Haytni stack can define (override). Its only callback (for now) is `user_query/1` to compose the different Ecto queries loading users, a convenient way to (pre)load intimately related user data needed nearly everywhere (eg: roles)
+  + added a module `Haytni.Callbacks` which defines the optional callbacks that a Haytni stack can define (override). Its only callback (for now) is `user_query/1` to compose the different Ecto queries loading users, a convenient way to (pre)load intimately related user data needed nearly everywhere (eg: roles - see guides for an example)
 
 
 ## 0.7.0 (2022-04-10)
