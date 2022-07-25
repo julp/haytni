@@ -46,13 +46,22 @@ Run `mix haytni.install` which has the following options (command arguments):
 Create lib/*your_app*_web/haytni.ex :
 
 ```elixir
+defmodule YourApp.Haytni.Helpers do
+  def expassword_options(:test, algo = ExPassword.Bcrypt), do: [hashing_method: algo, hashing_options: %{cost: 4}]
+  def expassword_options(_env, algo = ExPassword.Bcrypt), do: [hashing_method: algo, hashing_options: %{cost: 10}]
+
+  def expassword_options(:test, algo = ExPassword.Argon2), do: [hashing_method: algo, hashing_options: %{memory_cost: 256, version: 0x13, threads: 1, time_cost: 2, type: :argon2id}]
+  def expassword_options(_env, algo = ExPassword.Argon2), do: [hashing_method: algo, hashing_options: %{memory_cost: 131072, version: 0x13, threads: 2, time_cost: 4, type: :argon2id}]
+end
+
 defmodule YourApp.Haytni do
   use Haytni, otp_app: :your_app
+  import YourApp.Haytni.Helpers
 
   # with bcrypt to hash current passwords
-  stack Haytni.AuthenticablePlugin, hashing_method: ExPassword.Bcrypt, hashing_options: %{cost: (if Mix.env() == :test, do: 4, else: 10)}
+  stack Haytni.AuthenticablePlugin, expassword_options(Mix.env(), ExPassword.Bcrypt)
   # with argon2 to hash current passwords
-  #stack Haytni.AuthenticablePlugin, hashing_method: ExPassword.Argon2, hashing_options: (if Mix.env() == :test, do: %{memory_cost: 256, threads: 1, time_cost: 2, type: :argon2id}, else: %{memory_cost: 131072, threads: 2, time_cost: 4, type: :argon2id})
+  #stack Haytni.AuthenticablePlugin, expassword_options(Mix.env(), ExPassword.Argon2)
   stack Haytni.RegisterablePlugin
   stack Haytni.RememberablePlugin
   stack Haytni.ConfirmablePlugin
