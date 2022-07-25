@@ -40,8 +40,10 @@ defmodule Haytni.Invitable.SendInvitationTest do
 
     test "ensures invitation is inserted and sent if quota is not exceeded and params are valid", %{user: user, config: config} do
       assert {:ok, invitation = %_{id: id}} = Haytni.InvitablePlugin.send_invitation(HaytniTestWeb.Haytni, config, @valid_params, user)
-      assert_delivered_email Haytni.InvitableEmail.invitation_email(user, invitation, HaytniTestWeb.Haytni, config)
       assert [%_{id: ^id}] = list_invitations(HaytniTestWeb.Haytni, user)
+      user
+      |> Haytni.InvitableEmail.invitation_email(invitation, HaytniTestWeb.Haytni, config)
+      |> assert_email_was_sent()
     end
   end
 end

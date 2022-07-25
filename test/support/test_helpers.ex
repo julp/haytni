@@ -415,4 +415,14 @@ defmodule Haytni.TestHelpers do
       true -> raise inspect({file, match})
     end
   end
+
+  @doc ~S"""
+  Asserts an email was sent and matches *email* (its internal data - headers and body)
+  """
+  @spec assert_email_was_sent(email :: Haytni.email) :: true | no_return # {:delivered_email, Bamboo.Email.t} | no_return
+  def assert_email_was_sent(email = %Bamboo.Email{}) do
+    email
+    |> Bamboo.Test.assert_delivered_email()
+    true
+  end
 end
