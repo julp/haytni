@@ -57,7 +57,7 @@ defmodule Haytni.Token do
     Ecto.build_assoc(user, @token_association, token: new(@token_length), context: context, sent_to: sent_to)
   end
 
-  @spec url_decode(token :: t) :: String.t
+  @spec token(token :: t) :: String.t
   def token(token = %_{}) do
     token.token
   end
