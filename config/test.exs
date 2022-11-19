@@ -13,6 +13,7 @@ config :haytni, HaytniTestWeb.Endpoint,
   server: false
 
 config :haytni, HaytniTest.Repo,
+  port: 5433,
   username: "haytni",
   password: "haytni",
   database: "haytni_test",
