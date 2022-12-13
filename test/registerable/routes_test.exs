@@ -1,5 +1,8 @@
 defmodule Haytni.Registerable.RoutesTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.RegisterablePlugin,
+  ]
 
   defp expected_registerable_routes(prefix, new_prefix, edit_prefix) do
     [
@@ -19,12 +22,12 @@ defmodule Haytni.Registerable.RoutesTest do
   describe "Haytni.RegisterablePlugin.routes/3 (callback)" do
     test "ensures unlock routes are part of the router" do
       expected_registerable_routes("/registration")
-      |> check_routes(HaytniTestWeb.Router)
+      |> check_routes(@router)
     end
 
     test "checks customized routes for registerable" do
       expected_registerable_routes("/CR/users", "/CR/register", "/CR/profile")
-      |> check_routes(HaytniTestWeb.Router)
+      |> check_routes(@router)
     end
   end
 end

@@ -32,13 +32,14 @@ defmodule HaytniWeb.Helpers do
   end
 
   defmacro __using__(options) do
-    quote bind_quoted: [options: options] do
+    suffix = if Haytni.Helpers.phoenix17?(), do: "HTML", else: "View"
+    quote bind_quoted: [options: options, suffix: suffix] do
       view_suffix =
         __MODULE__
         |> Module.split()
         |> List.last()
         |> Phoenix.Naming.unsuffix("Controller")
-        |> Kernel.<>("View")
+        |> Kernel.<>(suffix)
 
       {plugin, extra_args} = case options do
         {plugin, :with_current_user} ->

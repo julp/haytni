@@ -18,7 +18,9 @@ defmodule Haytni do
 
   @spec app_base(atom | module) :: String.t
   defp app_base(app) do
-    case Application.get_env(app, :namespace, app) do
+    app
+    |> Application.get_env(:namespace, app)
+    |> case do
       ^app ->
         app
         |> to_string()
@@ -33,13 +35,21 @@ defmodule Haytni do
     Application.fetch_env!(@application, key)
   end
 
+  defp maybe_suffix(string, suffix) do
+    if String.ends_with?(string, suffix) do
+      string
+    else
+      string <> suffix
+    end
+  end
+
   defmacro __using__(options) do
     otp_app = Keyword.fetch!(options, :otp_app)
 
     web_module =
       otp_app
       |> app_base()
-      |> Kernel.<>("Web")
+      |> maybe_suffix("Web")
       |> String.to_atom()
 
     scope =
@@ -49,6 +59,18 @@ defmodule Haytni do
 
     scoped_assign = :"current_#{scope}"
     scoped_session_key = :"#{scope}_id"
+
+    # TODO: drop this when only supporting LV >= 0.18
+    liveview_base_module =
+      :phoenix_live_view
+      |> Application.spec(:vsn)
+      |> to_string()
+      |> Version.match?(">= 0.18.0")
+      |> if do
+        Phoenix.Component
+      else
+        Phoenix.LiveView
+      end
 
     quote do
       import unquote(__MODULE__)
@@ -90,7 +112,7 @@ defmodule Haytni do
         unquote(fetch_env!(__CALLER__.module)[:repo])
       end
 
-      @spec mailer() :: module
+      @spec mailer() :: Haytni.nilable(module)
       def mailer do
         unquote(@application)
         |> Application.get_env(__MODULE__, [])
@@ -164,7 +186,7 @@ defmodule Haytni do
         {
           :cont,
           %{socket | private: Map.put(socket.private, :haytni, __MODULE__)}
-          |> Phoenix.LiveView.assign_new(
+          |> unquote(liveview_base_module).assign_new(
             unquote(scoped_assign),
             fn ->
               with(
@@ -296,7 +318,15 @@ defmodule Haytni do
   """
   @spec shared_files_to_install(base_path :: String.t, web_path :: String.t, scope :: String.t, timestamp :: String.t) :: [{:eex | :text, String.t, String.t}]
   def shared_files_to_install(base_path, web_path, scope, timestamp) do
-    [
+    if Haytni.Helpers.phoenix17?() do
+      [
+        # XXX
+      ]
+    else
+      [
+        # XXX
+      ]
+    end ++ [
       {:eex, "haytni.ex", Path.join([base_path, "haytni.ex"])},
       {:eex, "views/shared_view.ex", Path.join([web_path, "views", "haytni", scope, "shared_view.ex"])},
       {:eex, "templates/shared/keys.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.heex"])},
@@ -810,10 +840,11 @@ defmodule Haytni do
   @doc ~S"""
   Sends an email
   """
-  @type email :: Bamboo.Email.t
-  @type email_sent_result :: {:ok, Haytni.email} | {:error, Exception.t | String.t}
-  @spec send_email(module :: module, email :: Haytni.email) :: Haytni.email_sent_result
-  def send_email(module, email = %Bamboo.Email{}) do
-    module.mailer().deliver_later(email)
+  @spec send_email(module :: module, email :: Haytni.Mail.t, options :: Keyword.t) :: Haytni.Mailer.DeliveryStrategy.email_sent
+  def send_email(module, email = %Haytni.Mail{}, options \\ []) do
+    mailer = module.mailer()
+    # TODO: cast (adapter) > send (adapter) > deliver (strategy)
+    #mailer.strategy.deliver(email, mailer, options)
+    Haytni.Mailer.UnsupervisedTaskStrategy.deliver(email, module.mailer(), options)
   end
 end

@@ -1,12 +1,14 @@
 defmodule Haytni.Invitable.OnRegistrationTest do
-  use Haytni.DataCase, async: true
-  use Bamboo.Test
+  use Haytni.DataCase, [
+    async: true,
+    plugin: Haytni.InvitablePlugin,
+  ]
 
   describe "Haytni.InvitablePlugin.on_registration/3" do
     setup do
       [
         sender: user_fixture(),
-        config: Haytni.InvitablePlugin.build_config(invitation_required: true),
+        config: @plugin.build_config(invitation_required: true),
       ]
     end
 
@@ -17,13 +19,13 @@ defmodule Haytni.Invitable.OnRegistrationTest do
 
         actions =
           Ecto.Multi.new()
-          |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | email_matching_invitation: unquote(email_match), invitation_required: unquote(invitation_required)})
+          |> @plugin.on_registration(@stack, %{config | email_matching_invitation: unquote(email_match), invitation_required: unquote(invitation_required)})
           |> Ecto.Multi.to_list()
 
         assert [{:acceptation, {:run, fun}}] = actions
-        assert {:ok, true} = fun.(HaytniTest.Repo, %{user: accepter})
+        assert {:ok, true} = fun.(@repo, %{user: accepter})
 
-        assert [updated_invitation] = list_invitations(HaytniTestWeb.Haytni, sender)
+        assert [updated_invitation] = list_invitations(@stack, sender)
         assert updated_invitation.id == invitation.id
         #assert updated_invitation.accepted_by == accepter.id # NOTE: we can't check that here since accepter is not persisted (and its id is nil)
         refute is_nil(updated_invitation.accepted_at)
@@ -36,11 +38,11 @@ defmodule Haytni.Invitable.OnRegistrationTest do
 
       actions =
         Ecto.Multi.new()
-        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | email_matching_invitation: true})
+        |> @plugin.on_registration(@stack, %{config | email_matching_invitation: true})
         |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
-      assert {:error, :invitation_required} = fun.(HaytniTest.Repo, %{user: accepter})
+      assert {:error, :invitation_required} = fun.(@repo, %{user: accepter})
     end
 
     test "invitation is optional and none provided", %{config: config} do
@@ -48,11 +50,11 @@ defmodule Haytni.Invitable.OnRegistrationTest do
 
       actions =
         Ecto.Multi.new()
-        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | invitation_required: false})
+        |> @plugin.on_registration(@stack, %{config | invitation_required: false})
         |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
-      assert {:ok, false} = fun.(HaytniTest.Repo, %{user: accepter})
+      assert {:ok, false} = fun.(@repo, %{user: accepter})
     end
 
     test "invitation required but none provided", %{config: config} do
@@ -60,11 +62,11 @@ defmodule Haytni.Invitable.OnRegistrationTest do
 
       actions =
         Ecto.Multi.new()
-        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, config)
+        |> @plugin.on_registration(@stack, config)
         |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
-      assert {:error, :invitation_required} = fun.(HaytniTest.Repo, %{user: accepter})
+      assert {:error, :invitation_required} = fun.(@repo, %{user: accepter})
     end
 
     test "invitation required but has expired", %{sender: sender, config: config} do
@@ -73,11 +75,11 @@ defmodule Haytni.Invitable.OnRegistrationTest do
 
       actions =
         Ecto.Multi.new()
-        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, config)
+        |> @plugin.on_registration(@stack, config)
         |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
-      assert {:error, :invitation_required} = fun.(HaytniTest.Repo, %{user: accepter})
+      assert {:error, :invitation_required} = fun.(@repo, %{user: accepter})
     end
 
     test "invitation optional and has expired", %{sender: sender, config: config} do
@@ -86,11 +88,11 @@ defmodule Haytni.Invitable.OnRegistrationTest do
 
       actions =
         Ecto.Multi.new()
-        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | invitation_required: false})
+        |> @plugin.on_registration(@stack, %{config | invitation_required: false})
         |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
-      assert {:ok, false} = fun.(HaytniTest.Repo, %{user: accepter})
+      assert {:ok, false} = fun.(@repo, %{user: accepter})
     end
 
     test "invitation required but was already used", %{sender: sender, config: config} do
@@ -99,11 +101,11 @@ defmodule Haytni.Invitable.OnRegistrationTest do
 
       actions =
         Ecto.Multi.new()
-        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, config)
+        |> @plugin.on_registration(@stack, config)
         |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
-      assert {:error, :invitation_required} = fun.(HaytniTest.Repo, %{user: accepter})
+      assert {:error, :invitation_required} = fun.(@repo, %{user: accepter})
     end
 
     test "invitation optional and was already used", %{sender: sender, config: config} do
@@ -112,11 +114,11 @@ defmodule Haytni.Invitable.OnRegistrationTest do
 
       actions =
         Ecto.Multi.new()
-        |> Haytni.InvitablePlugin.on_registration(HaytniTestWeb.Haytni, %{config | invitation_required: false})
+        |> @plugin.on_registration(@stack, %{config | invitation_required: false})
         |> Ecto.Multi.to_list()
 
       assert [{:acceptation, {:run, fun}}] = actions
-      assert {:ok, false} = fun.(HaytniTest.Repo, %{user: accepter})
+      assert {:ok, false} = fun.(@repo, %{user: accepter})
     end
   end
 end

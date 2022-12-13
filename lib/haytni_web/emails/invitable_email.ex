@@ -1,6 +1,5 @@
 defmodule Haytni.InvitableEmail do
   import Haytni.Mail
-  import Bamboo.Email
   import Haytni.Gettext
 
   @doc ~S"""
@@ -9,9 +8,9 @@ defmodule Haytni.InvitableEmail do
   In the *invitation* templates, *user* is the sender of the invitation, you have full access to it, so you can use any field from its schema so you can
   refer to it by its surname if you like.
   """
-  @spec invitation_email(user :: Haytni.user, invitation :: Haytni.InvitablePlugin.invitation, module :: module, config :: Haytni.config) :: Haytni.email
+  @spec invitation_email(user :: Haytni.user, invitation :: Haytni.InvitablePlugin.invitation, module :: module, config :: Haytni.config) :: Haytni.Mail.t
   def invitation_email(user = %_{}, invitation, module, config) do
-    new_email()
+    new()
     |> to(invitation.sent_to)
     |> assign(:user, user)
     |> assign(:config, config)

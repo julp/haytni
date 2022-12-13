@@ -40,6 +40,10 @@ defmodule Mix.Tasks.Haytni.Install do
         camelized_scope: Phoenix.Naming.camelize(scope_as_string),
       ]
 
+    #IO.inspect(otp_app, label: "otp_app")
+    #IO.inspect(base_path, label: "base_path")
+    #IO.inspect(in_umbrella?(base_path), label: "in_umbrella?")
+    #IO.inspect(files_to_install, label: "files_to_install")
     Mix.Phoenix.copy_from([".", :haytni], "priv/", binding, files_to_install)
   end
 
@@ -53,11 +57,32 @@ defmodule Mix.Tasks.Haytni.Install do
   end
   # </from phoenix/lib/mix/tasks/phx.gen.schema.ex>
 
+  # <from phoenix/installer/lib/phx_new/generator.ex>
+if false do
+  defp phoenix_path_prefix(true), do: "../../../"
+  defp phoenix_path_prefix(false), do: ".."
+
+  def in_umbrella?(app_path) do
+    umbrella = Path.expand(Path.join([app_path, "..", ".."]))
+    mix_path = Path.join(umbrella, "mix.exs")
+    apps_path = Path.join(umbrella, "apps")
+
+    File.exists?(mix_path) && File.exists?(apps_path)
+  end
+end
+  # </from phoenix/installer/lib/phx_new/generator.ex>
+
   def base_path(path \\ "") do
     Path.join(["lib", to_string(Mix.Phoenix.otp_app()), path])
   end
 
   def web_path(path \\ "") do
-    Path.join(["lib", "#{Mix.Phoenix.otp_app()}_web", path])
+    otp_app = Mix.Phoenix.otp_app() |> to_string()
+    otp_app_path = if otp_app |> String.ends_with?("_web") do
+      otp_app
+    else
+      "#{otp_app}_web"
+    end
+    Path.join(["lib", otp_app_path, path])
   end
 end

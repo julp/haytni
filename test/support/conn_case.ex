@@ -13,10 +13,15 @@ defmodule HaytniWeb.ConnCase do
   of the test unless the test case is marked as async.
   """
 
+  defmacro __using__(options \\ [])
+
   use ExUnit.CaseTemplate
 
-  using do
+  defmacro __using__(options) do
+    {options, quoted} = Haytni.Case.haytni_common(options)
     quote do
+      unquote(super(options))
+
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
@@ -24,8 +29,7 @@ defmodule HaytniWeb.ConnCase do
       alias Haytni.Params
       alias HaytniTestWeb.Router.Helpers, as: Routes
 
-      # The default endpoint for testing
-      @endpoint HaytniTestWeb.Endpoint
+      unquote(quoted)
     end
   end
 

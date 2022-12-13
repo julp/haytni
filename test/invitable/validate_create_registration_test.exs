@@ -1,6 +1,9 @@
 if true do
 defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
-  use Haytni.DataCase, async: true
+  use Haytni.DataCase, [
+    async: true,
+    plugin: Haytni.InvitablePlugin,
+  ]
 
   @code "0123456789"
   @email "abc@def.ghi"
@@ -16,7 +19,7 @@ defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
     %HaytniTest.User{}
     |> Ecto.Changeset.cast(params, ~W[invitation email]a)
     #|> Map.put(:repo, HaytniTest.Repo) # simulates Repo.insert call
-    |> Haytni.InvitablePlugin.validate_create_registration(HaytniTestWeb.Haytni, config)
+    |> @plugin.validate_create_registration(@stack, config)
     |> HaytniTest.Repo.insert()
   end
 
@@ -25,7 +28,11 @@ defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
       user = user_fixture()
       invitation = invitation_fixture(user, @email, code: @code)
 
-      {:ok, config: Haytni.InvitablePlugin.build_config(), user: user, invitation: invitation}
+      [
+        user: user,
+        invitation: invitation,
+        config: @plugin.build_config(),
+      ]
     end
 
     test "ensures registration is possible without invitation when invitation_required = false", %{config: config} do
@@ -36,14 +43,14 @@ defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
       {:error, changeset} = to_changeset(nil, @bad_email, config)
 
       refute changeset.valid?
-      assert %{base: [Haytni.InvitablePlugin.invitation_required_message()]} == errors_on(changeset)
+      assert %{base: [@plugin.invitation_required_message()]} == errors_on(changeset)
     end
 
     test "ensures registration is not possible with a bad code (invitation_required = true)", %{config: config} do
       {:error, changeset} = to_changeset("abcdefghijklmnopqrstuvwxyz", @bad_email, config)
 
       refute changeset.valid?
-      assert %{base: [Haytni.InvitablePlugin.invalid_invitation_message()]} == errors_on(changeset)
+      assert %{base: [@plugin.invalid_invitation_message()]} == errors_on(changeset)
     end
 
     test "ensures registration is not possible with an expired code (invitation_required = true)", %{config: config, user: user} do
@@ -52,7 +59,7 @@ defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
       {:error, changeset} = to_changeset(code, @bad_email, config)
 
       refute changeset.valid?
-      assert %{base: [Haytni.InvitablePlugin.invitation_expired_message()]} == errors_on(changeset)
+      assert %{base: [@plugin.invitation_expired_message()]} == errors_on(changeset)
     end
 
     test "ensures registration is not possible with an already used invitation (invitation_required = true)", %{config: config, user: user} do
@@ -61,7 +68,7 @@ defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
       {:error, changeset} = to_changeset(code, @bad_email, config)
 
       refute changeset.valid?
-      assert %{base: [Haytni.InvitablePlugin.invalid_invitation_message()]} == errors_on(changeset)
+      assert %{base: [@plugin.invalid_invitation_message()]} == errors_on(changeset)
     end
 
     test "ensures registration is possible with an invitation when required (invitation_required = true)", %{config: config} do
@@ -76,7 +83,7 @@ defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
       {:error, changeset} = to_changeset(@code, @bad_email, %{config | email_matching_invitation: true})
 
       refute changeset.valid?
-      assert %{base: [Haytni.InvitablePlugin.invitation_email_mismatch_message()]} == errors_on(changeset)
+      assert %{base: [@plugin.invitation_email_mismatch_message()]} == errors_on(changeset)
     end
   end
 end

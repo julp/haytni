@@ -1,11 +1,14 @@
 defmodule Haytni.Rememberable.OnLogoutTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.RememberablePlugin,
+  ]
 
   defp do_test(%{conn: conn, config: config}) do
     conn =
       conn
-      |> Haytni.RememberablePlugin.add_rememberme_cookie("azerty", config)
-      |> Haytni.RememberablePlugin.on_logout(HaytniTestWeb.Haytni, config)
+      |> @plugin.add_rememberme_cookie("azerty", config)
+      |> @plugin.on_logout(@stack, config)
 
     assert_cookie_deletion(conn, config.remember_cookie_name)
   end
@@ -13,7 +16,7 @@ defmodule Haytni.Rememberable.OnLogoutTest do
   describe "Haytni.RememberablePlugin.on_logout/3 (callback)" do
     setup do
       [
-        config: Haytni.RememberablePlugin.build_config(),
+        config: @plugin.build_config(),
       ]
     end
 

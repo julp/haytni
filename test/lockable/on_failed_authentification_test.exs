@@ -1,17 +1,19 @@
 defmodule Haytni.Lockable.OnFailedAuthentificationTest do
-  use HaytniWeb.ConnCase, async: true
-  use Bamboo.Test
+  use HaytniWeb.ConnCase, [
+    email: true,
+    plugin: Haytni.LockablePlugin,
+  ]
 
   alias HaytniTest.User
 
   defp on_failed_authentication(config, user, multi \\ nil, keywords \\ nil) do
-    Haytni.LockablePlugin.on_failed_authentication(user, multi || Ecto.Multi.new(), keywords || Keyword.new(), HaytniTestWeb.Haytni, config)
+    @plugin.on_failed_authentication(user, multi || Ecto.Multi.new(), keywords || Keyword.new(), @stack, config)
   end
 
   describe "Haytni.LockablePlugin.on_failed_authentication/5 (callback)" do
     setup do
       [
-        config: Haytni.LockablePlugin.build_config(),
+        config: @plugin.build_config(),
       ]
     end
 
@@ -30,12 +32,12 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
           assert [{:increment_failed_attempts, {:update_all, query, ^updates, []}}] = Ecto.Multi.to_list(multi)
           assert [] == changes
 
-          HaytniTest.Repo.update_all(query, updates)
-          [updated_user] = HaytniTest.Repo.all(user.__struct__)
+          @repo.update_all(query, updates)
+          [updated_user] = @repo.all(user.__struct__)
           assert updated_user.id == user.id
           assert updated_user.failed_attempts == user.failed_attempts + 1
           assert is_nil(updated_user.locked_at)
-          assert [] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.RememberablePlugin.token_context(nil)))
+          assert [] == @repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.RememberablePlugin.token_context(nil)))
 
           updated_user
         end
@@ -56,7 +58,7 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
 
             assert %{locked_at: at} = changes_as_map
             assert %DateTime{} = at
-            if Haytni.LockablePlugin.email_strategy_enabled?(config) do
+            if @plugin.email_strategy_enabled?(config) do
               assert [{:token, {:insert, %Ecto.Changeset{}, []}}, {:send_unlock_instructions, {:run, _function}}] = Ecto.Multi.to_list(multi)
             else
               assert [] == Ecto.Multi.to_list(multi)
@@ -78,9 +80,9 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
           |> Ecto.Changeset.apply_changes()
 
         assert [{:token, {:insert, changeset = %Ecto.Changeset{}, []}}, {:send_unlock_instructions, {:run, fun}}] = Ecto.Multi.to_list(multi)
-        assert {:ok, true} = fun.(HaytniTest.Repo, %{user: updated_user, token: changeset.data})
+        assert {:ok, true} = fun.(@repo, %{user: updated_user, token: changeset.data})
         updated_user
-        |> Haytni.LockableEmail.unlock_instructions_email(Haytni.Token.url_encode(changeset.data), HaytniTestWeb.Haytni, config)
+        |> Haytni.LockableEmail.unlock_instructions_email(Haytni.Token.url_encode(changeset.data), @stack, config)
         |> assert_email_was_sent()
       end
     end

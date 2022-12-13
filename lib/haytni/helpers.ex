@@ -195,6 +195,14 @@ defmodule Haytni.Helpers do
     )
   end
 
+  @doc false
+  def phoenix17? do
+    :phoenix
+    |> Application.spec(:vsn)
+    |> to_string()
+    |> Version.match?("~> 1.7-rc")
+  end
+
 if true do
   defmacro multi_to_regular_result(result, name) do
     quote do

@@ -1,5 +1,8 @@
 defmodule Haytni.Lockable.RoutesTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.LockablePlugin,
+  ]
 
   defp expected_lockable_routes(prefix) do
     [
@@ -13,19 +16,19 @@ defmodule Haytni.Lockable.RoutesTest do
     test "ensures unlock routes are part of the router for scope = :user" do
       "/unlock"
       |> expected_lockable_routes()
-      |> check_routes(HaytniTestWeb.Router)
+      |> check_routes(@router)
     end
 
     test "ensures unlock routes are part of the router for scope = :admin" do
       "/admin/unlock"
       |> expected_lockable_routes()
-      |> check_routes(HaytniTestWeb.Router)
+      |> check_routes(@router)
     end
 
     test "checks customized routes for lockable" do
       "/CR/unblock"
       |> expected_lockable_routes()
-      |> check_routes(HaytniTestWeb.Router)
+      |> check_routes(@router)
     end
   end
 end

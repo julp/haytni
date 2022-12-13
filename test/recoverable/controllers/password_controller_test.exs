@@ -1,5 +1,8 @@
 defmodule Haytni.Recoverable.PasswordControllerTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.RecoverablePlugin,
+  ]
 
   defp change_params(token) do
     [
@@ -76,14 +79,14 @@ defmodule Haytni.Recoverable.PasswordControllerTest do
         |> html_response(200)
 
       check_form_presence(response)
-      assert contains_text?(response, Haytni.RecoverablePlugin.invalid_token_message())
+      assert contains_text?(response, @plugin.invalid_token_message())
     end
 
     test "checks successful password change", %{conn: conn} do
       user = user_fixture()
       token =
         user
-        |> token_fixture(Haytni.RecoverablePlugin)
+        |> token_fixture(@plugin)
         |> Haytni.Token.url_encode()
 
       response =

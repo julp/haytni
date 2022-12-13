@@ -1,5 +1,8 @@
 defmodule Haytni.Recoverable.RoutesTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.RecoverablePlugin,
+  ]
 
   defp expected_recoverable_routes(prefix) do
     [
@@ -15,13 +18,13 @@ defmodule Haytni.Recoverable.RoutesTest do
     test "ensures password recovering routes are part of the router" do
       "/password"
       |> expected_recoverable_routes()
-      |> check_routes(HaytniTestWeb.Router)
+      |> check_routes(@router)
     end
 
     test "checks customized routes for recoverable" do
       "/CR/secret"
       |> expected_recoverable_routes()
-      |> check_routes(HaytniTestWeb.Router)
+      |> check_routes(@router)
     end
   end
 end

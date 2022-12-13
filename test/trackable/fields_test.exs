@@ -1,5 +1,8 @@
 defmodule Haytni.Trackable.FieldsTest do
-  use HaytniWeb.ConnCase, async: true
+  use Haytni.DataCase, [
+    async: true,
+    plugin: Haytni.TrackablePlugin,
+  ]
 
   @fields ~W[last_sign_in_at current_sign_in_at]a
   describe "Haytni.TrackablePlugin.fields/0 (callback)" do

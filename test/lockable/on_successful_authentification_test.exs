@@ -1,5 +1,8 @@
 defmodule Haytni.Lockable.OnSuccessfulAuthentificationTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.LockablePlugin,
+  ]
 
   alias HaytniTest.User
 
@@ -8,7 +11,7 @@ defmodule Haytni.Lockable.OnSuccessfulAuthentificationTest do
   # user successfully authenticate himself
   describe "Haytni.LockablePlugin.on_successful_authentication/6 (callback)" do
     test "ensures failed attempts are cleared after successful authentication", %{conn: conn} do
-      config = Haytni.LockablePlugin.build_config()
+      config = @plugin.build_config()
 
       [
         %User{id: 123, failed_attempts: 0},
@@ -17,7 +20,7 @@ defmodule Haytni.Lockable.OnSuccessfulAuthentificationTest do
       ]
       |> Enum.each(
         fn user ->
-          assert {%Plug.Conn{}, multi, [failed_attempts: 0]} = Haytni.LockablePlugin.on_successful_authentication(conn, user, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, config)
+          assert {%Plug.Conn{}, multi, [failed_attempts: 0]} = @plugin.on_successful_authentication(conn, user, Ecto.Multi.new(), Keyword.new(), @stack, config)
           assert [{:tokens, {:delete_all, %Ecto.Query{}, []}}] = Ecto.Multi.to_list(multi)
         end
       )

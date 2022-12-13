@@ -1,13 +1,15 @@
 defmodule Haytni.Confirmable.OnEmailChangeTest do
-  use Haytni.DataCase, async: true
-  use Bamboo.Test
+  use Haytni.DataCase, [
+    email: true,
+    plugin: Haytni.ConfirmablePlugin,
+  ]
 
   @new_email "123@456.789"
   @old_email "abc@def.ghi"
   describe "Haytni.ConfirmablePlugin.on_email_change/4" do
     setup do
       [
-        config: Haytni.ConfirmablePlugin.build_config(),
+        config: @plugin.build_config(),
       ]
     end
 
@@ -16,7 +18,7 @@ defmodule Haytni.Confirmable.OnEmailChangeTest do
       user = %HaytniTest.User{email: @old_email}
 
       changeset = Ecto.Changeset.change(user, email: @new_email)
-      {multi, changeset} = Haytni.ConfirmablePlugin.on_email_change(Ecto.Multi.new(), changeset, HaytniTestWeb.Haytni, config)
+      {multi, changeset} = @plugin.on_email_change(Ecto.Multi.new(), changeset, @stack, config)
       assert {:ok, @new_email} == Ecto.Changeset.fetch_change(changeset, :email)
 
       assert [{:send_notice_about_email_change, {:run, fun}}] = Ecto.Multi.to_list(multi)
@@ -24,9 +26,9 @@ defmodule Haytni.Confirmable.OnEmailChangeTest do
       # simulates Haytni.handle_email_change
       state = %{user: user, old_email: @old_email, new_email: @new_email}
 
-      assert {:ok, true} = fun.(HaytniTest.Repo, state)
+      assert {:ok, true} = fun.(@repo, state)
       user
-      |> Haytni.ConfirmableEmail.email_changed(@old_email, HaytniTestWeb.Haytni, config)
+      |> Haytni.ConfirmableEmail.email_changed(@old_email, @stack, config)
       |> assert_email_was_sent()
     end
 
@@ -35,7 +37,7 @@ defmodule Haytni.Confirmable.OnEmailChangeTest do
       user = user_fixture(email: @old_email)
 
       changeset = Ecto.Changeset.change(user, email: @new_email)
-      {multi, changeset} = Haytni.ConfirmablePlugin.on_email_change(Ecto.Multi.new(), changeset, HaytniTestWeb.Haytni, config)
+      {multi, changeset} = @plugin.on_email_change(Ecto.Multi.new(), changeset, @stack, config)
       assert :error == Ecto.Changeset.fetch_change(changeset, :email)
 
       assert [
@@ -47,22 +49,22 @@ defmodule Haytni.Confirmable.OnEmailChangeTest do
       # simulates Haytni.handle_email_change
       state = %{user: user, old_email: @old_email, new_email: @new_email}
 
-      #assert [] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.ConfirmablePlugin.token_context(nil)))
-      assert {:ok, confirmation_token = %HaytniTest.UserToken{}} = fun1.(HaytniTest.Repo, state)
+      #assert [] == @repo.all(Haytni.Token.tokens_from_user_query(user, @plugin.token_context(nil)))
+      assert {:ok, confirmation_token = %HaytniTest.UserToken{}} = fun1.(@repo, state)
       assert confirmation_token.user_id == user.id
-      assert confirmation_token.context == Haytni.ConfirmablePlugin.token_context(@old_email)
+      assert confirmation_token.context == @plugin.token_context(@old_email)
       assert is_binary(confirmation_token.token)
-      #assert [%HaytniTest.UserToken{^id: ^confirmation_token.id}] == HaytniTest.Repo.all(Haytni.Token.tokens_from_user_query(user, Haytni.ConfirmablePlugin.token_context(nil)))
+      #assert [%HaytniTest.UserToken{^id: ^confirmation_token.id}] == @repo.all(Haytni.Token.tokens_from_user_query(user, @plugin.token_context(nil)))
 
       state = Map.put(state, :confirmation_token, confirmation_token)
-      assert {:ok, true} = fun2.(HaytniTest.Repo, state)
+      assert {:ok, true} = fun2.(@repo, state)
       user
-      |> Haytni.ConfirmableEmail.reconfirmation_email(@new_email, Haytni.Token.url_encode(confirmation_token), HaytniTestWeb.Haytni, config)
+      |> Haytni.ConfirmableEmail.reconfirmation_email(@new_email, Haytni.Token.url_encode(confirmation_token), @stack, config)
       |> assert_email_was_sent()
 
-      assert {:ok, true} = fun3.(HaytniTest.Repo, state)
+      assert {:ok, true} = fun3.(@repo, state)
       user
-      |> Haytni.ConfirmableEmail.email_changed(@old_email, HaytniTestWeb.Haytni, config)
+      |> Haytni.ConfirmableEmail.email_changed(@old_email, @stack, config)
       |> assert_email_was_sent()
     end
   end

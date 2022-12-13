@@ -1,5 +1,8 @@
 defmodule Haytni.Registerable.ValidateCreateRegistrationTest do
-  use Haytni.DataCase, async: true
+  use Haytni.DataCase, [
+    async: true,
+    plugin: Haytni.RegisterablePlugin,
+  ]
 
   @fields ~W[email password]a
   @valid_params [
@@ -10,7 +13,7 @@ defmodule Haytni.Registerable.ValidateCreateRegistrationTest do
   defp to_changeset(params, config) do
     %HaytniTest.User{}
     |> Ecto.Changeset.cast(params, @fields)
-    |> Haytni.RegisterablePlugin.validate_create_registration(HaytniTestWeb.Haytni, config)
+    |> @plugin.validate_create_registration(HaytniTestWeb.Haytni, config)
   end
 
   defp registration_params(attrs \\ %{}) do
@@ -22,7 +25,7 @@ defmodule Haytni.Registerable.ValidateCreateRegistrationTest do
   describe "Haytni.RegisterablePlugin.validate_create_registration/3" do
     setup do
       [
-        config: Haytni.RegisterablePlugin.build_config(),
+        config: @plugin.build_config(),
       ]
     end
 
@@ -90,9 +93,9 @@ defmodule Haytni.Registerable.ValidateCreateRegistrationTest do
         |> to_changeset(config)
         |> Ecto.Changeset.change(encrypted_password: "")
 
-      {:ok, _user} = HaytniTest.Repo.insert(input_changeset)
+      {:ok, _user} = @repo.insert(input_changeset)
       # NOTE: unique_constraint will only pop up after a Repo.insert
-      {:error, output_changeset} = HaytniTest.Repo.insert(input_changeset)
+      {:error, output_changeset} = @repo.insert(input_changeset)
 
       refute output_changeset.valid?
       assert %{email: [already_took_message()]} == errors_on(output_changeset)

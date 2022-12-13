@@ -1,5 +1,8 @@
 defmodule Haytni.PasswordPolicy.ValidatePasswordTest do
-  use Haytni.DataCase, async: true
+  use Haytni.DataCase, [
+    async: true,
+    plugin: Haytni.PasswordPolicyPlugin,
+  ]
 
   describe "Haytni.PasswordPolicyPlugin.validate_password/3" do
     test "checks password length complies to password_length" do
@@ -10,15 +13,15 @@ defmodule Haytni.PasswordPolicy.ValidatePasswordTest do
         |> Ecto.Changeset.change(password: password)
 
       for l <- Range.new(length + 1, length + 5) do
-        config = Haytni.PasswordPolicyPlugin.build_config(password_length: l..128, password_classes_to_match: 0)
-        changeset = Haytni.PasswordPolicyPlugin.validate_password(changeset, HaytniTestWeb.Haytni, config)
+        config = @plugin.build_config(password_length: l..128, password_classes_to_match: 0)
+        changeset = @plugin.validate_password(changeset, @stack, config)
 
         refute changeset.valid?
         assert %{password: ["should be at least #{l} character(s)"]} == errors_on(changeset)
       end
       for l <- Range.new(length - 4, length) do
-        config = Haytni.PasswordPolicyPlugin.build_config(password_length: l..128, password_classes_to_match: 0)
-        changeset = Haytni.PasswordPolicyPlugin.validate_password(changeset, HaytniTestWeb.Haytni, config)
+        config = @plugin.build_config(password_length: l..128, password_classes_to_match: 0)
+        changeset = @plugin.validate_password(changeset, @stack, config)
 
         assert changeset.valid?
         assert %{} == errors_on(changeset)
@@ -28,12 +31,12 @@ defmodule Haytni.PasswordPolicy.ValidatePasswordTest do
     test "checks password content complies to password_classes_to_match" do
       chars = ["", "a", "A", "0", "!"]
       for a <- chars, b <- chars, c <- chars, d <- chars, l <- 0..4 do
-        config = Haytni.PasswordPolicyPlugin.build_config(password_length: 0..128, password_classes_to_match: l)
+        config = @plugin.build_config(password_length: 0..128, password_classes_to_match: l)
         password = Enum.join([a, b, c, d])
         changeset =
           %HaytniTest.User{}
           |> Ecto.Changeset.change(password: password)
-          |> Haytni.PasswordPolicyPlugin.validate_password(HaytniTestWeb.Haytni, config)
+          |> @plugin.validate_password(@stack, config)
 
         cond do
           password == "" ->
@@ -43,7 +46,7 @@ defmodule Haytni.PasswordPolicy.ValidatePasswordTest do
             assert %{} == errors_on(changeset)
           true ->
             refute changeset.valid?
-            assert %{password: [Haytni.PasswordPolicyPlugin.invalid_password_format_message(config)]} == errors_on(changeset)
+            assert %{password: [@plugin.invalid_password_format_message(config)]} == errors_on(changeset)
         end
       end
     end

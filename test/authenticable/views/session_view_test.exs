@@ -1,5 +1,8 @@
 defmodule Haytni.Authenticable.SessionViewTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.AuthenticablePlugin,
+  ]
   import Phoenix.View
 
   @email "tony.stark@stark-industries.com"
@@ -15,12 +18,12 @@ defmodule Haytni.Authenticable.SessionViewTest do
 
   defp do_test(conn, view, config, params) do
     changeset = if map_size(params) == 0 do
-      Haytni.AuthenticablePlugin.session_changeset(config)
+      @plugin.session_changeset(config)
     else
-      {:error, changeset} = Haytni.AuthenticablePlugin.authenticate(conn, HaytniTestWeb.Haytni, config, params)
+      {:error, changeset} = @plugin.authenticate(conn, @stack, config, params)
       changeset
     end
-    content = render_to_string(view, "new.html", conn: conn, changeset: changeset, config: config, module: HaytniTestWeb.Haytni)
+    content = render_to_string(view, "new.html", conn: conn, changeset: changeset, config: config, module: @stack)
     assert content =~ "name=\"session[password]\""
 
     for key <- config.authentication_keys do
@@ -28,7 +31,7 @@ defmodule Haytni.Authenticable.SessionViewTest do
     end
 
     if map_size(params) != 0 do
-      assert contains_text?(content, Haytni.AuthenticablePlugin.invalid_credentials_message())
+      assert contains_text?(content, @plugin.invalid_credentials_message())
     end
   end
 
@@ -38,8 +41,8 @@ defmodule Haytni.Authenticable.SessionViewTest do
   ]
 
   @configs [
-    {HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin), %{"email" => @email, "password" => "not a match"}},
-    {%{HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin) | authentication_keys: ~W[firstname lastname]a}, %{"firstname" => @firstname, "lastname" => @lastname, "password" => "not a match"}},
+    {@stack.fetch_config(@plugin), %{"email" => @email, "password" => "not a match"}},
+    {%{@stack.fetch_config(@plugin) | authentication_keys: ~W[firstname lastname]a}, %{"firstname" => @firstname, "lastname" => @lastname, "password" => "not a match"}},
   ]
 
   for {config, params} <- @configs, {scope, view} <- @scopes do

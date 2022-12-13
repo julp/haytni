@@ -65,11 +65,21 @@ defmodule Haytni.ConfirmablePlugin do
 
   @impl Haytni.Plugin
   def files_to_install(_base_path, web_path, scope, timestamp) do
-    [
-      # HTML
-      {:eex, "views/confirmation_view.ex", Path.join([web_path, "views", "haytni", scope, "confirmation_view.ex"])},
-      {:eex, "templates/confirmation/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "new.html.heex"])},
-      #{:text, "templates/confirmation/show.html.heex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "show.html.heex"])},
+    if Haytni.Helpers.phoenix17?() do
+      [
+        # HTML
+        {:eex, "views/confirmation_html.ex", Path.join([web_path, "controllers", "haytni", scope, "confirmation_html.ex"])},
+        {:eex, "templates/confirmation/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "confirmation_html", "new.html.heex"])},
+      ]
+    # TODO: remove this when dropping support for Phoenix < 1.7
+    else
+      [
+        # HTML
+        {:eex, "views/confirmation_view.ex", Path.join([web_path, "views", "haytni", scope, "confirmation_view.ex"])},
+        {:eex, "templates/confirmation/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "new.html.heex"])},
+        #{:text, "templates/confirmation/show.html.heex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "show.html.heex"])},
+      ]
+    end ++ [
       # email
       {:eex, "views/email/confirmable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "confirmable_view.ex"])},
       {:eex, "templates/email/confirmable/email_changed.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "email_changed.text.eex"])},
@@ -206,7 +216,7 @@ defmodule Haytni.ConfirmablePlugin do
     ]
   end
 
-  @spec send_confirmation_instructions(user :: Haytni.user, confirmation_token :: String.t, module :: module, config :: Haytni.config) :: Haytni.email_sent_result
+  @spec send_confirmation_instructions(user :: Haytni.user, confirmation_token :: String.t, module :: module, config :: Haytni.config) :: Haytni.Mailer.DeliveryStrategy.email_sent
   defp send_confirmation_instructions(user, confirmation_token, module, config) do
     email = Haytni.ConfirmableEmail.confirmation_email(user, confirmation_token, module, config)
     Haytni.send_email(module, email)
@@ -235,7 +245,7 @@ defmodule Haytni.ConfirmablePlugin do
     )
   end
 
-  @spec send_reconfirmation_instructions(user :: Haytni.user, unconfirmed_email :: String.t, confirmation_token :: String.t, module :: module, config :: Haytni.config) :: Haytni.email_sent_result
+  @spec send_reconfirmation_instructions(user :: Haytni.user, unconfirmed_email :: String.t, confirmation_token :: String.t, module :: module, config :: Haytni.config) :: Haytni.Mailer.DeliveryStrategy.email_sent
   defp send_reconfirmation_instructions(user, unconfirmed_email, confirmation_token, module, config) do
     email = Haytni.ConfirmableEmail.reconfirmation_email(user, unconfirmed_email, confirmation_token, module, config)
     Haytni.send_email(module, email)
@@ -256,7 +266,7 @@ defmodule Haytni.ConfirmablePlugin do
     )
   end
 
-  @spec send_notice_about_email_change(user :: Haytni.user, old_email :: String.t, module :: module, config :: Config.t) :: Haytni.email_sent_result
+  @spec send_notice_about_email_change(user :: Haytni.user, old_email :: String.t, module :: module, config :: Config.t) :: Haytni.Mailer.DeliveryStrategy.email_sent
   defp send_notice_about_email_change(user = %_{}, old_email, module, config) do
     email = Haytni.ConfirmableEmail.email_changed(user, old_email, module, config)
     Haytni.send_email(module, email)

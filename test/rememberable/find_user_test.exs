@@ -1,23 +1,26 @@
 defmodule Haytni.Rememberable.FindUserTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.RememberablePlugin,
+  ]
 
   describe "Haytni.RememberablePlugin.find_user/3 (callback)" do
     setup do
       user = user_fixture()
       token =
         user
-        |> token_fixture(Haytni.RememberablePlugin)
+        |> token_fixture(@plugin)
         |> Haytni.Token.url_encode()
 
       [
         user: user,
         token: token,
-        config: Haytni.RememberablePlugin.build_config(),
+        config: @plugin.build_config(),
       ]
     end
 
     test "gets nothing ({conn, nil}) if no token is present", %{conn: conn, config: config} do
-      assert {%Plug.Conn{}, nil} = Haytni.RememberablePlugin.find_user(conn, HaytniTestWeb.Haytni, config)
+      assert {%Plug.Conn{}, nil} = @plugin.find_user(conn, @stack, config)
     end
 
     if false do
@@ -27,7 +30,7 @@ defmodule Haytni.Rememberable.FindUserTest do
         result =
           conn
           |> add_rememberme_cookie(token, config)
-          |> Haytni.RememberablePlugin.find_user(HaytniTestWeb.Haytni, config)
+          |> @plugin.find_user(@stack, config)
 
         # NOTE/TODO: it won't work because RememberablePlugin doesn't check the value of the column remember_created_at,
         # it counts on Phoenix.Token.verify for expiration but we have no way to override time generation of the token
@@ -41,7 +44,7 @@ defmodule Haytni.Rememberable.FindUserTest do
       result =
         conn
         |> add_rememberme_cookie("not a match", config)
-        |> Haytni.RememberablePlugin.find_user(HaytniTestWeb.Haytni, config)
+        |> @plugin.find_user(@stack, config)
 
       assert {new_conn = %Plug.Conn{}, nil} = result
       assert_cookie_deletion(new_conn, config.remember_cookie_name)
@@ -51,7 +54,7 @@ defmodule Haytni.Rememberable.FindUserTest do
       result =
         conn
         |> add_rememberme_cookie(token, config)
-        |> Haytni.RememberablePlugin.find_user(HaytniTestWeb.Haytni, config)
+        |> @plugin.find_user(@stack, config)
 
       assert {new_conn = %Plug.Conn{}, found_user} = result
       assert found_user.id == user.id

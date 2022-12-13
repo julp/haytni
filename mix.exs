@@ -43,12 +43,17 @@ defmodule Haytni.MixProject do
       {:gettext, "~> 0.20"},
       {:ecto_sql, "~> 3.7"},
       {:phoenix, "~> 1.6"},
+      {:phoenix_view, "~> 1.0"},
       {:phoenix_ecto, "~> 4.4"},
       {:phoenix_html, "~> 3.0"},
       {:ex_doc, "~> 0.25", only: :dev, runtime: false},
       # jason is "optional" to phoenix and bamboo
       {:jason, "~> 1.2"},
-      {:bamboo, "~> 2.2"}, # required by plugins: confirmable, lockable, recoverable and invitable
+      # <mail>
+      # required by plugins: confirmable, lockable, recoverable and invitable
+      {:bamboo, "~> 2.2", only: :test},
+      {:swoosh, "~> 1.6", only: :test},
+      # </mail>
       {:dialyxir, "~> 1.0", only: ~W[dev test]a, runtime: false},
       {:ecto_network, "~> 1.3", only: :test}, # required by plugin: trackable with PostgreSQL
       {:excoveralls, "~> 0.14", only: :test},

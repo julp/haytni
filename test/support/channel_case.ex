@@ -1,14 +1,18 @@
 defmodule HaytniWeb.ChannelCase do
+  defmacro __using__(options \\ [])
+
   use ExUnit.CaseTemplate
 
-  using do
+  defmacro __using__(options) do
+    {options, quoted} = Haytni.Case.haytni_common(options)
     quote do
+      unquote(super(options))
+
       # Import conveniences for testing with channels
       import Phoenix.ChannelTest
       import Haytni.TestHelpers
 
-      # The default endpoint for testing
-      @endpoint HaytniTestWeb.Endpoint
+      unquote(quoted)
     end
   end
 

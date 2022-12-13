@@ -1,5 +1,8 @@
 defmodule Haytni.Confirmable.ReconfirmationControllerTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.ConfirmablePlugin,
+  ]
 
   test "gets redirected on login form when not logged in", %{conn: conn} do
     response =
@@ -20,13 +23,13 @@ defmodule Haytni.Confirmable.ReconfirmationControllerTest do
       |> get(Routes.haytni_user_reconfirmation_path(conn, :show), %{"confirmation_token" => "nevermind"})
       |> html_response(200)
 
-    assert response =~ Haytni.ConfirmablePlugin.invalid_token_message()
+    assert response =~ @plugin.invalid_token_message()
   end
 
   test "gets redirected on registration edition when successful", %{conn: conn} do
     user = user_fixture()
     token = user
-      |> token_fixture(Haytni.ConfirmablePlugin, sent_to: "my@new.address", context: Haytni.ConfirmablePlugin.token_context(user.email))
+      |> token_fixture(@plugin, sent_to: "my@new.address", context: @plugin.token_context(user.email))
       |> Haytni.Token.url_encode()
     conn =
       conn

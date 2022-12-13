@@ -1,11 +1,14 @@
 defmodule Haytni.Registerable.RegistrationViewTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.RegisterablePlugin,
+  ]
   import Phoenix.View
 
   defp do_new(conn, params \\ %{}) do
-    config = Haytni.RegisterablePlugin.build_config()
+    config = @plugin.build_config()
     conn = get(conn, Routes.haytni_user_registration_path(conn, :new))
-    module = HaytniTestWeb.Haytni
+    module = @stack
     changeset = if map_size(params) == 0 do
       Haytni.change_user(module)
     else
@@ -44,13 +47,13 @@ defmodule Haytni.Registerable.RegistrationViewTest do
 
   defp do_edit(conn, params \\ %{}) do
     user = user_fixture()
-    config = Haytni.RegisterablePlugin.build_config()
+    config = @plugin.build_config()
     conn = get(conn, Routes.haytni_user_registration_path(conn, :edit))
-    module = HaytniTestWeb.Haytni
+    module = @stack
     email_changeset = if map_size(params) == 0 do
-      Haytni.RegisterablePlugin.change_email(module, config, user)
+      @plugin.change_email(module, config, user)
     else
-      {:error, changeset = %Ecto.Changeset{}} = Haytni.RegisterablePlugin.update_email(module, config, user, "", params)
+      {:error, changeset = %Ecto.Changeset{}} = @plugin.update_email(module, config, user, "", params)
       changeset
     end
     content = render_to_string(
@@ -62,7 +65,7 @@ defmodule Haytni.Registerable.RegistrationViewTest do
         config: config,
         changeset: Haytni.change_user(user),
         email_changeset: email_changeset,
-        password_changeset: Haytni.RegisterablePlugin.change_password(module, user),
+        password_changeset: @plugin.change_password(module, user),
       ]
     )
 
@@ -82,6 +85,6 @@ defmodule Haytni.Registerable.RegistrationViewTest do
   test "edit.html with bad params", %{conn: conn} do
     content = do_edit(conn, %{"email" => "my@new.email"})
 
-    assert contains_text?(content, Haytni.RegisterablePlugin.invalid_current_password_message())
+    assert contains_text?(content, @plugin.invalid_current_password_message())
   end
 end

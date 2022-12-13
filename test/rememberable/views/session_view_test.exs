@@ -1,5 +1,8 @@
 defmodule Haytni.Rememberable.SessionViewTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.RememberablePlugin,
+  ]
   import Phoenix.View
 
   defp do_test(conn, module, view) do

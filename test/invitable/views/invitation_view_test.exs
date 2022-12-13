@@ -1,5 +1,8 @@
 defmodule Haytni.Invitable.InvitationViewTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.InvitablePlugin,
+  ]
   import Phoenix.View
 
   setup %{conn: conn} do
@@ -10,20 +13,20 @@ defmodule Haytni.Invitable.InvitationViewTest do
 
     [
       conn: conn,
-      config: Haytni.InvitablePlugin.build_config(),
+      config: @plugin.build_config(),
     ]
   end
 
   defp do_test(conn, config, params) do
     changeset = if map_size(params) == 0 do
       conn.assigns.current_user
-      |> Haytni.InvitablePlugin.build_and_assoc_invitation()
-      |> Haytni.InvitablePlugin.invitation_to_changeset(config)
+      |> @plugin.build_and_assoc_invitation()
+      |> @plugin.invitation_to_changeset(config)
     else
-      {:error, changeset} = Haytni.InvitablePlugin.send_invitation(HaytniTestWeb.Haytni, config, params, conn.assigns.current_user)
+      {:error, changeset} = @plugin.send_invitation(@stack, config, params, conn.assigns.current_user)
       changeset
     end
-    content = render_to_string(HaytniTestWeb.Haytni.User.InvitationView, "new.html", conn: conn, changeset: changeset, config: config, module: HaytniTestWeb.Haytni)
+    content = render_to_string(HaytniTestWeb.Haytni.User.InvitationView, "new.html", conn: conn, changeset: changeset, config: config, module: @stack)
 
     assert content =~ "name=\"invitation[sent_to]\""
 

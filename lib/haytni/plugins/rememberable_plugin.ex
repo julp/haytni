@@ -54,7 +54,6 @@ defmodule Haytni.RememberablePlugin do
 
   @impl Haytni.Plugin
   def find_user(conn = %Plug.Conn{}, module, config) do
-#IO.puts("#{__MODULE__}.find_user") # TODO: removal/test
     conn = Plug.Conn.fetch_cookies(conn, signed: [config.remember_cookie_name])
     with(
       {:ok, token} <- Map.fetch(conn.cookies, config.remember_cookie_name),

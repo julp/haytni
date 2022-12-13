@@ -1,5 +1,8 @@
 defmodule Haytni.Lockable.UnlockViewTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.LockablePlugin,
+  ]
   import Phoenix.View
 
   @email "tony.stark@stark-industries.com"
@@ -15,9 +18,9 @@ defmodule Haytni.Lockable.UnlockViewTest do
 
   defp do_test(conn, view, config, params) do
     changeset = if map_size(params) == 0 do
-      Haytni.LockablePlugin.unlock_request_changeset(config)
+      @plugin.unlock_request_changeset(config)
     else
-      {:error, _failed_operation, changeset, _changes_so_far} = Haytni.LockablePlugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, params)
+      {:error, _failed_operation, changeset, _changes_so_far} = @plugin.resend_unlock_instructions(HaytniTestWeb.Haytni, config, params)
       changeset
     end
     content = render_to_string(view, "new.html", conn: conn, changeset: changeset, config: config, module: HaytniTestWeb.Haytni)
@@ -37,8 +40,8 @@ defmodule Haytni.Lockable.UnlockViewTest do
   ]
 
   @configs [
-    {Haytni.LockablePlugin.build_config(), %{"email" => "iron-man@stark-industries.com"}},
-    {Haytni.LockablePlugin.build_config(unlock_keys: ~W[firstname lastname]a), %{"firstname" => "Iron", "lastname" => "Man"}},
+    {@plugin.build_config(), %{"email" => "iron-man@stark-industries.com"}},
+    {@plugin.build_config(unlock_keys: ~W[firstname lastname]a), %{"firstname" => "Iron", "lastname" => "Man"}},
   ]
 
   for {config, _params} <- @configs, {scope, view} <- @scopes do

@@ -1,5 +1,8 @@
 defmodule Haytni.Trackable.QueryHelpersTest do
-  use ExUnit.Case, async: true
+  use Haytni.DataCase, [
+    async: true,
+    plugin: Haytni.TrackablePlugin,
+  ]
   import Haytni.TrackablePlugin.QueryHelpers
 
   @base "from u0 in HaytniTest.UserConnection, as: :connections"

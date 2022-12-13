@@ -91,10 +91,20 @@ defmodule Haytni.LockablePlugin do
 
   @impl Haytni.Plugin
   def files_to_install(_base_path, web_path, scope, timestamp) do
-    [
-      # HTML
-      {:eex, "views/unlock_view.ex", Path.join([web_path, "views", "haytni", scope, "unlock_view.ex"])},
-      {:eex, "templates/unlock/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "unlock", "new.html.heex"])},
+    if Haytni.Helpers.phoenix17?() do
+      [
+        # HTML
+        {:eex, "views/unlock_html.ex", Path.join([web_path, "controllers", "haytni", scope, "unlock_html.ex"])},
+        {:eex, "templates/unlock/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "unlock_html", "new.html.heex"])},
+      ]
+    # TODO: remove this when dropping support for Phoenix < 1.7
+    else
+      [
+        # HTML
+        {:eex, "views/unlock_view.ex", Path.join([web_path, "views", "haytni", scope, "unlock_view.ex"])},
+        {:eex, "templates/unlock/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "unlock", "new.html.heex"])},
+      ]
+    end ++ [
       # email
       {:eex, "views/email/lockable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "lockable_view.ex"])},
       {:eex, "templates/email/lockable/unlock_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "lockable", "unlock_instructions.text.eex"])},
@@ -241,7 +251,7 @@ defmodule Haytni.LockablePlugin do
     config.unlock_strategy in ~W[both time]a and DateTime.diff(DateTime.utc_now(), user.locked_at) >= config.unlock_in
   end
 
-  @spec send_unlock_instructions_mail_to_user(user :: Haytni.user, token :: String.t, module :: module, config :: Config.t) :: Haytni.email_sent_result
+  @spec send_unlock_instructions_mail_to_user(user :: Haytni.user, token :: String.t, module :: module, config :: Config.t) :: Haytni.Mailer.DeliveryStrategy.email_sent
   defp send_unlock_instructions_mail_to_user(user, token, module, config) do
     email = Haytni.LockableEmail.unlock_instructions_email(user, token, module, config)
     Haytni.send_email(module, email)

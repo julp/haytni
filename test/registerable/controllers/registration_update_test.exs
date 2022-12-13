@@ -1,5 +1,8 @@
 defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.RegisterablePlugin,
+  ]
 
   defp password_params(current_password, attrs) do
     [
@@ -47,7 +50,7 @@ defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
       assert get_flash(new_conn, :info) == HaytniWeb.Registerable.RegistrationController.successful_edition_message()
       assert [updated_user] = HaytniTest.Users.list_users()
       assert updated_user.id == user.id
-      assert Haytni.AuthenticablePlugin.valid_password?(updated_user, new_password, HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin))
+      assert Haytni.AuthenticablePlugin.valid_password?(updated_user, new_password, @stack.fetch_config(Haytni.AuthenticablePlugin))
     end
   end
 end

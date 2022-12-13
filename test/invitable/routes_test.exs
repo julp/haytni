@@ -1,5 +1,8 @@
 defmodule Haytni.Invitable.RoutesTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.InvitablePlugin,
+  ]
 
   defp expected_invitable_routes(prefix) do
     [
@@ -12,7 +15,7 @@ defmodule Haytni.Invitable.RoutesTest do
     test "ensures invitation routes are part of the router for scope = :user" do
       "/invitations"
       |> expected_invitable_routes()
-      |> check_routes(HaytniTestWeb.Router)
+      |> check_routes(@router)
     end
   end
 end

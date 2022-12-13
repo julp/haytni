@@ -1,5 +1,8 @@
 defmodule Haytni.Authenticable.SessionControllerTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.AuthenticablePlugin,
+  ]
 
   @spec conn_to_user_session_path(conn :: Plug.Conn.t, user :: map | struct) :: Plug.Conn.t
   defp conn_to_user_session_path(conn, user \\ %{}) do
@@ -57,7 +60,7 @@ defmodule Haytni.Authenticable.SessionControllerTest do
         |> html_response(200)
 
       check_for_new_form(response)
-      assert contains_text?(response, Haytni.AuthenticablePlugin.invalid_credentials_message())
+      assert contains_text?(response, @plugin.invalid_credentials_message())
     end
 
     test "checks successful authentication (scope: user)", %{conn: conn, user: user, admin: admin} do
@@ -75,7 +78,7 @@ defmodule Haytni.Authenticable.SessionControllerTest do
         |> html_response(200)
 
       check_for_new_form(response)
-      assert contains_text?(response, Haytni.AuthenticablePlugin.invalid_credentials_message())
+      assert contains_text?(response, @plugin.invalid_credentials_message())
     end
 
     test "checks successful authentication (scope: admin)", %{conn: conn, user: user, admin: admin} do
@@ -86,12 +89,12 @@ defmodule Haytni.Authenticable.SessionControllerTest do
       conn
       |> conn_to_admin_session_path()
       |> html_response(200)
-      |> (& assert contains_text?(&1, Haytni.AuthenticablePlugin.invalid_credentials_message())).()
+      |> (& assert contains_text?(&1, @plugin.invalid_credentials_message())).()
 
       conn
       |> conn_to_admin_session_path(user)
       |> html_response(200)
-      |> (& assert contains_text?(&1, Haytni.AuthenticablePlugin.invalid_credentials_message())).()
+      |> (& assert contains_text?(&1, @plugin.invalid_credentials_message())).()
     end
   end
 end

@@ -41,7 +41,13 @@ output
 |> Stream.map(&String.trim/1)
 |> Enum.each(
   fn view ->
-    Haytni.TestHelpers.onfly_module_from_eex(view, binding)
+    # NOTE: a "hack" for ignored views when migrating Phoenix
+    try do
+      Haytni.TestHelpers.onfly_module_from_eex(view, binding)
+    rescue
+      MatchError ->
+        nil
+    end
   end
 )
 

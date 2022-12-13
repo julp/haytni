@@ -1,5 +1,8 @@
 defmodule Haytni.Invitable.InvitationCreateControllerTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.InvitablePlugin,
+  ]
 
   defp invitation_params(attrs \\ []) do
     [

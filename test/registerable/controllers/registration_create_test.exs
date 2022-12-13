@@ -1,5 +1,8 @@
 defmodule Haytni.Registerable.RegistrationCreateControllerTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.RegisterablePlugin,
+  ]
 
   @email "i@am.nobody"
   defp registration_params(attrs \\ %{}) do

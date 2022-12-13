@@ -15,23 +15,35 @@ defmodule HaytniTestView do
         |> File.ls!()
         |> Enum.each(
           fn file ->
-            {engine, extension} = cond do
+            {engine, extension, extension_phx_17} = cond do
               String.ends_with?(file, ".html.heex") ->
-                {Phoenix.HTML.Engine, ".heex"}
+                {Phoenix.HTML.Engine, ".heex", ".html.heex"}
               # TODO: remove support of ".html.eex"
               String.ends_with?(file, ".html.eex") ->
-                {Phoenix.HTML.Engine, ".eex"}
+                {Phoenix.HTML.Engine, ".eex", ".html.eex"}
               true ->
-                {EEx.SmartEngine, ".eex"}
+                {EEx.SmartEngine, ".eex", ".eex"}
             end
 
             content =
               Path.join(path, file)
-              |> EEx.eval_file(web_module: HaytniTestWeb, scope: scope, camelized_scope: scope |> to_string() |> Phoenix.Naming.camelize())
+              |> EEx.eval_file(
+                [
+                  plugins: [],
+                  web_module: HaytniTestWeb,
+                  scope: scope, camelized_scope: scope |> to_string() |> Phoenix.Naming.camelize(),
+                ]
+              )
               |> EEx.compile_string(engine: engine)
 
-            def render(unquote(Path.basename(file, extension)), var!(assigns)) do
-              unquote(content)
+            if Haytni.Helpers.phoenix17?() do
+              def unquote(Path.basename(file, extension_phx_17) |> String.to_atom())(var!(assigns)) do
+                unquote(content)
+              end
+            else
+              def render(unquote(Path.basename(file, extension)), var!(assigns)) do
+                unquote(content)
+              end
             end
           end
         )

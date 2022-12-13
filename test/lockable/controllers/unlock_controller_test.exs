@@ -1,5 +1,8 @@
 defmodule Haytni.Lockable.UnlockControllerTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.LockablePlugin,
+  ]
 
   @spec check_for_new_form(response :: String.t) :: true | no_return
   defp check_for_new_form(response) do
@@ -29,16 +32,16 @@ defmodule Haytni.Lockable.UnlockControllerTest do
         |> get(Routes.haytni_user_unlock_path(conn, :show), %{"unlock_token" => "not a match"})
         |> html_response(200)
 
-      assert contains_text?(response, Haytni.LockablePlugin.invalid_token_message())
+      assert contains_text?(response, @plugin.invalid_token_message())
     end
 
     test "checks successful unlocking", %{conn: conn} do
       user =
-        Haytni.LockablePlugin.lock_attributes()
+        @plugin.lock_attributes()
         |> user_fixture()
       unlock_token =
         user
-        |> token_fixture(Haytni.LockablePlugin)
+        |> token_fixture(@plugin)
         |> Haytni.Token.url_encode()
 
       response =
@@ -76,7 +79,7 @@ defmodule Haytni.Lockable.UnlockControllerTest do
 
       test "checks successful unlock request with #{inspect(keys)} as key(s)", %{conn: conn} do
         user =
-          Haytni.LockablePlugin.lock_attributes()
+          @plugin.lock_attributes()
           |> Keyword.merge(email: "parker.peter@daily-bugle.com", first_name: "Peter", last_name: "Parker")
           |> user_fixture()
 

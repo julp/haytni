@@ -1,5 +1,8 @@
 defmodule Haytni.Authenticable.FieldsTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.AuthenticablePlugin,
+  ]
 
   @schema_fields ~W[email encrypted_password]a
   # NOTE: password is a virtual field so it exists into the struct but not in the schema

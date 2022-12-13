@@ -29,13 +29,6 @@ config :haytni, YourApp.Haytni,
   schema: YourApp.User
 ```
 
-For testing, you may also want to add the following settings to config/test.exs :
-
-```elixir
-config :your_app, YourApp.Mailer,
-  adapter: Bamboo.TestAdapter
-```
-
 These are the mandatory options. See options of each plugin for full customizations.
 
 Run `mix haytni.install` which has the following options (command arguments):
@@ -169,15 +162,39 @@ end
 
 ## Emails
 
-For plugins which send emails (Confirmable, Lockable and Recoverable):
+This is only required by plugins which send emails (as of right now: Confirmable, Lockable, Recoverable and Invitable plugins) else Haytni's `:mailer` option can be omitted or set to `nil`.
 
-Create lib/mailer.ex as follows:
+### Clients
+
+#### Bamboo
+
+If not already done, add `:bamboo` as dependency to `deps/0` of your mix.exs file:
 
 ```elixir
-defmodule YourApp.Mailer do
-  use Bamboo.Mailer, otp_app: :your_app
+# mix.exs
 
-  def from, do: {"mydomain.com", "noreply.mydomain.com"}
+  defp deps do
+    [
+      # ...
+      {:bamboo, "~> 2.2"}, # (check https://hex.pm for latest version)
+      # ...
+    ]
+  end
+```
+
+Create lib/*your_app*/mailer.ex as follows:
+
+```elixir
+# lib/your_app/mailer.ex
+
+defmodule YourApp.Mailer do
+  use Haytni.Mailer, [
+    otp_app: :my_app,
+    adapter: Haytni.Mailer.BambooAdapter,
+  ]
+
+  @impl Haytni.Mailer
+  def from, do: {"mydomain.com", "noreply@mydomain.com"}
 end
 ```
 
@@ -198,7 +215,14 @@ config :your_app, YourApp.Mailer,
   adapter: Bamboo.LocalAdapter
 
 config :haytni, YourApp.Haytni,
-  mailer: YourApp.Mailer # <= add/change this line
+  mailer: YourApp.Mailer
+```
+
+For testing, you may also want to add the following settings to config/test.exs :
+
+```elixir
+config :your_app, YourApp.Mailer,
+  adapter: Bamboo.TestAdapter
 ```
 
 For production (config/prod.exs), if you pass by your own SMTP server:
@@ -219,6 +243,146 @@ And add `{:bamboo_smtp, "~> 4.1", only: :prod}` to `deps` in your mix.exs file. 
 General configuration:
 
 * `layout` (default: `false` for none): the layout to apply to Haytni's templates
+
+#### Swoosh
+
+First add Swoosh to your dependencies in `deps/0` in your mix.exs file:
+
+```elixir
+# mix.exs
+
+  defp deps do
+    [
+      # ...
+      {:swoosh, "~> 1.8"}, # (check https://hex.pm for latest version)
+      # ...
+    ]
+  end
+```
+
+Then create lib/*your_app*/mailer.ex like below:
+
+```elixir
+# lib/your_app/mailer.ex
+
+defmodule YourApp.Mailer do
+  use Haytni.Mailer, [
+    otp_app: :my_app,
+    adapter: Haytni.Mailer.SwooshAdapter,
+  ]
+
+  @impl Haytni.Mailer
+  def from, do: {"mydomain.com", "noreply@mydomain.com"}
+end
+```
+
+Optional, add to lib/*your_app*_web/router.ex to consult mails on dev environment:
+
+```elixir
+  if Mix.env() == :dev do
+    forward "/mailbox", Plug.Swoosh.MailboxPreview
+  end
+```
+
+Configure email sending in config/dev.exs:
+
+```elixir
+config :your_app, YourApp.Mailer,
+  adapter: Swoosh.Adapters.Local
+
+config :haytni, YourApp.Haytni,
+  mailer: YourApp.Mailer
+```
+
+For tests (config/test.exs) you'll need to setup the adapter Swoosh comes with:
+
+```elixir
+config :your_app, YourApp.Mailer,
+  adapter: Swoosh.Adapters.Local
+```
+
+On the opposite, for production (config/prod.exs) you'll want to disabled the memory storage process by:
+
+```elixir
+config :swoosh, local: false
+```
+
+And add the specific adapter that fits your needs.
+
+#### Other
+
+To support any other client, you need to implement the `Haytni.Mailer.Adapter` behaviour:
+
+```elixir
+# lib/your_app/mailer.ex
+
+defmodule YourApp.Mailer do
+  use Haytni.Mailer.Adapter
+
+  @impl Haytni.Mailer
+  def from, do: {"mydomain.com", "noreply@mydomain.com"}
+
+  @impl Haytni.Mailer.Adapter
+  def cast(email = %Haytni.Mail{}, mailer, _options) do
+    # ...
+  end
+
+  @impl Haytni.Mailer.Adapter
+  def send(email = %{__struct__: Bamboo.Email}, mailer, options) do
+    # ...
+  end
+end
+```
+
+(any pull request to handle any other client is welcome)
+
+### Delivery strategies
+
+#### Immediate (synchronous)
+
+You should probably avoid this since sending an email can takes some time, blocking the user/HTTP request meanwhile. If you really want to adopt this behaviour, set `strategy: Haytni.Mailer.ImmediateDeliveryStrategy` in lib/your_app/mailer.ex:
+
+```elixir
+# lib/your_app/mailer.ex
+
+defmodule YourApp.Mailer do
+  use Haytni.Mailer.Adapter, [
+    opt_app: ...,
+    adapter: ...,
+    strategy: Haytni.Mailer.ImmediateDeliveryStrategy,
+  ]
+
+  # ...
+end
+```
+
+#### Unsupervised (asynchronous) (default)
+
+This is the default strategy used by Haytni: the email is sent in a background process (`Task`), meaning the client has not to wait after the email has been sent. But this is done in an unsupervised way: if the operation [sending the email] fails, you won't know it and neither won't be retried later. Since this is the default delivery method, you can omit the `:strategy` option in lib/your_app/mailer.ex or set it explicitely to `Haytni.Mailer.UnsupervisedTaskStrategy`.
+
+#### Supervised (asynchronous)
+
+TODO
+
+```
+# lib/your_app/mailer.ex
+
+defmodule YourApp.Mailer do
+  use Haytni.Mailer.Adapter, [
+    opt_app: ...,
+    adapter: ...,
+    strategy: Haytni.Mailer.TaskSupervisorStrategy,
+  ]
+
+  # ...
+end
+```
+
+#### Other
+
+You can come with your own delivery strategy by implemenenting the `Haytni.Mailer.DeliveryStrategy` behaviour.
+
+In particular, if emails are more critical, you can send them through Oban, a service broker, ...
 
 ## Quick recap
 

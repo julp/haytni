@@ -48,11 +48,22 @@ defmodule Haytni.RecoverablePlugin do
 
   @impl Haytni.Plugin
   def files_to_install(_base_path, web_path, scope, _timestamp) do
-    [
-      # HTML
-      {:eex, "views/password_view.ex", Path.join([web_path, "views", "haytni", scope, "password_view.ex"])},
-      {:eex, "templates/password/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "password", "new.html.heex"])},
-      {:eex, "templates/password/edit.html.heex", Path.join([web_path, "templates", "haytni", scope, "password", "edit.html.heex"])},
+    if Haytni.Helpers.phoenix17?() do
+      [
+        # HTML
+        {:eex, "views/password_html.ex", Path.join([web_path, "controllers", "haytni", scope, "password_html.ex"])},
+        {:eex, "templates/password/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "password", "new.html.heex"])},
+        {:eex, "templates/password/edit.html.heex", Path.join([web_path, "controllers", "haytni", scope, "password", "edit.html.heex"])},
+      ]
+    # TODO: remove this when dropping support for Phoenix < 1.7
+    else
+      [
+        # HTML
+        {:eex, "views/password_view.ex", Path.join([web_path, "views", "haytni", scope, "password_view.ex"])},
+        {:eex, "templates/password/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "password", "new.html.heex"])},
+        {:eex, "templates/password/edit.html.heex", Path.join([web_path, "templates", "haytni", scope, "password", "edit.html.heex"])},
+      ]
+    end ++ [
       # email
       {:eex, "views/email/recoverable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "recoverable_view.ex"])},
       {:eex, "templates/email/recoverable/reset_password_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "recoverable", "reset_password_instructions.text.eex"])},
@@ -98,7 +109,7 @@ defmodule Haytni.RecoverablePlugin do
     ]
   end
 
-  @spec send_reset_password_instructions_mail_to_user(user :: Haytni.user, reset_password_token :: String.t, module :: module, config :: Haytni.config) :: Haytni.email_sent_result
+  @spec send_reset_password_instructions_mail_to_user(user :: Haytni.user, reset_password_token :: String.t, module :: module, config :: Haytni.config) :: Haytni.Mailer.DeliveryStrategy.email_sent
   defp send_reset_password_instructions_mail_to_user(user, reset_password_token, module, config) do
     email = Haytni.RecoverableEmail.reset_password_email(user, reset_password_token, module, config)
     Haytni.send_email(module, email)

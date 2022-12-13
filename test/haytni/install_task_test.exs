@@ -26,9 +26,7 @@ defmodule Haytni.InstallTaskTest do
       # templates
       {"lib/haytni_web/templates/haytni/#{scope}/shared/keys.html.heex", []},
       {"lib/haytni_web/templates/haytni/#{scope}/shared/message.html.heex", []},
-      {"lib/haytni_web/templates/haytni/#{scope}/shared/links.html.heex", [
-        "HaytniWeb.Router.Helpers.haytni_#{scope}_session_path(",
-      ]},
+      {"lib/haytni_web/templates/haytni/#{scope}/shared/links.html.heex", []},
       # migration
       {"priv/repo/migrations/*_haytni_#{scope}_tokens_creation.exs", [
         ~s'def change(users_table \\\\ "#{table}", _scope \\\\ "#{scope}") do',

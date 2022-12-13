@@ -1,6 +1,8 @@
 defmodule Haytni.Recoverable.SendResetPasswordInstructionsTest do
-  use Haytni.DataCase, async: true
-  use Bamboo.Test
+  use Haytni.DataCase, [
+    email: true,
+    plugin: Haytni.RecoverablePlugin,
+  ]
 
   @spec create_request(email :: String.t) :: Haytni.params
   defp create_request(email) do
@@ -12,7 +14,7 @@ defmodule Haytni.Recoverable.SendResetPasswordInstructionsTest do
       _some_random_user = user_fixture()
 
       [
-        config: Haytni.RecoverablePlugin.build_config(),
+        config: @plugin.build_config(),
         user: user_fixture(email: "mrvovnhv3l44@test.com"),
       ]
     end
@@ -23,21 +25,21 @@ defmodule Haytni.Recoverable.SendResetPasswordInstructionsTest do
 #     ]
 #     for keys <- @keys do
       test "gets error when unlock_keys are empty with email as key(s)", %{config: config} do
-        assert {:error, changeset} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request(""))
+        assert {:error, changeset} = @plugin.send_reset_password_instructions(@stack, config, create_request(""))
         refute is_nil(changeset.action)
         assert %{email: [empty_message()]} == errors_on(changeset)
       end
 
       test "gets {:ok, nil} when no one matches with email as key(s)", %{config: config} do
-        assert {:ok, nil} == Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request("not a match"))
+        assert {:ok, nil} == @plugin.send_reset_password_instructions(@stack, config, create_request("not a match"))
       end
 
       test "ensures a reset token is generated and sent by email when a user match with email as key(s)", %{config: config, user: user} do
-        {:ok, token} = Haytni.RecoverablePlugin.send_reset_password_instructions(HaytniTestWeb.Haytni, config, create_request(user.email))
+        {:ok, token} = @plugin.send_reset_password_instructions(@stack, config, create_request(user.email))
 
         assert token.user_id == user.id
         user
-        |> Haytni.RecoverableEmail.reset_password_email(Haytni.Token.url_encode(token), HaytniTestWeb.Haytni, config)
+        |> Haytni.RecoverableEmail.reset_password_email(Haytni.Token.url_encode(token), @stack, config)
         |> assert_email_was_sent()
       end
 #     end

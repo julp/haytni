@@ -1,11 +1,14 @@
 defmodule Haytni.Registerable.RegisterableTest do
-  use ExUnit.Case, async: true
+  use Haytni.DataCase, [
+    async: true,
+    plugin: Haytni.RegisterablePlugin,
+  ]
 
   @types %{untouched: :string, email: :string}
 
   setup do
     [
-      config: Haytni.RegisterablePlugin.build_config(),
+      config: @plugin.build_config(),
     ]
   end
 
@@ -13,7 +16,7 @@ defmodule Haytni.Registerable.RegisterableTest do
     data =
       {%{}, @types}
       |> Ecto.Changeset.cast(%{"untouched" => " abc ", "email" => "\t123\r\n"}, Map.keys(@types))
-      |> Haytni.RegisterablePlugin.strip_whitespace_changes(config)
+      |> @plugin.strip_whitespace_changes(config)
       |> Ecto.Changeset.apply_changes()
 
     assert data == %{untouched: " abc ", email: "123"}
@@ -23,7 +26,7 @@ defmodule Haytni.Registerable.RegisterableTest do
     data =
       {%{}, @types}
       |> Ecto.Changeset.cast(%{"untouched" => "FOO", "email" => "BAR"}, Map.keys(@types))
-      |> Haytni.RegisterablePlugin.case_insensitive_changes(config)
+      |> @plugin.case_insensitive_changes(config)
       |> Ecto.Changeset.apply_changes()
 
     assert data == %{untouched: "FOO", email: "bar"}

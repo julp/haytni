@@ -1,5 +1,8 @@
 defmodule Haytni.Authenticable.ValidateCreateRegistrationTest do
-  use Haytni.DataCase, async: true
+  use Haytni.DataCase, [
+    async: true,
+    plugin: Haytni.AuthenticablePlugin,
+  ]
 
   alias HaytniTest.User
 
@@ -9,7 +12,7 @@ defmodule Haytni.Authenticable.ValidateCreateRegistrationTest do
   describe "Haytni.AuthenticablePlugin.validate_create_registration/3" do
     setup do
       [
-        config: HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin),
+        config: @stack.fetch_config(@plugin),
       ]
     end
 
@@ -17,11 +20,11 @@ defmodule Haytni.Authenticable.ValidateCreateRegistrationTest do
       changeset =
         %User{}
         |> Ecto.Changeset.change(password: @password)
-        |> Haytni.AuthenticablePlugin.validate_create_registration(HaytniTestWeb.Haytni, config)
+        |> @plugin.validate_create_registration(@stack, config)
 
       assert changeset.valid?
       assert String.starts_with?(Ecto.Changeset.get_change(changeset, :encrypted_password), "$2b$")
-      assert Haytni.AuthenticablePlugin.valid_password?(Ecto.Changeset.apply_changes(changeset), @password, config)
+      assert @plugin.valid_password?(Ecto.Changeset.apply_changes(changeset), @password, config)
     end
   end
 end

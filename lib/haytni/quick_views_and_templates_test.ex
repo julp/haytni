@@ -29,7 +29,7 @@ defmodule Haytni.QuickViewsAndTemplatesTest do
 
       _content =
         module
-        |> view_module(SessionView)
+        |> view_module(SessionView) # TODO: SessionHTML for Phoenix >= 1.7
         |> Phoenix.View.render_to_string("new.html", conn: conn, config: config, module: module, changeset: Haytni.AuthenticablePlugin.session_changeset(config))
     end
 
@@ -50,7 +50,7 @@ defmodule Haytni.QuickViewsAndTemplatesTest do
         |> view_module(UnlockView)
         |> Phoenix.View.render_to_string("new.html", conn: conn, config: config, module: module, changeset: Haytni.LockablePlugin.unlock_request_changeset(config))
 
-      %Bamboo.Email{} = Haytni.LockableEmail.unlock_instructions_email(user, "the unlock token", module, config)
+      %Haytni.Mail{} = Haytni.LockableEmail.unlock_instructions_email(user, "the unlock token", module, config)
     end
 
     if Haytni.plugin_enabled?(module, Haytni.RecoverablePlugin) do
@@ -61,7 +61,7 @@ defmodule Haytni.QuickViewsAndTemplatesTest do
         |> view_module(PasswordView)
         |> Phoenix.View.render_to_string("new.html", conn: conn, config: config, module: module, changeset: Haytni.RecoverablePlugin.recovering_changeset(config))
 
-      %Bamboo.Email{} = Haytni.RecoverableEmail.reset_password_email(user, "the reset password token", module, config)
+      %Haytni.Mail{} = Haytni.RecoverableEmail.reset_password_email(user, "the reset password token", module, config)
     end
 
     if Haytni.plugin_enabled?(module, Haytni.ConfirmablePlugin) do
@@ -72,9 +72,9 @@ defmodule Haytni.QuickViewsAndTemplatesTest do
         |> view_module(ConfirmationView)
         |> Phoenix.View.render_to_string("new.html", conn: conn, config: config, module: module, changeset: Haytni.ConfirmablePlugin.confirmation_request_changeset(config))
 
-      %Bamboo.Email{} = Haytni.ConfirmableEmail.confirmation_email(user, "the confirmation token", module, config)
-      %Bamboo.Email{} = Haytni.ConfirmableEmail.reconfirmation_email(user, "my new email address", "the reconfirmation token", module, config)
-      %Bamboo.Email{} = Haytni.ConfirmableEmail.email_changed(user, "my old email address", module, config)
+      %Haytni.Mail{} = Haytni.ConfirmableEmail.confirmation_email(user, "the confirmation token", module, config)
+      %Haytni.Mail{} = Haytni.ConfirmableEmail.reconfirmation_email(user, "my new email address", "the reconfirmation token", module, config)
+      %Haytni.Mail{} = Haytni.ConfirmableEmail.email_changed(user, "my old email address", module, config)
     end
 
     if Haytni.plugin_enabled?(module, Haytni.InvitablePlugin) do
@@ -86,7 +86,7 @@ defmodule Haytni.QuickViewsAndTemplatesTest do
         |> view_module(InvitationView)
         |> Phoenix.View.render_to_string("new.html", conn: conn, config: config, module: module, changeset: Haytni.InvitablePlugin.invitation_to_changeset(invitation, config))
 
-      %Bamboo.Email{} = Haytni.InvitableEmail.invitation_email(user, invitation, module, config)
+      %Haytni.Mail{} = Haytni.InvitableEmail.invitation_email(user, invitation, module, config)
     end
   end
 end

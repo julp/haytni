@@ -1,7 +1,10 @@
 defmodule Haytni.Lockable.FieldsTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.LockablePlugin,
+  ]
 
-  @fields Keyword.keys(Haytni.LockablePlugin.unlock_attributes())
+  @fields Keyword.keys(@plugin.unlock_attributes())
   describe "Haytni.LockablePlugin.fields/0 (callback)" do
     test "ensures User schema contains necessary fields" do
       user = %HaytniTest.User{}

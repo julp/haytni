@@ -1,5 +1,8 @@
 defmodule Haytni.Rememberable.OnSuccessfulAuthentificationTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.RememberablePlugin,
+  ]
 
   if false do
   @doc """
@@ -18,22 +21,22 @@ defmodule Haytni.Rememberable.OnSuccessfulAuthentificationTest do
     |> put_in(~W[session remember], "checked")
   end
 
-  describe "Haytni.Rememberable.on_successful_authentication/6 (callback)" do
+  describe "Haytni.RememberablePlugin.on_successful_authentication/6 (callback)" do
     setup do
       [
         user: user_fixture(),
-        config: Haytni.RememberablePlugin.build_config(),
+        config: @plugin.build_config(),
       ]
     end
 
     test "do nothing (no rememberme cookie is created) if rememberme checkbox is not checked", %{conn: conn, config: config, user: user} do
-      assert {new_conn, multi, []} = Haytni.RememberablePlugin.on_successful_authentication(%{conn | params: session_params_without_rememberme()}, user, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, config)
+      assert {new_conn, multi, []} = @plugin.on_successful_authentication(%{conn | params: session_params_without_rememberme()}, user, Ecto.Multi.new(), Keyword.new(), @stack, config)
       assert [] == Ecto.Multi.to_list(multi)
       refute_cookie_presence(new_conn, config.remember_cookie_name)
     end
 
     test "if rememberme checkbox is checked ensures a new token is generated and sent", %{conn: conn, config: config, user: user} do
-      assert {new_conn, multi, _changes} = Haytni.RememberablePlugin.on_successful_authentication(%{conn | params: session_params_with_rememberme()}, user, Ecto.Multi.new(), Keyword.new(), HaytniTestWeb.Haytni, config)
+      assert {new_conn, multi, _changes} = @plugin.on_successful_authentication(%{conn | params: session_params_with_rememberme()}, user, Ecto.Multi.new(), Keyword.new(), @stack, config)
       assert [{:rememberable_token, {:insert, changeset = %Ecto.Changeset{}, []}}] = Ecto.Multi.to_list(multi)
       assert_rememberme_presence(new_conn, config, Haytni.Token.url_encode(changeset.data))
     end

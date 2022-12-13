@@ -1,5 +1,8 @@
 defmodule Haytni.Confirmable.ConfirmationViewTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.ConfirmablePlugin,
+  ]
   import Phoenix.View
 
   @email "tony.stark@stark-industries.com"
@@ -15,12 +18,12 @@ defmodule Haytni.Confirmable.ConfirmationViewTest do
 
   defp do_test(conn, config, params) do
     changeset = if map_size(params) == 0 do
-      Haytni.ConfirmablePlugin.confirmation_request_changeset(config)
+      @plugin.confirmation_request_changeset(config)
     else
-      {:error, changeset} = Haytni.ConfirmablePlugin.resend_confirmation_instructions(HaytniTestWeb.Haytni, config, params)
+      {:error, changeset} = @plugin.resend_confirmation_instructions(@stack, config, params)
       changeset
     end
-    content = render_to_string(HaytniTestWeb.Haytni.User.ConfirmationView, "new.html", conn: conn, changeset: changeset, config: config, module: HaytniTestWeb.Haytni)
+    content = render_to_string(@stack.User.ConfirmationView, "new.html", conn: conn, changeset: changeset, config: config, module: @stack)
 
     for key <- config.confirmation_keys do
       assert String.contains?(content, "name=\"confirmation[#{key}]\"")
@@ -32,8 +35,8 @@ defmodule Haytni.Confirmable.ConfirmationViewTest do
   end
 
   @configs [
-    {Haytni.ConfirmablePlugin.build_config(), %{"email" => "iron-man@stark-industries.com"}},
-    {Haytni.ConfirmablePlugin.build_config(confirmation_keys: ~W[firstname lastname]a), %{"firstname" => "Iron", "lastname" => "Man"}},
+    {@plugin.build_config(), %{"email" => "iron-man@stark-industries.com"}},
+    {@plugin.build_config(confirmation_keys: ~W[firstname lastname]a), %{"firstname" => "Iron", "lastname" => "Man"}},
   ]
 
   for {config, _params} <- @configs do

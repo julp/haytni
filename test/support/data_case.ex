@@ -1,13 +1,20 @@
 defmodule Haytni.DataCase do
+  defmacro __using__(options \\ [])
+
   use ExUnit.CaseTemplate
 
-  using do
+  defmacro __using__(options) do
+    {options, quoted} = Haytni.Case.haytni_common(options)
     quote do
+      unquote(super(options))
+
       import Ecto
       import Ecto.Changeset
       import unquote(__MODULE__)
       import Haytni.TestHelpers
       alias Haytni.Params
+
+      unquote(quoted)
     end
   end
 

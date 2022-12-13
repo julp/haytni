@@ -1,5 +1,7 @@
 import Config
 
+config :bamboo, :refute_timeout, 10
+
 config :haytni,
   ecto_repos: [HaytniTest.Repo]
 
@@ -24,28 +26,31 @@ config :haytni, HaytniTestWeb.Haytni,
   layout: false,
   repo: HaytniTest.Repo,
   schema: HaytniTest.User,
-  mailer: HaytniTest.Mailer
+  mailer: HaytniTest.BambooMailer
 
 config :haytni, HaytniTestWeb.HaytniAdmin,
   layout: false,
   scope: :admin,
   repo: HaytniTest.Repo,
   schema: HaytniTest.Admin,
-  mailer: HaytniTest.Mailer
+  mailer: HaytniTest.BambooMailer
 
 config :haytni, HaytniTestWeb.HaytniCustomRoutes,
   layout: false,
   scope: :cr,
   repo: HaytniTest.Repo,
   schema: HaytniTest.Admin,
-  mailer: HaytniTest.Mailer
+  mailer: HaytniTest.BambooMailer
 
 config :haytni, HaytniTestWeb.HaytniEmpty,
   layout: false,
   scope: :empty,
   repo: HaytniTest.Repo,
   schema: HaytniTest.User,
-  mailer: HaytniTest.Mailer
+  mailer: HaytniTest.BambooMailer
 
-config :haytni, HaytniTest.Mailer,
+config :haytni, HaytniTest.BambooMailer,
   adapter: Bamboo.TestAdapter
+
+config :haytni, HaytniTest.SwooshMailer,
+  adapter: Swoosh.Adapters.Test

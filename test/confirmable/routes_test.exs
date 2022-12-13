@@ -1,5 +1,8 @@
 defmodule Haytni.Confirmable.RoutesTest do
-  use HaytniWeb.ConnCase, async: true
+  use HaytniWeb.ConnCase, [
+    async: true,
+    plugin: Haytni.ConfirmablePlugin,
+  ]
 
   defp expected_confirmation_routes(prefix) do
     [
@@ -13,13 +16,13 @@ defmodule Haytni.Confirmable.RoutesTest do
     test "ensures confirmation routes are part of the router" do
       "/confirmation"
       |> expected_confirmation_routes()
-      |> check_routes(HaytniTestWeb.Router)
+      |> check_routes(@router)
     end
 
     test "checks customized routes for confirmable" do
       "/CR/check"
       |> expected_confirmation_routes()
-      |> check_routes(HaytniTestWeb.Router)
+      |> check_routes(@router)
     end
   end
 end
