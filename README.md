@@ -24,6 +24,10 @@ If you need your own features, you write (and test) your own plugins:
 * no need to change some obscur and very long code you may not understand, you just need to implement the callbacks that feet your needs
 * your changes will not impact and break anything else (starting by tests)
 
+
+Important note: Haytni cannot be used in an umbrella-ed Phoenix application.
+
+
 Plugins:
 
 * [authenticable](https://hexdocs.pm/haytni/Haytni.AuthenticablePlugin.html) (`Haytni.AuthenticablePlugin`): handles hashing and storing an encrypted password in the database
