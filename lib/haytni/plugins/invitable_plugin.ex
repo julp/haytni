@@ -71,15 +71,15 @@ defmodule Haytni.InvitablePlugin do
     if Haytni.Helpers.phoenix17?() do
       [
         # HTML
-        {:eex, "views/invitation_html.ex", Path.join([web_path, "controllers", "haytni", scope, "invitation_html.ex"])},
-        {:eex, "templates/invitation/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "invitation", "new.html.heex"])},
+        {:eex, "phx17/views/invitation_html.ex", Path.join([web_path, "controllers", "haytni", scope, "invitation_html.ex"])},
+        {:eex, "phx17/templates/invitation/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "invitation", "new.html.heex"])},
       ]
     # TODO: remove this when dropping support for Phoenix < 1.7
     else
       [
         # HTML
-        {:eex, "views/invitation_view.ex", Path.join([web_path, "views", "haytni", scope, "invitation_view.ex"])},
-        {:eex, "templates/invitation/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "invitation", "new.html.heex"])},
+        {:eex, "phx16/views/invitation_view.ex", Path.join([web_path, "views", "haytni", scope, "invitation_view.ex"])},
+        {:eex, "phx16/templates/invitation/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "invitation", "new.html.heex"])},
       ]
     end ++ [
       # email

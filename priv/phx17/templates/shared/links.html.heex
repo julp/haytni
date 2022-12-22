@@ -1,0 +1,47 @@
+<div class="form-group">
+  <%= if Haytni.AuthenticablePlugin in plugins do %>
+    <.link
+      href={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_session_path(@conn, :new)}
+      :if={Haytni.plugin_enabled?(@module, Haytni.AuthenticablePlugin) and HaytniWeb.Authenticable.SessionController != Phoenix.Controller.controller_module(@conn)}
+    >
+      <%%= Haytni.Gettext.dgettext("haytni", "Sign in") %>
+    </.link>
+    <br />
+  <% end %>
+  <%= if Haytni.RegisterablePlugin in plugins do %>
+    <.link
+      href={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :new)}
+      :if={Haytni.plugin_enabled?(@module, Haytni.RegisterablePlugin) and HaytniWeb.Registerable.RegistrationController != Phoenix.Controller.controller_module(@conn)}
+    >
+      <%%= Haytni.Gettext.dgettext("haytni", "Sign up") %>
+    </.link>
+    <br />
+  <% end %>
+  <%= if Haytni.RecoverablePlugin in plugins do %>
+    <.link
+      href={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :new)}
+      :if={Haytni.plugin_enabled?(@module, Haytni.RecoverablePlugin) and HaytniWeb.Recoverable.PasswordController != Phoenix.Controller.controller_module(@conn)}
+    >
+      <%%= Haytni.Gettext.dgettext("haytni", "Forgot your password?") %>
+    </.link>
+    <br />
+  <% end %>
+  <%= if Haytni.ConfirmablePlugin in plugins do %>
+    <.link
+      href={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_confirmation_path(@conn, :new)}
+      :if={Haytni.plugin_enabled?(@module, Haytni.ConfirmablePlugin) and HaytniWeb.Confirmable.ConfirmationController != Phoenix.Controller.controller_module(@conn)}
+    >
+      <%%= Haytni.Gettext.dgettext("haytni", "Didn't receive confirmation instructions?") %>
+    </.link>
+    <br />
+  <% end %>
+  <%= if Haytni.ConfirmablePlugin in plugins do %>
+    <.link
+      href={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_unlock_path(@conn, :new)}
+      :if={Haytni.plugin_enabled?(@module, Haytni.LockablePlugin) and Haytni.LockablePlugin.email_strategy_enabled?(@module.fetch_config(Haytni.LockablePlugin)) and HaytniWeb.Lockable.UnlockController != Phoenix.Controller.controller_module(@conn)}
+    >
+      <%%= Haytni.Gettext.dgettext("haytni", "Didn't receive unlock instructions?") %>
+    </.link>
+    <br />
+  <% end %>
+</div>

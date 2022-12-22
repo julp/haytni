@@ -3,5 +3,5 @@ defmodule <%= inspect Module.concat([web_module, :Haytni, camelized_scope, "Shar
   require Haytni.Gettext
   require HaytniTestView
 
-  HaytniTestView.embed_templates_for_tests("priv/templates/shared/")
+  HaytniTestView.embed_templates_for_tests("priv/phx16/templates/shared/")
 end

@@ -68,16 +68,16 @@ defmodule Haytni.ConfirmablePlugin do
     if Haytni.Helpers.phoenix17?() do
       [
         # HTML
-        {:eex, "views/confirmation_html.ex", Path.join([web_path, "controllers", "haytni", scope, "confirmation_html.ex"])},
-        {:eex, "templates/confirmation/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "confirmation_html", "new.html.heex"])},
+        {:eex, "phx17/views/confirmation_html.ex", Path.join([web_path, "controllers", "haytni", scope, "confirmation_html.ex"])},
+        {:eex, "phx17/templates/confirmation/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "confirmation_html", "new.html.heex"])},
       ]
     # TODO: remove this when dropping support for Phoenix < 1.7
     else
       [
         # HTML
-        {:eex, "views/confirmation_view.ex", Path.join([web_path, "views", "haytni", scope, "confirmation_view.ex"])},
-        {:eex, "templates/confirmation/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "new.html.heex"])},
-        #{:text, "templates/confirmation/show.html.heex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "show.html.heex"])},
+        {:eex, "phx16/views/confirmation_view.ex", Path.join([web_path, "views", "haytni", scope, "confirmation_view.ex"])},
+        {:eex, "phx16/templates/confirmation/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "new.html.heex"])},
+        #{:text, "phx16/templates/confirmation/show.html.heex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "show.html.heex"])},
       ]
     end ++ [
       # email

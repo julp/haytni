@@ -320,18 +320,20 @@ defmodule Haytni do
   def shared_files_to_install(base_path, web_path, scope, timestamp) do
     if Haytni.Helpers.phoenix17?() do
       [
-        # XXX
+        {:eex, "phx17/views/shared_html.ex", Path.join([web_path, "controllers", "haytni", scope, "shared_html.ex"])},
+        {:eex, "phx17/templates/shared/keys.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.heex"])},
+        {:eex, "phx17/templates/shared/links.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "links.html.heex"])},
+        {:eex, "phx17/templates/shared/message.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "message.html.heex"])},
       ]
     else
       [
-        # XXX
+        {:eex, "phx16/views/shared_view.ex", Path.join([web_path, "views", "haytni", scope, "shared_view.ex"])},
+        {:eex, "phx16/templates/shared/keys.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.heex"])},
+        {:eex, "phx16/templates/shared/links.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "links.html.heex"])},
+        {:eex, "phx16/templates/shared/message.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "message.html.heex"])},
       ]
     end ++ [
       {:eex, "haytni.ex", Path.join([base_path, "haytni.ex"])},
-      {:eex, "views/shared_view.ex", Path.join([web_path, "views", "haytni", scope, "shared_view.ex"])},
-      {:eex, "templates/shared/keys.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.heex"])},
-      {:eex, "templates/shared/links.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "links.html.heex"])},
-      {:eex, "templates/shared/message.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "message.html.heex"])},
       # migration
       {:eex, "migrations/0-tokens_creation.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_#{scope}_tokens_creation.exs"])},
       # test

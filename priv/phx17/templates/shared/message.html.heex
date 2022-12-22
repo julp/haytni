@@ -1,0 +1,13 @@
+<div class={@type}>
+  <%%= Phoenix.HTML.Format.text_to_html(@message) %>
+</div>
+
+<%%= if assigns[:next_step_link_href] do %>
+  <.link href={@next_step_link_href} class="button">
+    <%%= @next_step_link_text %>
+  </.link>
+<%% else %>
+  <.link href={assigns[:back_link] || "/"} class="button">
+    <%%= Haytni.Gettext.dgettext("haytni", "Back") %>
+  </.link>
+<%% end %>

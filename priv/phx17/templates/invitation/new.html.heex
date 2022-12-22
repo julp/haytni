@@ -1,0 +1,20 @@
+<%%= form_for @changeset, <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :create), [as: :invitation], fn f  -> %>
+
+  <%%= if f.errors[:base] do %>
+    <p><%%= elem(f.errors[:base], 0) %></p>
+  <%% end %>
+
+  <div class="form-group">
+    <%%= label f, :sent_to, Haytni.Gettext.dgettext("haytni", "Email"), class: "control-label" %>
+    <%%= email_input f, :sent_to, class: "form-control", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "email address of your friend") %>
+    <%%= error_tag f, :sent_to %>
+  </div>
+
+  <div class="form-group">
+    <%%= submit Haytni.Gettext.dgettext("haytni", "Invite"), class: "btn btn-primary" %>
+    <.link href="/" class="btn">
+      <%%= Haytni.Gettext.dgettext("haytni", "Cancel") %>
+    </.link>
+  </div>
+
+<%% end %>

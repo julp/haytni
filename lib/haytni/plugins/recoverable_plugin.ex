@@ -51,17 +51,17 @@ defmodule Haytni.RecoverablePlugin do
     if Haytni.Helpers.phoenix17?() do
       [
         # HTML
-        {:eex, "views/password_html.ex", Path.join([web_path, "controllers", "haytni", scope, "password_html.ex"])},
-        {:eex, "templates/password/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "password", "new.html.heex"])},
-        {:eex, "templates/password/edit.html.heex", Path.join([web_path, "controllers", "haytni", scope, "password", "edit.html.heex"])},
+        {:eex, "phx17/views/password_html.ex", Path.join([web_path, "controllers", "haytni", scope, "password_html.ex"])},
+        {:eex, "phx17/templates/password/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "password", "new.html.heex"])},
+        {:eex, "phx17/templates/password/edit.html.heex", Path.join([web_path, "controllers", "haytni", scope, "password", "edit.html.heex"])},
       ]
     # TODO: remove this when dropping support for Phoenix < 1.7
     else
       [
         # HTML
-        {:eex, "views/password_view.ex", Path.join([web_path, "views", "haytni", scope, "password_view.ex"])},
-        {:eex, "templates/password/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "password", "new.html.heex"])},
-        {:eex, "templates/password/edit.html.heex", Path.join([web_path, "templates", "haytni", scope, "password", "edit.html.heex"])},
+        {:eex, "phx16/views/password_view.ex", Path.join([web_path, "views", "haytni", scope, "password_view.ex"])},
+        {:eex, "phx16/templates/password/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "password", "new.html.heex"])},
+        {:eex, "phx16/templates/password/edit.html.heex", Path.join([web_path, "templates", "haytni", scope, "password", "edit.html.heex"])},
       ]
     end ++ [
       # email

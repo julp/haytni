@@ -1,0 +1,13 @@
+<h2><%%= Haytni.Gettext.dgettext("haytni", "Forgot your password?") %></h2>
+
+<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :create), [as: :password], fn f -> %>
+
+  <%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.keys(%{changeset: @changeset, f: f, keys: @config.reset_password_keys}) %>
+
+  <div class="form-group">
+    <%%= submit Haytni.Gettext.dgettext("haytni", "Send me reset password instructions") %>
+  </div>
+
+  <%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.links(assigns) %>
+
+<%% end %>
