@@ -1,4 +1,4 @@
-defmodule Haytni.Trackable.OnDeleteTest do
+defmodule Haytni.Trackable.OnDeleteUserTest do
   use Haytni.DataCase, [
     async: true,
     plugin: Haytni.TrackablePlugin,
