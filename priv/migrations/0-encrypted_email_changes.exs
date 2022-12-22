@@ -1,4 +1,4 @@
-defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "EncryptedEmailChanges"]) %> do
+defmodule <%= [:Haytni, "Migrations", camelized_scope, "EncryptedEmailChanges"] |> Module.concat() |> inspect() %> do
   use Ecto.Migration
 
   @column :encrypted_email
@@ -13,11 +13,22 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "En
       add @column, cistring, null: true, default: nil
     end
 
+    create unique_index(table, [@column])
+
+    _ = """
+    Ecto.Migration.flush()
+
+    query = from(
+      u in module.schema(),
+      set: [
+        {@column, fragment("encode(sha256(?::TEXT::BYTEA), 'hex')", u.email)},
+      ]
+    )
+    module.repo().update_all(query, [])
     """
-    UPDATE #{table} SET #{@column} = encode(sha256(email), 'hex');
-    CREATE INDEX ON #{table}(#{@column});
-    ALTER TABLE #{table} ALTER COLUMN #{@column} DROP NOT NULL;
-    """
-    |> execute()
+
+    execute("UPDATE #{table} SET #{@column} = encode(sha256(email::TEXT::BYTEA), 'hex');")
+    #execute("CREATE UNIQUE INDEX ON #{table}(#{@column});")
+    execute("ALTER TABLE #{table} ALTER COLUMN #{@column} DROP NOT NULL;")
   end
 end

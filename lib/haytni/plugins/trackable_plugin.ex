@@ -1,5 +1,7 @@
 defmodule Haytni.TrackablePlugin do
-  @moduledoc ~S"""
+  @default_on_delete nil
+
+  @moduledoc """
   This module keeps tracks of the following elements:
 
     * the remote address IP used by the client at each of its sign in (in a table apart)
@@ -14,12 +16,32 @@ defmodule Haytni.TrackablePlugin do
 
   Note that the previous fields can be `nil`, don't forget to handle this specific case!
 
-  Configuration: none
+  Configuration:
+
+    * `:on_delete` (default: `#{inspect(@default_on_delete)}`): what to do regarding the connections on user deletion. Possible values:
+
+      + `:soft_cascade` to delete all connections related to the user being removed. Use it only if you don't want to keep these data and soft delete the user (else just rely on
+        the `ON DELETE CASCADE` option of the foreign key)
+      + `nil` (or any other value) does nothing
 
   Routes: none
   """
 
+  defmodule Config do
+    defstruct ~W[on_delete]a
+
+    @type t :: %__MODULE__{
+      on_delete: nil | :soft_cascade,
+    }
+  end
+
   use Haytni.Plugin
+
+  @impl Haytni.Plugin
+  def build_config(options \\ %{}) do
+    %Haytni.TrackablePlugin.Config{}
+    |> Haytni.Helpers.merge_config(options)
+  end
 
   @impl Haytni.Plugin
   def files_to_install(_base_path, web_path, scope, timestamp) do
@@ -97,9 +119,16 @@ end
       |> Keyword.put(:current_sign_in_at, Haytni.Helpers.now())
       |> Keyword.put(:last_sign_in_at, user.current_sign_in_at)
 
-
     {conn, add_connection_to_multi(multi, conn, user), changes}
   end
+
+  @impl Haytni.Plugin
+  def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, %Config{on_delete: :soft_cascade}) do
+    multi
+    |> Ecto.Multi.delete_all(:delete_connections, Haytni.TrackablePlugin.QueryHelpers.connections_from_user(user))
+  end
+
+  def on_delete_user(multi = %Ecto.Multi{}, _user, _module, _config), do: multi
 
   defmodule QueryHelpers do
     @moduledoc ~S"""

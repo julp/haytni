@@ -13,7 +13,7 @@ defmodule Haytni.EncryptedEmailPlugin do
     * `fields_to_reset_on_delete` (default: `#{inspect(@default_fields_to_reset_on_delete)}`): the fields to reset/change on account deletion. Examples:
 
       + `[:email, :encrypted_password]` set `:email` and `:encrypted_password` to `nil`
-      + `[email: nil, encrypted_password: "<ACCOUNT DELETED>", name: fn user -> "Account deleted ##{user.id}" end]` set `:email` to `nil`, `encrypted_password` to `"<ACCOUNT DELERED>"` and `:name` to `"Account deleted ##{user.id}"`.
+      + `[email: nil, encrypted_password: "<ACCOUNT DELETED>", name: fn user -> "Account deleted #\#{user.id}" end]` set `:email` to `nil`, `encrypted_password` to `"<ACCOUNT DELERED>"` and `:name` to `"Account deleted #\#{user.id}"`.
 
   Routes: none
   """
@@ -59,7 +59,7 @@ defmodule Haytni.EncryptedEmailPlugin do
   end
 
   @impl Haytni.Plugin
-  def validate_create_registration(changeset, module, config) do
+  def validate_create_registration(changeset, module, _config) do
     changeset
     |> Ecto.Changeset.unsafe_validate_unique(:encrypted_email, module.repo())
     |> put_hash()
@@ -72,12 +72,12 @@ defmodule Haytni.EncryptedEmailPlugin do
   end
 
   @impl Haytni.Plugin
-  def on_email_change(multi, changeset, module, config) do
+  def on_email_change(multi, changeset, _module, _config) do
     {multi, put_hash(changeset)}
   end
 
   @impl Haytni.Plugin
-  def on_delete_user(multi, user, module, config) do
+  def on_delete_user(multi, user, _module, config) do
     pairs =
       config.fields_to_reset_on_delete
       |> Enum.map(

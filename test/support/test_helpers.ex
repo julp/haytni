@@ -4,6 +4,43 @@ defmodule Haytni.TestHelpers do
 
   @type falsy :: false | nil
 
+  @connections_association_name :connections
+  @spec list_connections(repo :: module, user :: struct) :: [Ecto.Schema.t]
+  def list_connections(repo, user)
+    when is_atom(repo)
+  do
+    user.__struct__.__schema__(:association, @connections_association_name).related
+    |> repo.all()
+  end
+
+  defp cast_ip(Ecto.Adapters.Postgres, ip) do
+    {:ok, parsed_ip} =
+      ip
+      |> to_charlist()
+      |> :inet.parse_address()
+
+    %Postgrex.INET{
+      address: parsed_ip,
+      netmask: parsed_ip |> tuple_size() |> Kernel.*(8),
+    }
+  end
+
+  defp cast_ip(_adapter, ip), do: ip
+
+  @spec connection_fixture(repo :: module, user :: struct, attrs :: Enumerable.t) :: Ecto.Schema.t
+  def connection_fixture(repo, user = %_{}, attrs \\ [])
+    when is_atom(repo)
+  do
+    attrs = Keyword.update(attrs, :ip, cast_ip(repo.__adapter__(), "127.0.0.1"), fn ip -> cast_ip(repo.__adapter__(), ip) end)
+
+    {:ok, connection} =
+      user
+      |> Ecto.build_assoc(@connections_association_name, attrs)
+      |> repo.insert()
+
+    connection
+  end
+
   @spec language_fixture(name :: String.t) :: HaytniTest.Language.t
   def language_fixture(name)
     when is_binary(name)
@@ -250,7 +287,9 @@ defmodule Haytni.TestHelpers do
   end
 
   defp max_age(config) do
-    case Keyword.fetch(config.remember_cookie_options, :max_age) do
+    config.remember_cookie_options
+    |> Keyword.fetch(:max_age)
+    |> case do
       {:ok, value} ->
         [max_age: value]
       :error ->
