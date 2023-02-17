@@ -28,6 +28,7 @@ defmodule Haytni.Token do
   end
 
   def __after_compile__(env, _bytecode) do
+    [pk] = env.module.__schema__(:primary_key)
     contents = quote do
       use Ecto.Schema
       import Ecto.Changeset
@@ -39,7 +40,7 @@ defmodule Haytni.Token do
 
         timestamps(updated_at: false, type: :utc_datetime)
 
-        belongs_to :user, unquote(env.module), foreign_key: :user_id # TODO: "#{scope}_id"?
+        belongs_to :user, unquote(env.module), type: unquote(env.module.__schema__(:type, pk)), foreign_key: :user_id # TODO: "#{scope}_id"?
       end
     end
 
