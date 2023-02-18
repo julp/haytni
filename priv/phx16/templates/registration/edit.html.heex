@@ -57,7 +57,7 @@
 <%% end %>
 
 <%%= if @config.with_delete do %>
-  <%%= form_for @deletion_changeset, Routes.haytni_<%= scope %>_registration_path(@conn, :delete), [as: :deletion, method: :delete], fn f  -> %>
+  <%%= form_for @deletion_changeset, <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :delete), [as: :deletion, method: :delete], fn f  -> %>
     <div class="form-group">
       <%%= password_input f, :current_password, name: :current_password, class: "form-control", placeholder: Haytni.Gettext.dgettext("haytni", "your current password") %>
       <label>
