@@ -160,6 +160,8 @@ defmodule YourApp.User do
 end
 ```
 
+Note for Phoenix >= 1.7: Haytni (still) relies (on purpose) on route helpers, make sure to enable them (they are disabled by default) in the file your_app/lib/your_app_web.ex by changing the line `use Phoenix.Router, helpers: false` into `use Phoenix.Router, helpers: true`
+
 ## Emails
 
 This is only required by plugins which send emails (as of right now: Confirmable, Lockable, Recoverable and Invitable plugins) else Haytni's `:mailer` option can be omitted or set to `nil`.

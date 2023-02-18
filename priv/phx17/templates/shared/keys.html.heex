@@ -1,15 +1,14 @@
 <%%= if Map.has_key?(@changeset.types, :referer) do %>
-  <%%= hidden_input @f, :referer %>
+  <.input
+    field={{@f, :referer}}
+    type="hidden"
+  />
 <%% end %>
 <%%= for field <- @keys do %>
-  <div class="form-group">
-    <%%= label @f, Gettext.dgettext(<%= inspect(web_module) %>.Gettext, "fields", to_string(field)), class: "control-label" %>
-    <%%= case field do %>
-      <%% :email -> %>
-        <%%= email_input @f, field, class: "form-control", required: "" %>
-      <%% _ -> %>
-        <%%= text_input @f, field, class: "form-control", required: "" %>
-    <%% end %>
-    <%%= error_tag @f, field %>
-  </div>
+  <.input
+    required
+    field={{@f, field}}
+    type={if field == :email, do: "email", else: "text"}
+    label={Gettext.dgettext(<%= inspect(web_module) %>.Gettext, "fields", to_string(field))}
+  />
 <%% end %>
