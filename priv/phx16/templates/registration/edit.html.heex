@@ -61,7 +61,7 @@
     <div class="form-group">
       <%%= password_input f, :current_password, name: :current_password, class: "form-control", placeholder: Haytni.Gettext.dgettext("haytni", "your current password") %>
       <label>
-        <%%= checkbox f, :accept_deletion %> <%%= submit Haytni.Gettext.dgettext("haytni", "I'm sure I want to delete my account and I understand the operation can't be reverted"), class: "danger" %>
+        <%%= checkbox f, :accept_deletion %> <%%= Haytni.Gettext.dgettext("haytni", "I'm sure I want to delete my account and I understand the operation can't be reverted") %>
       </label>
     </div>
     <div class="form-group">
