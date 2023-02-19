@@ -3,7 +3,7 @@ defmodule Haytni.RememberablePlugin do
   @default_remember_cookie_name "remember_token"
   @default_remember_cookie_options [
     http_only: true,
-    extra: "SameSite=Strict",
+    same_site: "Strict",
   ]
 
   @moduledoc """
@@ -34,7 +34,7 @@ defmodule Haytni.RememberablePlugin do
         #path:
         http_only: true,
         #secure:
-        extra: "Samesite=Strict",
+        same_site: "Strict",
       ]
 
     @type t :: %__MODULE__{
