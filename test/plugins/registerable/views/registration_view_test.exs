@@ -70,10 +70,10 @@ defmodule Haytni.Registerable.RegistrationViewTest do
     )
 
     assert content =~ "name=\"email[email]\""
-    assert content =~ "name=\"email[current_password]\""
+    assert content =~ "name=\"current_password\""
     assert content =~ "name=\"password[password]\""
     assert content =~ "name=\"password[password_confirmation]\""
-    assert content =~ "name=\"password[current_password]\""
+    assert content =~ "name=\"current_password\""
 
     content
   end
