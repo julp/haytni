@@ -8,13 +8,13 @@ end
 <% end %>
 
 defmodule <%= inspect(base_module) %>.Haytni do
-  use Haytni, otp_app: <%= inspect otp_app %>
+  use Haytni, otp_app: <%= inspect(otp_app) %>
 
   <%= if Haytni.AuthenticablePlugin in plugins do %>
-    import <%= inspect base_module %>.Haytni.Helpers
+    import <%= inspect(base_module) %>.Haytni.Helpers
   <% end %>
 
   <%= for plugin <- plugins do %>
-    stack <%= inspect plugin %><%= if plugin == Haytni.AuthenticablePlugin do %>, expassword_options(Mix.env(), ExPassword.Bcrypt)<% end %>
+    stack <%= inspect(plugin) %><%= if plugin == Haytni.AuthenticablePlugin do %>, expassword_options(Mix.env(), ExPassword.Bcrypt)<% end %>
   <% end %>
 end

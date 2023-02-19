@@ -203,6 +203,20 @@ defmodule Haytni.Helpers do
     |> Version.match?("~> 1.7-rc")
   end
 
+  @doc ~S"""
+  Append *suffix* to *string* if the string doesn't already end with *suffix*
+  """
+  @spec maybe_suffix(string :: String.t, suffix :: String.t) :: String.t
+  def maybe_suffix(string, suffix)
+    when is_binary(string) and is_binary(suffix)
+  do
+    if String.ends_with?(string, suffix) do
+      string
+    else
+      string <> suffix
+    end
+  end
+
 if true do
   defmacro multi_to_regular_result(result, name) do
     quote do

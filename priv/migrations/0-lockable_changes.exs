@@ -1,8 +1,8 @@
-defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "LockableChanges"]) %> do
+defmodule <%= [:Haytni, "Migrations", camelized_scope, "LockableChanges"] |> Module.concat() |> inspect() %> do
   use Ecto.Migration
 
-  def change(table \\ <%= inspect table %>) do
-    create_if_not_exists table(<%= inspect table %>) do
+  def change(table \\ <%= inspect(table) %>) do
+    create_if_not_exists table(<%= inspect(table) %>) do
       # NOP
     end
 

@@ -13,8 +13,6 @@ defmodule Haytni.LockableEmail do
     |> assign(:unlock_token, unlock_token)
     |> from(module.mailer().from())
     |> subject(dgettext("haytni", "Unlock instructions"))
-    |> put_view(module, "Email.LockableView")
-    |> put_text_template("unlock_instructions.text")
-    |> put_html_template("unlock_instructions.html")
+    |> put_template(module, "LockableView", "unlock_instructions")
   end
 end

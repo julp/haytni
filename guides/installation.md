@@ -178,7 +178,7 @@ If not already done, add `:bamboo` as dependency to `deps/0` of your mix.exs fil
   defp deps do
     [
       # ...
-      {:bamboo, "~> 2.2"}, # (check https://hex.pm/packages/bamboo for the latest version)
+      {:bamboo, "~> 2.3"}, # (check https://hex.pm/packages/bamboo for the latest version)
       # ...
     ]
   end
@@ -382,7 +382,7 @@ end
 
 #### Other
 
-You can come with your own delivery strategy by implemenenting the `Haytni.Mailer.DeliveryStrategy` behaviour.
+You can come with your own delivery strategy by implementing the `Haytni.Mailer.DeliveryStrategy` behaviour.
 
 In particular, if emails are more critical, you can send them through Oban, a service broker, ...
 

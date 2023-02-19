@@ -3,7 +3,7 @@
     <p><%%= Haytni.InvitablePlugin.invitation_required_message() %></p>
   </div>
 <%% else %>
-  <%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :create), [as: :registration], fn f -> %>
+  <%%= form_for @changeset, <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :create), [as: :registration], fn f -> %>
 
     <%%= if f.errors[:base] do %>
       <p><%%= elem(f.errors[:base], 0) %></p>
@@ -41,6 +41,6 @@
       <%%= submit Haytni.Gettext.dgettext("haytni", "Sign up"), class: "btn btn-primary" %>
       <%%= link Haytni.Gettext.dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
     </div>
-    <%%= render <%= inspect Module.concat([web_module, :Haytni, camelized_scope, "SharedView"]) %>, "links.html", assigns %>
+    <%%= render <%= [web_module, :Haytni, camelized_scope, "SharedView"] |> Module.concat() |> inspect() %>, "links.html", assigns %>
   <%% end %>
 <%% end %>

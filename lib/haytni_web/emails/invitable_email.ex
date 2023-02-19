@@ -17,8 +17,6 @@ defmodule Haytni.InvitableEmail do
     |> assign(:invitation, invitation)
     |> from(module.mailer().from())
     |> subject(dgettext("haytni", "You've been invited"))
-    |> put_view(module, "Email.InvitableView")
-    |> put_text_template("invitation.text")
-    |> put_html_template("invitation.html")
+    |> put_template(module, "InvitableView", "invitation")
   end
 end

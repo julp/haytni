@@ -1,5 +1,0 @@
-<p>Welcome <%%= @user.email %>,</p>
-
-<p>You can confirm your account email through the link below:</p>
-
-<p><%%= link "Confirm my account", to: <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_confirmation_url(<%= inspect web_module %>.Endpoint, :show, confirmation_token: @confirmation_token) %></p>

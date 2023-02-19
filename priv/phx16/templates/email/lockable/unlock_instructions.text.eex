@@ -1,0 +1,7 @@
+Hello <%%= @user.email %>!
+
+Your account has been locked due to an excessive number of unsuccessful sign in attempts.
+
+You can unlock your account by copying/pasting the link below in your browser:
+
+<%%= <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_unlock_url(<%= inspect(web_module) %>.Endpoint, :show, unlock_token: @unlock_token) %>

@@ -35,21 +35,13 @@ defmodule Haytni do
     Application.fetch_env!(@application, key)
   end
 
-  defp maybe_suffix(string, suffix) do
-    if String.ends_with?(string, suffix) do
-      string
-    else
-      string <> suffix
-    end
-  end
-
   defmacro __using__(options) do
     otp_app = Keyword.fetch!(options, :otp_app)
 
     web_module =
       otp_app
       |> app_base()
-      |> maybe_suffix("Web")
+      |> Haytni.Helpers.maybe_suffix("Web")
       |> String.to_atom()
 
     scope =
@@ -321,9 +313,9 @@ defmodule Haytni do
     if Haytni.Helpers.phoenix17?() do
       [
         {:eex, "phx17/views/shared_html.ex", Path.join([web_path, "controllers", "haytni", scope, "shared_html.ex"])},
-        {:eex, "phx17/templates/shared/keys.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.heex"])},
-        {:eex, "phx17/templates/shared/links.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "links.html.heex"])},
-        {:eex, "phx17/templates/shared/message.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "message.html.heex"])},
+        {:eex, "phx17/templates/shared/keys.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared_html", "keys.html.heex"])},
+        {:eex, "phx17/templates/shared/links.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared_html", "links.html.heex"])},
+        {:eex, "phx17/templates/shared/message.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared_html", "message.html.heex"])},
       ]
     else
       [

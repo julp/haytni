@@ -1,4 +1,4 @@
-<%%= form_for @changeset, <%= inspect web_module %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :create), [as: :invitation], fn f  -> %>
+<%%= form_for @changeset, <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :create), [as: :invitation], fn f  -> %>
 
   <%%= if f.errors[:base] do %>
     <p><%%= elem(f.errors[:base], 0) %></p>

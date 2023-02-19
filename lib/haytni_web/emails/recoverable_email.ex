@@ -13,8 +13,6 @@ defmodule Haytni.RecoverableEmail do
     |> assign(:reset_password_token, reset_password_token)
     |> from(module.mailer().from())
     |> subject(dgettext("haytni", "Reset password instructions"))
-    |> put_view(module, "Email.RecoverableView")
-    |> put_text_template("reset_password_instructions.text")
-    |> put_html_template("reset_password_instructions.html")
+    |> put_template(module, "Recoverable", "reset_password_instructions")
   end
 end

@@ -1,5 +1,5 @@
-defmodule <%= inspect Module.concat([web_module, :Haytni, camelized_scope, "SharedView"]) %> do
-  use <%= inspect web_module %>, :view
+defmodule <%= [web_module, :Haytni, camelized_scope, "SharedView"] |> Module.concat() |> inspect() %> do
+  use <%= inspect(web_module) %>, :view
   require Haytni.Gettext
   require HaytniTestView
 

@@ -82,6 +82,8 @@ defmodule HaytniWeb.Shared do
     |> assign(:next_step_link_href, href)
   end
 
+  @shared_view (if Haytni.Helpers.phoenix17?(), do: "SharedHTML", else: "SharedView")
+
   @doc ~S"""
   Set connection to render SharedView/message.html.
   """
@@ -90,7 +92,7 @@ defmodule HaytniWeb.Shared do
     conn
     |> assign(:type, type)
     |> assign(:message, message)
-    |> HaytniWeb.Helpers.put_view(module, "SharedView")
+    |> HaytniWeb.Helpers.put_view(module, @shared_view)
     |> render("message.html")
   end
 end

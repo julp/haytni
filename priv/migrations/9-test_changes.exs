@@ -1,7 +1,7 @@
-defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "TestChanges"]) %> do
+defmodule <%= [:Haytni, "Migrations", camelized_scope, "TestChanges"] |> Module.concat() |> inspect() %> do
   use Ecto.Migration
 
-  def change(table \\ <%= inspect table %>) do
+  def change(table \\ <%= inspect(table) %>) do
     create_if_not_exists table(table) do
       # NOP
     end
@@ -23,7 +23,7 @@ defmodule <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "Te
     create unique_index(languages_table, ~W[name]a)
 
     admin_table = HaytniTest.Admin.__schema__(:source)
-    <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "AuthenticableCreation"]) %>.change(admin_table)
-    <%= inspect Module.concat([:Haytni, "Migrations", camelized_scope, "TrackableChanges"]) %>.change(admin_table, :admin)
+    <%= [:Haytni, "Migrations", camelized_scope, "AuthenticableCreation"] |> Module.concat() |> inspect() %>.change(admin_table)
+    <%= [:Haytni, "Migrations", camelized_scope, "TrackableChanges"] |> Module.concat() |> inspect() %>.change(admin_table, :admin)
   end
 end

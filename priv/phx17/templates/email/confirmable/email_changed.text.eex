@@ -1,0 +1,3 @@
+Hello <%%= @old_email_address %>!
+
+We're contacting you to let you know that the email address linked to your account is being changed to <%%= @user.email %>.
