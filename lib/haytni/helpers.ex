@@ -229,7 +229,7 @@ if true do
     end
   end
 else
-  @spec multi_to_regular_result(result :: Shop.Types.multi_result, name :: Ecto.Multi.name) :: Shop.Types.repo_nobang_operation
+  @spec multi_to_regular_result(result :: Haytni.multi_result, name :: Ecto.Multi.name) :: Haytni.repo_nobang_operation(Ecto.Schema.t)
   def multi_to_regular_result(result, name) do
     result
     |> case do
