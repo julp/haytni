@@ -10,7 +10,11 @@
     <%%= password_input f, :password, autofocus: true, autocomplete: "new-password", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "your new password") %>
     <%%= error_tag f, :password %>
   </div>
-  <small id="passwordHelpBlock" class="form-text text-muted">
+  <small
+    id="passwordHelpBlock"
+    class="form-text text-muted"
+    :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
+  >
     <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
     <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
   </small>

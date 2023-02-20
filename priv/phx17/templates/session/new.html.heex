@@ -1,10 +1,9 @@
-<%%= form_for @changeset, <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_session_path(@conn, :create), [as: :session], fn f -> %>
-
-<%= if false do %>
-  <%%= if Haytni.plugin_enabled?(@module, Haytni.LockablePlugin) && Haytni.LockablePlugin.last_attempt?(TODO) do %>
-    <p><%%= Haytni.Gettext.dgettext("haytni", "Warning: at the next failed attempt, the account will be locked") %></p>
-  <%% end %>
-<% end %>
+<.simple_form
+  :let={f}
+  for={@changeset}
+  action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :create)}
+  as={:session}
+>
 
   <%%= if f.errors[:base] do %>
     <p><%%= elem(f.errors[:base], 0) %></p>
@@ -12,24 +11,37 @@
 
   <%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.keys(%{changeset: @changeset, f: f, keys: @config.authentication_keys}) %>
 
-  <div class="form-group">
-    <%%= label f, :password, Haytni.Gettext.dgettext("haytni", "Password"), class: "control-label" %>
-    <%%= password_input f, :password, class: "form-control", required: "" %>
-    <%%= error_tag f, :password %>
-  </div>
+  <.input
+    required
+    type="password"
+    field={{f, :password}}
+    label={Haytni.Gettext.dgettext("haytni", "Password")}
+  />
+  <small
+    id="passwordHelpBlock"
+    class="form-text text-muted"
+    :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
+  >
+    <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
+    <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
+  </small>
 
-  <%%= if Haytni.plugin_enabled?(@module, Haytni.RememberablePlugin) do %>
-    <div class="form-group">
-      <%%= checkbox f, :remember, hidden_input: false %>
-      <%%= label f, :remember, Haytni.Gettext.dgettext("haytni", "Remember Me?") %>
-    </div>
-    <br/>
-  <%% end %>
+  <.input
+    type="checkbox"
+    field={{f, :remember}}
+    label={Haytni.Gettext.dgettext("haytni", "Remember Me?")}
+    :if={Haytni.plugin_enabled?(@module, Haytni.RememberablePlugin)}
+  />
 
-  <div class="form-group">
-    <%%= submit Haytni.Gettext.dgettext("haytni", "Sign In"), class: "btn btn-primary" %>
-  </div>
+  <:actions>
+    <.button>
+      <%%= Haytni.Gettext.dgettext("haytni", "Sign In") %>
+    </.button>
+    <.link href="/" class="btn">
+      <%%= Haytni.Gettext.dgettext("haytni", "Cancel") %>
+    </.link>
+  </:actions>
 
-  <%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.links(assigns) %>
+</.simple_form>
 
-<%% end %>
+<%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.links(assigns) %>
