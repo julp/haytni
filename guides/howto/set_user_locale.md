@@ -82,11 +82,52 @@ Add it to your `:browser` pipeline in your router but **after** calling your Hay
 # ...
 ```
 
+For live views, you can globally achieve the same by implementing an `on_mount/4` callback:
+
+```elixir
+# your_app/lib/your_app_web/live/locale_on_mount_locale.ex
+
+defmodule YourAppWeb.OnMount.Locale do
+  @supported_locales Gettext.known_locales(YourAppWeb.Gettext)
+
+  def on_mount(_, _params, _session, socket = %Phoenix.LiveView.Socket{assigns: %{current_user: %YourApp.User{locale: locale}}})
+    when locale in @supported_locales
+  do
+    Gettext.put_locale(locale)
+    {:cont, socket}
+  end
+
+  def on_mount(_, _params, _session, socket) do
+    {:cont, socket}
+  end
+end
+```
+
+Then add it to your `Phoenix.LiveView.Router.live_session/3` block in your router, but **after** `YourAppWeb.Haytni` as follows:
+
+```elixir
+# app/your_app/lib/your_app_web/router.ex
+
+  live_session(
+    ...,
+    on_mount: [
+      # ...
+      YourAppWeb.Haytni,
+      YourAppWeb.OnMount.Locale, # <= **AFTER** YourAppWeb.Haytni
+      # ...
+    ]
+  ) do
+    # ...
+  end
+```
+
 ## Profile edition
 
 It could be more useful if user can actually change its locale but we haven't taking care of this for now so let's remedy this.
 
 We will begin by completing the template for editing registration:
+
+Phoenix < 1.7:
 
 ```eex
 # lib/your_app_web/templates/haytni/registration/edit.html.heex (global) or lib/your_app_web/templates/haytni/user/registration/edit.html.heex (scoped)
@@ -101,6 +142,25 @@ We will begin by completing the template for editing registration:
     <%= select f, :timezone, Tzdata.zone_lists_grouped() %>
     <%= error_tag f, :timezone %>
   </div>
+```
+
+Phoenix >= 1.7:
+
+```eex
+# lib/your_app_web/controllers/haytni/registration_html/edit.html.heex (global) or lib/your_app_web/controllers/haytni/user/registration_html/edit.html.heex (scoped)
+
+  <.input
+    field={{f, :locale}}
+    type="select"
+    label={YourAppWeb.Gettext.dgettext("your_domain", "Locale")}
+    options={Gettext.known_locales(YourAppWeb.Gettext)}
+  />
+  <.input
+    field={{f, :timezone}}
+    type="select"
+    label={YourAppWeb.Gettext.dgettext("your_domain", "Timezone")}
+    options={Tzdata.zone_lists_grouped()}
+  />
 ```
 
 **Note**: to support timezones, you'll need [tzdata](https://hex.pm/packages/tzdata). To do so:
