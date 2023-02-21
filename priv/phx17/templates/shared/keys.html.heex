@@ -1,14 +1,12 @@
-<%%= if Map.has_key?(@changeset.types, :referer) do %>
-  <.input
-    field={{@f, :referer}}
-    type="hidden"
-  />
-<%% end %>
-<%%= for field <- @keys do %>
-  <.input
-    required
-    field={{@f, field}}
-    type={if field == :email, do: "email", else: "text"}
-    label={Gettext.dgettext(<%= inspect(web_module) %>.Gettext, "fields", to_string(field))}
-  />
-<%% end %>
+<.input
+  field={@f[:referer]}
+  type="hidden"
+  :if={Map.has_key?(@changeset.types, :referer)}
+/>
+<.input
+  required
+  field={@f[field]}
+  type={if field == :email, do: "email", else: "text"}
+  label={Gettext.dgettext(<%= inspect(web_module) %>.Gettext, "fields", to_string(field))}
+  :for={field <- @keys}
+/>

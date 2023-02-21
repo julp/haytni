@@ -5,16 +5,16 @@
   as={:session}
 >
 
-  <%%= if f.errors[:base] do %>
-    <p><%%= elem(f.errors[:base], 0) %></p>
-  <%% end %>
+  <p :if={f.errors[:base]}>
+    <%%= elem(f.errors[:base], 0) %>
+  </p>
 
   <%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.keys(%{changeset: @changeset, f: f, keys: @config.authentication_keys}) %>
 
   <.input
     required
     type="password"
-    field={{f, :password}}
+    field={f[:password]}
     label={Haytni.Gettext.dgettext("haytni", "Password")}
   />
   <small
@@ -28,7 +28,7 @@
 
   <.input
     type="checkbox"
-    field={{f, :remember}}
+    field={f[:remember]}
     label={Haytni.Gettext.dgettext("haytni", "Remember Me?")}
     :if={Haytni.plugin_enabled?(@module, Haytni.RememberablePlugin)}
   />

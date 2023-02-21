@@ -7,13 +7,13 @@
   <.input
     type="hidden"
     name="action"
-    field={{f, :action}}
+    field={f[:action]}
     value="update_email"
   />
   <.input
     required
     type="email"
-    field={{f, :email}}
+    field={f[:email]}
     label={Haytni.Gettext.dgettext("haytni", "Email")}
     placeholder={Haytni.Gettext.dgettext("haytni", "your email")}
   />
@@ -21,7 +21,7 @@
     required
     type="password"
     name="current_password"
-    field={{f, :current_password}}
+    field={f[:current_password]}
     label={Haytni.Gettext.dgettext("haytni", "Current password")}
     placeholder={Haytni.Gettext.dgettext("haytni", "your current password")}
   />
@@ -44,13 +44,13 @@
   <.input
     type="hidden"
     name="action"
-    field={{f, :action}}
+    field={f[:action]}
     value="update_password"
   />
   <.input
     required
     type="password"
-    field={{f, :password}}
+    field={f[:password]}
     label={Haytni.Gettext.dgettext("haytni", "New password")}
     placeholder={Haytni.Gettext.dgettext("haytni", "your new password")}
   />
@@ -65,7 +65,7 @@
   <.input
     required
     type="password"
-    field={{f, :password_confirmation}}
+    field={f[:password_confirmation]}
     label={Haytni.Gettext.dgettext("haytni", "Confirm new password")}
     placeholder={Haytni.Gettext.dgettext("haytni", "your new password")}
   />
@@ -73,7 +73,7 @@
     required
     type="password"
     name="current_password"
-    field={{f, :current_password}}
+    field={f[:current_password]}
     label={Haytni.Gettext.dgettext("haytni", "Current password")}
     placeholder={Haytni.Gettext.dgettext("haytni", "your current password")}
   />
@@ -119,14 +119,14 @@
       required
       type="password"
       name="current_password"
-      field={{f, :current_password}}
+      field={f[:current_password]}
       label={Haytni.Gettext.dgettext("haytni", "Current password")}
       placeholder={Haytni.Gettext.dgettext("haytni", "your current password")}
     />
     <.input
       required
       type="checkbox"
-      field={{f, :accept_deletion}}
+      field={f[:accept_deletion]}
       label={Haytni.Gettext.dgettext("haytni", "I'm sure I want to delete my account and I understand the operation can't be reverted")}
     />
     <:actions>

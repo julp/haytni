@@ -10,14 +10,14 @@
 
   <.input
     type="hidden"
-    field={{f, :reset_password_token}}
+    field={f[:reset_password_token]}
   />
 
   <.input
     required
     autofocus
     type="password"
-    field={{f, :password}}
+    field={f[:password]}
     autocomplete="new-password"
     label={Haytni.Gettext.dgettext("haytni", "New password")}
     placeholder={Haytni.Gettext.dgettext("haytni", "your new password")}
@@ -35,7 +35,7 @@
     required
     type="password"
     autocomplete="off"
-    field={{f, :password_confirmation}}
+    field={f[:password_confirmation]}
     label={Haytni.Gettext.dgettext("haytni", "Confirm new password")}
     placeholder={Haytni.Gettext.dgettext("haytni", "your new password")}
   />

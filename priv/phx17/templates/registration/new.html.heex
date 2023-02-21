@@ -9,28 +9,28 @@
     action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :create)}
     as={:registration}
   >
-    <%%= if f.errors[:base] do %>
-      <p><%%= elem(f.errors[:base], 0) %></p>
-    <%% end %>
+    <p :if={f.errors[:base]}>
+      <%%= elem(f.errors[:base], 0) %>
+    </p>
 
     <.input
       required
       type="email"
-      field={{f, :email}}
+      field={f[:email]}
       label={Haytni.Gettext.dgettext("haytni", "Email")}
       placeholder={Haytni.Gettext.dgettext("haytni", "your email")}
     />
     <.input
       required
       type="email"
-      field={{f, :email_confirmation}}
+      field={f[:email_confirmation]}
       label={Haytni.Gettext.dgettext("haytni", "Confirm email")}
       placeholder={Haytni.Gettext.dgettext("haytni", "your email")}
     />
     <.input
       required
       type="password"
-      field={{f, :password}}
+      field={f[:password]}
       label={Haytni.Gettext.dgettext("haytni", "Password")}
       placeholder={Haytni.Gettext.dgettext("haytni", "your password")}
     />
@@ -45,7 +45,7 @@
     <.input
       required
       type="password"
-      field={{f, :password_confirmation}}
+      field={f[:password_confirmation]}
       label={Haytni.Gettext.dgettext("haytni", "Confirm password")}
       placeholder={Haytni.Gettext.dgettext("haytni", "your password")}
     />
