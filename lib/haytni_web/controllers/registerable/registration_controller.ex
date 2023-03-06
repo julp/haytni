@@ -116,7 +116,7 @@ defmodule HaytniWeb.Registerable.RegistrationController do
       {:ok, _user} ->
         conn
         |> put_flash(:info, successful_edition_message())
-        |> render_edit(current_user, module, config)
+        |> redirect(to: HaytniWeb.Shared.haytni_path(conn, module, &(:"haytni_#{&1}_registration_path"), :edit))
       {:error, changeset = %Ecto.Changeset{}} ->
         render_edit(conn, current_user, module, config, nil, changeset)
     end
@@ -129,7 +129,7 @@ defmodule HaytniWeb.Registerable.RegistrationController do
       {:ok, _user} ->
         conn
         |> put_flash(:info, successful_edition_message())
-        |> render_edit(current_user, module, config)
+        |> redirect(to: HaytniWeb.Shared.haytni_path(conn, module, &(:"haytni_#{&1}_registration_path"), :edit))
       {:error, changeset = %Ecto.Changeset{}} ->
         render_edit(conn, current_user, module, config, nil, nil, changeset)
     end
@@ -139,10 +139,10 @@ defmodule HaytniWeb.Registerable.RegistrationController do
     module
     |> Haytni.update_registration(current_user, registration_params)
     |> case do
-      {:ok, updated_user} ->
+      {:ok, _updated_user} ->
         conn
         |> put_flash(:info, successful_edition_message())
-        |> render_edit(updated_user, module, config)
+        |> redirect(to: HaytniWeb.Shared.haytni_path(conn, module, &(:"haytni_#{&1}_registration_path"), :edit))
       {:error, changeset = %Ecto.Changeset{}} ->
         render_edit(conn, current_user, module, config, changeset)
     end
