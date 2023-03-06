@@ -282,6 +282,17 @@ defmodule Haytni.LiveViewPlugin do
     end
   end
 
+  # TODO: drop this when only supporting LV >= 0.18
+  :phoenix_live_view
+  |> Application.spec(:vsn)
+  |> to_string()
+  |> Version.match?(">= 0.18.0")
+  |> if do
+    @liveview_base_module Phoenix.Component
+  else
+    @liveview_base_module Phoenix.LiveView
+  end
+
   @doc ~S"""
   For live view, to be called in `c:Phoenix.LiveView.mount/3` callback in order to set the current user
   in assigns (named `:current_user` by default - same way as it is done for Plug.Conn).
@@ -325,6 +336,6 @@ defmodule Haytni.LiveViewPlugin do
         end
       #end
     #)
-    Phoenix.LiveView.assign(socket, scoped_assign, user)
+    @liveview_base_module.assign(socket, scoped_assign, user)
   end
 end
