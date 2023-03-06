@@ -836,8 +836,8 @@ defmodule Haytni do
   """
   @spec send_email(module :: module, email :: Haytni.Mail.t, options :: Keyword.t) :: Haytni.Mailer.DeliveryStrategy.email_sent
   def send_email(module, email = %Haytni.Mail{}, options \\ []) do
-    mailer = module.mailer()
     # TODO: cast (adapter) > send (adapter) > deliver (strategy)
+    #mailer = module.mailer()
     #mailer.strategy.deliver(email, mailer, options)
     Haytni.Mailer.UnsupervisedTaskStrategy.deliver(email, module.mailer(), options)
   end
