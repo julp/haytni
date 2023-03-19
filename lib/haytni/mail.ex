@@ -103,6 +103,26 @@ defmodule Haytni.Mail do
         end
       )
     end
+
+    @doc ~S"""
+    Sets the template for when rendering the email as plain text.
+    """
+    @spec put_text_template(email :: t, view_module :: module, template :: String.t) :: t
+    def put_text_template(email = %__MODULE__{}, view_module, template)
+      when is_atom(view_module)
+    do
+      %{email | text_body: Phoenix.Template.render_to_string(view_module, template, "text", email.assigns)}
+    end
+
+    @doc ~S"""
+    Same as `put_text_template/2` but for rendering the email as HTML.
+    """
+    @spec put_html_template(email :: t, view_module :: module, template :: String.t) :: t
+    def put_html_template(email = %__MODULE__{}, view_module, template)
+      when is_atom(view_module)
+    do
+      %{email | html_body: Phoenix.Template.render_to_string(view_module, template, "html", email.assigns)}
+    end
   else
     def put_template(email = %__MODULE__{}, module, view_suffix, template)
       when is_atom(module)
