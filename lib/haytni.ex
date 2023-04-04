@@ -313,9 +313,9 @@ defmodule Haytni do
     if Haytni.Helpers.phoenix17?() do
       [
         {:eex, "phx17/views/shared_html.ex", Path.join([web_path, "controllers", "haytni", scope, "shared_html.ex"])},
-        {:eex, "phx17/templates/shared/keys.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared_html", "keys.html.heex"])},
-        {:eex, "phx17/templates/shared/links.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared_html", "links.html.heex"])},
-        {:eex, "phx17/templates/shared/message.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared_html", "message.html.heex"])},
+        {:eex, "phx17/templates/shared/keys.html.heex", Path.join([web_path, "controllers", "haytni", scope, "shared_html", "keys.html.heex"])},
+        {:eex, "phx17/templates/shared/links.html.heex", Path.join([web_path, "controllers", "haytni", scope, "shared_html", "links.html.heex"])},
+        {:eex, "phx17/templates/shared/message.html.heex", Path.join([web_path, "controllers", "haytni", scope, "shared_html", "message.html.heex"])},
       ]
     else
       [

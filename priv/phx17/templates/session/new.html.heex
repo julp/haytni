@@ -1,7 +1,7 @@
 <.simple_form
   :let={f}
   for={@changeset}
-  action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :create)}
+  action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_session_path(@conn, :create)}
   as={:session}
 >
 
@@ -17,15 +17,6 @@
     field={f[:password]}
     label={Haytni.Gettext.dgettext("haytni", "Password")}
   />
-  <small
-    id="passwordHelpBlock"
-    class="form-text text-muted"
-    :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
-  >
-    <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
-    <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
-  </small>
-
   <.input
     type="checkbox"
     field={f[:remember]}
