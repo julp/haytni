@@ -39,7 +39,13 @@ defmodule Haytni.Mailer.SwooshAdapter do
 
   @impl Haytni.Mailer.Adapter
   def cast(email = %Haytni.Mail{}, mailer, _options) do
-    Swoosh.Email.new()
+    Enum.reduce(
+      email.headers,
+      Swoosh.Email.new(),
+      fn {name, value}, email_as_acc ->
+        Swoosh.Email.header(email_as_acc, name, value)
+      end
+    )
     |> Swoosh.Email.put_to(email.to)
     |> Swoosh.Email.from(mailer.from())
     |> Swoosh.Email.subject(email.subject)

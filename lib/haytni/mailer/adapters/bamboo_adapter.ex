@@ -39,7 +39,13 @@ defmodule Haytni.Mailer.BambooAdapter do
 
   @impl Haytni.Mailer.Adapter
   def cast(email = %Haytni.Mail{}, mailer, _options) do
-    Bamboo.Email.new_email()
+    Enum.reduce(
+      email.headers,
+      Bamboo.Email.new_email(),
+      fn {name, value}, email_as_acc ->
+        Bamboo.Email.put_header(email_as_acc, name, value)
+      end
+    )
     |> Bamboo.Email.to(email.to)
     |> Bamboo.Email.from(mailer.from())
     |> Bamboo.Email.subject(email.subject)

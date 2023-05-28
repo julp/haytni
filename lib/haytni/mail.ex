@@ -15,9 +15,9 @@ defmodule Haytni.Mail do
     view: Haytni.nilable(module),
   }
 
-  # TODO: headers ? layout ?
+  # TODO: layout ?
   #defstruct assigns: %{}, from: nil, to: nil, subject: nil, html_body: nil, text_body: nil, view: nil
-  defstruct ~W[assigns from to subject html_body text_body view]a
+  defstruct ~W[assigns from to subject headers html_body text_body view]a
 
   @doc ~S"""
   Creates (initializes) an empty email
@@ -32,6 +32,7 @@ defmodule Haytni.Mail do
       html_body: nil,
       text_body: nil,
       view: nil,
+      headers: %{},
     }
   end
 
@@ -55,6 +56,44 @@ defmodule Haytni.Mail do
 
   def from(email = %__MODULE__{}, from = {_name, _address}) do
     %{email | from: from}
+  end
+
+  for name <- ~W[from to] do
+    defp do_put_header(_email, name = unquote(name), _value) do
+      raise "Use #{name}/3 to set the #{name} header instead of put_header/3"
+    end
+  end
+
+  defp do_put_header(email, name, value) do
+    %{email | headers: Map.put(email.headers, name, value)}
+  end
+
+  @doc ~S"""
+  Adds a new header to *email*
+
+  Note: names are unique, *value* will override any previous one defined for *name*
+  """
+  @spec put_header(email :: t, name :: String.t, value :: String.t) :: t
+  def put_header(email = %__MODULE__{}, name, value)
+    when is_binary(name) and is_binary(value)
+  do
+    do_put_header(email, String.downcase(name), value)
+  end
+
+  @doc ~S"""
+  Directly sets the HTML body of the email (without involving a view)
+  """
+  @spec html_body(email :: t, body :: String.t) :: t
+  def html_body(email, body) do
+    %{email | html_body: body}
+  end
+
+  @doc ~S"""
+  Directly sets the text body of the email (without involving a view)
+  """
+  @spec text_body(email :: t, body :: String.t) :: t
+  def text_body(email, body) do
+    %{email | text_body: body}
   end
 
   @doc ~S"""
