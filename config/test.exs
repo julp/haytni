@@ -18,6 +18,7 @@ config :haytni, HaytniTest.Repo,
   port: 5433,
   username: "haytni",
   password: "haytni",
+  hostname: "localhost",
   database: "haytni_test",
   socket_dir: "/tmp/",
   pool: Ecto.Adapters.SQL.Sandbox

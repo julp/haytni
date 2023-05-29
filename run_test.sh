@@ -16,7 +16,7 @@ if [ $? -ne 0 ]; then
     if [ "${APP_USER}" != "${SUPER_USER}" ]; then
         createuser -p "${PORT}" "${APP_USER}"
     fi
-    createdb -p "${PORT}" -O "${SUPER_USER}" "${DATABASE}"
+    createdb -p "${PORT}" -O "${APP_USER}" "${DATABASE}"
     psql -p "${PORT}" -c 'CREATE EXTENSION citext;' -d "${DATABASE}"
 fi
 
