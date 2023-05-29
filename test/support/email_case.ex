@@ -42,6 +42,7 @@ defmodule HaytniWeb.EmailCase do
     Haytni.Mail.new()
     |> Haytni.Mail.assign(:user, %HaytniTest.User{firstname: "jean"})
     |> Haytni.Mail.to("jean.pierre@gmail.com")
+    |> Haytni.Mail.put_header("Reply-To", "pierre.jean@gmail.com")
     |> Haytni.Mail.subject("You received a new friend request")
     |> Haytni.Mail.put_view(module, "Dummy.View")
     |> Haytni.Mail.put_html_template("test.html")

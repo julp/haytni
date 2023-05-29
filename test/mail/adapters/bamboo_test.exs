@@ -13,6 +13,7 @@ defmodule Hayni.Mail.BambooAdapterTest do
       assert casted_email.subject == email.subject
       assert casted_email.html_body == email.html_body
       assert casted_email.text_body == email.text_body
+      assert casted_email.headers == email.headers
     end
 
     test "send/3 actually sends the email" do
