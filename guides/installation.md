@@ -342,7 +342,7 @@ end
 
 #### Immediate (synchronous)
 
-You should probably avoid this since sending an email can takes some time, blocking the user/HTTP request meanwhile. If you really want to adopt this behaviour, set `strategy: Haytni.Mailer.ImmediateDeliveryStrategy` in lib/your_app/mailer.ex:
+You should probably avoid this since sending an email can take some time, blocking the user/HTTP request meanwhile. If you really want to adopt this behaviour, set `strategy: Haytni.Mailer.ImmediateDeliveryStrategy` in lib/your_app/mailer.ex:
 
 ```elixir
 # lib/your_app/mailer.ex
@@ -366,7 +366,7 @@ This is the default strategy used by Haytni: the email is sent in a background p
 
 TODO
 
-```
+```elixir
 # lib/your_app/mailer.ex
 
 defmodule YourApp.Mailer do
