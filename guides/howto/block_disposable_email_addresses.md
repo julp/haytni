@@ -17,7 +17,7 @@ Create lib/*your_app*/validations/email_provider_validation.ex with the followin
 # lib/your_app/validations/email_provider_validation.ex
 defmodule YourApp.EmailProviderValidation do
   import Ecto.Changeset
-  #import YourApp.Gettext
+  #import YourAppWeb.Gettext
 
   @external_resource providers_path = Path.join([__DIR__, "forbidden_email_providers.txt"])
   for line <- File.stream!(providers_path, [], :line) do
@@ -31,7 +31,7 @@ defmodule YourApp.EmailProviderValidation do
 
   defp valid_email_provider?(_provider), do: true
 
-  def validate_email_provider(%Ecto.Changeset{valid?: true} = changeset, field)
+  def validate_email_provider(changeset = %Ecto.Changeset{valid?: true}, field)
     when is_atom(field)
   do
     validate_change changeset, field, {:format, nil}, fn _, value ->
@@ -65,13 +65,13 @@ defmodule YourApp.RefuseDisposableEmailPlugin do
   @impl Haytni.Plugin
   def validate_create_registration(changeset = %Ecto.Changeset{}, _module, _config) do
     changeset
-    |> YourApp.EmailProviderValidation(:email)
+    |> YourApp.EmailProviderValidation.validate_email_provider(:email)
   end
 
   @impl Haytni.Plugin
   def validate_update_registration(changeset = %Ecto.Changeset{}, _module, _config) do
     changeset
-    |> YourApp.EmailProviderValidation(:email)
+    |> YourApp.EmailProviderValidation.validate_email_provider(:email)
   end
 end
 ```
