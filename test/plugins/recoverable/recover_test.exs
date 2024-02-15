@@ -70,7 +70,7 @@ defmodule Haytni.Recoverable.RecoverTest do
 
       assert {:error, changeset} = @plugin.recover(@stack, config, new_password_change(reset_password_token, "1"))
       assert %{password: [reason]} = errors_on(changeset)
-      assert reason =~ ~R"should be at least \d+ character\(s\)"
+      assert reason =~ ~r"should be at least \d+ character\(s\)"
     end
   end
 end

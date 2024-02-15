@@ -32,7 +32,7 @@ defmodule Haytni.ClearSiteData.BuildConfigTest do
     end
 
     test "raises on invalid value" do
-      assert_raise ArgumentError, ~R'Invalid value: "trackers" for the HTTP header', fn ->
+      assert_raise ArgumentError, ~r'Invalid value: "trackers" for the HTTP header', fn ->
         @plugin.build_config(logout: ~W[* trackers])
       end      
     end

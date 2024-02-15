@@ -21,7 +21,7 @@ defmodule Haytni.Invitable.InvitationCreateControllerTest do
     end
 
     test "raises if there is no current user (not logged in)", %{conn: conn} do
-      assert_raise Phoenix.ActionClauseError, ~R/no function clause/, fn ->
+      assert_raise Phoenix.ActionClauseError, ~r/no function clause/, fn ->
         get(conn, Routes.haytni_user_invitation_path(conn, :new), invitation_params(@valid_params))
       end
     end

@@ -51,10 +51,10 @@ defmodule Haytni.PasswordPolicyPlugin do
 
   @password_field :password
   @classes [
-    Class.new(~R/\d/, dgettext("haytni", "a digit")),
-    Class.new(~R/[[:lower:]]/, dgettext("haytni", "a lowercase letter")),
-    Class.new(~R/[[:upper:]]/, dgettext("haytni", "a uppercase letter")),
-    Class.new(~R/[^\d[:upper:][:lower:]]/, dgettext("haytni", "a different character")),
+    Class.new(~r/\d/, dgettext("haytni", "a digit")),
+    Class.new(~r/[[:lower:]]/, dgettext("haytni", "a lowercase letter")),
+    Class.new(~r/[[:upper:]]/, dgettext("haytni", "a uppercase letter")),
+    Class.new(~r/[^\d[:upper:][:lower:]]/, dgettext("haytni", "a different character")),
   ]
 
   @impl Haytni.Plugin

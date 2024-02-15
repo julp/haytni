@@ -4,7 +4,7 @@ defmodule Haytni.RegisterablePlugin do
   @new_registration_path_key :new_registration_path
   @edit_registration_path_key :edit_registration_path
 
-  @default_email_regexp ~R/^[^@\s]+@[^@\s]+$/
+  @default_email_regexp ~r/^[^@\s]+@[^@\s]+$/
   @default_case_insensitive_keys ~W[email]a
   @default_strip_whitespace_keys ~W[email]a
   @default_registration_disabled? false
@@ -91,7 +91,7 @@ defmodule Haytni.RegisterablePlugin do
     defstruct registration_disabled?: false,
       strip_whitespace_keys: ~W[email]a,
       case_insensitive_keys: ~W[email]a,
-      email_regexp: ~R/^[^@\s]+@[^@\s]+$/,
+      email_regexp: ~r/^[^@\s]+@[^@\s]+$/,
       email_index_name: nil,
       with_delete: false,
       logout_on_deletion: true

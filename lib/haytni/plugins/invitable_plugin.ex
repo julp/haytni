@@ -117,7 +117,7 @@ defmodule Haytni.InvitablePlugin do
         |> cast(params, @attributes)
         |> validate_required(@attributes)
         # TODO: reuse, move or share code from Haytni.RegisterablePlugin and its config.email_regexp
-        |> Ecto.Changeset.validate_format(:sent_to, ~R/^[^@\s]+@[^@\s]+$/)
+        |> Ecto.Changeset.validate_format(:sent_to, ~r/^[^@\s]+@[^@\s]+$/)
         #|> Ecto.Changeset.unsafe_validate_unique(:sent_to)
         |> Ecto.Changeset.unique_constraint(:sent_to, name: config.invitation_sent_to_index_name)
       end
@@ -364,7 +364,7 @@ defmodule Haytni.InvitablePlugin do
       invitation_params
       |> Haytni.Helpers.to_changeset(nil, ~W[email]a)
       # TODO: reuse, move or share code from Haytni.RegisterablePlugin, config.email_regexp
-      |> Ecto.Changeset.validate_format(:email, ~R/^[^@\s]+@[^@\s]+$/)
+      |> Ecto.Changeset.validate_format(:email, ~r/^[^@\s]+@[^@\s]+$/)
     end
   end
 
