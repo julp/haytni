@@ -174,7 +174,7 @@ defmodule Haytni do
         |> Plug.Conn.put_private(:haytni, __MODULE__)
       end
 
-      def on_mount(_, _params, session, socket) do
+      def on_mount(_name, _params, session, socket) do
         {
           :cont,
           %{socket | private: Map.put(socket.private, :haytni, __MODULE__)}
@@ -182,7 +182,7 @@ defmodule Haytni do
             unquote(scoped_assign),
             fn ->
               with(
-                id when not is_nil(id) <- Map.get(session, unquote(scoped_session_key |> to_string())),
+                {:ok, id} <- Map.fetch(session, unquote(scoped_session_key |> to_string())),
                 user = %_{} <- Haytni.get_user(__MODULE__, id),
                 false <- Haytni.invalid_user?(__MODULE__, user)
               ) do
