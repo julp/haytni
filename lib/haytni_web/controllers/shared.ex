@@ -41,12 +41,14 @@ defmodule HaytniWeb.Shared do
   """
   @spec add_referer_to_changeset(conn :: Plug.Conn.t, changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
   def add_referer_to_changeset(conn = %Plug.Conn{}, changeset = %Ecto.Changeset{}) do
-    referer = case Plug.Conn.get_req_header(conn, "referer") do
-      [referer] ->
-        referer
-      _ ->
-        nil
-    end
+    referer =
+      case Plug.Conn.get_req_header(conn, "referer") do
+        [referer] ->
+          referer
+        _ ->
+          nil
+      end
+
     Ecto.Changeset.put_change(changeset, :referer, referer)
   end
 
@@ -58,16 +60,18 @@ defmodule HaytniWeb.Shared do
   """
   @spec back_link(conn :: Plug.Conn.t, struct :: struct, default :: String.t) :: Plug.Conn.t
   def back_link(conn = %Plug.Conn{}, struct = %_{}, default) do
-    back_link = with(
-      referer when not is_nil(referer) <- Map.get(struct, :referer),
-      host = Keyword.get(Phoenix.Controller.endpoint_module(conn).config(:url), :host, "localhost"),
-      %URI{host: ^host, scheme: scheme} when scheme in ~W[http https] <- URI.parse(referer)
-    ) do
-      referer
-    else
-      _ ->
-        nil
-    end || default || "/"
+    back_link =
+      with(
+        referer when not is_nil(referer) <- Map.get(struct, :referer),
+        host = Keyword.get(Phoenix.Controller.endpoint_module(conn).config(:url), :host, "localhost"),
+        %URI{host: ^host, scheme: scheme} when scheme in ~W[http https] <- URI.parse(referer)
+      ) do
+        referer
+      else
+        _ ->
+          nil
+      end || default || "/"
+
     conn
     |> assign(:back_link, back_link)
   end

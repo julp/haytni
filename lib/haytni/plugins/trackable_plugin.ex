@@ -74,14 +74,13 @@ defmodule Haytni.TrackablePlugin do
     Module.create(env.module.__schema__(:association, :connections).related, contents, env)
   end
 
+  @spec field_ip_type_from_adapter(module) :: atom
+  defp field_ip_type_from_adapter(Ecto.Adapters.Postgres), do: EctoNetwork.INET
+  defp field_ip_type_from_adapter(_), do: :string
+
   @impl Haytni.Plugin
   def fields(module) do
-    ip_type = case module.repo().__adapter__() do
-      Ecto.Adapters.Postgres ->
-        EctoNetwork.INET
-      _ ->
-        :string
-    end
+    ip_type = module.repo().__adapter__() |> field_ip_type_from_adapter()
 
     quote bind_quoted: [ip_type: ip_type] do
       Module.put_attribute(__MODULE__, :__ip_type__, ip_type)
