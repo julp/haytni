@@ -147,7 +147,7 @@ end
     end
 
     @doc ~S"""
-    Returns a queryable for all invitations
+    Returns a queryable for all connections
 
     Note: *user* is not used for the query, just to find the scope/table/association
     """
