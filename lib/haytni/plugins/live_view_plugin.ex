@@ -251,34 +251,11 @@ defmodule Haytni.LiveViewPlugin do
     connect(module, config, params, socket, connect_info)
   end
 
-  # function_exported?(Phoenix.LiveView, :get_connect_info, 2)
-  Application.spec(:phoenix_live_view, :vsn)
-  |> to_string()
-  |> Version.match?("< 0.17.6")
-  |> if do
-    # LiveView < 0.17.6
-    defp connect_info(socket = %Phoenix.LiveView.Socket{}) do
-      Phoenix.LiveView.get_connect_info(socket)
-    end
-  else
-    # LivewView >= 0.17.6
-    defp connect_info(socket = %Phoenix.LiveView.Socket{}) do
-      %{
-        x_headers: Phoenix.LiveView.get_connect_info(socket, :x_headers),
-        peer_data: Phoenix.LiveView.get_connect_info(socket, :peer_data),
-      }
-    end
-  end
-
-  # TODO: drop this when only supporting LV >= 0.18
-  :phoenix_live_view
-  |> Application.spec(:vsn)
-  |> to_string()
-  |> Version.match?(">= 0.18.0")
-  |> if do
-    @liveview_base_module Phoenix.Component
-  else
-    @liveview_base_module Phoenix.LiveView
+  defp connect_info(socket = %Phoenix.LiveView.Socket{}) do
+    %{
+      x_headers: Phoenix.LiveView.get_connect_info(socket, :x_headers),
+      peer_data: Phoenix.LiveView.get_connect_info(socket, :peer_data),
+    }
   end
 
   @doc ~S"""
@@ -324,6 +301,6 @@ defmodule Haytni.LiveViewPlugin do
         end
       #end
     #)
-    @liveview_base_module.assign(socket, scoped_assign, user)
+    Phoenix.Component.assign(socket, scoped_assign, user)
   end
 end

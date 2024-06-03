@@ -52,18 +52,6 @@ defmodule Haytni do
     scoped_assign = :"current_#{scope}"
     scoped_session_key = :"#{scope}_id"
 
-    # TODO: drop this when only supporting LV >= 0.18
-    liveview_base_module =
-      :phoenix_live_view
-      |> Application.spec(:vsn)
-      |> to_string()
-      |> Version.match?(">= 0.18.0")
-      |> if do
-        Phoenix.Component
-      else
-        Phoenix.LiveView
-      end
-
     quote do
       import unquote(__MODULE__)
 
@@ -178,7 +166,7 @@ defmodule Haytni do
         {
           :cont,
           %{socket | private: Map.put(socket.private, :haytni, __MODULE__)}
-          |> unquote(liveview_base_module).assign_new(
+          |> Phoenix.Component.assign_new(
             unquote(scoped_assign),
             fn ->
               with(

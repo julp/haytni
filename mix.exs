@@ -61,8 +61,7 @@ defmodule Haytni.MixProject do
       #{:sobelow, "~> 0.10", only: :test},
       #{:myxql, ">= 0.0.0", only: :test},
       {:postgrex, ">= 0.0.0", only: :test},
-      # for LiveViewPlugin
-      {:phoenix_live_view, "~> 0.17", only: :test},
+      {:phoenix_live_view, "~> 0.20"},
       {:floki, ">= 0.30.0", only: :test},
       {:expassword, "~> 0.2"},
       {:expassword_bcrypt, "~> 0.2", only: :test},
