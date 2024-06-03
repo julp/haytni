@@ -30,7 +30,7 @@ defmodule Haytni.EncryptedEmailPlugin do
 
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
-    %Haytni.AuthenticablePlugin.Config{}
+    %Haytni.EncryptedEmailPlugin.Config{}
     |> Haytni.Helpers.merge_config(options)
   end
 
