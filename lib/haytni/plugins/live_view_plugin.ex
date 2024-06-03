@@ -110,26 +110,14 @@ defmodule Haytni.LiveViewPlugin do
     conn
   end
 
-  if System.otp_release() |> String.to_integer() >= 23 do
-    @aeadtype :aes_256_gcm
+  @aeadtype :aes_256_gcm
 
-    defp crypto_block_encrypt(aeadtype, key, ivec, {aad, plaintext}) do
-      :crypto.crypto_one_time_aead(aeadtype, key, ivec, plaintext, aad, true)
-    end
+  defp crypto_block_encrypt(aeadtype, key, ivec, {aad, plaintext}) do
+    :crypto.crypto_one_time_aead(aeadtype, key, ivec, plaintext, aad, true)
+  end
 
-    defp crypto_block_decrypt(aeadtype, key, ivec, {aad, ciphertext, ciphertag}) do
-      :crypto.crypto_one_time_aead(aeadtype, key, ivec, ciphertext, aad, ciphertag, false)
-    end
-  else
-    @aeadtype :aes_gcm
-
-    defp crypto_block_encrypt(aeadtype, key, ivec, tuple = {_aad, _plaintext}) do
-      :crypto.block_encrypt(aeadtype, key, ivec, tuple)
-    end
-
-    defp crypto_block_decrypt(aeadtype, key, ivec, tuple = {_aad, _ciphertext, _ciphertag}) do
-      :crypto.block_decrypt(aeadtype, key, ivec, tuple)
-    end
+  defp crypto_block_decrypt(aeadtype, key, ivec, {aad, ciphertext, ciphertag}) do
+    :crypto.crypto_one_time_aead(aeadtype, key, ivec, ciphertext, aad, ciphertag, false)
   end
 
   defp encrypt(content, config) do
