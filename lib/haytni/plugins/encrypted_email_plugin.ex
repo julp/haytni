@@ -13,7 +13,7 @@ defmodule Haytni.EncryptedEmailPlugin do
     * `fields_to_reset_on_delete` (default: `#{inspect(@default_fields_to_reset_on_delete)}`): the fields to reset/change on account deletion. Examples:
 
       + `[:email, :encrypted_password]` set `:email` and `:encrypted_password` to `nil`
-      + `[email: nil, encrypted_password: "<ACCOUNT DELETED>", name: fn user -> "Account deleted #\#{user.id}" end]` set `:email` to `nil`, `encrypted_password` to `"<ACCOUNT DELERED>"` and `:name` to `"Account deleted #\#{user.id}"`.
+      + `[email: nil, encrypted_password: "<ACCOUNT DELETED>", name: fn user -> "Account deleted #\#{user.id}" end]` set `:email` to `nil`, `encrypted_password` to `"<ACCOUNT DELETED>"` and `:name` to `"Account deleted #\#{user.id}"`.
 
   Routes: none
   """
