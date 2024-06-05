@@ -96,7 +96,7 @@ defmodule Haytni.MixProject do
   defp groups_for_extras do
     [
       Installation: "guides/installation.md",
-      "How to": ~R"guides/howto/.*\.md",
+      "How to": ~r"guides/howto/.*\.md",
     ]
   end
 
