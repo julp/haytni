@@ -13,6 +13,7 @@ defmodule Haytni.Mail do
     html_body: Haytni.nilable(String.t),
     text_body: Haytni.nilable(String.t),
     view: Haytni.nilable(module),
+    headers: %{String.t => String.t},
   }
 
   # TODO: layout ?
