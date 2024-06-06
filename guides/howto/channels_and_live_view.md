@@ -54,7 +54,7 @@ fetch(
 
 `fetch` above can be replaced by a regular Ajax (XMLHttpRequest) call if your prefer.
 
-`'/token'` is the value of `Routes.haytni_<scope>_token_path/[23]` if you do a mix `phx.routes`. This path can overriden by the `:token_path` key when you call `YourApp.Haytni.routes/1` in your router.
+`'/token'` is the value of `Routes.haytni_<scope>_token_path/[23]` if you do a mix `phx.routes`. This path can be overriden by the `:token_path` key when you call `YourApp.Haytni.routes/1` in your router.
 
 ## Configuration
 

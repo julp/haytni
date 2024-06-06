@@ -119,7 +119,7 @@ defmodule YourAppWeb.Admin.IpSearchController do
   alias YourApp.User
   alias YourApp.Admin
 
-  defp render_new(conn, %Ecto.Changeset{} = changeset) do
+  defp render_new(conn, changeset = %Ecto.Changeset{}) do
     conn
     |> assign(:changeset, changeset)
     |> render(:new)
@@ -148,8 +148,7 @@ end
 The `new` template:
 
 ```heex
-# lib/your_app_web/templates/admin/ip_search/new.html.heex
-
+# phoenix < 1.7 : lib/your_app_web/templates/admin/ip_search/new.html.heex
 <%= form_for @changeset, Routes.admin_ip_search_path(@conn, :create), [as: :search], fn f ->  %>
   <div class="form-group">
     <%= label f, :ip %>
@@ -169,12 +168,39 @@ The `new` template:
   <br/>
   <%= submit "Search" %>
 <% end %>
+
+# phoenix >= 1.7 : lib/your_app_web/controllers/admin/ip_search_html/new.html.heex
+<.simple_form
+  :let={f}
+  as="search"
+  for={@changeset}
+  action={Routes.admin_ip_search_path(@conn, :create)}
+>
+  <.input
+    field={f[:ip]}
+    label="IP"
+  />
+  <.input
+    type="datetime-local"
+    field={f[:first]}
+    label="From"
+  />
+  <.input
+    type="datetime-local"
+    field={f[:last]}
+    label="To"
+  />
+  <:actions>
+    <.button>Search</.button>
+  </:actions>
+</.simple_form>
 ```
 
 The `create` template:
 
 ```heex
-# lib/your_app_web/templates/admin/ip_search/create.html.heex
+# phoenix < 1.7 : lib/your_app_web/templates/admin/ip_search/create.html.heex
+# phoenix >= 1.7 : lib/your_app_web/controllers/admin/ip_search_html/create.html.heex
 
 <h2>Results for <b><%= @search.ip %></b></h2>
 
@@ -225,9 +251,16 @@ end
 The empty view just as remainder to not forget it:
 
 ```elixir
-# lib/your_app_web/views/admin/ip_search_view.ex
+# phoenix < 1.7 : lib/your_app_web/views/admin/ip_search_view.ex
 defmodule YourAppWeb.Admin.IpSearchView do
   use YourAppWeb, :view
+end
+
+# phoenix >= 1.7 : lib/your_app_web/controllers/admin/ip_search_html.ex
+defmodule YourAppWeb.Admin.IpSearchHTML do
+  use YourAppWeb, :html
+
+  embed_templates "ip_search_html/*"
 end
 ```
 

@@ -43,7 +43,7 @@ defmodule YourApp.HaytniPlugin do
 
   @impl Haytni.Plugin
   def invalid?(user = %_{}, _module, _config) do
-    user.deleted && {:error, :deleted}
+    user.deleted && {:error, "this account has been deleted"} # better if you translate it with (d)gettext
   end
 
   @impl Haytni.Plugin
@@ -73,3 +73,5 @@ end
 ```
 
 But don't forget to write a migration for encrypted_password and email to be nullable.
+
+Note: this is an exemple, this exact feature was since implemented as the Anonymization plugin.

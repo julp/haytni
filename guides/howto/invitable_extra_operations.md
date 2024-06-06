@@ -59,7 +59,8 @@ end
 If you need a starting point for the corresponding template, here it is:
 
 ```eex
-# lib/your_app_web/templates/invitation/index.html.heex
+# phoenix < 1.7 : lib/your_app_web/templates/invitation/index.html.heex
+# phoenix >= 1.7 : lib/your_app_web/controllers/invitation_html/index.html.heex
 
 <%= if Enum.any?(@invitations) do %>
   <table>
@@ -89,7 +90,10 @@ If you need a starting point for the corresponding template, here it is:
 <% end %>
 
 <p>
+  <%# phoenix < 1.7 %>
   <%= link dgettext("myapp", "Do you have a friend you want to invite?"), to: Routes.haytni_user_invitation_path(@conn, :new) %>
+  <%# phoenix >= 1.7 %>
+  <.link href={Routes.haytni_user_invitation_path(@conn, :new)}><%= dgettext("myapp", "Do you have a friend you want to invite?") %></.link>
 </p>
 ```
 
