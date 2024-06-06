@@ -1,4 +1,3 @@
-if true do
 defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
   use Haytni.DataCase, [
     async: true,
@@ -86,5 +85,4 @@ defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
       assert %{base: [@plugin.invitation_email_mismatch_message()]} == errors_on(changeset)
     end
   end
-end
 end
