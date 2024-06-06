@@ -11,6 +11,8 @@ defmodule HaytniTestWeb.Haytni do
   stack Haytni.PasswordPolicyPlugin
   stack Haytni.InvitablePlugin, invitation_required: false
   stack Haytni.LiveViewPlugin
+  stack Haytni.EncryptedEmailPlugin
+  stack Haytni.AnonymizationPlugin
 
   @impl Haytni.Callbacks
   def user_query(query) do

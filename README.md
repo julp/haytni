@@ -41,6 +41,8 @@ Plugins:
 * [password policy](https://hexdocs.pm/haytni/Haytni.PasswordPolicyPlugin.html) (`Haytni.PasswordPolicyPlugin`): basic validations against passwords (length and minimal character types presence)
 * [liveview](https://hexdocs.pm/haytni/Haytni.LiveViewPlugin.html) (`Haytni.LiveViewPlugin`): provides authentication to channels and liveview if the *\_csrf\_token* cookie is not available
 * [clearsitedata](https://hexdocs.pm/haytni/Haytni.ClearSiteDataPlugin.html) (`Haytni.ClearSiteDataPlugin`): set the HTTP header Clear-Site-Data on logout (and eventually login)
+* [encrypted_email](https://hexdocs.pm/haytni/Haytni.EncryptedEmailPlugin.html) (`Haytni.EncryptedEmailPlugin`): keep the email in an hashed form to prevent abuse (deleting the account then recreate it with same address)
+* [anonymization](https://hexdocs.pm/haytni/Haytni.AnonymizationPlugin.html) (`Haytni.AnonymizationPlugin`): anonymize user's data on account deletion
 
 Documentation can be found at [https://hexdocs.pm/haytni](https://hexdocs.pm/haytni).
 
