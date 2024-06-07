@@ -14,7 +14,6 @@ binding = [
 ]
 {:ok, _pid} = HaytniTest.Application.start(:unused, :unused)
 
-email_view_root = Path.join([__DIR__, "..", "priv", "views", "email"])
 phoenix_view_root = Path.join([__DIR__, "..", "priv", "phx16", "views"])
 migration_root = Path.join([__DIR__, "..", "priv", "migrations"])
 
@@ -33,9 +32,9 @@ migration_root
 
 {output, 0} = case :os.type() do
   {:unix, _family} ->
-    System.cmd("find", [phoenix_view_root, email_view_root, "-type", "f"])
+    System.cmd("find", [phoenix_view_root, "-type", "f"])
   {:win32, _family} ->
-    System.cmd("dir", [phoenix_view_root, email_view_root, "/b"])
+    System.cmd("dir", [phoenix_view_root, "/b"])
 end
 output
 |> String.split("\n", trim: true)
