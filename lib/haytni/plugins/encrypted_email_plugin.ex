@@ -1,6 +1,4 @@
 defmodule Haytni.EncryptedEmailPlugin do
-  @default_fields_to_reset_on_delete ~W[email encrypted_password]a
-
   @moduledoc """
   This plugin is intended to keep the email in an hashed form to prevent abuse (deleting the account then recreate it with same address).
 
