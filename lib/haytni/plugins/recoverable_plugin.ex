@@ -55,9 +55,8 @@ defmodule Haytni.RecoverablePlugin do
         {:eex, "phx17/templates/password/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "password_html", "new.html.heex"])},
         {:eex, "phx17/templates/password/edit.html.heex", Path.join([web_path, "controllers", "haytni", scope, "password_html", "edit.html.heex"])},
         # email
-        {:eex, "phx17/views/email/recoverable_html.ex", Path.join([web_path, "emails", "haytni", scope, "recoverable_html.ex"])},
+        {:eex, "phx17/views/email/recoverable_emails.ex", Path.join([web_path, "emails", "haytni", scope, "recoverable_emails.ex"])},
         {:eex, "phx17/templates/email/recoverable/reset_password_instructions.html.heex", Path.join([web_path, "emails", "haytni", scope, "recoverable_html", "reset_password_instructions.html.heex"])},
-        {:eex, "phx17/views/email/recoverable_text.ex", Path.join([web_path, "emails", "haytni", scope, "recoverable_text.ex"])},
         {:eex, "phx17/templates/email/recoverable/reset_password_instructions.text.eex", Path.join([web_path, "emails", "haytni", scope, "recoverable_text", "reset_password_instructions.text.eex"])},
       ]
     # TODO: remove this when dropping support for Phoenix < 1.7

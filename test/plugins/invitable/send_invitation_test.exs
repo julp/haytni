@@ -45,7 +45,7 @@ defmodule Haytni.Invitable.SendInvitationTest do
       assert [%_{id: ^id}] = list_invitations(@stack, user)
       user
       |> Haytni.InvitableEmail.invitation_email(invitation, @stack, config)
-      |> assert_email_was_sent()
+      |> assert_email_sent()
     end
   end
 end

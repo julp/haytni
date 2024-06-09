@@ -1,6 +1,5 @@
 defmodule Haytni.ConfirmableEmail do
   import Haytni.Mail
-  import Haytni.Gettext
 
   @spec common_mail_tasks(mail :: Haytni.Mail.t, user :: Haytni.user, module :: module, config :: Haytni.config, template :: String.t) :: Haytni.Mail.t
   defp common_mail_tasks(mail, user = %_{}, module, _config, template) do
@@ -18,7 +17,6 @@ defmodule Haytni.ConfirmableEmail do
     new()
     |> to(user.email)
     |> assign(:confirmation_token, confirmation_token)
-    |> subject(dgettext("haytni", "Please confirm your account"))
     |> common_mail_tasks(user, module, config, "confirmation_instructions")
   end
 
@@ -31,7 +29,6 @@ defmodule Haytni.ConfirmableEmail do
     |> to(unconfirmed_email)
     |> assign(:unconfirmed_email, unconfirmed_email)
     |> assign(:confirmation_token, confirmation_token)
-    |> subject(dgettext("haytni", "Please confirm your email address change"))
     |> common_mail_tasks(user, module, config, "reconfirmation_instructions")
   end
 
@@ -44,7 +41,6 @@ defmodule Haytni.ConfirmableEmail do
     |> to(old_email_address)
     |> assign(:config, config)
     |> assign(:old_email_address, old_email_address)
-    |> subject(dgettext("haytni", "Attention: email was changed"))
     |> common_mail_tasks(user, module, config, "email_changed")
   end
 end

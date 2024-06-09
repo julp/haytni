@@ -29,7 +29,7 @@ defmodule Haytni.Confirmable.OnEmailChangeTest do
       assert {:ok, true} = fun.(@repo, state)
       user
       |> Haytni.ConfirmableEmail.email_changed(@old_email, @stack, config)
-      |> assert_email_was_sent()
+      |> assert_email_sent()
     end
 
     test "ensures email is not changed + a notice is sent to old address + a new confirmation token is generated then sent to new email address when reconfirmable = true", %{config: config} do
@@ -60,12 +60,12 @@ defmodule Haytni.Confirmable.OnEmailChangeTest do
       assert {:ok, true} = fun2.(@repo, state)
       user
       |> Haytni.ConfirmableEmail.reconfirmation_email(@new_email, Haytni.Token.url_encode(confirmation_token), @stack, config)
-      |> assert_email_was_sent()
+      |> assert_email_sent()
 
       assert {:ok, true} = fun3.(@repo, state)
       user
       |> Haytni.ConfirmableEmail.email_changed(@old_email, @stack, config)
-      |> assert_email_was_sent()
+      |> assert_email_sent()
     end
   end
 end

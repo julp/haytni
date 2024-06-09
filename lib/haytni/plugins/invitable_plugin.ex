@@ -74,9 +74,8 @@ defmodule Haytni.InvitablePlugin do
         {:eex, "phx17/views/invitation_html.ex", Path.join([web_path, "controllers", "haytni", scope, "invitation_html.ex"])},
         {:eex, "phx17/templates/invitation/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "invitation", "new.html.heex"])},
         # email
-        {:eex, "phx17/views/email/invitable_html.ex", Path.join([web_path, "emails", "haytni", scope, "invitable_html.ex"])},
+        {:eex, "phx17/views/email/invitable_emails.ex", Path.join([web_path, "emails", "haytni", scope, "invitable_emails.ex"])},
         {:eex, "phx17/templates/email/invitable/invitation.html.heex", Path.join([web_path, "emails", "haytni", scope, "invitable_html", "invitation.html.heex"])},
-        {:eex, "phx17/views/email/invitable_text.ex", Path.join([web_path, "emails", "haytni", scope, "invitable_text.ex"])},
         {:eex, "phx17/templates/email/invitable/invitation.text.eex", Path.join([web_path, "emails", "haytni", scope, "invitable_text", "invitation.text.eex"])},
       ]
     # TODO: remove this when dropping support for Phoenix < 1.7

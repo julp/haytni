@@ -27,31 +27,25 @@ config :haytni, HaytniTestWeb.Haytni,
   layout: false,
   repo: HaytniTest.Repo,
   schema: HaytniTest.User,
-  mailer: HaytniTest.BambooMailer
+  mailer: HaytniTest.TestMailer
 
 config :haytni, HaytniTestWeb.HaytniAdmin,
   layout: false,
   scope: :admin,
   repo: HaytniTest.Repo,
   schema: HaytniTest.Admin,
-  mailer: HaytniTest.BambooMailer
+  mailer: HaytniTest.TestMailer
 
 config :haytni, HaytniTestWeb.HaytniCustomRoutes,
   layout: false,
   scope: :cr,
   repo: HaytniTest.Repo,
   schema: HaytniTest.Admin,
-  mailer: HaytniTest.BambooMailer
+  mailer: HaytniTest.TestMailer
 
 config :haytni, HaytniTestWeb.HaytniEmpty,
   layout: false,
   scope: :empty,
   repo: HaytniTest.Repo,
   schema: HaytniTest.User,
-  mailer: HaytniTest.BambooMailer
-
-config :haytni, HaytniTest.BambooMailer,
-  adapter: Bamboo.TestAdapter
-
-config :haytni, HaytniTest.SwooshMailer,
-  adapter: Swoosh.Adapters.Test
+  mailer: HaytniTest.TestMailer

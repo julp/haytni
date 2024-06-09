@@ -60,7 +60,7 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
           |> @repo.all()
         matched_user
         |> Haytni.LockableEmail.unlock_instructions_email(Haytni.Token.url_encode(token), @stack, config)
-        |> assert_email_was_sent()
+        |> assert_email_sent()
       end
 
       test "returns {:ok, nil} when targetted account is not locked (strategy: #{strategy})", %{unlocked_params: unlocked_params} do

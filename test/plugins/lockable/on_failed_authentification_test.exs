@@ -83,7 +83,7 @@ defmodule Haytni.Lockable.OnFailedAuthentificationTest do
         assert {:ok, true} = fun.(@repo, %{user: updated_user, token: changeset.data})
         updated_user
         |> Haytni.LockableEmail.unlock_instructions_email(Haytni.Token.url_encode(changeset.data), @stack, config)
-        |> assert_email_was_sent()
+        |> assert_email_sent()
       end
     end
   end

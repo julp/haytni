@@ -9,16 +9,16 @@ defmodule Haytni.Mail do
     assigns: %{atom => any},
     to: any, # TODO: Haytni.user ?
     from: any,
+    views: [module],
     subject: Haytni.nilable(String.t),
     html_body: Haytni.nilable(String.t),
     text_body: Haytni.nilable(String.t),
-    view: Haytni.nilable(module),
     headers: %{String.t => String.t},
   }
 
   # TODO: layout ?
-  #defstruct assigns: %{}, from: nil, to: nil, subject: nil, html_body: nil, text_body: nil, view: nil
-  defstruct ~W[assigns from to subject headers html_body text_body view]a
+  #defstruct assigns: %{}, from: nil, to: nil, subject: nil, html_body: nil, text_body: nil, views: []
+  defstruct ~W[assigns from to subject headers html_body text_body views]a
 
   @doc ~S"""
   Creates (initializes) an empty email
@@ -32,12 +32,11 @@ defmodule Haytni.Mail do
       subject: nil,
       html_body: nil,
       text_body: nil,
-      view: nil,
+      views: [],
       headers: %{},
     }
   end
 
-  # TODO: temporary
   for field <- ~W[to subject]a do
     @spec unquote(field)(email :: t, value :: any) :: t
     def unquote(field)(email = %__MODULE__{}, value) do
@@ -108,117 +107,58 @@ defmodule Haytni.Mail do
   end
 
   @doc ~S"""
-  Sets the templates for when rendering the email as HTML and plain text.
+  Stores the view for rendering the email.
   """
-  @spec put_template(email :: t, module :: module, view_suffix :: atom | String.t, template :: atom | String.t) :: t
+  @spec put_view(email :: t, view :: module) :: t
+  def put_view(email = %__MODULE__{}, view) do
+    %{email | views: [view]}
+  end
+
+  @doc ~S"""
+  Set and infer the full name of the view for email from *module* and its scope.
+
+  Example: if `view_suffix = "NewLoginNotification"` and scope associated to *module* is `:admin` the view module is set to `YourAppWeb.Haytni.Admin.Email.NewLoginNotificationView` (`YourAppWeb.Haytni.Admin.NewLoginNotificationEmails` for Phoenix 1.7) if it exists else fallback to `YourAppWeb.Haytni.Email.NewLoginNotificationView` (`YourAppWeb.Haytni.NewLoginNotificationEmails` for Phoenix 1.7).
+
+  This view module is used to set:
+
+    * the subject is not yet defined (by a previous `subject/2`) by calling (if it exists) its *template*_subject/1 function
+    * the HTML body
+    * the (plain) text body
+
+  With Phoenix >= 1.7, the first of these two (scoped > global) "views" to implement the function is used. If, for example, you don't want to set a text version, implement it to return `nil` or an empty string. The function used to set the HTML body is *template*_html/1 and *template*_text/1 for the (plain) text body. Illustation (assuming template is "foo"):
+
+  ```elixir
+  # Phoenix >= 1.7 only
+  defmodule YourAppWeb.Haytni.NewLoginNotificationEmails do
+    use YourAppWeb, :html
+
+    def foo_text(_assigns) do
+      nil
+    end
+
+    # your html in the file new_login_notification_html/foo.html.heex
+    embed_templates "new_login_notification_html/*", suffix: "_html"
+
+    # which is the same as writing it here directly:
+  #   def foo_html(assigns) do
+  #     ~H'''
+  #     your html
+  #     '''
+  #   end
+  end
+  ```
+  """
+  @spec put_view(email :: t, module :: module, view_suffix :: atom | String.t) :: t
   if Haytni.Helpers.phoenix17?() do
-    def put_template(email = %__MODULE__{}, module, view_suffix, template)
-      when is_atom(module)
-    do
-      [
-        text_body: "text",
-        html_body: "html",
-      ]
-      |> Enum.reduce(
-        email,
-        fn {field, format}, email ->
-          full_view_suffix = view_suffix <> (format |> String.upcase())
-          view_module =
-            [
-              module.web_module(),
-              :Haytni,
-              module.scope() |> to_string() |> Phoenix.Naming.camelize(),
-              full_view_suffix
-            ]
-            |> Module.concat()
-            |> Code.ensure_compiled()
-            |> case do
-              {:module, module} ->
-                module
-              _ ->
-                Module.concat([module.web_module(), :Haytni, full_view_suffix])
-            end
-
-          %{email | field => Phoenix.Template.render_to_string(view_module, template |> to_string(), format, email.assigns)}
-        end
-      )
-    end
-
-    @doc ~S"""
-    Sets the template for when rendering the email as plain text.
-    """
-    @spec put_text_template(email :: t, view_module :: module, template :: String.t) :: t
-    def put_text_template(email = %__MODULE__{}, view_module, template)
-      when is_atom(view_module)
-    do
-      %{email | text_body: Phoenix.Template.render_to_string(view_module, template, "text", email.assigns)}
-    end
-
-    @doc ~S"""
-    Same as `put_text_template/2` but for rendering the email as HTML.
-    """
-    @spec put_html_template(email :: t, view_module :: module, template :: String.t) :: t
-    def put_html_template(email = %__MODULE__{}, view_module, template)
-      when is_atom(view_module)
-    do
-      %{email | html_body: Phoenix.Template.render_to_string(view_module, template, "html", email.assigns)}
-    end
-  else
-    def put_template(email = %__MODULE__{}, module, view_suffix, template)
-      when is_atom(module)
-    do
+    def put_view(email = %__MODULE__{}, module, view_suffix) do
       view_suffix =
         view_suffix
         |> to_string()
-        |> Haytni.Helpers.maybe_suffix("View")
+        |> Haytni.Helpers.maybe_suffix("Emails")
 
-      [
-        text_body: "text",
-        html_body: "html",
-      ]
-      |> Enum.reduce(
-        email,
-        fn {field, format}, email ->
-          view_module =
-            [
-              module.web_module(),
-              :Haytni,
-              module.scope() |> to_string() |> Phoenix.Naming.camelize(),
-              :Email,
-              view_suffix,
-            ]
-            |> Module.concat()
-            |> Code.ensure_compiled()
-            |> case do
-              {:module, module} ->
-                module
-              _ ->
-                Module.concat([module.web_module(), :Haytni, :Email, view_suffix])
-            end
+      global_view_module = Module.concat([module.web_module(), :Haytni, view_suffix])
 
-          %{email | field => Phoenix.View.render_to_string(view_module, Enum.join([template, format], "."), email.assigns)}
-        end
-      )
-    end
-
-    @doc ~S"""
-    Stores the view for rendering the email.
-    """
-    @spec put_view(email :: t, view :: module) :: t
-    def put_view(email = %__MODULE__{}, view) do
-      %{email | view: view}
-    end
-
-    @doc ~S"""
-    Set and infer the full name of the view for email from *module* and its scope.
-
-    Example: if `view_suffix = "Email.NewLoginNotification"` and scope associated to *module* is `:admin`
-    the view module is set to `YourAppWeb.Admin.Email.NewLoginNotification` if it exists else fallback to
-    `YourAppWeb.Email.NewLoginNotification`.
-    """
-    @spec put_view(email :: t, module :: module, view_suffix :: atom | String.t) :: t
-    def put_view(email = %__MODULE__{}, module, view_suffix) do
-      view_module =
+      view_modules =
         [
           module.web_module(),
           :Haytni,
@@ -228,53 +168,168 @@ defmodule Haytni.Mail do
         |> Module.concat()
         |> Code.ensure_compiled()
         |> case do
-          {:module, module} ->
-            module
+          {:module, scoped_view_module} ->
+            [scoped_view_module, global_view_module]
           _ ->
-            Module.concat([module.web_module(), :Haytni, view_suffix])
+            [global_view_module]
         end
 
+      %{email | views: view_modules}
+    end
+  else
+    def put_view(email = %__MODULE__{}, module, view_suffix) do
+      view_suffix =
+        view_suffix
+        |> to_string()
+        |> Haytni.Helpers.maybe_suffix("View")
+
+      global_view_module = Module.concat([module.web_module(), :Haytni, :Email, view_suffix])
+
+      view_modules =
+        [
+          module.web_module(),
+          :Haytni,
+          module.scope() |> to_string() |> Phoenix.Naming.camelize(),
+          :Email,
+          view_suffix,
+        ]
+        |> Module.concat()
+        |> Code.ensure_compiled()
+        |> case do
+          {:module, scoped_view_module} ->
+            [scoped_view_module, global_view_module]
+          _ ->
+            [global_view_module]
+        end
+
+      %{email | views: view_modules}
+    end
+  end
+
+  defp subject_from_views(email = %__MODULE__{subject: nil}, function_name)
+    when is_atom(function_name)
+  do
+    Enum.reduce_while(
+      email.views,
+      email,
+      fn view_module, email_as_acc ->
+        if function_exported?(view_module, function_name, 1) do
+          {:halt, subject(email_as_acc, apply(view_module, function_name, [email_as_acc.assigns]))}
+        else
+          {:cont, email_as_acc}
+        end
+      end
+    )
+  end
+
+  defp subject_from_views(email = %__MODULE__{}, _function_name) do
+    # NOP: subject was already set, don't override it
+    email
+  end
+
+  @doc """
+  Same as/a shortcut to:
+
+  ```elixir
+  email
+  |> #{__MODULE__}.put_view(module, view_suffix)
+  |> #{__MODULE__}.put_template(module, template)
+  ```
+  """
+  def put_template(email = %__MODULE__{}, module, view_suffix, template)
+    when is_binary(view_suffix) and is_binary(template)
+  do
+    email
+    |> put_view(module, view_suffix)
+    |> put_template(module, template)
+  end
+
+  @doc ~S"""
+  Sets the templates for when rendering the email as HTML and plain text.
+  """
+  @spec put_template(email :: t, module :: module, template :: atom | String.t) :: t
+  def put_template(email = %__MODULE__{}, module, template)
+    when is_atom(module)
+  do
+    email
+    |> bodies_from_views(template)
+    |> subject_from_views(String.to_existing_atom("#{template}_subject"))
+  end
+
+  @spec render_to_string(view_module :: module, template :: String.t, format :: String.t, assigns :: %{atom => any}) :: String.t
+  if Haytni.Helpers.phoenix17?() do
+    # Phoenix 1.7
+    defp render_to_string(view_module, template, format, assigns) do
+      Phoenix.Template.render_to_string(view_module, Enum.join([template, format], "_"), format, assigns)
+    end
+
+    # use the first view in email.views that defines the function <template>_html/1 to set html_body
+    defp html_body_from_views(email, template) do
+      Enum.reduce_while(
+        email.views,
+        email,
+        fn view_module, email_as_acc ->
+          # render("<template>.<format>", assigns) vs <template>_<format>(assigns) # "_<format>" is the :suffix option on embed_templates/2
+          if function_exported?(view_module, String.to_existing_atom("#{template}_html"), 1) do
+            {:halt, put_html_template(email_as_acc, view_module, template)}
+          else
+            {:cont, email_as_acc}
+          end
+        end
+      )
+    end
+
+    # use the first view in email.views that defines the function <template>_text/1 to set text_body
+    defp text_body_from_views(email, template) do
+      Enum.reduce_while(
+        email.views,
+        email,
+        fn view_module, email_as_acc ->
+          if function_exported?(view_module, String.to_existing_atom("#{template}_text"), 1) do
+            {:halt, put_text_template(email_as_acc, view_module, template)}
+          else
+            {:cont, email_as_acc}
+          end
+        end
+      )
+    end
+
+    defp bodies_from_views(email, template) do
       email
-      |> put_view(view_module)
+      |> html_body_from_views(template)
+      |> text_body_from_views(template)
+    end
+  else
+    # Phoenix 1.6
+    defp render_to_string(view_module, template, format, assigns) do
+      Phoenix.View.render_to_string(view_module, Enum.join([template, format], "."), assigns)
     end
 
-    @doc ~S"""
-    Sets the template for the subject of the email as plain text.
-
-    Notes:
-
-      * the view (see `put_view/2`) has to be set prior to `put_subject_template/2`
-      * `put_subject_template/2` overrides any previously set subject (by `put_subject_template/2` as well as `subject/2`)
-    """
-    @spec put_subject_template(email :: t, template :: String.t) :: t
-    def put_subject_template(email = %__MODULE__{view: view}, template)
-      when not is_nil(view)
-    do
-      %{email | subject: Phoenix.View.render_to_string(view, template, email.assigns)}
+    # with old views, defined as `def render("<template>.<format>", assigns)` we can't check its existence so we just use the first view (head) of email.views
+    defp bodies_from_views(email = %__MODULE__{views: [view_module | _tail]}, template) do
+      email
+      |> put_text_template(view_module, template)
+      |> put_html_template(view_module, template)
     end
+  end
 
-    @doc ~S"""
-    Sets the template for when rendering the email as plain text.
+  @doc ~S"""
+  Sets the template for when rendering the email as plain text.
+  """
+  @spec put_text_template(email :: t, view_module :: module, template :: String.t) :: t
+  def put_text_template(email = %__MODULE__{}, view_module, template)
+    when is_atom(view_module)
+  do
+    %{email | text_body: render_to_string(view_module, template, "text", email.assigns)}
+  end
 
-    NOTE: the view (see `put_view/2`) has to be set prior to a call to `put_text_template/2`.
-    """
-    @spec put_text_template(email :: t, template :: String.t) :: t
-    def put_text_template(email = %__MODULE__{view: view}, template)
-      when not is_nil(view)
-    do
-      %{email | text_body: Phoenix.View.render_to_string(view, template, email.assigns)}
-    end
-
-    @doc ~S"""
-    Same as `put_text_template/2` but for rendering the email as HTML.
-
-    NOTE: the view (see `put_view/2`) has to be set prior to a call to `put_html_template/2`.
-    """
-    @spec put_html_template(email :: t, template :: String.t) :: t
-    def put_html_template(email = %__MODULE__{view: view}, template)
-      when not is_nil(view)
-    do
-      %{email | html_body: Phoenix.View.render_to_string(view, template, email.assigns)}
-    end
+  @doc ~S"""
+  Same as `put_text_template/3` but for rendering the email as HTML.
+  """
+  @spec put_html_template(email :: t, view_module :: module, template :: String.t) :: t
+  def put_html_template(email = %__MODULE__{}, view_module, template)
+    when is_atom(view_module)
+  do
+    %{email | html_body: render_to_string(view_module, template, "html", email.assigns)}
   end
 end

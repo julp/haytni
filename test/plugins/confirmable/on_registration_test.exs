@@ -29,7 +29,7 @@ defmodule Haytni.Confirmable.OnRegistrationTest do
       assert {:ok, true} = fun2.(@repo, state)
       user
       |> Haytni.ConfirmableEmail.confirmation_email(Haytni.Token.url_encode(confirmation_token), @stack, config)
-      |> assert_email_was_sent()
+      |> assert_email_sent()
     end
   end
 end

@@ -1,7 +1,7 @@
-defmodule HaytniTest.BambooMailer do
+defmodule HaytniTest.TestMailer do
   use Haytni.Mailer, [
     otp_app: :haytni,
-    adapter: Haytni.Mailer.BambooAdapter,
+    adapter: Haytni.Mailer.TestAdapter,
   ]
 
   @impl Haytni.Mailer

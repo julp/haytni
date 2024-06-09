@@ -1,6 +1,5 @@
 defmodule Haytni.LockableEmail do
   import Haytni.Mail
-  import Haytni.Gettext
 
   @doc ~S"""
   Email the token to unlock *user* account
@@ -12,7 +11,6 @@ defmodule Haytni.LockableEmail do
     |> assign(:user, user)
     |> assign(:unlock_token, unlock_token)
     |> from(module.mailer().from())
-    |> subject(dgettext("haytni", "Unlock instructions"))
-    |> put_template(module, "LockableView", "unlock_instructions")
+    |> put_template(module, "Lockable", "unlock_instructions")
   end
 end

@@ -1,6 +1,5 @@
 defmodule Haytni.RecoverableEmail do
   import Haytni.Mail
-  import Haytni.Gettext
 
   @doc ~S"""
   Email the recovery password token to *user*
@@ -12,7 +11,6 @@ defmodule Haytni.RecoverableEmail do
     |> assign(:user, user)
     |> assign(:reset_password_token, reset_password_token)
     |> from(module.mailer().from())
-    |> subject(dgettext("haytni", "Reset password instructions"))
     |> put_template(module, "Recoverable", "reset_password_instructions")
   end
 end

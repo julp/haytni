@@ -1,6 +1,5 @@
-defmodule <%= [web_module, :Haytni, camelized_scope, "Email", "ConfirmableView"] |> Module.concat() |> inspect() %> do
-  use <%= inspect(web_module) %>, :view
-  require HaytniTestView
+defmodule <%= [web_module, :Haytni, camelized_scope, "ConfirmableEmails"] |> Module.concat() |> inspect() %> do
+  use <%= inspect(web_module) %>, :html
   require Haytni.Gettext
 
   def confirmation_instructions_subject(_assigns) do
@@ -15,5 +14,6 @@ defmodule <%= [web_module, :Haytni, camelized_scope, "Email", "ConfirmableView"]
     Haytni.Gettext.dgettext("haytni", "Attention: email was changed")
   end
 
-  HaytniTestView.embed_templates_for_tests("priv/phx16/templates/email/confirmable/")
+  embed_templates "confirmable_html/*.html", suffix: "_html"
+  embed_templates "confirmable_text/*.text", suffix: "_text"
 end

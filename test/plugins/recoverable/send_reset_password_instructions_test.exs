@@ -40,7 +40,7 @@ defmodule Haytni.Recoverable.SendResetPasswordInstructionsTest do
         assert token.user_id == user.id
         user
         |> Haytni.RecoverableEmail.reset_password_email(Haytni.Token.url_encode(token), @stack, config)
-        |> assert_email_was_sent()
+        |> assert_email_sent()
       end
 #     end
   end

@@ -1,6 +1,5 @@
 defmodule Haytni.InvitableEmail do
   import Haytni.Mail
-  import Haytni.Gettext
 
   @doc ~S"""
   Email an invitation
@@ -16,7 +15,6 @@ defmodule Haytni.InvitableEmail do
     |> assign(:config, config)
     |> assign(:invitation, invitation)
     |> from(module.mailer().from())
-    |> subject(dgettext("haytni", "You've been invited"))
-    |> put_template(module, "InvitableView", "invitation")
+    |> put_template(module, "Invitable", "invitation")
   end
 end

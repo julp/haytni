@@ -11,444 +11,588 @@ msgstr ""
 "Language: fr_FR\n"
 "Plural-Forms: nplurals=2; plural=(n>1);\n"
 
-#, elixir-format
 #: lib/haytni_web/controllers/confirmable/confirmation_controller.ex:10
+#, elixir-format
 msgid "Your account has been confirmed."
 msgstr "Votre compte a bien été confirmé."
 
-#, elixir-format
 #: lib/haytni_web/emails/confirmable_email.ex:23
+#: priv/phx17/views/email/confirmable_html.ex:7
+#: priv/phx16/views/email/confirmable_view.ex:7
+#, elixir-format
 msgid "Please confirm your account"
 msgstr "Veuillez confirmer votre compte."
 
-#, elixir-format
 #: lib/haytni_web/emails/recoverable_email.ex:16
+#: priv/phx17/views/email/recoverable_html.ex:7
+#: priv/phx16/views/email/recoverable_view.ex:7
+#, elixir-format
 msgid "Reset password instructions"
 msgstr "Instructions pour changer de mot de passe"
 
+#: lib/haytni/plugins/lockable_plugin.ex:324
 #, elixir-format
-#: lib/haytni/plugins/lockable_plugin.ex:310
 msgid "The given unlock token is invalid."
 msgstr "La clé de déverouillage fournie est invalide."
 
-#, elixir-format
 #: lib/haytni_web/emails/lockable_email.ex:16
+#: priv/phx17/views/email/lockable_html.ex:7
+#: priv/phx16/views/email/lockable_view.ex:7
+#, elixir-format
 msgid "Unlock instructions"
 msgstr "Instructions pour déverrouiller le compte"
 
-#, elixir-format
 #: lib/haytni_web/controllers/lockable/unlock_controller.ex:10
+#, elixir-format
 msgid "Your account has been unlocked."
 msgstr "Votre compte a bien été déverrouillé."
 
-#, elixir-format
 #: lib/haytni_web/controllers/recoverable/password_controller.ex:54
+#, elixir-format
 msgid "Your password has been successfully changed."
 msgstr "Votre mot de passe a été modifié avec succès."
 
+#: lib/haytni/plugins/lockable_plugin.ex:142
 #, elixir-format
-#: lib/haytni/plugins/lockable_plugin.ex:127
 msgid "account is locked due to an excessive number of unsuccessful sign in attempts, please check your emails."
 msgstr "compte bloqué suite à un nombre excessif de tentatives d'authentication, vérifiez vos mails pour un déblocage"
 
+#: lib/haytni/plugins/confirmable_plugin.ex:182
 #, elixir-format
-#: lib/haytni/plugins/confirmable_plugin.ex:163
 msgid "account is pending confirmation, please check your emails."
 msgstr "compte en attente d'une confirmation, vérifiez vos emails."
 
-#, elixir-format
 #: lib/haytni_web/emails/confirmable_email.ex:53
+#: priv/phx17/views/email/confirmable_html.ex:15
+#: priv/phx16/views/email/confirmable_view.ex:15
+#, elixir-format
 msgid "Attention: email was changed"
 msgstr "Notification du changement de votre adresse email"
 
-#, elixir-format
 #: lib/haytni_web/emails/confirmable_email.ex:38
+#: priv/phx17/views/email/confirmable_html.ex:11
+#: priv/phx16/views/email/confirmable_view.ex:11
+#, elixir-format
 msgid "Please confirm your email address change"
 msgstr "Veuillez confirmer votre changement d'adresse email"
 
-#, elixir-format
 #: lib/haytni/helpers.ex:108
+#, elixir-format
 msgid "doesn't match to any account"
 msgstr "ne correspond à aucun compte"
 
+#: lib/haytni/plugins/lockable_plugin.ex:316
 #, elixir-format
-#: lib/haytni/plugins/lockable_plugin.ex:302
 msgid "Unlocking accounts through email is currently disabled."
 msgstr "Le déverrouillage des compte par email est actuellement désactivé."
 
-#, elixir-format
 #: lib/haytni_web/controllers/registerable/registration_controller.ex:66
+#, elixir-format
 msgid "I have confirmed my account, continue to sign in"
 msgstr "J'ai confirmé mon compte, poursuivre vers l'identification"
 
-#, elixir-format
 #: lib/haytni_web/controllers/lockable/unlock_controller.ex:19
+#, elixir-format
 msgid "I get it, continue to sign in"
 msgstr "J'ai compris, continuer vers l'identification"
 
-#, elixir-format
 #: lib/haytni_web/controllers/registerable/registration_controller.ex:105
+#, elixir-format
 msgid "Informations have been updated"
 msgstr "Informations mises à jour"
 
-#, elixir-format
 #: lib/haytni_web/controllers/recoverable/password_controller.ex:63
+#, elixir-format
 msgid "Password changed, continue to sign in"
 msgstr "Mot de passe modifié, poursuivre vers l'identification"
 
-#, elixir-format
 #: lib/haytni_web/controllers/confirmable/confirmation_controller.ex:25
 #: lib/haytni_web/controllers/confirmable/reconfirmation_controller.ex:25
+#, elixir-format
 msgid "Continue to sign in"
 msgstr "Poursuivre vers l'identification"
 
+#: lib/haytni/plugins/authenticable_plugin.ex:169
 #, elixir-format
-#: lib/haytni/plugins/authenticable_plugin.ex:148
 msgid "Invalid combination of credentials"
 msgstr "Combinaison incorrecte d'informations d'identification"
 
+#: lib/haytni/plugins/recoverable_plugin.ex:190
 #, elixir-format
-#: lib/haytni/plugins/recoverable_plugin.ex:176
 msgid "The given password recovery token is invalid."
 msgstr "La clé de récupération fournie est invalide."
 
-#, elixir-format
 #: lib/haytni/plugins/password_policy_plugin.ex:54
+#, elixir-format
 msgid "a digit"
 msgstr "un chiffre"
 
-#, elixir-format
 #: lib/haytni/plugins/password_policy_plugin.ex:55
+#, elixir-format
 msgid "a lowercase letter"
 msgstr "une lettre minuscule"
 
-#, elixir-format
 #: lib/haytni/plugins/password_policy_plugin.ex:56
+#, elixir-format
 msgid "a uppercase letter"
 msgstr "une lettre majuscule"
 
-#, elixir-format
 #: lib/haytni/plugins/password_policy_plugin.ex:57
+#, elixir-format
 msgid "a different character"
 msgstr "un caractère autre"
 
-#, elixir-format
 #: lib/haytni/plugins/password_policy_plugin.ex:79
+#, elixir-format
 msgid "should contains at least %{count} character types among %{classes}"
 msgstr "mot de passe doit contenir au moins %{count} types de caractères différents parmi %{classes}"
 
-#, elixir-format
 #: lib/haytni_web/controllers/registerable/registration_controller.ex:9
+#, elixir-format
 msgid "Sorry, new registrations are currently closed"
 msgstr "Navré, les inscriptions de nouveaux utilisateurs sont actuellement fermées"
 
-#, elixir-format
 #: lib/haytni_web/controllers/invitable/invitation_controller.ex:10
+#, elixir-format
 msgid "An invitation has been successfully sent"
 msgstr "Une invitation a été envoyée avec succès"
 
-#, elixir-format
 #: lib/haytni_web/controllers/confirmable/confirmation_controller.ex:15
+#, elixir-format
 msgid "If the provided informations match our database and your email address has not been confirmed yet, you will shortly receive the instructions to do so."
 msgstr "Si les informations fournies correspondent avec celles de notre base de données et que votre adresse email n'a pas encore fait l'objet d'une vérification alors vous allez recevoir sous peu les instructions à cette fin."
 
-#, elixir-format
 #: lib/haytni_web/controllers/recoverable/password_controller.ex:23
+#, elixir-format
 msgid "If the provided informations match our database, you will shortly receive in your mailbox the instructions to allow you to reset your password."
 msgstr "Si les informations fournies correspondent avec celles de notre base de données alors vous allez recevoir par courriel les instructions vous permettant de réinitialiser votre mot de passe."
 
-#, elixir-format
 #: lib/haytni_web/controllers/lockable/unlock_controller.ex:45
+#, elixir-format
 msgid "If the provided informations match our database, you will shortly receive the instructions by mail to recover your account."
 msgstr "Si les informations fournies correspondent avec celles de notre base de données alors vous allez recevoir par courriel les intructions de déblocage de votre compte."
 
-#, elixir-format
 #: lib/haytni/helpers.ex:118
+#, elixir-format
 msgid "You may need to look at the spams folder."
 msgstr "Pensez éventuellement à vérifier les courriels indésirables."
 
-#, elixir-format
 #: lib/haytni_web/emails/invitable_email.ex:20
+#: priv/phx17/views/email/invitable_html.ex:7
+#: priv/phx16/views/email/invitable_view.ex:7
+#, elixir-format
 msgid "You've been invited"
 msgstr "Vous avez été invité"
 
+#: lib/haytni/plugins/invitable_plugin.ex:178
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:163
 msgid "the given email address mismatch the invitation it was sent to"
 msgstr "l'adresse email ne correspond pas avec celle à laquelle l'invitation a été envoyée"
 
+#: lib/haytni/plugins/invitable_plugin.ex:162
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:147
 msgid "the given invitation does not exist"
 msgstr "l'invitation fournie n'existe pas"
 
+#: lib/haytni/plugins/invitable_plugin.ex:170
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:155
 msgid "the given invitation has expired"
 msgstr "l'invitation fournie a expiré"
 
+#: lib/haytni/plugins/invitable_plugin.ex:154
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:139
 msgid "you can't register without having received an invitation"
 msgstr "vous ne pouvez pas vous enregistrer sans avoir préalablement reçu une invitation"
 
+#: lib/haytni/plugins/invitable_plugin.ex:186
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:171
 msgid "your quota of %{count} invitation(s) has been exceeded"
 msgstr "votre quota de %{count} invitation(s) a été excédé"
 
-#, elixir-format
 #: lib/haytni_web/controllers/registerable/registration_controller.ex:50
+#, elixir-format
 msgid "A final step is required before you fully dispose of your account: in order to confirm your address, an email has been sent to %{email}, which contains a link you need to activate. Once done, you will be able to login."
 msgstr "Une étape finale est requise avant que vous ne disposiez de votre compte : afin de confirmer votre adresse, un email vous a été envoyé à %{email} contenant un lien à activer. Après cela, vous serez en mesure de vous authentifier."
 
+#: lib/haytni/plugins/confirmable_plugin.ex:190
 #, elixir-format
-#: lib/haytni/plugins/confirmable_plugin.ex:171
 msgid "The given confirmation token is invalid or has expired."
 msgstr "Le jeton de confirmation fourni est invalide."
 
-#, elixir-format
 #: lib/haytni_web/controllers/confirmable/reconfirmation_controller.ex:15
+#, elixir-format
 msgid "To proceed to email change you have to be logged in"
 msgstr "Vous devez être authentifié pour procéder à un changement d'adresse email"
 
-#, elixir-format
 #: lib/haytni_web/controllers/confirmable/reconfirmation_controller.ex:10
+#, elixir-format
 msgid "Your email address has been updated"
 msgstr "Votre adresse email a été mise à jour"
 
+#: lib/haytni/plugins/registerable_plugin.ex:190
 #, elixir-format
-#: lib/haytni/plugins/registerable_plugin.ex:181
 msgid "has not changed"
 msgstr "n'a pas changé"
 
+#: lib/haytni/plugins/registerable_plugin.ex:182
 #, elixir-format
-#: lib/haytni/plugins/registerable_plugin.ex:173
 msgid "is invalid"
 msgstr "est incorrect"
 
-#, elixir-format
 #: lib/haytni_web/controllers/registerable/registration_controller.ex:153
+#, elixir-format
 msgid "Your account have been successfully deleted"
 msgstr "Votre compte a été supprimé avec succès"
 
-#, elixir-format
 #: priv/templates/invitation/new.html.heex:8
 #: priv/templates/registration/edit.html.heex:4
 #: priv/templates/registration/new.html.heex:13
+#: priv/phx17/templates/registration/new.html.heex:20
+#: priv/phx17/templates/registration/edit.html.heex:17
+#: priv/phx17/templates/invitation/new.html.heex:16
+#: priv/phx16/templates/registration/edit.html.heex:4
+#: priv/phx16/templates/registration/new.html.heex:13
+#: priv/phx16/templates/invitation/new.html.heex:8
+#, elixir-format
 msgid "Email"
 msgstr "Courriel"
 
-#, elixir-format
 #: priv/templates/invitation/new.html.heex:9
+#: priv/phx17/templates/invitation/new.html.heex:17
+#: priv/phx16/templates/invitation/new.html.heex:9
+#, elixir-format
 msgid "email address of your friend"
 msgstr "courriel de votre connaissance"
 
-#, elixir-format
 #: priv/templates/invitation/new.html.heex:14
+#: priv/phx17/templates/invitation/new.html.heex:22
+#: priv/phx16/templates/invitation/new.html.heex:14
+#, elixir-format
 msgid "Invite"
 msgstr "Inviter"
 
-#, elixir-format
 #: priv/templates/invitation/new.html.heex:15
 #: priv/templates/registration/edit.html.heex:15
 #: priv/templates/registration/edit.html.heex:44
 #: priv/templates/registration/edit.html.heex:55
 #: priv/templates/registration/new.html.heex:42
+#: priv/phx17/templates/session/new.html.heex:32
+#: priv/phx17/templates/registration/new.html.heex:58
+#: priv/phx17/templates/registration/edit.html.heex:33
+#: priv/phx17/templates/registration/edit.html.heex:85
+#: priv/phx17/templates/registration/edit.html.heex:105
+#: priv/phx17/templates/invitation/new.html.heex:25
+#: priv/phx16/templates/registration/edit.html.heex:15
+#: priv/phx16/templates/registration/edit.html.heex:44
+#: priv/phx16/templates/registration/edit.html.heex:55
+#: priv/phx16/templates/registration/new.html.heex:44
+#: priv/phx16/templates/invitation/new.html.heex:15
+#, elixir-format
 msgid "Cancel"
 msgstr "Annuler"
 
-#, elixir-format
 #: priv/templates/invitation/index.html.heex:5
+#: priv/phx17/templates/invitation/index.html.heex:3
+#: priv/phx16/templates/invitation/index.html.heex:5
+#, elixir-format
 msgid "Sent at"
 msgstr "Envoyée le"
 
-#, elixir-format
 #: priv/templates/invitation/index.html.heex:6
+#: priv/phx17/templates/invitation/index.html.heex:6
+#: priv/phx17/templates/invitation/index.html.heex:15
+#: priv/phx16/templates/invitation/index.html.heex:6
+#, elixir-format
 msgid "Sent to"
 msgstr "Adressée à"
 
-#, elixir-format
 #: priv/templates/invitation/index.html.heex:7
+#: priv/phx17/templates/invitation/index.html.heex:9
+#: priv/phx16/templates/invitation/index.html.heex:7
+#, elixir-format
 msgid "Accepted at"
 msgstr "Acceptée le"
 
-#, elixir-format
 #: priv/templates/invitation/index.html.heex:8
+#: priv/phx17/templates/invitation/index.html.heex:12
+#: priv/phx16/templates/invitation/index.html.heex:8
+#, elixir-format
 msgid "Accepted by"
 msgstr "Accepetée par"
 
-#, elixir-format
 #: priv/templates/invitation/index.html.heex:19
+#: priv/phx17/templates/invitation/index.html.heex:21
+#: priv/phx16/templates/invitation/index.html.heex:19
+#, elixir-format
 msgid "Revoke"
 msgstr "Révoquer"
 
-#, elixir-format
 #: priv/templates/invitation/index.html.heex:26
+#: priv/phx17/templates/invitation/index.html.heex:27
+#: priv/phx16/templates/invitation/index.html.heex:26
+#, elixir-format
 msgid "You have not send any invitation for now."
 msgstr "Vous n'avez encore invité personne jusqu'à présent"
 
-#, elixir-format
 #: priv/templates/invitation/index.html.heex:31
+#: priv/phx17/templates/invitation/index.html.heex:33
+#: priv/phx16/templates/invitation/index.html.heex:31
+#, elixir-format
 msgid "Do you have a friend you want to invite?"
 msgstr "Souhaitez-vous qu'une connaissance vous rejoigne ?"
 
-#, elixir-format
 #: priv/templates/password/new.html.heex:1
 #: priv/templates/shared/links.html.heex:9
+#: priv/phx17/templates/password/new.html.heex:1
+#: priv/phx17/templates/shared/links.html.heex:25
+#: priv/phx16/templates/shared/links.html.heex:14
+#: priv/phx16/templates/password/new.html.heex:1
+#, elixir-format
 msgid "Forgot your password?"
 msgstr "Mot de passe oublié ?"
 
-#, elixir-format
 #: priv/templates/password/new.html.heex:8
+#: priv/phx17/templates/password/new.html.heex:14
+#: priv/phx16/templates/password/new.html.heex:8
+#, elixir-format
 msgid "Send me reset password instructions"
 msgstr "Instructions pour changer de mot de passe"
 
-#, elixir-format
 #: priv/templates/password/edit.html.heex:1
+#: priv/phx17/templates/password/edit.html.heex:1
+#: priv/phx16/templates/password/edit.html.heex:1
+#, elixir-format
 msgid "Change your password"
 msgstr "Modifier votre mot de passe"
 
-#, elixir-format
 #: priv/templates/password/edit.html.heex:9
 #: priv/templates/registration/edit.html.heex:22
+#: priv/phx17/templates/password/edit.html.heex:22
+#: priv/phx17/templates/registration/edit.html.heex:54
+#: priv/phx16/templates/registration/edit.html.heex:22
+#: priv/phx16/templates/password/edit.html.heex:9
+#, elixir-format
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
-#, elixir-format
 #: priv/templates/password/edit.html.heex:10
 #: priv/templates/password/edit.html.heex:20
 #: priv/templates/registration/edit.html.heex:23
 #: priv/templates/registration/edit.html.heex:34
+#: priv/phx17/templates/password/edit.html.heex:23
+#: priv/phx17/templates/password/edit.html.heex:40
+#: priv/phx17/templates/registration/edit.html.heex:55
+#: priv/phx17/templates/registration/edit.html.heex:70
+#: priv/phx16/templates/registration/edit.html.heex:23
+#: priv/phx16/templates/registration/edit.html.heex:34
+#: priv/phx16/templates/password/edit.html.heex:10
+#: priv/phx16/templates/password/edit.html.heex:24
+#, elixir-format
 msgid "your new password"
 msgstr "votre nouveau mot de passe"
 
-#, elixir-format
 #: priv/templates/password/edit.html.heex:15
 #: priv/templates/registration/edit.html.heex:29
 #: priv/templates/registration/new.html.heex:31
+#: priv/phx17/templates/password/edit.html.heex:31
+#: priv/phx17/templates/registration/new.html.heex:43
+#: priv/phx17/templates/registration/edit.html.heex:63
+#: priv/phx16/templates/registration/edit.html.heex:29
+#: priv/phx16/templates/registration/new.html.heex:34
+#: priv/phx16/templates/password/edit.html.heex:19
+#, elixir-format
 msgid "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long."
 msgstr "Votre mot de passe doit être constitué de %{minimum_password_length} à %{maximum_password_length} caractères."
 
-#, elixir-format
 #: priv/templates/password/edit.html.heex:19
 #: priv/templates/registration/edit.html.heex:33
+#: priv/phx17/templates/password/edit.html.heex:39
+#: priv/phx17/templates/registration/edit.html.heex:69
+#: priv/phx16/templates/registration/edit.html.heex:33
+#: priv/phx16/templates/password/edit.html.heex:23
+#, elixir-format
 msgid "Confirm new password"
 msgstr "Confirmation du nouveau mot de passe"
 
-#, elixir-format
 #: priv/templates/password/edit.html.heex:25
+#: priv/phx17/templates/password/edit.html.heex:45
+#: priv/phx16/templates/password/edit.html.heex:29
+#, elixir-format
 msgid "Change my password"
 msgstr "Modifier mon mot de passe"
 
-#, elixir-format
 #: priv/templates/unlock/new.html.heex:1
 #: priv/templates/unlock/new.html.heex:8
+#: priv/phx17/templates/unlock/new.html.heex:1
+#: priv/phx17/templates/unlock/new.html.heex:14
+#: priv/phx16/templates/unlock/new.html.heex:1
+#: priv/phx16/templates/unlock/new.html.heex:8
+#, elixir-format
 msgid "Resend unlock instructions"
 msgstr "Renvoyer les instructions de déblocage"
 
-#, elixir-format
 #: priv/templates/confirmation/new.html.heex:1
 #: priv/templates/confirmation/new.html.heex:8
+#: priv/phx17/templates/confirmation/new.html.heex:1
+#: priv/phx17/templates/confirmation/new.html.heex:14
+#: priv/phx16/templates/confirmation/new.html.heex:1
+#: priv/phx16/templates/confirmation/new.html.heex:8
+#, elixir-format
 msgid "Resend confirmation instructions"
 msgstr "Renvoyer le courriel de confirmation"
 
-#, elixir-format
 #: priv/templates/session/new.html.heex:5
+#: priv/phx16/templates/session/new.html.heex:5
+#, elixir-format
 msgid "Warning: at the next failed attempt, the account will be locked"
 msgstr "Attention : le prochain échec d'identification aura pour effet de bloquer le compte"
 
-#, elixir-format
 #: priv/templates/session/new.html.heex:16
 #: priv/templates/registration/new.html.heex:24
+#: priv/phx17/templates/session/new.html.heex:18
+#: priv/phx17/templates/registration/new.html.heex:34
+#: priv/phx16/templates/registration/new.html.heex:24
+#: priv/phx16/templates/session/new.html.heex:16
+#, elixir-format
 msgid "Password"
 msgstr "Mot de passe"
 
-#, elixir-format
 #: priv/templates/session/new.html.heex:24
+#: priv/phx17/templates/session/new.html.heex:23
+#: priv/phx16/templates/session/new.html.heex:24
+#, elixir-format
 msgid "Remember Me?"
 msgstr "Se souvenir de moi ?"
 
-#, elixir-format
 #: priv/templates/session/new.html.heex:30
+#: priv/phx17/templates/session/new.html.heex:29
+#: priv/phx16/templates/session/new.html.heex:30
+#, elixir-format
 msgid "Sign In"
 msgstr "Se connecter"
 
-#, elixir-format
 #: priv/templates/shared/message.html.heex:8
+#: priv/phx17/templates/shared/message.html.heex:11
+#: priv/phx16/templates/shared/message.html.heex:8
+#, elixir-format
 msgid "Back"
 msgstr "Retour"
 
-#, elixir-format
 #: priv/templates/shared/links.html.heex:3
+#: priv/phx17/templates/shared/links.html.heex:7
+#: priv/phx16/templates/shared/links.html.heex:4
+#, elixir-format
 msgid "Sign in"
 msgstr "Se connecter"
 
-#, elixir-format
 #: priv/templates/shared/links.html.heex:6
 #: priv/templates/registration/new.html.heex:41
+#: priv/phx17/templates/shared/links.html.heex:16
+#: priv/phx17/templates/registration/new.html.heex:55
+#: priv/phx16/templates/registration/new.html.heex:43
+#: priv/phx16/templates/shared/links.html.heex:9
+#, elixir-format
 msgid "Sign up"
 msgstr "S'enregistrer"
 
-#, elixir-format
 #: priv/templates/shared/links.html.heex:12
+#: priv/phx17/templates/shared/links.html.heex:34
+#: priv/phx16/templates/shared/links.html.heex:19
+#, elixir-format
 msgid "Didn't receive confirmation instructions?"
 msgstr "Vous n'avez pas reçu de courriel de confirmation ?"
 
-#, elixir-format
 #: priv/templates/shared/links.html.heex:15
+#: priv/phx17/templates/shared/links.html.heex:43
+#: priv/phx16/templates/shared/links.html.heex:24
+#, elixir-format
 msgid "Didn't receive unlock instructions?"
 msgstr "Vous n'avez pas reçu de courriel de déverrouillage de votre compte ?"
 
-#, elixir-format
 #: priv/templates/registration/edit.html.heex:5
 #: priv/templates/registration/new.html.heex:14
 #: priv/templates/registration/new.html.heex:19
+#: priv/phx17/templates/registration/new.html.heex:21
+#: priv/phx17/templates/registration/new.html.heex:28
+#: priv/phx17/templates/registration/edit.html.heex:18
+#: priv/phx16/templates/registration/edit.html.heex:5
+#: priv/phx16/templates/registration/new.html.heex:14
+#: priv/phx16/templates/registration/new.html.heex:19
+#, elixir-format
 msgid "your email"
 msgstr "votre courriel"
 
-#, elixir-format
 #: priv/templates/registration/edit.html.heex:9
 #: priv/templates/registration/edit.html.heex:38
+#: priv/phx17/templates/registration/edit.html.heex:25
+#: priv/phx17/templates/registration/edit.html.heex:77
+#: priv/phx17/templates/registration/edit.html.heex:123
+#: priv/phx16/templates/registration/edit.html.heex:9
+#: priv/phx16/templates/registration/edit.html.heex:38
+#, elixir-format
 msgid "Current password"
 msgstr "Mot de passe actuel"
 
-#, elixir-format
 #: priv/templates/registration/edit.html.heex:10
 #: priv/templates/registration/edit.html.heex:39
 #: priv/templates/registration/edit.html.heex:62
+#: priv/phx17/templates/registration/edit.html.heex:26
+#: priv/phx17/templates/registration/edit.html.heex:78
+#: priv/phx17/templates/registration/edit.html.heex:124
+#: priv/phx16/templates/registration/edit.html.heex:10
+#: priv/phx16/templates/registration/edit.html.heex:39
+#: priv/phx16/templates/registration/edit.html.heex:62
+#, elixir-format
 msgid "your current password"
 msgstr "votre mot de passe actuel"
 
-#, elixir-format
 #: priv/templates/registration/edit.html.heex:14
 #: priv/templates/registration/edit.html.heex:43
 #: priv/templates/registration/edit.html.heex:54
+#: priv/phx17/templates/registration/edit.html.heex:30
+#: priv/phx17/templates/registration/edit.html.heex:82
+#: priv/phx17/templates/registration/edit.html.heex:102
+#: priv/phx16/templates/registration/edit.html.heex:14
+#: priv/phx16/templates/registration/edit.html.heex:43
+#: priv/phx16/templates/registration/edit.html.heex:54
+#, elixir-format
 msgid "Update"
 msgstr "Modifier"
 
-#, elixir-format
 #: priv/templates/registration/edit.html.heex:64
+#: priv/phx17/templates/registration/edit.html.heex:130
+#: priv/phx16/templates/registration/edit.html.heex:64
+#, elixir-format
 msgid "I'm sure I want to delete my account and I understand the operation can't be reverted"
 msgstr "Je suis sûr de vouloir supprimer mon compte et je comprends que cette opération est irréversible"
 
-#, elixir-format
 #: priv/templates/registration/edit.html.heex:68
+#: priv/phx17/templates/registration/edit.html.heex:134
+#: priv/phx16/templates/registration/edit.html.heex:68
+#, elixir-format
 msgid "Delete"
 msgstr "Supprimer"
 
-#, elixir-format
 #: priv/templates/registration/new.html.heex:18
+#: priv/phx17/templates/registration/new.html.heex:27
+#: priv/phx16/templates/registration/new.html.heex:18
+#, elixir-format
 msgid "Confirm email"
 msgstr "Confirmation du courriel"
 
-#, elixir-format
 #: priv/templates/registration/new.html.heex:25
 #: priv/templates/registration/new.html.heex:36
+#: priv/phx17/templates/registration/new.html.heex:35
+#: priv/phx17/templates/registration/new.html.heex:50
+#: priv/phx16/templates/registration/new.html.heex:25
+#: priv/phx16/templates/registration/new.html.heex:38
+#, elixir-format
 msgid "your password"
 msgstr "votre mot de passe"
 
-#, elixir-format
 #: priv/templates/registration/new.html.heex:35
+#: priv/phx17/templates/registration/new.html.heex:49
+#: priv/phx16/templates/registration/new.html.heex:37
+#, elixir-format
 msgid "Confirm password"
 msgstr "Confirmation du mot de passe"
