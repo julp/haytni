@@ -147,6 +147,8 @@ defmodule Haytni.Mail do
   #   end
   end
   ```
+
+  Note: this function is intended to be used by plugin.
   """
   @spec put_view(email :: t, module :: module, view_suffix :: atom | String.t) :: t
   if Haytni.Helpers.phoenix17?() do
@@ -206,13 +208,14 @@ defmodule Haytni.Mail do
     end
   end
 
-  defp subject_from_views(email = %__MODULE__{subject: nil}, function_name)
+  defp subject_from_views(email = %__MODULE__{subject: nil}, {:ok, function_name})
     when is_atom(function_name)
   do
     Enum.reduce_while(
       email.views,
       email,
       fn view_module, email_as_acc ->
+        :erlang.module_loaded(view_module) or :code.ensure_loaded(view_module)
         if function_exported?(view_module, function_name, 1) do
           {:halt, subject(email_as_acc, apply(view_module, function_name, [email_as_acc.assigns]))}
         else
@@ -223,7 +226,9 @@ defmodule Haytni.Mail do
   end
 
   defp subject_from_views(email = %__MODULE__{}, _function_name) do
-    # NOP: subject was already set, don't override it
+    # NOP:
+    # - subject was already set (don't override it)
+    # - the function :"#{template}_subject" doesn't exist
     email
   end
 
@@ -244,16 +249,25 @@ defmodule Haytni.Mail do
     |> put_template(module, template)
   end
 
+  @spec string_to_existing_atom(name :: String.t) :: {:ok, atom} | :error
+  defp string_to_existing_atom(name) do
+    try do
+      {:ok, String.to_existing_atom(name)}
+    rescue
+      ArgumentError -> :error
+    end
+  end
+
   @doc ~S"""
   Sets the templates for when rendering the email as HTML and plain text.
   """
   @spec put_template(email :: t, module :: module, template :: atom | String.t) :: t
-  def put_template(email = %__MODULE__{}, module, template)
+  def put_template(email = %__MODULE__{views: [_head | _tail]}, module, template)
     when is_atom(module)
   do
     email
     |> bodies_from_views(template)
-    |> subject_from_views(String.to_existing_atom("#{template}_subject"))
+    |> subject_from_views(string_to_existing_atom("#{template}_subject"))
   end
 
   @spec render_to_string(view_module :: module, template :: String.t, format :: String.t, assigns :: %{atom => any}) :: String.t
@@ -269,6 +283,7 @@ defmodule Haytni.Mail do
         email.views,
         email,
         fn view_module, email_as_acc ->
+          :erlang.module_loaded(view_module) or :code.ensure_loaded(view_module)
           # render("<template>.<format>", assigns) vs <template>_<format>(assigns) # "_<format>" is the :suffix option on embed_templates/2
           if function_exported?(view_module, String.to_existing_atom("#{template}_html"), 1) do
             {:halt, put_html_template(email_as_acc, view_module, template)}
@@ -285,6 +300,7 @@ defmodule Haytni.Mail do
         email.views,
         email,
         fn view_module, email_as_acc ->
+          :erlang.module_loaded(view_module) or :code.ensure_loaded(view_module)
           if function_exported?(view_module, String.to_existing_atom("#{template}_text"), 1) do
             {:halt, put_text_template(email_as_acc, view_module, template)}
           else
