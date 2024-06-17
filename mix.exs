@@ -117,53 +117,44 @@ defmodule Haytni.MixProject do
       ],
       Authenticable: [
         Haytni.AuthenticablePlugin,
-        Haytni.AuthenticablePlugin.Config,
       ],
       Confirmable: [
         Haytni.ConfirmablePlugin,
-        Haytni.ConfirmablePlugin.Config,
         Haytni.ConfirmableEmail,
       ],
       Lockable: [
         Haytni.LockablePlugin,
-        Haytni.LockablePlugin.Config,
         Haytni.LockableEmail,
       ],
       Recoverable: [
         Haytni.RecoverablePlugin,
-        Haytni.RecoverablePlugin.Config,
         Haytni.Recoverable.PasswordChange,
         Haytni.RecoverableEmail,
       ],
       Registerable: [
         Haytni.RegisterablePlugin,
-        Haytni.RegisterablePlugin.Config,
       ],
       PasswordPolicy: [
         Haytni.PasswordPolicyPlugin,
         Haytni.PasswordPolicyPlugin.Class,
-        Haytni.PasswordPolicyPlugin.Config,
       ],
       Rememberable: [
         Haytni.RememberablePlugin,
-        Haytni.RememberablePlugin.Config,
       ],
       Trackable: [
         Haytni.TrackablePlugin,
-        Haytni.TrackablePlugin.Config,
+        Haytni.TrackablePlugin.QueryHelpers,
       ],
       Invitable: [
         Haytni.InvitablePlugin,
-        Haytni.InvitablePlugin.Config,
         Haytni.InvitableEmail,
+        Haytni.InvitablePlugin.QueryHelpers,
       ],
       LiveView: [
         Haytni.LiveViewPlugin,
-        Haytni.LiveViewPlugin.Config,
       ],
       ClearSiteData: [
         Haytni.ClearSiteDataPlugin,
-        Haytni.ClearSiteDataPlugin.Config,
       ],
       Helpers: [
         Haytni.Params,
