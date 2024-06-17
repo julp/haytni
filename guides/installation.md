@@ -179,6 +179,7 @@ If not already done, add `:bamboo` as dependency to `deps/0` of your mix.exs fil
     [
       # ...
       {:bamboo, "~> 2.3"}, # (check https://hex.pm/packages/bamboo for the latest version)
+      {:haytni_bamboo_adapter, "~> X.X"},
       # ...
     ]
   end
@@ -256,7 +257,7 @@ First add Swoosh to your dependencies in `deps/0` in your mix.exs file:
   defp deps do
     [
       # ...
-      {:swoosh, "~> 1.8"}, # (check https://hex.pm/packages/swoosh for the latest version)
+      {:haytni_swoosh_adapter, "~> X.X"},
       # ...
     ]
   end

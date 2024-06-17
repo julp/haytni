@@ -1,7 +1,5 @@
 import Config
 
-config :bamboo, :refute_timeout, 10
-
 config :haytni,
   ecto_repos: [HaytniTest.Repo]
 
