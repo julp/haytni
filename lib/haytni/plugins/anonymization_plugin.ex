@@ -16,19 +16,19 @@ defmodule Haytni.AnonymizationPlugin do
   Routes: none
   """
 
-  defmodule Config do
-    defstruct fields_to_reset_on_delete: ~W[email encrypted_password]a
+  defstruct [
+    fields_to_reset_on_delete: @default_fields_to_reset_on_delete,
+  ]
 
-    @type t :: %__MODULE__{
-      fields_to_reset_on_delete: [atom | {atom, any} | (struct -> any)],
-    }
-  end
+  @type t :: %__MODULE__{
+    fields_to_reset_on_delete: [atom | {atom, any} | (struct -> any)],
+  }
 
   use Haytni.Plugin
 
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
-    %Haytni.AnonymizationPlugin.Config{}
+    %__MODULE__{}
     |> Haytni.Helpers.merge_config(options)
   end
 

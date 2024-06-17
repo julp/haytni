@@ -28,21 +28,21 @@ defmodule Haytni.RecoverablePlugin do
 
   import Haytni.Gettext
 
-  defmodule Config do
-    defstruct reset_password_within: {6, :hour},
-      reset_password_keys: ~W[email]a
+  defstruct [
+    reset_password_keys: @default_reset_password_keys,
+    reset_password_within: @default_reset_password_within,
+  ]
 
-    @type t :: %__MODULE__{
-      reset_password_keys: [atom, ...],
-      reset_password_within: Haytni.duration,
-    }
-  end
+  @type t :: %__MODULE__{
+    reset_password_keys: [atom, ...],
+    reset_password_within: Haytni.duration,
+  }
 
   use Haytni.Plugin
 
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
-    %Haytni.RecoverablePlugin.Config{}
+    %__MODULE__{}
     |> Haytni.Helpers.merge_config(options, ~W[reset_password_within]a)
   end
 
@@ -122,12 +122,12 @@ defmodule Haytni.RecoverablePlugin do
   Converts the parameters received by the controller from which users can start the password recovery procedure by requesting a
   recovery token into an `%Ecto.Changeset{}`.
   """
-  @spec recovering_changeset(config :: Config.t, request_params :: Haytni.params) :: Ecto.Changeset.t
+  @spec recovering_changeset(config :: t, request_params :: Haytni.params) :: Ecto.Changeset.t
   def recovering_changeset(config, request_params \\ %{}) do
     Haytni.Helpers.to_changeset(request_params, nil, config.reset_password_keys)
   end
 
-  @spec send_instructions_in_multi(multi :: Ecto.Multi.t, user :: Haytni.user, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
+  @spec send_instructions_in_multi(multi :: Ecto.Multi.t, user :: Haytni.user, token_name :: Ecto.Multi.name, module :: module, config :: t) :: Ecto.Multi.t
   defp send_instructions_in_multi(multi = %Ecto.Multi{}, user, token_name, module, config) do
     Ecto.Multi.run(
       multi,
@@ -149,7 +149,7 @@ defmodule Haytni.RecoverablePlugin do
     * `{:ok, token}` if successful
   """
   # step 1/2: send a token by mail
-  @spec send_reset_password_instructions(module :: module, config :: Config.t, request_params :: Haytni.params) :: {:ok, Haytni.Token.t | nil} | {:error, Ecto.Changeset.t}
+  @spec send_reset_password_instructions(module :: module, config :: t, request_params :: Haytni.params) :: {:ok, Haytni.Token.t | nil} | {:error, Ecto.Changeset.t}
   def send_reset_password_instructions(module, config, request_params) do
     changeset = recovering_changeset(config, request_params)
 
@@ -199,7 +199,7 @@ defmodule Haytni.RecoverablePlugin do
     * is expired
   """
   # step 2/2: update password
-  @spec recover(module :: module, config :: Config.t, password_params :: %{String.t => String.t}) :: {:ok, Haytni.user | nil} | {:error, Ecto.Changeset.t}
+  @spec recover(module :: module, config :: t, password_params :: %{String.t => String.t}) :: {:ok, Haytni.user | nil} | {:error, Ecto.Changeset.t}
   def recover(module, config, password_params) do
     changeset = Haytni.Recoverable.PasswordChange.change_password(module, password_params)
 

@@ -25,7 +25,7 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
       ]
     end
 
-    for strategy <- Haytni.LockablePlugin.Config.available_strategies() -- Haytni.LockablePlugin.Config.email_strategies() do
+    for strategy <- Haytni.LockablePlugin.available_strategies() -- Haytni.LockablePlugin.email_strategies() do
       test "returns error when strategy doesn't include email (strategy: #{strategy})", %{locked_params: locked_params, unlocked_params: unlocked_params, nomatch_params: nomatch_params} do
         config = @plugin.build_config(unlock_strategy: unquote(strategy))
 
@@ -49,7 +49,7 @@ defmodule Haytni.Lockable.ResendUnlockInstructionsTest do
       assert %{email: [empty_message()]} == errors_on(changeset)
     end
 
-    for strategy <- Haytni.LockablePlugin.Config.email_strategies() do
+    for strategy <- Haytni.LockablePlugin.email_strategies() do
       test "sends an email when an account is locked (strategy: #{strategy})", %{locked_account: %User{id: id}, locked_params: locked_params} do
         config = @plugin.build_config(unlock_strategy: unquote(strategy))
 

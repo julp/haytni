@@ -8,7 +8,7 @@ defmodule Haytni.ClearSiteData.BuildConfigTest do
     test "check default values" do
       config = Haytni.ClearSiteDataPlugin.build_config()
 
-      assert config.__struct__ == Haytni.ClearSiteDataPlugin.Config
+      assert config.__struct__ == Haytni.ClearSiteDataPlugin
       assert config.login == []
       assert config.logout == @plugin.possible_values()
     end
@@ -16,7 +16,7 @@ defmodule Haytni.ClearSiteData.BuildConfigTest do
     test "check :all values" do
       config = @plugin.build_config(logout: :all)
 
-      assert config.__struct__ == Haytni.ClearSiteDataPlugin.Config
+      assert config.__struct__ == Haytni.ClearSiteDataPlugin
       assert config.login == []
       assert config.logout == @plugin.possible_values()
     end
@@ -26,7 +26,7 @@ defmodule Haytni.ClearSiteData.BuildConfigTest do
       logout = ~W[cookies storage *]
       config = @plugin.build_config(login: login, logout: logout)
 
-      assert config.__struct__ == Haytni.ClearSiteDataPlugin.Config
+      assert config.__struct__ == Haytni.ClearSiteDataPlugin
       assert config.login == login
       assert config.logout == logout
     end

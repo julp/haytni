@@ -23,14 +23,14 @@ defmodule Haytni.PasswordPolicyPlugin do
 
   import Haytni.Gettext
 
-  defmodule Config do
-    defstruct password_length: 6..128,
-      password_classes_to_match: 2
+  defstruct [
+    password_length: @default_password_length,
+    password_classes_to_match: @default_password_classes_to_match,
+  ]
 
-    @type t :: %__MODULE__{
-      password_length: Range.t,
-    }
-  end
+  @type t :: %__MODULE__{
+    password_length: Range.t,
+  }
 
   use Haytni.Plugin
 
@@ -60,7 +60,7 @@ defmodule Haytni.PasswordPolicyPlugin do
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
     config =
-      %Config{}
+      %__MODULE__{}
       |> Haytni.Helpers.merge_config(options)
 
     if config.password_classes_to_match > length(@classes) do
@@ -74,18 +74,20 @@ defmodule Haytni.PasswordPolicyPlugin do
   The translated string to display when the password doesn't contain at least `config.password_classes_to_match`
   different types of characters in it.
   """
-  @spec invalid_password_format_message(config :: Config.t) :: String.t
+  @spec invalid_password_format_message(config :: t) :: String.t
   def invalid_password_format_message(config) do
     dgettext(
       "haytni",
       "should contains at least %{count} character types among %{classes}",
       count: config.password_classes_to_match,
-      classes: Enum.map(@classes, fn class -> Gettext.dgettext(Haytni.Gettext, "haytni", class.description) end)
+      classes:
+        @classes
+        |> Enum.map(fn class -> Gettext.dgettext(Haytni.Gettext, "haytni", class.description) end)
         |> Enum.join(", ")
     )
   end
 
-  @spec validate_password_content(changeset :: Ecto.Changeset.t, field :: atom, config :: Config.t) :: Ecto.Changeset.t
+  @spec validate_password_content(changeset :: Ecto.Changeset.t, field :: atom, config :: t) :: Ecto.Changeset.t
   defp validate_password_content(%Ecto.Changeset{valid?: false} = changeset, field, _config)
     when is_atom(field)
   do

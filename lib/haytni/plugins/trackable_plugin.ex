@@ -27,19 +27,19 @@ defmodule Haytni.TrackablePlugin do
   Routes: none
   """
 
-  defmodule Config do
-    defstruct ~W[on_delete]a
+  defstruct [
+    on_delete: @default_on_delete,
+  ]
 
-    @type t :: %__MODULE__{
-      on_delete: nil | :soft_cascade,
-    }
-  end
+  @type t :: %__MODULE__{
+    on_delete: nil | :soft_cascade,
+  }
 
   use Haytni.Plugin
 
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
-    %Haytni.TrackablePlugin.Config{}
+    %__MODULE__{}
     |> Haytni.Helpers.merge_config(options)
   end
 
@@ -122,7 +122,7 @@ end
   end
 
   @impl Haytni.Plugin
-  def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, %Config{on_delete: :soft_cascade}) do
+  def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, %__MODULE__{on_delete: :soft_cascade}) do
     multi
     |> Ecto.Multi.delete_all(:delete_connections, Haytni.TrackablePlugin.QueryHelpers.connections_from_user(user))
   end

@@ -87,32 +87,32 @@ defmodule Haytni.RegisterablePlugin do
   require Haytni.Gettext
   import Haytni.Helpers
 
-  defmodule Config do
-    defstruct registration_disabled?: false,
-      strip_whitespace_keys: ~W[email]a,
-      case_insensitive_keys: ~W[email]a,
-      email_regexp: ~r/^[^@\s]+@[^@\s]+$/,
-      email_index_name: nil,
-      with_delete: false,
-      logout_on_deletion: true
+  defstruct [
+    with_delete: @default_with_delete,
+    email_regexp: @default_email_regexp,
+    email_index_name: @default_email_index_name,
+    logout_on_deletion: @default_logout_on_deletion,
+    strip_whitespace_keys: @default_strip_whitespace_keys,
+    case_insensitive_keys: @default_case_insensitive_keys,
+    registration_disabled?: @default_registration_disabled?,
+  ]
 
-    @typep index_name :: atom | String.t | nil
+  @typep index_name :: atom | String.t | nil
 
-    @type t :: %__MODULE__{
-      email_regexp: Regex.t,
-      email_index_name: index_name,
-      strip_whitespace_keys: [atom],
-      case_insensitive_keys: [atom],
-      with_delete: boolean,
-      logout_on_deletion: boolean,
-    }
-  end
+  @type t :: %__MODULE__{
+    email_regexp: Regex.t,
+    email_index_name: index_name,
+    strip_whitespace_keys: [atom],
+    case_insensitive_keys: [atom],
+    with_delete: boolean,
+    logout_on_deletion: boolean,
+  }
 
   use Haytni.Plugin
 
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
-    %Haytni.RegisterablePlugin.Config{}
+    %__MODULE__{}
     |> Haytni.Helpers.merge_config(options)
   end
 
@@ -135,7 +135,7 @@ defmodule Haytni.RegisterablePlugin do
   end
 
   @impl Haytni.Plugin
-  def routes(config = %Config{}, prefix_name, options) do
+  def routes(config = %__MODULE__{}, prefix_name, options) do
     registration_prefix_name = :"#{prefix_name}_registration"
     registration_path = Keyword.get(options, @registration_path_key, @default_registration_path)
     new_registration_path = Keyword.get(options, @new_registration_path_key, registration_path <> "/new")
@@ -160,7 +160,7 @@ defmodule Haytni.RegisterablePlugin do
     end
   end
 
-  defp validate_email(changeset = %Ecto.Changeset{}, module, config = %Config{}) do
+  defp validate_email(changeset = %Ecto.Changeset{}, module, config = %__MODULE__{}) do
     changeset
     |> Ecto.Changeset.validate_required([:email])
     |> Ecto.Changeset.unsafe_validate_unique(:email, module.repo())
@@ -224,8 +224,8 @@ defmodule Haytni.RegisterablePlugin do
     end
   end
 
-  @spec email_changeset(module :: module, config :: Config.t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
-  defp email_changeset(module, config = %Config{}, user = %_{}, attrs = %{}) do
+  @spec email_changeset(module :: module, config :: t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
+  defp email_changeset(module, config = %__MODULE__{}, user = %_{}, attrs = %{}) do
     user
     |> Ecto.Changeset.cast(attrs, [:email])
     |> validate_email(module, config)
@@ -235,16 +235,16 @@ defmodule Haytni.RegisterablePlugin do
   @doc ~S"""
   Returns an `%Ecto.Changeset{}` to modify its email address.
   """
-  @spec change_email(module :: module, config :: Config.t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
-  def change_email(module, config = %Config{}, user = %_{}, attrs \\ %{}) do
+  @spec change_email(module :: module, config :: t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
+  def change_email(module, config = %__MODULE__{}, user = %_{}, attrs \\ %{}) do
     email_changeset(module, config, user, attrs)
   end
 
   @doc ~S"""
   Updates *user*'s email address if *current_password* matches *user*'s actual password. 
   """
-  @spec update_email(module :: module, config :: Config.t, user :: Haytni.user, current_password :: String.t, attrs :: Haytni.params) :: Haytni.repo_nobang_operation(Haytni.user)
-  def update_email(module, config = %Config{}, user = %_{}, current_password, attrs = %{}) do
+  @spec update_email(module :: module, config :: t, user :: Haytni.user, current_password :: String.t, attrs :: Haytni.params) :: Haytni.repo_nobang_operation(Haytni.user)
+  def update_email(module, config = %__MODULE__{}, user = %_{}, current_password, attrs = %{}) do
     module
     |> email_changeset(config, user, attrs)
     |> validate_current_password(current_password, module)
@@ -324,14 +324,14 @@ if false do
     Haytni.Gettext.dgettext("haytni", "account deletion is not available")
   end
 
-  defp check_account_deletion(changeset, %Config{with_delete: true}), do: changeset
-  defp check_account_deletion(changeset, %Config{with_delete: false}) do
+  defp check_account_deletion(changeset, %__MODULE__{with_delete: true}), do: changeset
+  defp check_account_deletion(changeset, %__MODULE__{with_delete: false}) do
     Haytni.Helpers.add_base_error(changeset, account_deletion_disabled_message())
   end
 end
 
-  @spec deletion_changeset(module :: module, config :: Config.t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
-  defp deletion_changeset(_module, _config = %Config{}, user = %_{}, attrs = %{}) do
+  @spec deletion_changeset(module :: module, config :: t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
+  defp deletion_changeset(_module, _config = %__MODULE__{}, user = %_{}, attrs = %{}) do
     user
     |> Ecto.Changeset.cast(attrs, [])
     |> Ecto.Changeset.validate_acceptance(:accept_deletion)
@@ -341,8 +341,8 @@ end
   @doc ~S"""
   Returns an `%Ecto.Changeset{}` to delete its own account.
   """
-  @spec change_deletion(module :: module, config :: Config.t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
-  def change_deletion(module, config = %Config{}, user = %_{}, attrs \\ %{}) do
+  @spec change_deletion(module :: module, config :: t, user :: Haytni.user, attrs :: Haytni.params) :: Ecto.Changeset.t
+  def change_deletion(module, config = %__MODULE__{}, user = %_{}, attrs \\ %{}) do
     deletion_changeset(module, config, user, attrs)
   end
 
@@ -352,8 +352,8 @@ end
   Returns the result of `Haytni.delete_user/2` or `{:error, :validation_failed, %Ecto.Changeset{}, %{}}` if *current_password* is incorrect
   and/or user has not accepted the terms
   """
-  @spec delete_account(module :: module, config :: Config.t, user :: Haytni.user, current_password :: String.t, attrs :: Haytni.params) :: Haytni.multi_result
-  def delete_account(module, config = %Config{}, user = %_{}, current_password, attrs = %{}) do
+  @spec delete_account(module :: module, config :: t, user :: Haytni.user, current_password :: String.t, attrs :: Haytni.params) :: Haytni.multi_result
+  def delete_account(module, config = %__MODULE__{}, user = %_{}, current_password, attrs = %{}) do
     changeset =
       module
       |> deletion_changeset(config, user, attrs)
@@ -383,7 +383,7 @@ end
   @doc ~S"""
   Trim values of a changeset to keys configured as *strip_whitespace_keys*
   """
-  @spec strip_whitespace_changes(changeset :: Ecto.Changeset.t, config :: Config.t) :: Ecto.Changeset.t
+  @spec strip_whitespace_changes(changeset :: Ecto.Changeset.t, config :: t) :: Ecto.Changeset.t
   def strip_whitespace_changes(changeset = %Ecto.Changeset{}, config) do
     config.strip_whitespace_keys
     |> apply_to_fields(changeset, &String.trim/1)
@@ -392,7 +392,7 @@ end
   @doc ~S"""
   Downcase values of a changeset to keys configured as *case_insensitive_keys*
   """
-  @spec case_insensitive_changes(changeset :: Ecto.Changeset.t, config :: Config.t) :: Ecto.Changeset.t
+  @spec case_insensitive_changes(changeset :: Ecto.Changeset.t, config :: t) :: Ecto.Changeset.t
   def case_insensitive_changes(changeset = %Ecto.Changeset{}, config) do
     config.case_insensitive_keys
     |> apply_to_fields(changeset, &String.downcase/1)

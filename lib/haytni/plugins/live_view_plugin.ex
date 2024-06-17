@@ -31,27 +31,27 @@ defmodule Haytni.LiveViewPlugin do
     `#{inspect(@token_path_key)}` option when calling YourApp.Haytni.routes/1 from your router
   """
 
-  defmodule Config do
-    defstruct socket_id: nil,
-      remote_ip_header: nil,
-      token_validity: {2, :minute},
-      separator: "/",
-      algorithm: "AES128GCM",
-      # a default key generated at compile time for all stacks
-      key: :crypto.strong_rand_bytes(32),
-      # a default pepper generated at compile time for all stacks
-      pepper: :crypto.strong_rand_bytes(24)
+  defstruct [
+    socket_id: @default_socket_id,
+    token_validity: @default_token_validity,
+    remote_ip_header: @default_remote_ip_header,
+    separator: "/",
+    algorithm: "AES128GCM",
+    # a default key generated at compile time for all stacks
+    key: :crypto.strong_rand_bytes(32),
+    # a default pepper generated at compile time for all stacks
+    pepper: :crypto.strong_rand_bytes(24),
+  ]
 
-    @type t :: %__MODULE__{
-      key: binary,
-      pepper: binary,
-      algorithm: String.t,
-      separator: String.t,
-      remote_ip_header: String.t | nil,
-      token_validity: Haytni.duration,
-      socket_id: (module, Haytni.user -> String.t),
-    }
-  end
+  @type t :: %__MODULE__{
+    socket_id: (module, Haytni.user -> String.t) | nil,
+    token_validity: Haytni.duration,
+    remote_ip_header: String.t | nil,
+    separator: String.t,
+    algorithm: String.t,
+    key: binary,
+    pepper: binary,
+  }
 
   use Haytni.Plugin
 
@@ -65,7 +65,7 @@ defmodule Haytni.LiveViewPlugin do
       # pepper generated once, at runtime, specific to the current stack
       |> Map.put_new_lazy(:pepper, fn -> :crypto.strong_rand_bytes(24) end)
 
-    %Haytni.LiveViewPlugin.Config{}
+    %__MODULE__{}
     |> Haytni.Helpers.merge_config(options, ~W[token_validity]a)
   end
 
@@ -147,7 +147,7 @@ defmodule Haytni.LiveViewPlugin do
   @doc ~S"""
   Add metadata (IP address) to *token* then hash and cipher the whole.
   """
-  @spec encode_token(conn :: Plug.Conn.t, token :: Haytni.Token.t, config :: Config.t) :: String.t
+  @spec encode_token(conn :: Plug.Conn.t, token :: Haytni.Token.t, config :: t) :: String.t
   def encode_token(conn = %Plug.Conn{}, token, config) do
     content =
       [
@@ -175,7 +175,7 @@ defmodule Haytni.LiveViewPlugin do
   @doc ~S"""
   Extract metadata and real token from a previously "encoded" token by `encode_token/3`
   """
-  @spec decode_token(config :: Config.t, token_param :: String.t) :: {:ok, %{required(String.t) => String.t}} | :error
+  @spec decode_token(config :: t, token_param :: String.t) :: {:ok, %{required(String.t) => String.t}} | :error
   def decode_token(config, token_param) do
     pepper = config.pepper
     with(
@@ -191,7 +191,7 @@ defmodule Haytni.LiveViewPlugin do
     end
   end
 
-  @spec do_connect(module :: module, config :: Config.t, params :: map, connect_info :: map) :: {:ok, atom, Haytni.nilable(Haytni.user)}
+  @spec do_connect(module :: module, config :: t, params :: map, connect_info :: map) :: {:ok, atom, Haytni.nilable(Haytni.user)}
   defp do_connect(module, config, params, connect_info) do
     remote_ip_as_string = if is_nil(config.remote_ip_header) do
       connect_info.peer_data.address
@@ -220,7 +220,7 @@ defmodule Haytni.LiveViewPlugin do
     {:ok, Haytni.scoped_assign(module), user}
   end
 
-  @spec connect(module :: module, config :: Config.t, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t}
+  @spec connect(module :: module, config :: t, params :: map, socket :: Phoenix.Socket.t, connect_info :: map) :: {:ok, Phoenix.Socket.t}
   def connect(module, config, params, socket, connect_info) do
     {:ok, scoped_key, user} = do_connect(module, config, params, connect_info)
     {:ok, Phoenix.Socket.assign(socket, scoped_key, user)}

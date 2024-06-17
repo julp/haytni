@@ -23,7 +23,7 @@ defmodule Haytni.Lockable.UnlockedTest do
       ]
     end
 
-    for strategy <- Haytni.LockablePlugin.Config.available_strategies() do
+    for strategy <- Haytni.LockablePlugin.available_strategies() do
       test "returns an error when token doesn't match anything (strategy: #{strategy})" do
         config = @plugin.build_config(unlock_strategy: unquote(strategy))
         reason = if @plugin.email_strategy_enabled?(config) do
@@ -37,7 +37,7 @@ defmodule Haytni.Lockable.UnlockedTest do
       end
     end
 
-    for strategy <- Haytni.LockablePlugin.Config.available_strategies() -- Haytni.LockablePlugin.Config.email_strategies() do
+    for strategy <- Haytni.LockablePlugin.available_strategies() -- Haytni.LockablePlugin.email_strategies() do
       test "returns error when strategy doesn't include email (strategy: #{strategy})", %{token: unlock_token} do
         config = @plugin.build_config(unlock_strategy: unquote(strategy))
 
@@ -45,7 +45,7 @@ defmodule Haytni.Lockable.UnlockedTest do
       end
     end
 
-    for strategy <- Haytni.LockablePlugin.Config.email_strategies() do
+    for strategy <- Haytni.LockablePlugin.email_strategies() do
       test "returns updated and unlocked user after unlock (strategy: #{strategy})", %{locked: locked, token: unlock_token} do
         config = @plugin.build_config(unlock_strategy: unquote(strategy))
 

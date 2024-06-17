@@ -45,47 +45,47 @@ defmodule Haytni.LockablePlugin do
 
   import Haytni.Gettext
 
-  defmodule Config do
-    defstruct maximum_attempts: 20,
-      unlock_in: {1, :hour},
-      unlock_within: {3, :day},
-      unlock_strategy: :both,
-      unlock_keys: ~W[email]a
+  defstruct [
+    unlock_in: @default_unlock_in,
+    unlock_keys: @default_unlock_keys,
+    unlock_within: @default_unlock_within,
+    unlock_strategy: @default_unlock_strategy,
+    maximum_attempts: @default_maximum_attempts,
+  ]
 
-    @type unlock_strategy :: :both | :email | :time | :none
+  @type unlock_strategy :: :both | :email | :time | :none
 
-    @type t :: %__MODULE__{
-      maximum_attempts: pos_integer,
-      unlock_in: Haytni.duration,
-      unlock_within: Haytni.duration,
-      unlock_strategy: unlock_strategy,
-      unlock_keys: [atom, ...],
-    }
+  @type t :: %__MODULE__{
+    maximum_attempts: pos_integer,
+    unlock_in: Haytni.duration,
+    unlock_within: Haytni.duration,
+    unlock_strategy: unlock_strategy,
+    unlock_keys: [atom, ...],
+  }
 
-    @doc ~S"""
-    Returns all available strategies (all possible values for *unlock_strategy* parameter)
-    """
-    @spec available_strategies() :: [unlock_strategy, ...]
-    def available_strategies do
-      ~W[both email none time]a
-    end
-
-    @doc ~S"""
-    Returns strategies involving sending emails
-    """
-    @spec email_strategies() :: [unlock_strategy, ...]
-    def email_strategies do
-      ~W[both email]a
-    end
-
-    #defguard email_strategy_enabled?(strategy) when strategy in ~W[both email]a
+  @doc ~S"""
+  Returns all available strategies (all possible values for *unlock_strategy* parameter)
+  """
+  @spec available_strategies() :: [unlock_strategy, ...]
+  def available_strategies do
+    ~W[both email none time]a
   end
+
+  @doc ~S"""
+  Returns strategies involving sending emails
+  """
+  @spec email_strategies() :: [unlock_strategy, ...]
+  def email_strategies do
+    ~W[both email]a
+  end
+
+  #defguard email_strategy_enabled?(strategy) when strategy in ~W[both email]a
 
   use Haytni.Plugin
 
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
-    %Haytni.LockablePlugin.Config{}
+    %__MODULE__{}
     |> Haytni.Helpers.merge_config(options, ~W[unlock_in unlock_within]a)
   end
 
@@ -245,23 +245,23 @@ defmodule Haytni.LockablePlugin do
   @doc ~S"""
   Returns `true` if *user* account is currently locked.
   """
-  @spec locked?(user :: Haytni.user, config :: Config.t) :: boolean
+  @spec locked?(user :: Haytni.user, config :: t) :: boolean
   def locked?(user = %_{}, config) do
     user.locked_at != nil and not lock_expired?(user, config)
   end
 
-  @spec lock_expired?(user :: Haytni.user, config :: Config.t) :: boolean
+  @spec lock_expired?(user :: Haytni.user, config :: t) :: boolean
   defp lock_expired?(user, config) do
     config.unlock_strategy in ~W[both time]a and DateTime.diff(DateTime.utc_now(), user.locked_at) >= config.unlock_in
   end
 
-  @spec send_unlock_instructions_mail_to_user(user :: Haytni.user, token :: String.t, module :: module, config :: Config.t) :: Haytni.Mailer.DeliveryStrategy.email_sent
+  @spec send_unlock_instructions_mail_to_user(user :: Haytni.user, token :: String.t, module :: module, config :: t) :: Haytni.Mailer.DeliveryStrategy.email_sent
   defp send_unlock_instructions_mail_to_user(user, token, module, config) do
     email = Haytni.LockableEmail.unlock_instructions_email(user, token, module, config)
     Haytni.send_email(module, email)
   end
 
-  @spec send_instructions_in_multi(multi :: Ecto.Multi.t, user :: Haytni.user, token_name :: Ecto.Multi.name, module :: module, config :: Config.t) :: Ecto.Multi.t
+  @spec send_instructions_in_multi(multi :: Ecto.Multi.t, user :: Haytni.user, token_name :: Ecto.Multi.name, module :: module, config :: t) :: Ecto.Multi.t
   defp send_instructions_in_multi(multi = %Ecto.Multi{}, user, token_name, module, config) do
     Ecto.Multi.run(
       multi,
@@ -276,17 +276,17 @@ defmodule Haytni.LockablePlugin do
   @doc ~S"""
   Returns `true` if it's the last attempt before account locking in case of a new sign-in failure
   """
-  @spec last_attempt?(user :: Haytni.user, config :: Config.t) :: boolean
-  def last_attempt?(user = %_{}, config = %Haytni.LockablePlugin.Config{}) do
+  @spec last_attempt?(user :: Haytni.user, config :: t) :: boolean
+  def last_attempt?(user = %_{}, config = %__MODULE__{}) do
     user.failed_attempts == config.maximum_attempts - 1
   end
 
   @doc ~S"""
   Returns `true` if `:email` strategy (included in `:both`) is enabled
   """
-  @spec email_strategy_enabled?(config :: Config.t) :: boolean
+  @spec email_strategy_enabled?(config :: t) :: boolean
   def email_strategy_enabled?(config) do
-    config.unlock_strategy in Config.email_strategies()
+    config.unlock_strategy in email_strategies()
   end
 
   use Haytni.Tokenable
@@ -328,7 +328,7 @@ defmodule Haytni.LockablePlugin do
 
   Returns the user as `{:ok, user}` if the token exists and `{:error, message}` if not.
   """
-  @spec unlock(module :: module, config :: Config.t, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
+  @spec unlock(module :: module, config :: t, token :: String.t) :: {:ok, Haytni.user} | {:error, String.t}
   def unlock(module, config, token) do
     if email_strategy_enabled?(config) do
       with(
@@ -353,7 +353,7 @@ defmodule Haytni.LockablePlugin do
   @doc ~S"""
   Converts the "raw" parameters received by the controller to request a new token to unlock its account to an `%Ecto.Changeset{}`
   """
-  @spec unlock_request_changeset(config :: Config.t, request_params :: Haytni.params) :: Ecto.Changeset.t
+  @spec unlock_request_changeset(config :: t, request_params :: Haytni.params) :: Ecto.Changeset.t
   def unlock_request_changeset(config, request_params \\ %{}) do
     Haytni.Helpers.to_changeset(request_params, nil, [:referer | config.unlock_keys], config.unlock_keys)
   end
@@ -378,7 +378,7 @@ defmodule Haytni.LockablePlugin do
     * `{:ok, user}`: an email has been sent
     * `{:error, changeset}`: form fields are invalid (empty) or `:email` (reminder: included by `:both`) strategy is disabled
   """
-  @spec resend_unlock_instructions(module :: module, config :: Config.t, request_params :: Haytni.params) :: {:ok, Haytni.nilable(Haytni.user)} | {:error, Ecto.Changeset.t}
+  @spec resend_unlock_instructions(module :: module, config :: t, request_params :: Haytni.params) :: {:ok, Haytni.nilable(Haytni.user)} | {:error, Ecto.Changeset.t}
   def resend_unlock_instructions(module, config, request_params = %{}) do
     changeset = unlock_request_changeset(config, request_params)
 

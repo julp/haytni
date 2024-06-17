@@ -37,7 +37,7 @@ defmodule Haytni.LiveView.ConnectTest do
       ]
     end
 
-    defp connect_info_from_config(%Haytni.LiveViewPlugin.Config{remote_ip_header: nil}) do
+    defp connect_info_from_config(%Haytni.LiveViewPlugin{remote_ip_header: nil}) do
       %{
         peer_data: %{
           address: @ip,
@@ -45,7 +45,7 @@ defmodule Haytni.LiveView.ConnectTest do
       }
     end
 
-    defp connect_info_from_config(%Haytni.LiveViewPlugin.Config{remote_ip_header: foward_header}) do
+    defp connect_info_from_config(%Haytni.LiveViewPlugin{remote_ip_header: foward_header}) do
       %{
         peer_data: %{
           address: {127, 0, 0, 1},
@@ -57,7 +57,7 @@ defmodule Haytni.LiveView.ConnectTest do
       }
     end
 
-    defp do_connect(module, config = %Haytni.LiveViewPlugin.Config{}, token) do
+    defp do_connect(module, config = %Haytni.LiveViewPlugin{}, token) do
       connect_info =
         config
         |> connect_info_from_config()

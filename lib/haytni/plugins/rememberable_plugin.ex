@@ -2,7 +2,11 @@ defmodule Haytni.RememberablePlugin do
   @default_remember_for {2, :week}
   @default_remember_cookie_name "remember_token"
   @default_remember_cookie_options [
+    #domain:
+    #max_age:
+    #path:
     http_only: true,
+    #secure:
     same_site: "Strict",
   ]
 
@@ -25,30 +29,23 @@ defmodule Haytni.RememberablePlugin do
   Routes: none
   """
 
-  defmodule Config do
-    defstruct remember_for: {2, :week},
-      remember_cookie_name: "remember_token",
-      remember_cookie_options: [
-        #domain:
-        #max_age:
-        #path:
-        http_only: true,
-        #secure:
-        same_site: "Strict",
-      ]
+  defstruct [
+    remember_for: @default_remember_for,
+    remember_cookie_name: @default_remember_cookie_name,
+    remember_cookie_options: @default_remember_cookie_options,
+  ]
 
-    @type t :: %__MODULE__{
-      remember_for: Haytni.duration,
-      remember_cookie_name: String.t,
-      remember_cookie_options: Keyword.t,
-    }
-  end
+  @type t :: %__MODULE__{
+    remember_for: Haytni.duration,
+    remember_cookie_name: String.t,
+    remember_cookie_options: Keyword.t,
+  }
 
   use Haytni.Plugin
 
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
-    %Haytni.RememberablePlugin.Config{}
+    %__MODULE__{}
     |> Haytni.Helpers.merge_config(options, ~W[remember_for]a)
   end
 
@@ -103,18 +100,18 @@ defmodule Haytni.RememberablePlugin do
 
   Returns the updated `%Plug.Conn{}` with our rememberme cookie
   """
-  @spec add_rememberme_cookie(conn :: Plug.Conn.t, remember_token :: String.t, config :: Config.t) :: Plug.Conn.t
+  @spec add_rememberme_cookie(conn :: Plug.Conn.t, remember_token :: String.t, config :: t) :: Plug.Conn.t
   def add_rememberme_cookie(conn = %Plug.Conn{}, remember_token, config) do
     conn
     |> Plug.Conn.put_resp_cookie(config.remember_cookie_name, remember_token, remember_cookie_options_with_max_age(config))
   end
 
-  @spec remove_rememberme_cookie(conn :: Plug.Conn.t, config :: Config.t) :: Plug.Conn.t
+  @spec remove_rememberme_cookie(conn :: Plug.Conn.t, config :: t) :: Plug.Conn.t
   defp remove_rememberme_cookie(conn = %Plug.Conn{}, config) do
     Plug.Conn.delete_resp_cookie(conn, config.remember_cookie_name, remember_cookie_options_with_max_age(config))
   end
 
-  @spec remember_cookie_options_with_max_age(config :: Config.t) :: Keyword.t
+  @spec remember_cookie_options_with_max_age(config :: t) :: Keyword.t
   defp remember_cookie_options_with_max_age(config) do
     config.remember_cookie_options
     |> Keyword.put_new(:sign, true)

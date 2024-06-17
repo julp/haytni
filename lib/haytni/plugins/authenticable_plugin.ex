@@ -70,27 +70,27 @@ defmodule Haytni.AuthenticablePlugin do
 
   import Haytni.Gettext
 
-  defmodule Config do
-    defstruct hashing_method: nil,
-      hashing_options: nil,
-      authentication_keys: ~W[email]a,
-      sign_in_return_path: "/",
-      sign_out_return_path: "/"
+  defstruct [
+    hashing_method: nil,
+    hashing_options: nil,
+    authentication_keys: @default_authentication_keys,
+    sign_in_return_path: @default_sign_in_return_path,
+    sign_out_return_path: @default_sign_out_return_path,
+  ]
 
-    @type t :: %__MODULE__{
-      hashing_method: module,
-      hashing_options: %{optional(atom) => any},
-      authentication_keys: [atom, ...],
-      sign_in_return_path: String.t,
-      sign_out_return_path: String.t,
-    }
-  end
+  @type t :: %__MODULE__{
+    hashing_method: module,
+    hashing_options: %{optional(atom) => any},
+    authentication_keys: [atom, ...],
+    sign_in_return_path: String.t,
+    sign_out_return_path: String.t,
+  }
 
   use Haytni.Plugin
 
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
-    %Haytni.AuthenticablePlugin.Config{}
+    %__MODULE__{}
     |> Haytni.Helpers.merge_config(options)
   end
 
@@ -156,7 +156,7 @@ defmodule Haytni.AuthenticablePlugin do
   Converts the parameters received for authentication by the controller in a `%Ecto.Changeset{}` to handle and validate
   user inputs according to plugin's configuration (`authentication_keys`).
   """
-  @spec session_changeset(config :: Config.t, request_params :: Haytni.params) :: Ecto.Changeset.t
+  @spec session_changeset(config :: t, request_params :: Haytni.params) :: Ecto.Changeset.t
   def session_changeset(config, session_params \\ %{}) do
     Haytni.Helpers.to_changeset(session_params, nil, [:password | config.authentication_keys])
   end
@@ -178,7 +178,7 @@ defmodule Haytni.AuthenticablePlugin do
     * `{:error, changeset}` if credentials are incorrect or *user* is invalid (rejected by a
       `Haytni.Plugin.invalid?` callback by a plugin in the stack)
   """
-  @spec authenticate(conn :: Plug.Conn.t, module :: module, config :: Config.t, session_params :: Haytni.params) :: Haytni.repo_nobang_operation(Plug.Conn.t)
+  @spec authenticate(conn :: Plug.Conn.t, module :: module, config :: t, session_params :: Haytni.params) :: Haytni.repo_nobang_operation(Plug.Conn.t)
   def authenticate(conn = %Plug.Conn{}, module, config, session_params = %{}) do
     changeset = session_changeset(config, session_params)
 
@@ -210,10 +210,10 @@ defmodule Haytni.AuthenticablePlugin do
   @doc ~S"""
   Returns `true` if *password* matches *user*'s current hash (*encrypted_password* field)
   """
-  @spec valid_password?(user :: Haytni.nilable(Haytni.user), password :: String.t, config :: Config.t) :: boolean
+  @spec valid_password?(user :: Haytni.nilable(Haytni.user), password :: String.t, config :: t) :: boolean
   def valid_password?(user, password, config)
 
-  def valid_password?(nil, password, config = %Config{})
+  def valid_password?(nil, password, config = %__MODULE__{})
     when is_binary(password)
   do
     hash_password(password, config) # for timing attacks
@@ -231,7 +231,7 @@ defmodule Haytni.AuthenticablePlugin do
 
   Returns the hash of the password after having hashed it
   """
-  @spec hash_password(password :: String.t, config :: Config.t) :: String.t
+  @spec hash_password(password :: String.t, config :: t) :: String.t
   def hash_password(password, config) do
     ExPassword.hash(config.hashing_method, password, config.hashing_options)
   end
@@ -244,7 +244,7 @@ if false do
   The modified changeset is returned.
   """
 end
-  @spec hash_password(changeset :: Ecto.Changeset.t, password :: String.t, config :: Config.t) :: Ecto.Changeset.t
+  @spec hash_password(changeset :: Ecto.Changeset.t, password :: String.t, config :: t) :: Ecto.Changeset.t
   defp hash_password(changeset = %Ecto.Changeset{}, password, config) do
     Ecto.Changeset.change(changeset, encrypted_password: hash_password(password, config), password: nil)
   end

@@ -23,7 +23,7 @@ defmodule Haytni.Lockable.LockedTest do
       ]
     end
 
-    for strategy <- Haytni.LockablePlugin.Config.available_strategies() do
+    for strategy <- Haytni.LockablePlugin.available_strategies() do
       test "ensures non-locked account is not invalid (strategy: #{strategy})", %{config: config, unlocked: unlocked} do
         refute @plugin.locked?(unlocked, config)
       end

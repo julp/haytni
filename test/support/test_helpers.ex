@@ -313,7 +313,7 @@ defmodule Haytni.TestHelpers do
     2. expires (its max age) at least in `config.remember_for` seconds from now
     3. its signed value match (the rememberable) *token*
   """
-  @spec assert_rememberme_presence(conn :: Plug.Conn.t, config :: Haytni.RememberablePlugin.Config.t, token :: String.t) :: {:ok, String.t}
+  @spec assert_rememberme_presence(conn :: Plug.Conn.t, config :: Haytni.RememberablePlugin.t, token :: String.t) :: {:ok, String.t}
   def assert_rememberme_presence(conn, config, token) do
     conn = Plug.Conn.fetch_cookies(conn, signed: [config.remember_cookie_name])
     {:ok, cookie} = Map.fetch(conn.resp_cookies, config.remember_cookie_name)

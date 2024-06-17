@@ -26,14 +26,15 @@ defmodule Haytni.ClearSiteDataPlugin do
   Routes: none
   """
 
-  defmodule Config do
-    defstruct ~W[login logout]a
+  defstruct [
+    login: @default_login,
+    logout: @default_logout,
+  ]
 
-    @type t :: %__MODULE__{
-      login: [String.t],
-      logout: [String.t],
-    }
-  end
+  @type t :: %__MODULE__{
+    login: [String.t],
+    logout: [String.t],
+  }
 
   defp check_clear_site_data_values(nil, default), do: default
   defp check_clear_site_data_values(:all, _default), do: @possible_values
@@ -66,7 +67,7 @@ defmodule Haytni.ClearSiteDataPlugin do
 
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
-    %Haytni.ClearSiteDataPlugin.Config{
+    %__MODULE__{
       login: options[:login] |> check_clear_site_data_values(@default_login),
       logout: options[:logout] |> check_clear_site_data_values(@default_logout),
     }

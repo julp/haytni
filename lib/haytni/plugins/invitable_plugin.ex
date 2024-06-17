@@ -42,27 +42,27 @@ defmodule Haytni.InvitablePlugin do
 
   @type invitation :: struct
 
-  defmodule Config do
-    defstruct invitation_quota: :infinity,
-      email_matching_invitation: false,
-      invitation_required: true,
-      invitation_within: {30, :day},
-      invitation_sent_to_index_name: nil
+  defstruct [
+    invitation_quota: @default_invitation_quota,
+    invitation_within: @default_invitation_within,
+    invitation_required: @default_invitation_required,
+    email_matching_invitation: @default_email_matching_invitation,
+    invitation_sent_to_index_name: @default_invitation_sent_to_index_name,
+]
 
-    @type t :: %__MODULE__{
-      invitation_quota: :infinity | {pos_integer, :total | :unaccepted},
-      email_matching_invitation: boolean,
-      invitation_required: boolean,
-      invitation_within: Haytni.duration,
-      invitation_sent_to_index_name: atom | String.t | nil,
-    }
-  end
+  @type t :: %__MODULE__{
+    invitation_quota: :infinity | {pos_integer, :total | :unaccepted},
+    email_matching_invitation: boolean,
+    invitation_required: boolean,
+    invitation_within: Haytni.duration,
+    invitation_sent_to_index_name: atom | String.t | nil,
+  }
 
   use Haytni.Plugin
 
   @impl Haytni.Plugin
   def build_config(options \\ %{}) do
-    %Haytni.InvitablePlugin.Config{}
+    %__MODULE__{}
     |> Haytni.Helpers.merge_config(options, ~W[invitation_within]a)
   end
 
@@ -234,7 +234,7 @@ defmodule Haytni.InvitablePlugin do
     @doc ~S"""
     Composes *query* to filter on non-expired invitations
     """
-    @spec and_where_not_expired(query :: Ecto.Queryable.t, config :: Haytni.InvitablePlugin.Config.t) :: Ecto.Query.t
+    @spec and_where_not_expired(query :: Ecto.Queryable.t, config :: Haytni.InvitablePlugin.t) :: Ecto.Query.t
     def and_where_not_expired(query, config) do
       from(i in query, where: i.sent_at > ago(^config.invitation_within, "second"))
     end
@@ -263,7 +263,7 @@ defmodule Haytni.InvitablePlugin do
     Composes *query* for *email* to match the address it was sent to only if
     `email_matching_invitation` is `true` (else returns the query as it was)
     """
-    @spec and_where_email_equals(query :: Ecto.Queryable.t, email :: String.t, config :: Haytni.InvitablePlugin.Config.t) :: Ecto.Queryable.t
+    @spec and_where_email_equals(query :: Ecto.Queryable.t, email :: String.t, config :: Haytni.InvitablePlugin.t) :: Ecto.Queryable.t
     def and_where_email_equals(query, email, config)
       when is_binary(email) # exclude email = nil
     do
@@ -275,7 +275,7 @@ defmodule Haytni.InvitablePlugin do
     end
   end
 
-  @spec validate_invitation(changeset :: Ecto.Changeset.t, config :: Config.t) :: Ecto.Changeset.t
+  @spec validate_invitation(changeset :: Ecto.Changeset.t, config :: t) :: Ecto.Changeset.t
   defp validate_invitation(changeset = %Ecto.Changeset{valid?: true, changes: %{invitation: code}}, config)
     when not is_nil(code)
   do
@@ -306,7 +306,7 @@ defmodule Haytni.InvitablePlugin do
     changeset
   end
 
-  defp validate_invitation(changeset, %Config{invitation_required: true}) do
+  defp validate_invitation(changeset, %__MODULE__{invitation_required: true}) do
     Haytni.Helpers.add_base_error(changeset, invitation_required_message())
   end
 
@@ -345,7 +345,7 @@ defmodule Haytni.InvitablePlugin do
     end)
   end
 
-  @spec send_invitation_mail(user :: Haytni.user, invitation :: invitation, module :: module, config :: Config.t) :: {:ok, true}
+  @spec send_invitation_mail(user :: Haytni.user, invitation :: invitation, module :: module, config :: t) :: {:ok, true}
   defp send_invitation_mail(user, invitation, module, config) do
     email = Haytni.InvitableEmail.invitation_email(user, invitation, module, config)
     Haytni.send_email(module, email)
@@ -358,7 +358,7 @@ defmodule Haytni.InvitablePlugin do
     This function converts the parameters received by the controller to send a new invitation by email to an `%Ecto.Changeset{}`,
     a convenient way to perform basic validations, any intermediate handling and casting.
     """
-    @spec invitation_changeset(config :: Config.t, invitation_params :: Haytni.params) :: Ecto.Changeset.t
+    @spec invitation_changeset(config :: t, invitation_params :: Haytni.params) :: Ecto.Changeset.t
     def invitation_changeset(_config, invitation_params \\ %{}) do
       invitation_params
       |> Haytni.Helpers.to_changeset(nil, ~W[email]a)
@@ -414,7 +414,7 @@ defmodule Haytni.InvitablePlugin do
   @doc ~S"""
   Converts an invitation to an `Ecto.Changeset` by applying the changes from *params*
   """
-  @spec invitation_to_changeset(invitation :: invitation, config :: Config.t, params :: Haytni.params) :: Ecto.Changeset.t
+  @spec invitation_to_changeset(invitation :: invitation, config :: t, params :: Haytni.params) :: Ecto.Changeset.t
   def invitation_to_changeset(invitation, config, params \\ %{}) do
     invitation.__struct__.changeset(config, invitation, params)
   end
@@ -424,7 +424,7 @@ defmodule Haytni.InvitablePlugin do
 
   Note: there is no checking and invitation.sender must have been preloaded
   """
-  @spec resend_information(module :: module, config :: Config.t, invitation :: invitation) :: {:ok, true}
+  @spec resend_information(module :: module, config :: t, invitation :: invitation) :: {:ok, true}
   def resend_information(module, config, invitation) do
     send_invitation_mail(invitation.sender, invitation, module, config)
   end
@@ -442,7 +442,7 @@ defmodule Haytni.InvitablePlugin do
   @doc ~S"""
   Sends an invitation (by email) from *user* after checking if its quota (`invitation_quota`) allows it to
   """
-  @spec send_invitation(module :: module, config :: Config.t, invitation_params :: Haytni.params, user :: Haytni.user) :: Haytni.repo_nobang_operation(invitation)
+  @spec send_invitation(module :: module, config :: t, invitation_params :: Haytni.params, user :: Haytni.user) :: Haytni.repo_nobang_operation(invitation)
   def send_invitation(module, config, invitation_params, user) do
     changeset =
       user
