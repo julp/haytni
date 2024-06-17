@@ -52,24 +52,25 @@ defmodule Haytni.TrackablePlugin do
   end
 
   def __after_compile__(env, _bytecode) do
-    contents = quote do
-      use Ecto.Schema
-      import Ecto.Changeset
+    contents =
+      quote do
+        use Ecto.Schema
+        import Ecto.Changeset
 
-      schema "#{unquote(env.module.__schema__(:source))}_connections" do
-        field :ip, unquote(Module.get_attribute(env.module, :__ip_type__))
-        timestamps(updated_at: false, type: :utc_datetime)
+        schema unquote("#{env.module.__schema__(:source)}_connections") do
+          field :ip, unquote(Module.get_attribute(env.module, :__ip_type__))
+          timestamps(updated_at: false, type: :utc_datetime)
 
-        belongs_to unquote(String.to_atom(Phoenix.Naming.resource_name(env.module))), unquote(env.module)
+          belongs_to unquote(String.to_atom(Phoenix.Naming.resource_name(env.module))), unquote(env.module)
+        end
+
+        @attributes ~W[ip]a
+        def changeset(struct = %__MODULE__{}, params \\ %{}) do
+          struct
+          |> cast(params, @attributes)
+          |> validate_required(@attributes)
+        end
       end
-
-      @attributes ~W[ip]a
-      def changeset(struct = %__MODULE__{}, params \\ %{}) do
-        struct
-        |> cast(params, @attributes)
-        |> validate_required(@attributes)
-      end
-    end
 
     Module.create(env.module.__schema__(:association, :connections).related, contents, env)
   end
