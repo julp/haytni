@@ -12,7 +12,7 @@ defmodule Haytni.ConfirmableEmail.EmailChangedTest do
         user = %HaytniTest.User{email: "abc@def.ghi"}
         email = Haytni.ConfirmableEmail.email_changed(user, @old_address, @stack, config)
 
-        assert email.to == @old_address
+        assert email.to == [@old_address]
         assert email.from == @mailer.from()
 
         welcome_message = "Hello #{@old_address}!"

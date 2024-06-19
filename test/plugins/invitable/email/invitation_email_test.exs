@@ -11,7 +11,7 @@ defmodule Haytni.InvitableEmail.InvitationEmailTest do
       invitation = @plugin.build_and_assoc_invitation(user, code: "0123456789", sent_to: "receiver@domain.com")
       email = Haytni.InvitableEmail.invitation_email(user, invitation, @stack, config)
 
-      assert email.to == invitation.sent_to
+      assert email.to == [invitation.sent_to]
       assert email.from == @mailer.from()
 
       hello_message = "Hello #{invitation.sent_to}!"

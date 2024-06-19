@@ -11,7 +11,7 @@ defmodule Haytni.RecoverableEmail.ResetPasswordEmailTest do
       user = %HaytniTest.User{email: "abc@def.ghi"}
       email = Haytni.RecoverableEmail.reset_password_email(user, token, @stack, config)
 
-      assert email.to == user.email
+      assert email.to == [user.email]
       assert email.from == @mailer.from()
 
       hello_message = "Hello #{user.email}!"

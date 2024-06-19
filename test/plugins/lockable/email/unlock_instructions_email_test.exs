@@ -11,7 +11,7 @@ defmodule Haytni.LockableEmail.UnlockInstructionsEmailTest do
       user = %HaytniTest.User{email: "abc@def.ghi"}
       email = Haytni.LockableEmail.unlock_instructions_email(user, token, @stack, config)
 
-      assert email.to == user.email
+      assert email.to == [user.email]
       assert email.from == @mailer.from()
 
       hello_message = "Hello #{user.email}!"

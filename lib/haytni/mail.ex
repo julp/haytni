@@ -3,12 +3,18 @@ defmodule Haytni.Mail do
   An abstraction layer to build emails before actually sending them
   """
 
-  #@type recipient :: {String.t, String.t}
+  @type name :: String.t
+  @type address :: String.t
+  # Haytni.user (struct) could be supported if user defimp Swoosh.Email.Recipient/Bamboo.Formatter
+  @type recipient :: address | {name, address}
+  @type recipients :: [recipient]
 
   @type t :: %__MODULE__{
     assigns: %{atom => any},
-    to: any, # TODO: Haytni.user ?
-    from: any,
+    to: recipients,
+    cc: recipients,
+    bcc: recipients,
+    from: recipient, # there is one Sender but could have multiple From, so it should be `recipients`?
     views: [module],
     subject: Haytni.nilable(String.t),
     html_body: Haytni.nilable(String.t),
@@ -16,9 +22,12 @@ defmodule Haytni.Mail do
     headers: %{String.t => String.t},
   }
 
+  @recipients_header ~W[to cc bcc]a
+  @other_headers_with_a_field ~W[subject from]a
+
   # TODO: layout ?
   #defstruct assigns: %{}, from: nil, to: nil, subject: nil, html_body: nil, text_body: nil, views: []
-  defstruct ~W[assigns from to subject headers html_body text_body views]a
+  defstruct ~W[assigns headers html_body text_body views]a ++ @recipients_header ++ @other_headers_with_a_field
 
   @doc ~S"""
   Creates (initializes) an empty email
@@ -27,7 +36,9 @@ defmodule Haytni.Mail do
   def new do
     %__MODULE__{
       assigns: %{},
-      to: nil,
+      to: [],
+      cc: [],
+      bcc: [],
       from: nil,
       subject: nil,
       html_body: nil,
@@ -37,11 +48,14 @@ defmodule Haytni.Mail do
     }
   end
 
-  for field <- ~W[to subject]a do
-    @spec unquote(field)(email :: t, value :: any) :: t
-    def unquote(field)(email = %__MODULE__{}, value) do
-      %{email | unquote(field) => value}
-    end
+  @doc ~S"""
+  Sets the *subject* header of *email*
+  """
+  @spec subject(email :: t, subject :: String.t) :: t
+  def subject(email = %__MODULE__{}, subject)
+    when is_binary(subject)
+  do
+    %{email | subject: subject}
   end
 
   @doc ~S"""
@@ -58,9 +72,33 @@ defmodule Haytni.Mail do
     %{email | from: from}
   end
 
-  for name <- ~W[from to] do
-    defp do_put_header(_email, name = unquote(name), _value) do
+  def to(email = %__MODULE__{}, recipients) do
+    put_to(email, List.wrap(recipients))
+  end
+
+  for field <- @recipients_header do
+    @spec unquote(:"put_#{field}")(email :: t, recipients :: recipients) :: t
+    def unquote(:"put_#{field}")(email = %__MODULE__{}, recipients)
+      when is_list(recipients)
+    do
+      %{email | unquote(field) => recipients}
+    end
+
+    @spec unquote(:"add_#{field}")(email :: t, recipient :: recipient) :: t
+    def unquote(:"add_#{field}")(email = %__MODULE__{unquote(field) => recipients}, recipient) do
+      %{email | unquote(field) => [recipient | recipients]}
+    end
+  end
+
+  for name <- @other_headers_with_a_field do
+    defp do_put_header(_email, name = unquote(to_string(name)), _value) do
       raise "Use #{name}/3 to set the #{name} header instead of put_header/3"
+    end
+  end
+
+  for name <- @recipients_header do
+    defp do_put_header(_email, name = unquote(to_string(name)), _value) do
+      raise "Use put_#{name}/2 or add_#{name}/2 instead of put_header/3"
     end
   end
 

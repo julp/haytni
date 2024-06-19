@@ -50,7 +50,7 @@ defmodule Haytni.Mailer.TestAdapter do
   end
 
   defp assert_match(email, field, pattern)
-    when field in ~W[from to subject html_body text_body headers views]a
+    when field in ~W[from to cc bcc subject html_body text_body headers views]a
   do
     email
     |> Map.get(field)
@@ -105,7 +105,7 @@ defmodule Haytni.Mailer.TestAdapter do
   assert_email_sent(email)
 
   [
-    to: user.email,
+    to: [user.email],
     subject: ~r/\bHello\b/i,
     text_body: &(String.contains(&1, user.name)),
   ]

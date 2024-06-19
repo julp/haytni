@@ -11,7 +11,7 @@ defmodule Haytni.ConfirmableEmail.ConfirmationEmailTest do
       user = %HaytniTest.User{email: "abc@def.ghi"}
       email = Haytni.ConfirmableEmail.confirmation_email(user, confirmation_token, @stack, config)
 
-      assert email.to == user.email
+      assert email.to == [user.email]
       assert email.from == @mailer.from()
 
       welcome_message = "Welcome #{user.email},"
