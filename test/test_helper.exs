@@ -61,7 +61,7 @@ binding = [
   table: HaytniTestWeb.HaytniAdmin.schema().__schema__(:source),
 ]
 
-~W[0-tokens_creation.exs 0-lockable_changes.exs]
+~W[0-tokens_creation.exs 0-lockable_changes.exs 0-last_seen_changes.exs]
 |> Enum.reduce(
   42,
   fn migration, acc ->

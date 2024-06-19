@@ -6,11 +6,6 @@ defmodule <%= [:Haytni, "Migrations", camelized_scope, "TrackableChanges"] |> Mo
       # NOP
     end
 
-    alter table(users_table) do
-      add :current_sign_in_at, :utc_datetime, default: nil
-      add :last_sign_in_at, :utc_datetime, default: nil
-    end
-
     ip_opts = [null: false]
     {ip_type, ip_opts} = case repo().__adapter__() do
       Ecto.Adapters.Postgres ->

@@ -3,5 +3,6 @@ defmodule HaytniTestWeb.HaytniAdmin do
 
   stack Haytni.AuthenticablePlugin, hashing_method: ExPassword.Bcrypt, hashing_options: %{cost: 4}
   stack Haytni.LockablePlugin
+  stack Haytni.LastSeenPlugin
   stack Haytni.TrackablePlugin
 end

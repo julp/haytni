@@ -7,6 +7,7 @@ defmodule HaytniTestWeb.Haytni do
   stack Haytni.ConfirmablePlugin
   stack Haytni.LockablePlugin
   stack Haytni.RecoverablePlugin
+  stack Haytni.LastSeenPlugin
   stack Haytni.TrackablePlugin
   stack Haytni.PasswordPolicyPlugin
   stack Haytni.InvitablePlugin, invitation_required: false

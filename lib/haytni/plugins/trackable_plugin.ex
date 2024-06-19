@@ -2,19 +2,9 @@ defmodule Haytni.TrackablePlugin do
   @default_on_delete nil
 
   @moduledoc """
-  This module keeps tracks of the following elements:
+  This module keeps tracks of the remote address IP used by the client at each of its sign in (in a table apart)
 
-    * the remote address IP used by the client at each of its sign in (in a table apart)
-    * when he lastly signed in
-
-  To do so a new module will be dynamically created by suffixing "Connection" to the module of your user's schema (eg: YourApp.User => YourApp.UserConnection)
-
-  Fields:
-
-    * last_sign_in_at (datetime@utc, nullable, default: `NULL`): date/time when the current session was started, `nil` if the user has never signed in
-    * current_sign_in_at (datetime@utc, nullable, default: `NULL`): date/time when the previous session was started, `nil` if the user has never signed in at least twice
-
-  Note that the previous fields can be `nil`, don't forget to handle this specific case!
+  Fields: none
 
   Configuration:
 
@@ -22,7 +12,7 @@ defmodule Haytni.TrackablePlugin do
 
       + `:soft_cascade` to delete all connections related to the user being removed. Use it only if you don't want to keep these data and soft delete the user (else just rely on
         the `ON DELETE CASCADE` option of the foreign key)
-      + `nil` (or any other value) does nothing
+      + `nil` (or any other value) this plugin does nothing (note: with `ON DELETE CASCADE` the SGBD will still drop all user's connections when you delete it - depends if and how you implement `c:Haytni.Plugin.on_delete_user/4`)
 
   Routes: none
   """
@@ -88,9 +78,6 @@ defmodule Haytni.TrackablePlugin do
 
       @after_compile Haytni.TrackablePlugin
 
-      field :last_sign_in_at, :utc_datetime
-      field :current_sign_in_at, :utc_datetime
-
       has_many :connections, Haytni.Helpers.scope_module(__MODULE__, "Connection")
     end
   end
@@ -114,12 +101,7 @@ end
 
   @impl Haytni.Plugin
   def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config) do
-    changes =
-      keywords
-      |> Keyword.put(:current_sign_in_at, Haytni.Helpers.now())
-      |> Keyword.put(:last_sign_in_at, user.current_sign_in_at)
-
-    {conn, add_connection_to_multi(multi, conn, user), changes}
+    {conn, add_connection_to_multi(multi, conn, user), keywords}
   end
 
   @impl Haytni.Plugin

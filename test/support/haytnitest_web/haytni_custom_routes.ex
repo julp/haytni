@@ -7,6 +7,7 @@ defmodule HaytniTestWeb.HaytniCustomRoutes do
   stack Haytni.ConfirmablePlugin
   stack Haytni.LockablePlugin
   stack Haytni.RecoverablePlugin
+  #stack Haytni.LastSeenPlugin
   #stack Haytni.TrackablePlugin
   #stack Haytni.PasswordPolicyPlugin
 end

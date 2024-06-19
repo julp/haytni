@@ -4,18 +4,7 @@ defmodule Haytni.Trackable.FieldsTest do
     plugin: Haytni.TrackablePlugin,
   ]
 
-  @fields ~W[last_sign_in_at current_sign_in_at]a
   describe "Haytni.TrackablePlugin.fields/0 (callback)" do
-    test "ensures User schema contains necessary fields" do
-      user = %HaytniTest.User{}
-
-      assert contains?(Map.keys(user), @fields)
-    end
-
-    test "ensures User struct contains necessary fields" do
-      assert contains?(HaytniTest.User.__schema__(:fields), @fields)
-    end
-
     for {association, table, user_schema} <- [{:user, "users_connections", HaytniTest.User}, {:admin, "admins_connections", HaytniTest.Admin}] do
       test "ensures connections relation exists for #{user_schema}" do
         assert :connections in unquote(user_schema).__schema__(:associations)

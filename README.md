@@ -36,7 +36,8 @@ Plugins:
 * [confirmable](https://hexdocs.pm/haytni/Haytni.ConfirmablePlugin.html) (`Haytni.ConfirmablePlugin`): accounts have to be validated by email
 * [recoverable](https://hexdocs.pm/haytni/Haytni.RecoverablePlugin.html) (`Haytni.RecoverablePlugin`): recover for a forgotten password
 * [lockable](https://hexdocs.pm/haytni/Haytni.LockablePlugin.html) (`Haytni.LockablePlugin`): automatic lock an account after a number of failed attempts to sign in
-* [trackable](https://hexdocs.pm/haytni/Haytni.TrackablePlugin.html) (`Haytni.TrackablePlugin`): register users's connections (IP + when)
+* [last_seen](https://hexdocs.pm/haytni/Haytni.LastSeenPlugin.html) (`Haytni.LastSeenPlugin`): register the last time a user signed in
+* [trackable](https://hexdocs.pm/haytni/Haytni.TrackablePlugin.html) (`Haytni.TrackablePlugin`): register users's connections (the IP addresses he used)
 * [invitable](https://hexdocs.pm/haytni/Haytni.InvitablePlugin.html) (`Haytni.InvitablePlugin`): registration on invitation or sponsorship
 * [password policy](https://hexdocs.pm/haytni/Haytni.PasswordPolicyPlugin.html) (`Haytni.PasswordPolicyPlugin`): basic validations against passwords (length and minimal character types presence)
 * [liveview](https://hexdocs.pm/haytni/Haytni.LiveViewPlugin.html) (`Haytni.LiveViewPlugin`): provides authentication to channels and liveview if the *\_csrf\_token* cookie is not available

@@ -11,9 +11,13 @@ defmodule Haytni.InstallTaskTest do
     Haytni.RecoverablePlugin,
     Haytni.RegisterablePlugin,
     Haytni.RememberablePlugin,
+    Haytni.LastSeenPlugin,
     Haytni.TrackablePlugin,
     Haytni.InvitablePlugin,
     Haytni.LiveViewPlugin,
+    Haytni.ClearSiteDataPlugin,
+    Haytni.EncryptedEmailPlugin,
+    Haytni.AnonymizationPlugin,
   ]
 
   @spec file_list_for(plugin :: module, scope :: String.t, table :: String.t, camelized_scope :: String.t) :: [{String.t, Haytni.TestHelpers.match}]
@@ -79,6 +83,16 @@ defmodule Haytni.InstallTaskTest do
       {"priv/repo/migrations/*_haytni_trackable_#{scope}_changes.exs", [
         ~s'def change(users_table \\\\ "#{table}", scope \\\\ "#{scope}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.TrackableChanges do",
+      ]},
+    ]
+  end
+
+  defp file_list_for(Haytni.LastSeenPlugin, scope, table, camelized_scope) do
+    [
+      # migration
+      {"priv/repo/migrations/*_haytni_last_seen_#{scope}_changes.exs", [
+        ~s'def change(users_table \\\\ "#{table}") do',
+        "defmodule Haytni.Migrations.#{camelized_scope}.LastSeenChanges do",
       ]},
     ]
   end
@@ -193,6 +207,16 @@ defmodule Haytni.InstallTaskTest do
     ]
   end
 
+  defp file_list_for(Haytni.EncryptedEmailPlugin, scope, table, camelized_scope) do
+    [
+      # migration
+      {"priv/repo/migrations/*_haytni_encrypted_email_#{scope}_changes.exs", [
+        ~s'def change(table \\\\ "#{table}") do',
+        "defmodule Haytni.Migrations.#{camelized_scope}.EncryptedEmailChanges do",
+      ]},
+    ]
+  end
+
   defp file_list_for(_plugin, _scope, _table, _camelized_scope), do: []
 
   defp is_wildcard?(file) do
@@ -249,6 +273,10 @@ defmodule Haytni.InstallTaskTest do
               assert Haytni.TrackablePlugin in plugins == String.contains?(content, "stack Haytni.TrackablePlugin")
               assert Haytni.PasswordPolicyPlugin in plugins == String.contains?(content, "stack Haytni.PasswordPolicyPlugin")
               assert Haytni.InvitablePlugin in plugins == String.contains?(content, "stack Haytni.InvitablePlugin")
+              assert Haytni.LastSeenPlugin in plugins == String.contains?(content, "stack Haytni.LastSeenPlugin")
+              assert Haytni.EncryptedEmailPlugin in plugins == String.contains?(content, "stack Haytni.EncryptedEmailPlugin")
+              assert Haytni.AnonymizationPlugin in plugins == String.contains?(content, "stack Haytni.AnonymizationPlugin")
+              assert Haytni.ClearSiteDataPlugin in plugins == String.contains?(content, "stack Haytni.ClearSiteDataPlugin")
             end
           end
 
