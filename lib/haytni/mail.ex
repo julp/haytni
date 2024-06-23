@@ -10,23 +10,23 @@ defmodule Haytni.Mail do
   @type recipients :: [recipient]
 
   @type t :: %__MODULE__{
-    assigns: %{atom => any},
+    assigns: %{optional(atom) => any},
     to: recipients,
     cc: recipients,
     bcc: recipients,
-    from: recipient, # there is one Sender but could have multiple From, so it should be `recipients`?
+    from: Haytni.nilable(recipient), # there is one Sender but could have multiple From, so it should be `recipients`?
     views: [module],
     subject: Haytni.nilable(String.t),
     html_body: Haytni.nilable(String.t),
     text_body: Haytni.nilable(String.t),
-    headers: %{String.t => String.t},
+    headers: %{optional(String.t) => String.t},
   }
 
   @recipients_header ~W[to cc bcc]a
   @other_headers_with_a_field ~W[subject from]a
 
   # TODO: layout ?
-  #defstruct assigns: %{}, from: nil, to: nil, subject: nil, html_body: nil, text_body: nil, views: []
+  #defstruct assigns: %{}, from: nil, to: [], cc: [], bcc: [], subject: nil, html_body: nil, text_body: nil, views: [], headers: %{}
   defstruct ~W[assigns headers html_body text_body views]a ++ @recipients_header ++ @other_headers_with_a_field
 
   @doc ~S"""
@@ -72,6 +72,7 @@ defmodule Haytni.Mail do
     %{email | from: from}
   end
 
+  @spec to(email :: t, to :: recipient | recipients) :: t
   def to(email = %__MODULE__{}, recipients) do
     put_to(email, List.wrap(recipients))
   end
