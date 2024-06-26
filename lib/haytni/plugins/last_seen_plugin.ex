@@ -25,7 +25,7 @@ defmodule Haytni.LastSeenPlugin do
   end
 
   @impl Haytni.Plugin
-  def fields(module) do
+  def fields(_module) do
     quote do
       field :last_sign_in_at, :utc_datetime
       field :current_sign_in_at, :utc_datetime
