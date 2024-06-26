@@ -273,13 +273,13 @@ defmodule Haytni.TestHelpers do
 
   @doc ~S"""
   Returns `true` if *response* contains the HTML code resulting in applying
-  `Phoenix.HTML.Format.text_to_html/1` to *text*.
+  `PhoenixHTMLHelpers.Format.text_to_html/1` to *text*.
   """
   @spec contains_formatted_text?(response :: String.t, text :: String.t) :: boolean
   def contains_formatted_text?(response, text) do
     html =
       text
-      |> Phoenix.HTML.Format.text_to_html()
+      |> PhoenixHTMLHelpers.Format.text_to_html()
       |> Phoenix.HTML.safe_to_string()
       |> IO.iodata_to_binary()
 
