@@ -65,7 +65,7 @@ defmodule Haytni.RegisterablePlugin do
       index/constraint on email field
     * `registration_disabled?` (default: `#{inspect(@default_registration_disabled?)}`): disable any new registration (existing users are still able to login, edit their profile, ...)
     * `with_delete` (default: `#{inspect(@default_with_delete)}`): `true` to allow users to delete their own account (this mainly (en|dis)ables the route to reach the delete action of
-      the `HaytniWeb.Registerable.RegistrationController` controller)
+      the HaytniWeb.Registerable.RegistrationController controller)
     * `logout_on_deletion` (default: `#{inspect(@default_logout_on_deletion)}`): when `true` the user is also logged out. Set it to `false` if the user should keep its session active
       and navigating as this user
 
