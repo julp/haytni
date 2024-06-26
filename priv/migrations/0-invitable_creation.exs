@@ -2,9 +2,9 @@ defmodule <%= [:Haytni, "Migrations", camelized_scope, "InvitableCreation"] |> M
   use Ecto.Migration
 
   def change(users_table \\ <%= inspect(table) %>, _scope \\ <%= scope |> to_string() |> inspect() %>) do
+    invitations_table = "#{users_table}_invitations"
     cistring = Haytni.Migration.case_insensitive_string_type()
 
-    invitations_table = "#{users_table}_invitations"
     create table(invitations_table) do
       add :code, :string, null: false
       add :sent_by, references(users_table, on_delete: :delete_all, on_update: :update_all), null: false

@@ -1,8 +1,8 @@
 defmodule <%= [:Haytni, "Migrations", camelized_scope, "TestChanges"] |> Module.concat() |> inspect() %> do
   use Ecto.Migration
 
-  def change(table \\ <%= inspect(table) %>) do
-    create_if_not_exists table(table) do
+  def change(users_table \\ <%= inspect(table) %>) do
+    create_if_not_exists table(users_table) do
       # NOP
     end
 
@@ -11,7 +11,7 @@ defmodule <%= [:Haytni, "Migrations", camelized_scope, "TestChanges"] |> Module.
       add :name, :string
     end
 
-    alter table(table) do
+    alter table(users_table) do
       add :dummy, :boolean, null: false, default: false
 
       add :lastname, :string, null: true, default: nil

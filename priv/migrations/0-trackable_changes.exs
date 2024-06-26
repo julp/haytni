@@ -7,14 +7,15 @@ defmodule <%= [:Haytni, "Migrations", camelized_scope, "TrackableChanges"] |> Mo
     end
 
     ip_opts = [null: false]
-    {ip_type, ip_opts} = case repo().__adapter__() do
-      Ecto.Adapters.Postgres ->
-        {:inet, ip_opts}
-      _ ->
-        # NOTE: for MySQL, the ideal type would be to have a custom Ecto Type to store the result of its INET6_ATON function
-        # (or an Elixir/Erlang equivalent) as VARBINARY(16) via `dump` and apply INET6_NTOA at `load`
-        {:string, Keyword.put(ip_opts, :size, 39)}
-    end
+    {ip_type, ip_opts} =
+      case repo().__adapter__() do
+        Ecto.Adapters.Postgres ->
+          {:inet, ip_opts}
+        _ ->
+          # NOTE: for MySQL, the ideal type would be to have a custom Ecto Type to store the result of its INET6_ATON function
+          # (or an Elixir/Erlang equivalent) as VARBINARY(16) via `dump` and apply INET6_NTOA at `load`
+          {:string, Keyword.put(ip_opts, :size, 39)}
+      end
 
     fk = :"#{scope}_id"
     connections_table = "#{users_table}_connections"

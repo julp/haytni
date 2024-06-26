@@ -55,7 +55,7 @@ defmodule Haytni.InstallTaskTest do
       ]},
       # migration
       {"priv/repo/migrations/*_haytni_authenticable_#{scope}_changes.exs", [
-        ~s'def change(table \\\\ "#{table}") do',
+        ~s'def change(users_table \\\\ "#{table}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.AuthenticableCreation do",
       ]},
     ]
@@ -141,7 +141,7 @@ defmodule Haytni.InstallTaskTest do
       ]},
       # migration
       {"priv/repo/migrations/*_haytni_lockable_#{scope}_changes.exs", [
-        ~s'def change(table \\\\ "#{table}") do',
+        ~s'def change(users_table \\\\ "#{table}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.LockableChanges do",
       ]},
     ]
@@ -201,7 +201,7 @@ defmodule Haytni.InstallTaskTest do
       ]},
       # migration
       {"priv/repo/migrations/*_haytni_confirmable_#{scope}_changes.exs", [
-        ~s'def change(table \\\\ "#{table}") do',
+        ~s'def change(users_table \\\\ "#{table}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.ConfirmableChanges do",
       ]},
     ]
@@ -211,7 +211,7 @@ defmodule Haytni.InstallTaskTest do
     [
       # migration
       {"priv/repo/migrations/*_haytni_encrypted_email_#{scope}_changes.exs", [
-        ~s'def change(table \\\\ "#{table}") do',
+        ~s'def change(users_table \\\\ "#{table}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.EncryptedEmailChanges do",
       ]},
     ]
