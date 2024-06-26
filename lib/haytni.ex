@@ -123,7 +123,9 @@ defmodule Haytni do
       def init(_options), do: nil
 
       @impl Plug
-      def call(conn = %Plug.Conn{private: %{haytni: module}}, _options) do
+      def call(conn = %Plug.Conn{private: %{haytni: module}}, _options)
+        when module != __MODULE__
+      do
         raise ArgumentError, """
         More than one Haytni stack can't be applied to a same URL. A review of your router is required.
 
