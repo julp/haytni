@@ -26,7 +26,7 @@ defmodule Haytni.Registerable.RegistrationCreateControllerTest do
         assert response =~ "<form "
         assert response =~ "action=\"#{Routes.haytni_user_registration_path(conn, :create)}\""
         assert contains_text?(response, empty_message())
-        assert contains_text?(response, invalid_message())
+        assert contains_text?(response, invalid_format_message())
       end
     end
 

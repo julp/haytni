@@ -77,8 +77,10 @@ defmodule Haytni.Plugin do
 
   For example, you may want to have some kind of ban plugin. This is the way to decline the login:
 
-      def invalid?(%User{banned: true}, _module, _config), do: {:error, :banned} # or: {:error, dgettext("myapp", "you're banned")}
-      def invalid?(%User{banned: _}, _module, _config), do: false
+  ```elixir
+  def invalid?(%User{banned: true}, _module, _config), do: {:error, :banned} # or: {:error, dgettext("myapp", "you're banned")}
+  def invalid?(%User{banned: _}, _module, _config), do: false
+  ```
   """
   @callback invalid?(user :: Haytni.user, module :: module, config :: Haytni.config) :: false | {:error, atom}
 
@@ -96,9 +98,11 @@ defmodule Haytni.Plugin do
 
   For example, you can use it as follows to count the number of failed attempts to login:
 
-      def on_failed_authentication(user = %_{}, multi, keyword, _module, _config) do
-        {multi, Keyword.put(keyword, :failed_attempts, user.failed_attempts + 1)}
-      end
+  ```elixir
+  def on_failed_authentication(user = %_{}, multi, keyword, _module, _config) do
+    {multi, Keyword.put(keyword, :failed_attempts, user.failed_attempts + 1)}
+  end
+  ```
 
   Note: we choose to use and pass *keyword* as an accumulator to let the possibility to plugins
   to deal themselves on a conflict (several different plugins which want to alter a same field).
@@ -115,9 +119,11 @@ defmodule Haytni.Plugin do
   To continue our example with a failed attempts counter, on a successful authentication it may be
   a good idea to reset it in this scenario:
 
-      def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi, keywords, _module, _config) do
-        {conn, multi, Keyword.put(keywords, :failed_attempts, 0)}
-      end
+  ```elixir
+  def on_successful_authentication(conn = %Plug.Conn{}, user = %_{}, multi, keywords, _module, _config) do
+    {conn, multi, Keyword.put(keywords, :failed_attempts, 0)}
+  end
+  ```
   """
   @callback on_successful_authentication(conn :: Plug.Conn.t, user :: Haytni.user, multi :: Ecto.Multi.t, keywords :: Keyword.t, module :: module, config :: Haytni.config) :: {Plug.Conn.t, Ecto.Multi.t, Keyword.t}
 
@@ -143,13 +149,18 @@ defmodule Haytni.Plugin do
 
   The following example illustrate how to send a welcome mail:
 
-      def on_registration(multi = %Ecto.Multi{}, _module, _config) do
-        multi
-        |> Ecto.Multi.run(:send_welcome_email, fn _repo, %{user: user} ->
-          send_welcome_email_to(user)
-          {:ok, true}
-        end)
+  ```elixir
+  def on_registration(multi = %Ecto.Multi{}, _module, _config) do
+    multi
+    |> Ecto.Multi.run(
+      :send_welcome_email,
+      fn _repo, %{user: user} ->
+        send_welcome_email_to(user)
+        {:ok, true}
       end
+    )
+  end
+  ```
   """
   @callback on_registration(multi :: Ecto.Multi.t, module :: module, config :: Haytni.config) :: Ecto.Multi.t
 
@@ -158,26 +169,54 @@ defmodule Haytni.Plugin do
 
   It could, for example, be used to soft-delete it:
 
-      def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, _config) do
-        Ecto.Multi.update(multi, :user, user, Ecto.Changeset.change(user, deleted: true))
-      end
+  ```elixir
+  def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, _config) do
+    Ecto.Multi.update(multi, :user, user, Ecto.Changeset.change(user, deleted: true))
+  end
+  ```
 
   Or remove associated files, like its avatar:
 
-      def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, _config) do
-        multi
-        # delete the user from the database
-        |> Ecto.Multi.delete(:user_deletion, user)
-        # then its avatar
-        |> Ecto.Multi.run(:avatar_deletion, fn _repo, _changes ->
-          case File.rm(user.avatar) do
-            :ok -> {:ok, nil}
-            error -> error
-          end
-        end)
+  ```elixir
+  def on_delete_user(multi = %Ecto.Multi{}, user = %_{}, _module, _config) do
+    multi
+    # delete the user from the database
+    |> Ecto.Multi.delete(:user_deletion, user)
+    # then its avatar
+    |> Ecto.Multi.run(:avatar_deletion, fn _repo, _changes ->
+      case File.rm(user.avatar) do
+        :ok -> {:ok, nil}
+        error -> error
       end
+    end)
+  end
+  ```
   """
   @callback on_delete_user(multi :: Ecto.Multi.t, user :: Haytni.user, module :: module, config :: Haytni.config) :: Ecto.Multi.t
+
+  @doc ~S"""
+  Extend the query used to load a user (by `Haytni.get_user/2` and `Haytni.get_user_by/2`). It is particularly useful to load data tied to users.
+
+  Note: user is aliased by `:user` (named binding)
+
+  Example to load user's roles:
+
+  ```elixir
+  @impl Haytni.Callbacks
+  def user_query(query) do
+    import Ecto.Query
+
+    from(
+      [{:user, user}] in query,
+      left_join: role in assoc(user, :roles),
+      preload: [
+        roles: role,
+      ]
+    )
+  end
+  ```
+  """
+  @callback user_query(query :: Ecto.Query.t, module :: module, config :: Haytni.config) :: Ecto.Query.t
 
   #@callback on_session_start(conn :: Plug.Conn.t, user :: Haytni.user) :: Plug.Conn.t
 
@@ -211,6 +250,7 @@ defmodule Haytni.Plugin do
       def on_email_change(multi = %Ecto.Multi{}, changeset = %Ecto.Changeset{}, _module, _config), do: {multi, changeset}
       def on_successful_authentication(conn = %Plug.Conn{}, _user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config), do: {conn, multi, keywords}
       def on_delete_user(multi = %Ecto.Multi{}, _user = %_{}, _module, _config), do: multi
+      def user_query(query, _module, _config), do: query
 
       defoverridable [
         build_config: 1,
@@ -228,6 +268,7 @@ defmodule Haytni.Plugin do
         validate_password: 3,
         validate_create_registration: 3,
         validate_update_registration: 3,
+        user_query: 3,
       ]
     end
   end

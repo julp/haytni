@@ -17,6 +17,15 @@ defmodule HaytniTestWeb.Router do
     HaytniTestWeb.Haytni.routes()
   end
 
+  scope "/back" do
+    # this is on purpose (easier to test) not protected
+    pipe_through [:browser]
+
+    require Haytni.RolablePlugin
+
+    Haytni.RolablePlugin.routes(HaytniTestWeb.Haytni)
+  end
+
   scope "/CR", as: nil do
     pipe_through [:browser, HaytniTestWeb.HaytniCustomRoutes]
 

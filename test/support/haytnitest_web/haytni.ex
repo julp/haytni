@@ -14,6 +14,7 @@ defmodule HaytniTestWeb.Haytni do
   stack Haytni.LiveViewPlugin
   stack Haytni.EncryptedEmailPlugin
   stack Haytni.AnonymizationPlugin
+  stack Haytni.RolablePlugin
 
   @impl Haytni.Callbacks
   def user_query(query) do

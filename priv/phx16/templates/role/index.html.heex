@@ -1,0 +1,23 @@
+<table>
+  <thead>
+    <tr>
+      <th><%%= Haytni.Gettext.dgettext("haytni", "Name") %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <%%= for role <- @roles do %>
+      <tr>
+        <td><%%= role.name %></td>
+        <td>
+          <%%= link Haytni.Gettext.dgettext("haytni", "Edit"), to: @role_path_3.(@conn, :edit, role) %>
+          <%%= link Haytni.Gettext.dgettext("haytni", "Delete"), to: @role_path_3.(@conn, :delete, role), method: :delete %>
+        </td>
+      </tr>
+    <%% end %>
+  </tbody>
+</table>
+
+<p>
+  <%%= link Haytni.Gettext.dgettext("haytni", "Add"), to: @role_path_2.(@conn, :new) %>
+</p>

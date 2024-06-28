@@ -13,6 +13,10 @@
 - added `Haytni.send_email/2` to centralize emails sending
 - experimental features:
   + added a module `Haytni.Callbacks` which defines the optional callbacks that a Haytni stack can define (override). Its only callback (for now) is `user_query/1` to compose the different Ecto queries loading users, a convenient way to (pre)load intimately related user data needed nearly everywhere (eg: roles - see guides for an example)
+- fields `last_sign_in_at`/`current_sign_in_at` moved from Trackable to a new plugin called LastSeen
+- added Anonymization plugin to modify configured fields on account deletion (automated soft deletion)
+- added EncryptedEmail plugin to keep a hashed version of email address to avoid abuses without keeping the original address (RGPD compliant?)
+- added Rolable plugin to import entire group/role support
 
 Haytni doesn't directly rely on Bamboo anymore. Consequently, you'll need to add it as a dependency to your project (add `{:bamboo, "~> 2.2"}` to the `deps/0` function of your mix.exs file) and modify your mailer from `use Bamboo.Mailer, otp_app: :my_app` to `use Haytni.Mailer, otp_app: :my_app, adapter: Haytni.Mailer.BambooAdapter`. If you prefer, you can replace Bamboo in the same way (for Swoosh or whatever).
 

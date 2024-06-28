@@ -44,6 +44,7 @@ Plugins:
 * [clearsitedata](https://hexdocs.pm/haytni/Haytni.ClearSiteDataPlugin.html) (`Haytni.ClearSiteDataPlugin`): set the HTTP header Clear-Site-Data on logout (and eventually login)
 * [encrypted_email](https://hexdocs.pm/haytni/Haytni.EncryptedEmailPlugin.html) (`Haytni.EncryptedEmailPlugin`): keep the email in an hashed form to prevent abuse (deleting the account then recreate it with same address)
 * [anonymization](https://hexdocs.pm/haytni/Haytni.AnonymizationPlugin.html) (`Haytni.AnonymizationPlugin`): anonymize user's data on account deletion
+* [rolable](https://hexdocs.pm/haytni/Haytni.RolablePlugin.html) (`Haytni.RolablePlugin`): everything (Ecto associations and management interface) you need to get roles support
 
 Documentation can be found at [https://hexdocs.pm/haytni](https://hexdocs.pm/haytni).
 

@@ -724,11 +724,20 @@ defmodule Haytni do
   defp user_base_query(module) do
     import Ecto.Query
 
-    from(
-      u in module.schema(),
-      as: :user
+    query =
+      from(
+        u in module.schema(),
+        as: :user
+      )
+      |> module.user_query()
+
+    module.plugins_with_config()
+    |> Enum.reduce(
+      query,
+      fn {plugin, config}, query_as_acc ->
+        plugin.user_query(query_as_acc, module, config)
+      end
     )
-    |> module.user_query()
   end
 
   @doc ~S"""

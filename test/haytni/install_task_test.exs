@@ -18,6 +18,7 @@ defmodule Haytni.InstallTaskTest do
     Haytni.ClearSiteDataPlugin,
     Haytni.EncryptedEmailPlugin,
     Haytni.AnonymizationPlugin,
+    Haytni.RolablePlugin,
   ]
 
   @spec file_list_for(plugin :: module, scope :: String.t, table :: String.t, camelized_scope :: String.t) :: [{String.t, Haytni.TestHelpers.match}]
@@ -213,6 +214,33 @@ defmodule Haytni.InstallTaskTest do
       {"priv/repo/migrations/*_haytni_encrypted_email_#{scope}_changes.exs", [
         ~s'def change(users_table \\\\ "#{table}") do',
         "defmodule Haytni.Migrations.#{camelized_scope}.EncryptedEmailChanges do",
+      ]},
+    ]
+  end
+
+  defp file_list_for(Haytni.RolablePlugin, scope, table, camelized_scope) do
+    [
+      # views
+      {"lib/haytni_web/views/haytni/#{scope}/role_view.ex", [
+        "defmodule HaytniWeb.Haytni.#{camelized_scope}.RoleView do",
+      ]},
+      # templates
+      {"lib/haytni_web/templates/haytni/#{scope}/role/_form.html.heex", [
+        "<%=",
+      ]},
+      {"lib/haytni_web/templates/haytni/#{scope}/role/new.html.heex", [
+        "<%=",
+      ]},
+      {"lib/haytni_web/templates/haytni/#{scope}/role/edit.html.heex", [
+        "<%=",
+      ]},
+      {"lib/haytni_web/templates/haytni/#{scope}/role/index.html.heex", [
+        "<%=",
+      ]},
+      # migration
+      {"priv/repo/migrations/*_haytni_rolable_#{scope}_changes.exs", [
+        ~s'def change(users_table \\\\ "#{table}", _scope \\\\ "#{scope}") do',
+        "defmodule Haytni.Migrations.#{camelized_scope}.RolableChanges do",
       ]},
     ]
   end

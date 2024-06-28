@@ -115,6 +115,10 @@ defmodule Haytni.MixProject do
         Haytni.InvitablePlugin,
         Haytni.LiveViewPlugin,
         Haytni.ClearSiteDataPlugin,
+        Haytni.AnonymizationPlugin,
+        Haytni.LastSeenPlugin,
+        Haytni.EncryptedEmailPlugin,
+        Haytni.RolablePlugin,
       ],
       Authenticable: [
         Haytni.AuthenticablePlugin,
@@ -156,6 +160,19 @@ defmodule Haytni.MixProject do
       ],
       ClearSiteData: [
         Haytni.ClearSiteDataPlugin,
+      ],
+      Anonymization: [
+        Haytni.AnonymizationPlugin,
+      ],
+      LastSeen: [
+        Haytni.LastSeenPlugin,
+      ],
+      EncryptedEmail: [
+        Haytni.EncryptedEmailPlugin,
+      ],
+      Rolable: [
+        Haytni.RolablePlugin,
+        HaytniWeb.RolablePlugin.RoleRestrictedPlug,
       ],
       Helpers: [
         Haytni.Params,

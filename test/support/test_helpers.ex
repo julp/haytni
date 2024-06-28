@@ -52,16 +52,40 @@ defmodule Haytni.TestHelpers do
     language
   end
 
+  @spec id() :: pos_integer
+  def id do
+    System.unique_integer([:positive])
+  end
+
+  @spec role_fixture(attrs :: Enumerable.t) :: Haytni.RolablePlugin.role
+  def role_fixture(attrs \\ []) do
+    schema = HaytniTest.UserRole
+
+    attrs =
+      attrs
+      |> Enum.into(
+        %{
+          name: "role #{id()}",
+        }
+      )
+
+    {:ok, role} =
+      schema
+      |> struct(attrs)
+      |> HaytniTest.Repo.insert()
+
+    role
+  end
+
   @spec fixture(attrs :: Enumerable.t, schema :: module) :: Haytni.user
   defp fixture(attrs, schema) do
-    id = System.unique_integer([:positive])
     config = HaytniTestWeb.Haytni.fetch_config(Haytni.AuthenticablePlugin)
 
     attrs =
       attrs
       |> Enum.into(
         %{
-          email: "test#{id}@test.com",
+          email: "test#{id()}@test.com",
           password: attrs[:password] || "not so SECRET!",
         }
       )
@@ -104,7 +128,25 @@ defmodule Haytni.TestHelpers do
     Enum.each(
       routes,
       fn %{route: route, method: method, action: action, controller: controller} ->
-        %{route: ^route, plug: ^controller, plug_opts: ^action} = Phoenix.Router.route_info(router, method, route, "test.com")
+        parameters =
+          Regex.scan(~r<(?:^|/):([[:lower:]](?:[_[:lower:]])*)(?:/|$)>, route, capture: :all_but_first)
+          |> Enum.into(
+            %{},
+            fn [name] ->
+              {name, id() |> to_string()}
+            end
+          )
+
+        route_with_parameters =
+          Enum.reduce(
+            parameters,
+            route,
+            fn {name, value}, acc ->
+              String.replace(acc, ":#{name}", value)
+            end
+          )
+
+        assert %{route: ^route, plug: ^controller, plug_opts: ^action, path_params: ^parameters} = Phoenix.Router.route_info(router, method, route_with_parameters, "test.com")
       end
     )
   end

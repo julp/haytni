@@ -1,0 +1,15 @@
+<.simple_form
+  :let={f}
+  as="role"
+  for={@changeset}
+  action={@action}
+>
+  <.input
+    field={f[:name]}
+    label={Haytni.Gettext.dgettext("shop", "Name")}
+  />
+
+  <:actions>
+    <.button><%%= @commit %></.button>
+  </:actions>
+</.simple_form>

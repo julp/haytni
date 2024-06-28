@@ -1,0 +1,10 @@
+<._form {
+  Map.merge(
+    assigns,
+    %{
+      commit: Haytni.Gettext.dgettext("haytni", "Create"),
+      title: Haytni.Gettext.dgettext("haytni", "New"),
+      action: @role_path_2.(@conn, :create),
+    }
+  )
+} />
