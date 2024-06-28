@@ -100,7 +100,7 @@ defmodule Haytni.LiveViewPlugin do
   end
 
   @impl Haytni.Plugin
-  def on_logout(conn = %Plug.Conn{}, module, config) do
+  def on_logout(conn = %Plug.Conn{}, module, config, _options) do
     socket_id = config.socket_id || &default_socket_id/2
     user = conn.assigns[Haytni.scoped_assign(module)] # TODO: provide user to on_logout callbacks?
 

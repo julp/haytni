@@ -119,7 +119,7 @@ defmodule Haytni.RememberablePlugin do
   end
 
   @impl Haytni.Plugin
-  def on_logout(conn = %Plug.Conn{}, _module, config) do
+  def on_logout(conn = %Plug.Conn{}, _module, config, _options) do
     remove_rememberme_cookie(conn, config)
   end
 end

@@ -8,12 +8,12 @@ defmodule Haytni.Rememberable.OnLogoutTest do
     conn =
       conn
       |> @plugin.add_rememberme_cookie("azerty", config)
-      |> @plugin.on_logout(@stack, config)
+      |> @plugin.on_logout(@stack, config, [])
 
     assert_cookie_deletion(conn, config.remember_cookie_name)
   end
 
-  describe "Haytni.RememberablePlugin.on_logout/3 (callback)" do
+  describe "Haytni.RememberablePlugin.on_logout/4 (callback)" do
     setup do
       [
         config: @plugin.build_config(),

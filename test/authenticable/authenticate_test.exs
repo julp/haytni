@@ -43,7 +43,6 @@ defmodule Haytni.Authenticable.AuthenticateTest do
 
       assert {:ok, conn} = @plugin.authenticate(conn, @stack, config, session)
       assert user.id == conn.assigns.current_user.id
-      assert user.id == Plug.Conn.get_session(conn, :user_id)
     end
 
     test "user's password is updated on successful authentication", %{conn: conn, config: config, user: user} do
@@ -53,7 +52,6 @@ defmodule Haytni.Authenticable.AuthenticateTest do
       config = %{config | hashing_options: %{cost: 5}}
       assert {:ok, conn} = @plugin.authenticate(conn, @stack, config, session)
       assert user.id == conn.assigns.current_user.id
-      assert user.id == Plug.Conn.get_session(conn, :user_id)
 
       updated_user = @stack.repo().get(user.__struct__, user.id)
       assert String.starts_with?(updated_user.encrypted_password, "$2b$05$")
@@ -70,7 +68,6 @@ defmodule Haytni.Authenticable.AuthenticateTest do
 
       assert {:ok, conn} = @plugin.authenticate(conn, HaytniTestWeb.HaytniAdmin, config, session)
       assert admin.id == conn.assigns.current_admin.id
-      assert admin.id == Plug.Conn.get_session(conn, :admin_id)
     end
 
     test "returns error with empty credentials", %{conn: conn, config: config} do

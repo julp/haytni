@@ -8,7 +8,7 @@ defmodule Haytni.LiveView.OnLogoutTest do
     "socket:#{user.id}"
   end
 
-  describe "Haytni.LiveViewPlugin.on_logout/3 (callback)" do
+  describe "Haytni.LiveViewPlugin.on_logout/4 (callback)" do
     setup do
       [
         config: @plugin.build_config(socket_id: &socket_id/2),
@@ -23,7 +23,7 @@ defmodule Haytni.LiveView.OnLogoutTest do
       _conn =
         conn
         |> Plug.Conn.assign(:current_user, user)
-        |> @plugin.on_logout(@stack, config)
+        |> @plugin.on_logout(@stack, config, [])
 
       assert_receive %Phoenix.Socket.Broadcast{
         topic: ^socket_id,

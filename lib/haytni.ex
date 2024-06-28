@@ -331,38 +331,6 @@ defmodule Haytni do
     plugin in module.plugins()
   end
 
-  # Returns the first non-falsy (`nil` in particular) resulting of calling *fun/2* for each element of *list* or *default* if all elements of (keyword) *list* returned a falsy value.
-  @spec map_while(list :: Keyword.t, default :: any, fun :: (atom, any -> any)) :: any
-  defp map_while(list, default, fun) do
-    try do
-      for {k, v} <- list do
-        v = fun.(k, v)
-        if v do
-          throw v
-        end
-      end
-    catch
-      val ->
-        val
-    else
-      _ ->
-        default
-    end
-  end
-
-  defp find_user([{plugin, config} | tl], conn, module) do
-    result = {conn, user} = plugin.find_user(conn, module, config)
-    if user do
-      result
-    else
-      find_user(tl, conn, module)
-    end
-  end
-
-  defp find_user([], conn, _module) do
-    {conn, nil}
-  end
-
   @doc ~S"""
   Returns the name of the session key which carries the user
   """
@@ -384,6 +352,10 @@ defmodule Haytni do
     module.scoped_assign()
   end
 
+  @spec tag_halt_if_not_false_else_cont(false | {:error, String.t}) :: {:cont, false} | {:halt, {:error, String.t}}
+  defp tag_halt_if_not_false_else_cont(false), do: {:cont, false}
+  defp tag_halt_if_not_false_else_cont(other), do: {:halt, other}
+
   @doc ~S"""
   Checks if a user is valid according to plugins.
 
@@ -392,8 +364,17 @@ defmodule Haytni do
   @spec invalid_user?(module :: module, user :: Haytni.user) :: {:error, String.t} | false
   def invalid_user?(module, user = %_{}) do
     module.plugins_with_config()
-    |> map_while(false, &(&1.invalid?(user, module, &2)))
+    |> Enum.reduce_while(
+      false,
+      fn {plugin, config}, false ->
+        plugin.invalid?(user, module, config) |> tag_halt_if_not_false_else_cont()
+      end
+    )
   end
+
+  @spec tag_halt_if_true_else_cont(boolean, value :: any) :: {:halt | :cont, any}
+  defp tag_halt_if_true_else_cont(true, value), do: {:halt, value}
+  defp tag_halt_if_true_else_cont(false, value), do: {:cont, value}
 
   @doc ~S"""
   Used by plug to extract the current user (if any) from the HTTP
@@ -401,40 +382,26 @@ defmodule Haytni do
   """
   @spec find_user(module :: module, conn :: Plug.Conn.t) :: {Plug.Conn.t, Haytni.user | nil}
   def find_user(module, conn = %Plug.Conn{}) do
-    scoped_session_key = scoped_session_key(module)
-    {conn, user, from_session?} = case Plug.Conn.get_session(conn, scoped_session_key) do
-      nil ->
-        module.plugins_with_config()
-        |> find_user(conn, module)
-        #|> Enum.reduce_while(
-          #{conn, nil},
-          #fn plugin, {conn, _user} ->
-            #acc = {conn, user} = plugin.find_user(conn, module, config)
-            #if conn.halted? or not is_nil(user) ->
-              #{:halt, acc}
-            #else
-              #{:cont, acc}
-            #end
-          #end
-        #)
-        |> Tuple.append(false)
-      id ->
-        {conn, get_user(module, id), true}
-    end
+    {conn, user} =
+      module.plugins_with_config()
+      |> Enum.reduce_while(
+        {conn, nil},
+        fn {plugin, config}, {conn, _user} ->
+          acc = {conn, user} = plugin.find_user(conn, module, config)
+          tag_halt_if_true_else_cont(conn.halted or not is_nil(user), acc)
+        end
+      )
+
+    from_session? = false # TODO
     if user do
       case invalid_user?(module, user) do
         {:error, _error} ->
-          {Plug.Conn.delete_session(conn, scoped_session_key), nil}
+          logout(conn, module, force: true)
         false ->
           if from_session? do
             {conn, user}
           else
             {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user)
-            Plug.CSRFProtection.delete_csrf_token()
-            conn =
-              conn
-              |> Plug.Conn.put_session(scoped_session_key, user.id)
-              |> Plug.Conn.configure_session(renew: true)
 
             {conn, user}
           end
@@ -582,20 +549,14 @@ defmodule Haytni do
   """
   @spec logout(conn :: Plug.Conn.t, module :: module, options :: Keyword.t) :: Plug.Conn.t
   def logout(conn = %Plug.Conn{}, module, options \\ []) do
-    conn =
-      module.plugins_with_config()
-      |> Enum.reverse()
-      |> Enum.reduce(conn, fn {plugin, config}, conn -> plugin.on_logout(conn, module, config) end)
-
-    case Keyword.get(options, :scope) do
-      :all ->
-        Plug.Conn.clear_session(conn)
-        #Plug.Conn.configure_session(conn, drop: true)
-      _ ->
-        conn
-        |> Plug.Conn.configure_session(renew: true)
-        |> Plug.Conn.delete_session(scoped_session_key(module))
-    end
+    module.plugins_with_config()
+    |> Enum.reverse()
+    |> Enum.reduce(
+      conn,
+      fn {plugin, config}, conn ->
+        plugin.on_logout(conn, module, config, options)
+      end
+    )
   end
 
   @spec on_successful_authentication(module :: module, conn :: Plug.Conn.t, user :: Haytni.user, changes :: Keyword.t) :: Haytni.multi_result
@@ -623,16 +584,11 @@ defmodule Haytni do
   def login(conn = %Plug.Conn{}, module, user = %_{}, changes \\ []) do
     case invalid_user?(module, user) do
       error = {:error, _message} ->
+        # TODO: force logout ?
         error
       false ->
         {:ok, %{conn: conn, user: user}} = on_successful_authentication(module, conn, user, changes)
-        Plug.CSRFProtection.delete_csrf_token()
-        conn =
-          conn
-          |> Plug.Conn.put_session(scoped_session_key(module), user.id)
-          |> Plug.Conn.configure_session(renew: true)
-          |> Plug.Conn.assign(scoped_assign(module), user)
-        {:ok, conn}
+        {:ok, Plug.Conn.assign(conn, scoped_assign(module), user)}
     end
   end
 

@@ -85,10 +85,9 @@ defmodule Haytni.Plugin do
   @callback invalid?(user :: Haytni.user, module :: module, config :: Haytni.config) :: false | {:error, atom}
 
   @doc ~S"""
-  This callback is invoked when a user (manually) log out. Its purpose is mainly to do some cleanup
-  like removing a cookie.
+  This callback is invoked when a user logs out. Its purpose is mainly to do some cleanup like removing a cookie.
   """
-  @callback on_logout(conn :: Plug.Conn.t, module :: module, config :: Haytni.config) :: Plug.Conn.t # TODO: or {Plug.Conn.t, Keyword.t} to update the user ?
+  @callback on_logout(conn :: Plug.Conn.t, module :: module, config :: Haytni.config, options :: Keyword.t) :: Plug.Conn.t # TODO: or {Plug.Conn.t, Keyword.t} to update the user ?
 
   @doc ~S"""
   Invoked when an authentication failed (wrong password). It receives the concerned account
@@ -239,10 +238,10 @@ defmodule Haytni.Plugin do
       # by the plugin to avoid to execute the second part of the || operator
       def build_config(_options), do: true
       def invalid?(_user = %_{}, _module, _config), do: false
-      def find_user(conn = %Plug.Conn{}, _module, _config), do: {conn, nil}
+      def find_user(conn = %Plug.Conn{}, _module, _config), do: {conn, nil} # TODO {:session | :found | :not_found, Plug.Conn.t, Haytni.nilable(Haytni.user)} ?
       def on_failed_authentication(_user = %_{}, multi = %Ecto.Multi{}, keywords, _module, _config), do: {multi, keywords}
       def files_to_install(_base_path, _web_path, _scope, _timestamp), do: []
-      def on_logout(conn = %Plug.Conn{}, _module, _config), do: conn
+      def on_logout(conn = %Plug.Conn{}, _module, _config, _options), do: conn
       def on_registration(multi = %Ecto.Multi{}, _module, _config), do: multi
       def validate_password(changeset = %Ecto.Changeset{}, _module, _config), do: changeset
       def validate_create_registration(changeset = %Ecto.Changeset{}, _module, _config), do: changeset
@@ -258,7 +257,7 @@ defmodule Haytni.Plugin do
         routes: 3,
         invalid?: 3,
         find_user: 3,
-        on_logout: 3,
+        on_logout: 4,
         on_delete_user: 4,
         on_registration: 3,
         on_email_change: 4,

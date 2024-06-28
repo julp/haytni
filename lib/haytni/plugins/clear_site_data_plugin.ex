@@ -79,7 +79,7 @@ defmodule Haytni.ClearSiteDataPlugin do
   end
 
   @impl Haytni.Plugin
-  def on_logout(conn, _module, config) do
+  def on_logout(conn, _module, config, _options) do
     put_clear_site_data_resp_header(conn, config.logout)
   end
 

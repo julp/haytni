@@ -6,11 +6,11 @@ defmodule Haytni.ClearSiteData.OnLogoutTest do
 
   defp do_test(conn, module, config) do
     conn
-    |> @plugin.on_logout(module, config)
+    |> @plugin.on_logout(module, config, [])
     |> Plug.Conn.get_resp_header(@plugin.clear_site_data_header_name())
   end
 
-  describe "Haytni.ClearSiteDataPlugin.on_logout/3 (callback)" do
+  describe "Haytni.ClearSiteDataPlugin.on_logout/4 (callback)" do
     test "header #{@plugin.clear_site_data_header_name()} is absent if config.logout is []", %{conn: conn} do
       conn
       |> do_test(@stack, @plugin.build_config(logout: []))
