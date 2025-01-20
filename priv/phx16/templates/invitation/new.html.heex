@@ -5,14 +5,14 @@
   <%% end %>
 
   <div class="form-group">
-    <%%= label f, :sent_to, Haytni.Gettext.dgettext("haytni", "Email"), class: "control-label" %>
-    <%%= email_input f, :sent_to, class: "form-control", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "email address of your friend") %>
+    <%%= label f, :sent_to, dgettext("haytni", "Email"), class: "control-label" %>
+    <%%= email_input f, :sent_to, class: "form-control", required: "", placeholder: dgettext("haytni", "email address of your friend") %>
     <%%= error_tag f, :sent_to %>
   </div>
 
   <div class="form-group">
-    <%%= submit Haytni.Gettext.dgettext("haytni", "Invite"), class: "btn btn-primary" %>
-    <%%= link Haytni.Gettext.dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
+    <%%= submit dgettext("haytni", "Invite"), class: "btn btn-primary" %>
+    <%%= link dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
   </div>
 
 <%% end %>

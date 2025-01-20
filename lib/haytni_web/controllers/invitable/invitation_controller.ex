@@ -3,7 +3,7 @@ defmodule HaytniWeb.Invitable.InvitationController do
 
   use HaytniWeb, :controller
   use HaytniWeb.Helpers, {Haytni.InvitablePlugin, :with_current_user}
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   @spec invitation_sent_message() :: String.t
   def invitation_sent_message do

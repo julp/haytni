@@ -21,7 +21,7 @@ defmodule Haytni.PasswordPolicyPlugin do
   Routes: none
   """
 
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   defstruct [
     password_length: @default_password_length,
@@ -51,10 +51,10 @@ defmodule Haytni.PasswordPolicyPlugin do
 
   @password_field :password
   @classes [
-    Class.new(~r/\d/, dgettext("haytni", "a digit")),
-    Class.new(~r/[[:lower:]]/, dgettext("haytni", "a lowercase letter")),
-    Class.new(~r/[[:upper:]]/, dgettext("haytni", "a uppercase letter")),
-    Class.new(~r/[^\d[:upper:][:lower:]]/, dgettext("haytni", "a different character")),
+    Class.new(~r/\d/, dgettext_noop("haytni", "a digit")),
+    Class.new(~r/[[:lower:]]/, dgettext_noop("haytni", "a lowercase letter")),
+    Class.new(~r/[[:upper:]]/, dgettext_noop("haytni", "a uppercase letter")),
+    Class.new(~r/[^\d[:upper:][:lower:]]/, dgettext_noop("haytni", "a different character")),
   ]
 
   @impl Haytni.Plugin

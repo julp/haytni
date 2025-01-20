@@ -5,7 +5,7 @@
   <%% end %>
 
   <div class="form-group">
-    <%%= label f, :name, Haytni.Gettext.dgettext("haytni", "Name"), class: "control-label" %>
+    <%%= label f, :name, dgettext("haytni", "Name"), class: "control-label" %>
     <%%= text_input f, :name, class: "form-control" %>
     <%%= error_tag f, :name %>
   </div>

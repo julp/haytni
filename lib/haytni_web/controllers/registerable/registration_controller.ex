@@ -3,7 +3,7 @@ defmodule HaytniWeb.Registerable.RegistrationController do
 
   use HaytniWeb, :controller
   use HaytniWeb.Helpers, {Haytni.RegisterablePlugin, :with_current_user}
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   def registration_disabled_message do
     dgettext("haytni", "Sorry, new registrations are currently closed")

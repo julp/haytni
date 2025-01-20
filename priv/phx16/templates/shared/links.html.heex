@@ -1,27 +1,27 @@
 <div class="form-group">
   <%= if Haytni.AuthenticablePlugin in plugins do %>
     <%%= if Haytni.plugin_enabled?(@module, Haytni.AuthenticablePlugin) && HaytniWeb.Authenticable.SessionController != Phoenix.Controller.controller_module(@conn) do %>
-      <%%= link Haytni.Gettext.dgettext("haytni", "Sign in"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_session_path(@conn, :new) %><br />
+      <%%= link dgettext("haytni", "Sign in"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_session_path(@conn, :new) %><br />
     <%% end %>
   <% end %>
   <%= if Haytni.RegisterablePlugin in plugins do %>
     <%%= if Haytni.plugin_enabled?(@module, Haytni.RegisterablePlugin) && HaytniWeb.Registerable.RegistrationController != Phoenix.Controller.controller_module(@conn) do %>
-      <%%= link Haytni.Gettext.dgettext("haytni", "Sign up"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :new) %><br />
+      <%%= link dgettext("haytni", "Sign up"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :new) %><br />
     <%% end %>
   <% end %>
   <%= if Haytni.RecoverablePlugin in plugins do %>
     <%%= if Haytni.plugin_enabled?(@module, Haytni.RecoverablePlugin) && HaytniWeb.Recoverable.PasswordController != Phoenix.Controller.controller_module(@conn) do %>
-      <%%= link Haytni.Gettext.dgettext("haytni", "Forgot your password?"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :new) %><br />
+      <%%= link dgettext("haytni", "Forgot your password?"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :new) %><br />
     <%% end %>
   <% end %>
   <%= if Haytni.ConfirmablePlugin in plugins do %>
     <%%= if Haytni.plugin_enabled?(@module, Haytni.ConfirmablePlugin) && HaytniWeb.Confirmable.ConfirmationController != Phoenix.Controller.controller_module(@conn) do %>
-      <%%= link Haytni.Gettext.dgettext("haytni", "Didn't receive confirmation instructions?"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_confirmation_path(@conn, :new) %><br />
+      <%%= link dgettext("haytni", "Didn't receive confirmation instructions?"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_confirmation_path(@conn, :new) %><br />
     <%% end %>
   <% end %>
   <%= if Haytni.ConfirmablePlugin in plugins do %>
     <%%= if Haytni.plugin_enabled?(@module, Haytni.LockablePlugin) && Haytni.LockablePlugin.email_strategy_enabled?(@module.fetch_config(Haytni.LockablePlugin)) && HaytniWeb.Lockable.UnlockController != Phoenix.Controller.controller_module(@conn) do %>
-      <%%= link Haytni.Gettext.dgettext("haytni", "Didn't receive unlock instructions?"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_unlock_path(@conn, :new) %><br />
+      <%%= link dgettext("haytni", "Didn't receive unlock instructions?"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_unlock_path(@conn, :new) %><br />
     <%% end %>
   <% end %>
 </div>

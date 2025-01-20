@@ -1,4 +1,4 @@
-<h2><%%= Haytni.Gettext.dgettext("haytni", "Change your password") %></h2>
+<h2><%%= dgettext("haytni", "Change your password") %></h2>
 
 <.simple_form
   :let={f}
@@ -19,8 +19,8 @@
     type="password"
     field={f[:password]}
     autocomplete="new-password"
-    label={Haytni.Gettext.dgettext("haytni", "New password")}
-    placeholder={Haytni.Gettext.dgettext("haytni", "your new password")}
+    label={dgettext("haytni", "New password")}
+    placeholder={dgettext("haytni", "your new password")}
   />
   <small
     id="passwordHelpBlock"
@@ -28,7 +28,7 @@
     :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
   >
     <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
-    <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
+    <%%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
   </small>
 
   <.input
@@ -36,13 +36,13 @@
     type="password"
     autocomplete="off"
     field={f[:password_confirmation]}
-    label={Haytni.Gettext.dgettext("haytni", "Confirm new password")}
-    placeholder={Haytni.Gettext.dgettext("haytni", "your new password")}
+    label={dgettext("haytni", "Confirm new password")}
+    placeholder={dgettext("haytni", "your new password")}
   />
 
   <:actions>
     <.button>
-      <%%= Haytni.Gettext.dgettext("haytni", "Change my password") %>
+      <%%= dgettext("haytni", "Change my password") %>
     </.button>
   </:actions>
 

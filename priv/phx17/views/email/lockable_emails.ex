@@ -1,9 +1,9 @@
 defmodule <%= [web_module, :Haytni, camelized_scope, "LockableEmails"] |> Module.concat() |> inspect() %> do
   use <%= inspect(web_module) %>, :html
-  require Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   def unlock_instructions_subject(_assigns) do
-    Haytni.Gettext.dgettext("haytni", "Unlock instructions")
+    dgettext("haytni", "Unlock instructions")
   end
 
   embed_templates "lockable_html/*.html", suffix: "_html"

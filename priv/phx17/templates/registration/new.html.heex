@@ -17,22 +17,22 @@
       required
       type="email"
       field={f[:email]}
-      label={Haytni.Gettext.dgettext("haytni", "Email")}
-      placeholder={Haytni.Gettext.dgettext("haytni", "your email")}
+      label={dgettext("haytni", "Email")}
+      placeholder={dgettext("haytni", "your email")}
     />
     <.input
       required
       type="email"
       field={f[:email_confirmation]}
-      label={Haytni.Gettext.dgettext("haytni", "Confirm email")}
-      placeholder={Haytni.Gettext.dgettext("haytni", "your email")}
+      label={dgettext("haytni", "Confirm email")}
+      placeholder={dgettext("haytni", "your email")}
     />
     <.input
       required
       type="password"
       field={f[:password]}
-      label={Haytni.Gettext.dgettext("haytni", "Password")}
-      placeholder={Haytni.Gettext.dgettext("haytni", "your password")}
+      label={dgettext("haytni", "Password")}
+      placeholder={dgettext("haytni", "your password")}
     />
     <small
       id="passwordHelpBlock"
@@ -40,22 +40,22 @@
       :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
     >
       <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
-      <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
+      <%%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
     </small>
     <.input
       required
       type="password"
       field={f[:password_confirmation]}
-      label={Haytni.Gettext.dgettext("haytni", "Confirm password")}
-      placeholder={Haytni.Gettext.dgettext("haytni", "your password")}
+      label={dgettext("haytni", "Confirm password")}
+      placeholder={dgettext("haytni", "your password")}
     />
 
     <:actions>
       <.button>
-        <%%= Haytni.Gettext.dgettext("haytni", "Sign up") %>
+        <%%= dgettext("haytni", "Sign up") %>
       </.button>
       <.link href="/" class="btn">
-        <%%= Haytni.Gettext.dgettext("haytni", "Cancel") %>
+        <%%= dgettext("haytni", "Cancel") %>
       </.link>
     </:actions>
 

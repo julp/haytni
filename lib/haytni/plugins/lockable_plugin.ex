@@ -43,7 +43,7 @@ defmodule Haytni.LockablePlugin do
       `#{inspect(@unlock_path_key)}` option when calling YourApp.Haytni.routes/1 from your router (eg: `YourApp.Haytni.routes(#{@unlock_path_key}: "/unblock")`)
   """
 
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   defstruct [
     unlock_in: @default_unlock_in,

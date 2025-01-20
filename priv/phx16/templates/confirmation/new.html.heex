@@ -1,11 +1,11 @@
-<h2><%%= Haytni.Gettext.dgettext("haytni", "Resend confirmation instructions") %></h2>
+<h2><%%= dgettext("haytni", "Resend confirmation instructions") %></h2>
 
 <%%= form_for @changeset, <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_confirmation_path(@conn, :create), [as: :confirmation], fn f  -> %>
 
   <%%= render <%= [web_module, :Haytni, camelized_scope, "SharedView"] |> Module.concat() |> inspect() %>, "keys.html", changeset: @changeset, f: f, keys: @config.confirmation_keys %>
 
   <div class="form-group">
-    <%%= submit Haytni.Gettext.dgettext("haytni", "Resend confirmation instructions"), class: "btn btn-primary" %>
+    <%%= submit dgettext("haytni", "Resend confirmation instructions"), class: "btn btn-primary" %>
   </div>
 
   <%%= render <%= [web_module, :Haytni, camelized_scope, "SharedView"] |> Module.concat() |> inspect() %>, "links.html", assigns %>

@@ -19,6 +19,8 @@ msgstr ""
 #: lib/haytni_web/emails/confirmable_email.ex:23
 #: priv/phx17/views/email/confirmable_html.ex:7
 #: priv/phx16/views/email/confirmable_view.ex:7
+#: priv/phx17/views/email/confirmable_emails.ex:6
+#: priv/phx16/views/email/confirmable_view.ex:7
 msgid "Please confirm your account"
 msgstr ""
 
@@ -26,17 +28,21 @@ msgstr ""
 #: lib/haytni_web/emails/recoverable_email.ex:16
 #: priv/phx17/views/email/recoverable_html.ex:7
 #: priv/phx16/views/email/recoverable_view.ex:7
+#: priv/phx17/views/email/recoverable_emails.ex:6
+#: priv/phx16/views/email/recoverable_view.ex:7
 msgid "Reset password instructions"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/lockable_plugin.ex:324
+#: lib/haytni/plugins/lockable_plugin.ex:323
 msgid "The given unlock token is invalid."
 msgstr ""
 
 #, elixir-format
 #: lib/haytni_web/emails/lockable_email.ex:16
 #: priv/phx17/views/email/lockable_html.ex:7
+#: priv/phx16/views/email/lockable_view.ex:7
+#: priv/phx17/views/email/lockable_emails.ex:6
 #: priv/phx16/views/email/lockable_view.ex:7
 msgid "Unlock instructions"
 msgstr ""
@@ -52,12 +58,12 @@ msgid "Your password has been successfully changed."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/lockable_plugin.ex:142
+#: lib/haytni/plugins/lockable_plugin.ex:141
 msgid "account is locked due to an excessive number of unsuccessful sign in attempts, please check your emails."
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/confirmable_plugin.ex:182
+#: lib/haytni/plugins/confirmable_plugin.ex:181
 msgid "account is pending confirmation, please check your emails."
 msgstr ""
 
@@ -65,12 +71,16 @@ msgstr ""
 #: lib/haytni_web/emails/confirmable_email.ex:53
 #: priv/phx17/views/email/confirmable_html.ex:15
 #: priv/phx16/views/email/confirmable_view.ex:15
+#: priv/phx17/views/email/confirmable_emails.ex:14
+#: priv/phx16/views/email/confirmable_view.ex:15
 msgid "Attention: email was changed"
 msgstr ""
 
 #, elixir-format
 #: lib/haytni_web/emails/confirmable_email.ex:38
 #: priv/phx17/views/email/confirmable_html.ex:11
+#: priv/phx16/views/email/confirmable_view.ex:11
+#: priv/phx17/views/email/confirmable_emails.ex:10
 #: priv/phx16/views/email/confirmable_view.ex:11
 msgid "Please confirm your email address change"
 msgstr ""
@@ -81,7 +91,7 @@ msgid "doesn't match to any account"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/lockable_plugin.ex:316
+#: lib/haytni/plugins/lockable_plugin.ex:315
 msgid "Unlocking accounts through email is currently disabled."
 msgstr ""
 
@@ -117,7 +127,7 @@ msgid "Invalid combination of credentials"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/recoverable_plugin.ex:190
+#: lib/haytni/plugins/recoverable_plugin.ex:189
 msgid "The given password recovery token is invalid."
 msgstr ""
 
@@ -180,31 +190,33 @@ msgstr ""
 #: lib/haytni_web/emails/invitable_email.ex:20
 #: priv/phx17/views/email/invitable_html.ex:7
 #: priv/phx16/views/email/invitable_view.ex:7
+#: priv/phx17/views/email/invitable_emails.ex:6
+#: priv/phx16/views/email/invitable_view.ex:7
 msgid "You've been invited"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:178
+#: lib/haytni/plugins/invitable_plugin.ex:177
 msgid "the given email address mismatch the invitation it was sent to"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:162
+#: lib/haytni/plugins/invitable_plugin.ex:161
 msgid "the given invitation does not exist"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:170
+#: lib/haytni/plugins/invitable_plugin.ex:169
 msgid "the given invitation has expired"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:154
+#: lib/haytni/plugins/invitable_plugin.ex:153
 msgid "you can't register without having received an invitation"
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/invitable_plugin.ex:186
+#: lib/haytni/plugins/invitable_plugin.ex:185
 msgid "your quota of %{count} invitation(s) has been exceeded"
 msgstr ""
 
@@ -214,7 +226,7 @@ msgid "A final step is required before you fully dispose of your account: in ord
 msgstr ""
 
 #, elixir-format
-#: lib/haytni/plugins/confirmable_plugin.ex:190
+#: lib/haytni/plugins/confirmable_plugin.ex:189
 msgid "The given confirmation token is invalid or has expired."
 msgstr ""
 
@@ -253,6 +265,12 @@ msgstr ""
 #: priv/phx16/templates/registration/edit.html.heex:4
 #: priv/phx16/templates/registration/new.html.heex:13
 #: priv/phx16/templates/invitation/new.html.heex:8
+#: priv/phx17/templates/registration/new.html.heex:20
+#: priv/phx17/templates/registration/edit.html.heex:17
+#: priv/phx17/templates/invitation/new.html.heex:16
+#: priv/phx16/templates/registration/edit.html.heex:4
+#: priv/phx16/templates/registration/new.html.heex:13
+#: priv/phx16/templates/invitation/new.html.heex:8
 msgid "Email"
 msgstr ""
 
@@ -260,11 +278,15 @@ msgstr ""
 #: priv/templates/invitation/new.html.heex:9
 #: priv/phx17/templates/invitation/new.html.heex:17
 #: priv/phx16/templates/invitation/new.html.heex:9
+#: priv/phx17/templates/invitation/new.html.heex:17
+#: priv/phx16/templates/invitation/new.html.heex:9
 msgid "email address of your friend"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/invitation/new.html.heex:14
+#: priv/phx17/templates/invitation/new.html.heex:22
+#: priv/phx16/templates/invitation/new.html.heex:14
 #: priv/phx17/templates/invitation/new.html.heex:22
 #: priv/phx16/templates/invitation/new.html.heex:14
 msgid "Invite"
@@ -287,11 +309,24 @@ msgstr ""
 #: priv/phx16/templates/registration/edit.html.heex:55
 #: priv/phx16/templates/registration/new.html.heex:44
 #: priv/phx16/templates/invitation/new.html.heex:15
+#: priv/phx17/templates/session/new.html.heex:32
+#: priv/phx17/templates/registration/new.html.heex:58
+#: priv/phx17/templates/registration/edit.html.heex:33
+#: priv/phx17/templates/registration/edit.html.heex:85
+#: priv/phx17/templates/registration/edit.html.heex:105
+#: priv/phx17/templates/invitation/new.html.heex:25
+#: priv/phx16/templates/registration/edit.html.heex:15
+#: priv/phx16/templates/registration/edit.html.heex:44
+#: priv/phx16/templates/registration/edit.html.heex:55
+#: priv/phx16/templates/registration/new.html.heex:44
+#: priv/phx16/templates/invitation/new.html.heex:15
 msgid "Cancel"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/invitation/index.html.heex:5
+#: priv/phx17/templates/invitation/index.html.heex:3
+#: priv/phx16/templates/invitation/index.html.heex:5
 #: priv/phx17/templates/invitation/index.html.heex:3
 #: priv/phx16/templates/invitation/index.html.heex:5
 msgid "Sent at"
@@ -302,11 +337,16 @@ msgstr ""
 #: priv/phx17/templates/invitation/index.html.heex:6
 #: priv/phx17/templates/invitation/index.html.heex:15
 #: priv/phx16/templates/invitation/index.html.heex:6
+#: priv/phx17/templates/invitation/index.html.heex:6
+#: priv/phx17/templates/invitation/index.html.heex:15
+#: priv/phx16/templates/invitation/index.html.heex:6
 msgid "Sent to"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/invitation/index.html.heex:7
+#: priv/phx17/templates/invitation/index.html.heex:9
+#: priv/phx16/templates/invitation/index.html.heex:7
 #: priv/phx17/templates/invitation/index.html.heex:9
 #: priv/phx16/templates/invitation/index.html.heex:7
 msgid "Accepted at"
@@ -316,11 +356,15 @@ msgstr ""
 #: priv/templates/invitation/index.html.heex:8
 #: priv/phx17/templates/invitation/index.html.heex:12
 #: priv/phx16/templates/invitation/index.html.heex:8
+#: priv/phx17/templates/invitation/index.html.heex:12
+#: priv/phx16/templates/invitation/index.html.heex:8
 msgid "Accepted by"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/invitation/index.html.heex:19
+#: priv/phx17/templates/invitation/index.html.heex:21
+#: priv/phx16/templates/invitation/index.html.heex:19
 #: priv/phx17/templates/invitation/index.html.heex:21
 #: priv/phx16/templates/invitation/index.html.heex:19
 msgid "Revoke"
@@ -330,11 +374,15 @@ msgstr ""
 #: priv/templates/invitation/index.html.heex:26
 #: priv/phx17/templates/invitation/index.html.heex:27
 #: priv/phx16/templates/invitation/index.html.heex:26
+#: priv/phx17/templates/invitation/index.html.heex:27
+#: priv/phx16/templates/invitation/index.html.heex:26
 msgid "You have not send any invitation for now."
 msgstr ""
 
 #, elixir-format
 #: priv/templates/invitation/index.html.heex:31
+#: priv/phx17/templates/invitation/index.html.heex:33
+#: priv/phx16/templates/invitation/index.html.heex:31
 #: priv/phx17/templates/invitation/index.html.heex:33
 #: priv/phx16/templates/invitation/index.html.heex:31
 msgid "Do you have a friend you want to invite?"
@@ -347,6 +395,10 @@ msgstr ""
 #: priv/phx17/templates/shared/links.html.heex:25
 #: priv/phx16/templates/shared/links.html.heex:14
 #: priv/phx16/templates/password/new.html.heex:1
+#: priv/phx17/templates/password/new.html.heex:1
+#: priv/phx17/templates/shared/links.html.heex:25
+#: priv/phx16/templates/shared/links.html.heex:14
+#: priv/phx16/templates/password/new.html.heex:1
 msgid "Forgot your password?"
 msgstr ""
 
@@ -354,11 +406,15 @@ msgstr ""
 #: priv/templates/password/new.html.heex:8
 #: priv/phx17/templates/password/new.html.heex:14
 #: priv/phx16/templates/password/new.html.heex:8
+#: priv/phx17/templates/password/new.html.heex:14
+#: priv/phx16/templates/password/new.html.heex:8
 msgid "Send me reset password instructions"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/password/edit.html.heex:1
+#: priv/phx17/templates/password/edit.html.heex:1
+#: priv/phx16/templates/password/edit.html.heex:1
 #: priv/phx17/templates/password/edit.html.heex:1
 #: priv/phx16/templates/password/edit.html.heex:1
 msgid "Change your password"
@@ -371,6 +427,10 @@ msgstr ""
 #: priv/phx17/templates/registration/edit.html.heex:54
 #: priv/phx16/templates/registration/edit.html.heex:22
 #: priv/phx16/templates/password/edit.html.heex:9
+#: priv/phx17/templates/password/edit.html.heex:22
+#: priv/phx17/templates/registration/edit.html.heex:54
+#: priv/phx16/templates/registration/edit.html.heex:22
+#: priv/phx16/templates/password/edit.html.heex:9
 msgid "New password"
 msgstr ""
 
@@ -379,6 +439,14 @@ msgstr ""
 #: priv/templates/password/edit.html.heex:20
 #: priv/templates/registration/edit.html.heex:23
 #: priv/templates/registration/edit.html.heex:34
+#: priv/phx17/templates/password/edit.html.heex:23
+#: priv/phx17/templates/password/edit.html.heex:40
+#: priv/phx17/templates/registration/edit.html.heex:55
+#: priv/phx17/templates/registration/edit.html.heex:70
+#: priv/phx16/templates/registration/edit.html.heex:23
+#: priv/phx16/templates/registration/edit.html.heex:34
+#: priv/phx16/templates/password/edit.html.heex:10
+#: priv/phx16/templates/password/edit.html.heex:24
 #: priv/phx17/templates/password/edit.html.heex:23
 #: priv/phx17/templates/password/edit.html.heex:40
 #: priv/phx17/templates/registration/edit.html.heex:55
@@ -400,12 +468,22 @@ msgstr ""
 #: priv/phx16/templates/registration/edit.html.heex:29
 #: priv/phx16/templates/registration/new.html.heex:34
 #: priv/phx16/templates/password/edit.html.heex:19
+#: priv/phx17/templates/password/edit.html.heex:31
+#: priv/phx17/templates/registration/new.html.heex:43
+#: priv/phx17/templates/registration/edit.html.heex:63
+#: priv/phx16/templates/registration/edit.html.heex:29
+#: priv/phx16/templates/registration/new.html.heex:34
+#: priv/phx16/templates/password/edit.html.heex:19
 msgid "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long."
 msgstr ""
 
 #, elixir-format
 #: priv/templates/password/edit.html.heex:19
 #: priv/templates/registration/edit.html.heex:33
+#: priv/phx17/templates/password/edit.html.heex:39
+#: priv/phx17/templates/registration/edit.html.heex:69
+#: priv/phx16/templates/registration/edit.html.heex:33
+#: priv/phx16/templates/password/edit.html.heex:23
 #: priv/phx17/templates/password/edit.html.heex:39
 #: priv/phx17/templates/registration/edit.html.heex:69
 #: priv/phx16/templates/registration/edit.html.heex:33
@@ -417,12 +495,18 @@ msgstr ""
 #: priv/templates/password/edit.html.heex:25
 #: priv/phx17/templates/password/edit.html.heex:45
 #: priv/phx16/templates/password/edit.html.heex:29
+#: priv/phx17/templates/password/edit.html.heex:45
+#: priv/phx16/templates/password/edit.html.heex:29
 msgid "Change my password"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/unlock/new.html.heex:1
 #: priv/templates/unlock/new.html.heex:8
+#: priv/phx17/templates/unlock/new.html.heex:1
+#: priv/phx17/templates/unlock/new.html.heex:14
+#: priv/phx16/templates/unlock/new.html.heex:1
+#: priv/phx16/templates/unlock/new.html.heex:8
 #: priv/phx17/templates/unlock/new.html.heex:1
 #: priv/phx17/templates/unlock/new.html.heex:14
 #: priv/phx16/templates/unlock/new.html.heex:1
@@ -437,11 +521,16 @@ msgstr ""
 #: priv/phx17/templates/confirmation/new.html.heex:14
 #: priv/phx16/templates/confirmation/new.html.heex:1
 #: priv/phx16/templates/confirmation/new.html.heex:8
+#: priv/phx17/templates/confirmation/new.html.heex:1
+#: priv/phx17/templates/confirmation/new.html.heex:14
+#: priv/phx16/templates/confirmation/new.html.heex:1
+#: priv/phx16/templates/confirmation/new.html.heex:8
 msgid "Resend confirmation instructions"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/session/new.html.heex:5
+#: priv/phx16/templates/session/new.html.heex:5
 #: priv/phx16/templates/session/new.html.heex:5
 msgid "Warning: at the next failed attempt, the account will be locked"
 msgstr ""
@@ -453,11 +542,17 @@ msgstr ""
 #: priv/phx17/templates/registration/new.html.heex:34
 #: priv/phx16/templates/registration/new.html.heex:24
 #: priv/phx16/templates/session/new.html.heex:16
+#: priv/phx17/templates/session/new.html.heex:18
+#: priv/phx17/templates/registration/new.html.heex:34
+#: priv/phx16/templates/registration/new.html.heex:24
+#: priv/phx16/templates/session/new.html.heex:16
 msgid "Password"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/session/new.html.heex:24
+#: priv/phx17/templates/session/new.html.heex:23
+#: priv/phx16/templates/session/new.html.heex:24
 #: priv/phx17/templates/session/new.html.heex:23
 #: priv/phx16/templates/session/new.html.heex:24
 msgid "Remember Me?"
@@ -467,6 +562,8 @@ msgstr ""
 #: priv/templates/session/new.html.heex:30
 #: priv/phx17/templates/session/new.html.heex:29
 #: priv/phx16/templates/session/new.html.heex:30
+#: priv/phx17/templates/session/new.html.heex:29
+#: priv/phx16/templates/session/new.html.heex:30
 msgid "Sign In"
 msgstr ""
 
@@ -474,11 +571,15 @@ msgstr ""
 #: priv/templates/shared/message.html.heex:8
 #: priv/phx17/templates/shared/message.html.heex:11
 #: priv/phx16/templates/shared/message.html.heex:8
+#: priv/phx17/templates/shared/message.html.heex:11
+#: priv/phx16/templates/shared/message.html.heex:8
 msgid "Back"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/shared/links.html.heex:3
+#: priv/phx17/templates/shared/links.html.heex:7
+#: priv/phx16/templates/shared/links.html.heex:4
 #: priv/phx17/templates/shared/links.html.heex:7
 #: priv/phx16/templates/shared/links.html.heex:4
 msgid "Sign in"
@@ -491,11 +592,17 @@ msgstr ""
 #: priv/phx17/templates/registration/new.html.heex:55
 #: priv/phx16/templates/registration/new.html.heex:43
 #: priv/phx16/templates/shared/links.html.heex:9
+#: priv/phx17/templates/shared/links.html.heex:16
+#: priv/phx17/templates/registration/new.html.heex:55
+#: priv/phx16/templates/registration/new.html.heex:43
+#: priv/phx16/templates/shared/links.html.heex:9
 msgid "Sign up"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/shared/links.html.heex:12
+#: priv/phx17/templates/shared/links.html.heex:34
+#: priv/phx16/templates/shared/links.html.heex:19
 #: priv/phx17/templates/shared/links.html.heex:34
 #: priv/phx16/templates/shared/links.html.heex:19
 msgid "Didn't receive confirmation instructions?"
@@ -505,6 +612,8 @@ msgstr ""
 #: priv/templates/shared/links.html.heex:15
 #: priv/phx17/templates/shared/links.html.heex:43
 #: priv/phx16/templates/shared/links.html.heex:24
+#: priv/phx17/templates/shared/links.html.heex:43
+#: priv/phx16/templates/shared/links.html.heex:24
 msgid "Didn't receive unlock instructions?"
 msgstr ""
 
@@ -512,6 +621,12 @@ msgstr ""
 #: priv/templates/registration/edit.html.heex:5
 #: priv/templates/registration/new.html.heex:14
 #: priv/templates/registration/new.html.heex:19
+#: priv/phx17/templates/registration/new.html.heex:21
+#: priv/phx17/templates/registration/new.html.heex:28
+#: priv/phx17/templates/registration/edit.html.heex:18
+#: priv/phx16/templates/registration/edit.html.heex:5
+#: priv/phx16/templates/registration/new.html.heex:14
+#: priv/phx16/templates/registration/new.html.heex:19
 #: priv/phx17/templates/registration/new.html.heex:21
 #: priv/phx17/templates/registration/new.html.heex:28
 #: priv/phx17/templates/registration/edit.html.heex:18
@@ -529,6 +644,11 @@ msgstr ""
 #: priv/phx17/templates/registration/edit.html.heex:123
 #: priv/phx16/templates/registration/edit.html.heex:9
 #: priv/phx16/templates/registration/edit.html.heex:38
+#: priv/phx17/templates/registration/edit.html.heex:25
+#: priv/phx17/templates/registration/edit.html.heex:77
+#: priv/phx17/templates/registration/edit.html.heex:123
+#: priv/phx16/templates/registration/edit.html.heex:9
+#: priv/phx16/templates/registration/edit.html.heex:38
 msgid "Current password"
 msgstr ""
 
@@ -536,6 +656,12 @@ msgstr ""
 #: priv/templates/registration/edit.html.heex:10
 #: priv/templates/registration/edit.html.heex:39
 #: priv/templates/registration/edit.html.heex:62
+#: priv/phx17/templates/registration/edit.html.heex:26
+#: priv/phx17/templates/registration/edit.html.heex:78
+#: priv/phx17/templates/registration/edit.html.heex:124
+#: priv/phx16/templates/registration/edit.html.heex:10
+#: priv/phx16/templates/registration/edit.html.heex:39
+#: priv/phx16/templates/registration/edit.html.heex:62
 #: priv/phx17/templates/registration/edit.html.heex:26
 #: priv/phx17/templates/registration/edit.html.heex:78
 #: priv/phx17/templates/registration/edit.html.heex:124
@@ -555,11 +681,21 @@ msgstr ""
 #: priv/phx16/templates/registration/edit.html.heex:14
 #: priv/phx16/templates/registration/edit.html.heex:43
 #: priv/phx16/templates/registration/edit.html.heex:54
+#: priv/phx17/templates/registration/edit.html.heex:30
+#: priv/phx17/templates/registration/edit.html.heex:82
+#: priv/phx17/templates/registration/edit.html.heex:102
+#: priv/phx17/templates/role/edit.html.heex:5
+#: priv/phx16/templates/registration/edit.html.heex:14
+#: priv/phx16/templates/registration/edit.html.heex:43
+#: priv/phx16/templates/registration/edit.html.heex:54
+#: priv/phx16/templates/role/edit.html.heex:7
 msgid "Update"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/registration/edit.html.heex:64
+#: priv/phx17/templates/registration/edit.html.heex:130
+#: priv/phx16/templates/registration/edit.html.heex:64
 #: priv/phx17/templates/registration/edit.html.heex:130
 #: priv/phx16/templates/registration/edit.html.heex:64
 msgid "I'm sure I want to delete my account and I understand the operation can't be reverted"
@@ -569,11 +705,17 @@ msgstr ""
 #: priv/templates/registration/edit.html.heex:68
 #: priv/phx17/templates/registration/edit.html.heex:134
 #: priv/phx16/templates/registration/edit.html.heex:68
+#: priv/phx17/templates/registration/edit.html.heex:134
+#: priv/phx17/templates/role/index.html.heex:7
+#: priv/phx16/templates/registration/edit.html.heex:68
+#: priv/phx16/templates/role/index.html.heex:14
 msgid "Delete"
 msgstr ""
 
 #, elixir-format
 #: priv/templates/registration/new.html.heex:18
+#: priv/phx17/templates/registration/new.html.heex:27
+#: priv/phx16/templates/registration/new.html.heex:18
 #: priv/phx17/templates/registration/new.html.heex:27
 #: priv/phx16/templates/registration/new.html.heex:18
 msgid "Confirm email"
@@ -586,6 +728,10 @@ msgstr ""
 #: priv/phx17/templates/registration/new.html.heex:50
 #: priv/phx16/templates/registration/new.html.heex:25
 #: priv/phx16/templates/registration/new.html.heex:38
+#: priv/phx17/templates/registration/new.html.heex:35
+#: priv/phx17/templates/registration/new.html.heex:50
+#: priv/phx16/templates/registration/new.html.heex:25
+#: priv/phx16/templates/registration/new.html.heex:38
 msgid "your password"
 msgstr ""
 
@@ -593,6 +739,46 @@ msgstr ""
 #: priv/templates/registration/new.html.heex:35
 #: priv/phx17/templates/registration/new.html.heex:49
 #: priv/phx16/templates/registration/new.html.heex:37
+#: priv/phx17/templates/registration/new.html.heex:49
+#: priv/phx16/templates/registration/new.html.heex:37
 msgid "Confirm password"
+msgstr ""
+
+#, elixir-format
+#: lib/haytni_web/plugs/rolable/roles_restricted_plug.ex:60
+msgid "Access restricted"
+msgstr ""
+
+#, elixir-format
+#: priv/phx17/templates/role/new.html.heex:5
+#: priv/phx16/templates/role/new.html.heex:7
+msgid "Create"
+msgstr ""
+
+#, elixir-format
+#: priv/phx17/templates/role/new.html.heex:6
+#: priv/phx16/templates/role/new.html.heex:8
+msgid "New"
+msgstr ""
+
+#, elixir-format
+#: priv/phx17/templates/role/index.html.heex:2
+#: priv/phx16/templates/role/_form.html.heex:8
+#: priv/phx16/templates/role/index.html.heex:4
+msgid "Name"
+msgstr ""
+
+#, elixir-format
+#: priv/phx17/templates/role/index.html.heex:6
+#: priv/phx17/templates/role/edit.html.heex:6
+#: priv/phx16/templates/role/edit.html.heex:8
+#: priv/phx16/templates/role/index.html.heex:13
+msgid "Edit"
+msgstr ""
+
+#, elixir-format
+#: priv/phx17/templates/role/index.html.heex:12
+#: priv/phx16/templates/role/index.html.heex:22
+msgid "Add"
 msgstr ""
 

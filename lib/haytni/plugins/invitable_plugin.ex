@@ -38,7 +38,7 @@ defmodule Haytni.InvitablePlugin do
       the option `#{inspect(@invitation_path_key)}` to your YourApp.Haytni.routes/1 call in your router (eg: `YourApp.Haytni.routes(#{@invitation_path_key}: "/sponsorship")`)
   """
 
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   @type invitation :: struct
 

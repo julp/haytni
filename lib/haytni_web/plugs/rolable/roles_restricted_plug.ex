@@ -41,7 +41,7 @@ defmodule HaytniWeb.RolablePlugin.RoleRestrictedPlug do
 
   @behaviour Plug
 
-  require Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   @impl Plug
   def init(roles) do
@@ -57,7 +57,7 @@ defmodule HaytniWeb.RolablePlugin.RoleRestrictedPlug do
       conn
     else
       conn
-      |> Phoenix.Controller.put_flash(:error, Haytni.Gettext.dgettext("haytni", "Access restricted"))
+      |> Phoenix.Controller.put_flash(:error, dgettext("haytni", "Access restricted"))
       |> Phoenix.Controller.redirect(to: "/")
       |> Plug.Conn.halt()
     end

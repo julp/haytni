@@ -3,7 +3,7 @@ defmodule HaytniWeb.Confirmable.ConfirmationController do
 
   use HaytniWeb, :controller
   use HaytniWeb.Helpers, Haytni.ConfirmablePlugin
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   @spec confirmed_message() :: String.t
   def confirmed_message do

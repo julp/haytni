@@ -3,7 +3,7 @@ defmodule HaytniWeb.Lockable.UnlockController do
 
   use HaytniWeb, :controller
   use HaytniWeb.Helpers, Haytni.LockablePlugin
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   @spec unlock_message() :: String.t
   def unlock_message do

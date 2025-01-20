@@ -84,8 +84,8 @@ defmodule Haytni.RegisterablePlugin do
       - #{@edit_registration_path_key} (default: `registration_path <> "/edit"`): same for *edit* action (profile edition)
   """
 
-  require Haytni.Gettext
   import Haytni.Helpers
+  use Gettext, backend: Haytni.Gettext
 
   defstruct [
     with_delete: @default_with_delete,
@@ -179,7 +179,7 @@ defmodule Haytni.RegisterablePlugin do
   """
   @spec invalid_current_password_message() :: String.t
   def invalid_current_password_message do
-    Haytni.Gettext.dgettext("haytni", "is invalid")
+    dgettext("haytni", "is invalid")
   end
 
   @doc ~S"""
@@ -187,7 +187,7 @@ defmodule Haytni.RegisterablePlugin do
   """
   @spec has_not_changed_message() :: String.t
   def has_not_changed_message do
-    Haytni.Gettext.dgettext("haytni", "has not changed")
+    dgettext("haytni", "has not changed")
   end
 
   defp validate_current_password(changeset = %Ecto.Changeset{}, password, module) do
@@ -321,7 +321,7 @@ if false do
   """
   @spec account_deletion_disabled_message() :: String.t
   def account_deletion_disabled_message do
-    Haytni.Gettext.dgettext("haytni", "account deletion is not available")
+    dgettext("haytni", "account deletion is not available")
   end
 
   defp check_account_deletion(changeset, %__MODULE__{with_delete: true}), do: changeset

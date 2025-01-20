@@ -103,7 +103,7 @@ defmodule Haytni.Helpers do
   """
   @spec no_match_message() :: String.t
   def no_match_message do
-    import Haytni.Gettext
+    use Gettext, backend: Haytni.Gettext
 
     dgettext("haytni", "doesn't match to any account")
   end
@@ -113,7 +113,7 @@ defmodule Haytni.Helpers do
   """
   @spec concat_spam_check_hint_message(message :: String.t) :: String.t
   def concat_spam_check_hint_message(message) do
-    import Haytni.Gettext
+    use Gettext, backend: Haytni.Gettext
 
     [message, dgettext("haytni", "You may need to look at the spams folder.")]
     |> Enum.join("\n\n")

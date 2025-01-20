@@ -68,7 +68,7 @@ defmodule Haytni.AuthenticablePlugin do
       ```
   """
 
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   defstruct [
     hashing_method: nil,

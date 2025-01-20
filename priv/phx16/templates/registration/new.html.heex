@@ -10,19 +10,19 @@
     <%% end %>
 
     <div class="form-group">
-      <%%= label f, :email, Haytni.Gettext.dgettext("haytni", "Email"), class: "control-label" %>
-      <%%= email_input f, :email, class: "form-control", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "your email") %>
+      <%%= label f, :email, dgettext("haytni", "Email"), class: "control-label" %>
+      <%%= email_input f, :email, class: "form-control", required: "", placeholder: dgettext("haytni", "your email") %>
       <%%= error_tag f, :email %>
     </div>
     <div class="form-group">
-      <%%= label f, :email_confirmation, Haytni.Gettext.dgettext("haytni", "Confirm email"), class: "control-label" %>
-      <%%= email_input f, :email_confirmation, class: "form-control", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "your email") %>
+      <%%= label f, :email_confirmation, dgettext("haytni", "Confirm email"), class: "control-label" %>
+      <%%= email_input f, :email_confirmation, class: "form-control", required: "", placeholder: dgettext("haytni", "your email") %>
       <%%= error_tag f, :email_confirmation %>
     </div>
 
     <div class="form-group">
-      <%%= label f, :password, Haytni.Gettext.dgettext("haytni", "Password"), class: "control-label" %>
-      <%%= password_input f, :password, class: "form-control", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "your password") %>
+      <%%= label f, :password, dgettext("haytni", "Password"), class: "control-label" %>
+      <%%= password_input f, :password, class: "form-control", required: "", placeholder: dgettext("haytni", "your password") %>
       <%%= error_tag f, :password %>
     </div>
     <small
@@ -31,17 +31,17 @@
       :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
     >
       <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
-      <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
+      <%%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
     </small>
     <div class="form-group">
-      <%%= label f, :password_confirmation, Haytni.Gettext.dgettext("haytni", "Confirm password"), class: "control-label" %>
-      <%%= password_input f, :password_confirmation, class: "form-control", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "your password") %>
+      <%%= label f, :password_confirmation, dgettext("haytni", "Confirm password"), class: "control-label" %>
+      <%%= password_input f, :password_confirmation, class: "form-control", required: "", placeholder: dgettext("haytni", "your password") %>
       <%%= error_tag f, :password_confirmation %>
     </div>
 
     <div class="form-group">
-      <%%= submit Haytni.Gettext.dgettext("haytni", "Sign up"), class: "btn btn-primary" %>
-      <%%= link Haytni.Gettext.dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
+      <%%= submit dgettext("haytni", "Sign up"), class: "btn btn-primary" %>
+      <%%= link dgettext("haytni", "Cancel"), to: "/", class: "btn" %>
     </div>
     <%%= render <%= [web_module, :Haytni, camelized_scope, "SharedView"] |> Module.concat() |> inspect() %>, "links.html", assigns %>
   <%% end %>

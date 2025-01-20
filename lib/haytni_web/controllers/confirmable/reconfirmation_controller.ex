@@ -3,7 +3,7 @@ defmodule HaytniWeb.Confirmable.ReconfirmationController do
 
   use HaytniWeb, :controller
   use HaytniWeb.Helpers, {Haytni.ConfirmablePlugin, :with_current_user}
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   @spec address_updated_message() :: String.t
   def address_updated_message do

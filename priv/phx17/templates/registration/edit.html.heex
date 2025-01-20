@@ -14,23 +14,23 @@
     required
     type="email"
     field={f[:email]}
-    label={Haytni.Gettext.dgettext("haytni", "Email")}
-    placeholder={Haytni.Gettext.dgettext("haytni", "your email")}
+    label={dgettext("haytni", "Email")}
+    placeholder={dgettext("haytni", "your email")}
   />
   <.input
     required
     type="password"
     name="current_password"
     field={f[:current_password]}
-    label={Haytni.Gettext.dgettext("haytni", "Current password")}
-    placeholder={Haytni.Gettext.dgettext("haytni", "your current password")}
+    label={dgettext("haytni", "Current password")}
+    placeholder={dgettext("haytni", "your current password")}
   />
   <:actions>
     <.button>
-      <%%= Haytni.Gettext.dgettext("haytni", "Update") %>
+      <%%= dgettext("haytni", "Update") %>
     </.button>
     <.link href="/" class="btn">
-      <%%= Haytni.Gettext.dgettext("haytni", "Cancel") %>
+      <%%= dgettext("haytni", "Cancel") %>
     </.link>
   </:actions>
 </.simple_form>
@@ -51,8 +51,8 @@
     required
     type="password"
     field={f[:password]}
-    label={Haytni.Gettext.dgettext("haytni", "New password")}
-    placeholder={Haytni.Gettext.dgettext("haytni", "your new password")}
+    label={dgettext("haytni", "New password")}
+    placeholder={dgettext("haytni", "your new password")}
   />
   <small
     id="passwordHelpBlock"
@@ -60,29 +60,29 @@
     :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
   >
     <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
-    <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
+    <%%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
   </small>
   <.input
     required
     type="password"
     field={f[:password_confirmation]}
-    label={Haytni.Gettext.dgettext("haytni", "Confirm new password")}
-    placeholder={Haytni.Gettext.dgettext("haytni", "your new password")}
+    label={dgettext("haytni", "Confirm new password")}
+    placeholder={dgettext("haytni", "your new password")}
   />
   <.input
     required
     type="password"
     name="current_password"
     field={f[:current_password]}
-    label={Haytni.Gettext.dgettext("haytni", "Current password")}
-    placeholder={Haytni.Gettext.dgettext("haytni", "your current password")}
+    label={dgettext("haytni", "Current password")}
+    placeholder={dgettext("haytni", "your current password")}
   />
   <:actions>
     <.button>
-      <%%= Haytni.Gettext.dgettext("haytni", "Update") %>
+      <%%= dgettext("haytni", "Update") %>
     </.button>
     <.link href="/" class="btn">
-      <%%= Haytni.Gettext.dgettext("haytni", "Cancel") %>
+      <%%= dgettext("haytni", "Cancel") %>
     </.link>
   </:actions>
 </.simple_form>
@@ -99,10 +99,10 @@
 
   <:actions>
     <.button>
-      <%%= Haytni.Gettext.dgettext("haytni", "Update") %>
+      <%%= dgettext("haytni", "Update") %>
     </.button>
     <.link href="/" class="btn">
-      <%%= Haytni.Gettext.dgettext("haytni", "Cancel") %>
+      <%%= dgettext("haytni", "Cancel") %>
     </.link>
   </:actions>
 </.simple_form>
@@ -120,18 +120,18 @@
       type="password"
       name="current_password"
       field={f[:current_password]}
-      label={Haytni.Gettext.dgettext("haytni", "Current password")}
-      placeholder={Haytni.Gettext.dgettext("haytni", "your current password")}
+      label={dgettext("haytni", "Current password")}
+      placeholder={dgettext("haytni", "your current password")}
     />
     <.input
       required
       type="checkbox"
       field={f[:accept_deletion]}
-      label={Haytni.Gettext.dgettext("haytni", "I'm sure I want to delete my account and I understand the operation can't be reverted")}
+      label={dgettext("haytni", "I'm sure I want to delete my account and I understand the operation can't be reverted")}
     />
     <:actions>
       <.button class="danger">
-        <%%= Haytni.Gettext.dgettext("haytni", "Delete") %>
+        <%%= dgettext("haytni", "Delete") %>
       </.button>
     </:actions>
   </.simple_form>

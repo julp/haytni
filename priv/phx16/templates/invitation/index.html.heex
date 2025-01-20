@@ -2,10 +2,10 @@
   <table>
     <thead>
       <tr>
-        <th><%%= Haytni.Gettext.dgettext("haytni", "Sent at") %></th>
-        <th><%%= Haytni.Gettext.dgettext("haytni", "Sent to") %></th>
-        <th><%%= Haytni.Gettext.dgettext("haytni", "Accepted at") %></th>
-        <th><%%= Haytni.Gettext.dgettext("haytni", "Accepted by") %></th>
+        <th><%%= dgettext("haytni", "Sent at") %></th>
+        <th><%%= dgettext("haytni", "Sent to") %></th>
+        <th><%%= dgettext("haytni", "Accepted at") %></th>
+        <th><%%= dgettext("haytni", "Accepted by") %></th>
         <th></th>
       </tr>
     </thead>
@@ -16,17 +16,17 @@
           <td><%%= invitation.sent_to %></td>
           <td><%%= if is_nil(invitation.accepted_at), do: "-", else: invitation.accepted_at %></td>
           <td><%%= if is_nil(invitation.accepted_by), do: "-", else: invitation.accepted_by %></td>
-          <td><%%= if is_nil(invitation.accepted_by), do: link(Haytni.Gettext.dgettext("haytni", "Revoke"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :delete, invitation), method: :delete) %></td>
+          <td><%%= if is_nil(invitation.accepted_by), do: link(dgettext("haytni", "Revoke"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :delete, invitation), method: :delete) %></td>
         </tr>
       <%% end %>
     </tbody>
   </table>
 <%% else %>
   <p>
-    <%%= Haytni.Gettext.dgettext("haytni", "You have not send any invitation for now.") %>
+    <%%= dgettext("haytni", "You have not send any invitation for now.") %>
   </p>
 <%% end %>
 
 <p>
-  <%%= link Haytni.Gettext.dgettext("haytni", "Do you have a friend you want to invite?"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :new) %>
+  <%%= link dgettext("haytni", "Do you have a friend you want to invite?"), to: <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :new) %>
 </p>

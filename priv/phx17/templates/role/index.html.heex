@@ -1,13 +1,13 @@
 <.table rows={@roles}>
-  <:col :let={role} label={Haytni.Gettext.dgettext("haytni", "Name")}>
+  <:col :let={role} label={dgettext("haytni", "Name")}>
     <%%= role.name %>
   </:col>
   <:action :let={role}>
-    <.link href={@role_path_3.(@conn, :edit, role)}><%%= Haytni.Gettext.dgettext("haytni", "Edit") %></.link>
-    <.link href={@role_path_3.(@conn, :delete, role)} method="delete"><%%= Haytni.Gettext.dgettext("haytni", "Delete") %></.link>
+    <.link href={@role_path_3.(@conn, :edit, role)}><%%= dgettext("haytni", "Edit") %></.link>
+    <.link href={@role_path_3.(@conn, :delete, role)} method="delete"><%%= dgettext("haytni", "Delete") %></.link>
   </:action>
 </.table>
 
 <p>
-  <.link href={@role_path_2.(@conn, :new)}><%%= Haytni.Gettext.dgettext("haytni", "Add") %></.link>
+  <.link href={@role_path_2.(@conn, :new)}><%%= dgettext("haytni", "Add") %></.link>
 </p>

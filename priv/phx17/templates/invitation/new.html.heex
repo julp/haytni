@@ -13,16 +13,16 @@
     required
     type="email"
     field={f[:sent_to]}
-    label={Haytni.Gettext.dgettext("haytni", "Email")}
-    placeholder={Haytni.Gettext.dgettext("haytni", "email address of your friend")}
+    label={dgettext("haytni", "Email")}
+    placeholder={dgettext("haytni", "email address of your friend")}
   />
 
   <:actions>
     <.button>
-      <%%= Haytni.Gettext.dgettext("haytni", "Invite") %>
+      <%%= dgettext("haytni", "Invite") %>
     </.button>
     <.link href="/" class="btn">
-      <%%= Haytni.Gettext.dgettext("haytni", "Cancel") %>
+      <%%= dgettext("haytni", "Cancel") %>
     </.link>
   </:actions>
 

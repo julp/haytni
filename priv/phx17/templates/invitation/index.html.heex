@@ -1,35 +1,35 @@
 <%%= if Enum.any?(@invitations) do %>
   <:table rows={@invitations}>
-    <:col :let={invitation} label={Haytni.Gettext.dgettext("haytni", "Sent at")}>
+    <:col :let={invitation} label={dgettext("haytni", "Sent at")}>
       <%%= invitation.sent_at %>
     </:col>
-    <:col :let={invitation} label={Haytni.Gettext.dgettext("haytni", "Sent to")}>
+    <:col :let={invitation} label={dgettext("haytni", "Sent to")}>
       <%%= invitation.sent_to %>
     </:col>
-    <:col :let={invitation} label={Haytni.Gettext.dgettext("haytni", "Accepted at")}>
+    <:col :let={invitation} label={dgettext("haytni", "Accepted at")}>
       <%%= if is_nil(invitation.accepted_at), do: "-", else: invitation.accepted_at %>
     </:col>
-    <:col :let={invitation} label={Haytni.Gettext.dgettext("haytni", "Accepted by")}>
+    <:col :let={invitation} label={dgettext("haytni", "Accepted by")}>
       <%%= if is_nil(invitation.accepted_by), do: "-", else: invitation.accepted_by %>
     </:col>
-    <:action :let={invitation} label={Haytni.Gettext.dgettext("haytni", "Sent to")}>
+    <:action :let={invitation} label={dgettext("haytni", "Sent to")}>
       <.link
         href={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :delete, invitation)}
         method="delete"
         :if={is_nil(invitation.accepted_by)}
       >
-        <%%= Haytni.Gettext.dgettext("haytni", "Revoke") %>
+        <%%= dgettext("haytni", "Revoke") %>
       </.link>
     </:action>
   </:table>
 <%% else %>
   <p>
-    <%%= Haytni.Gettext.dgettext("haytni", "You have not send any invitation for now.") %>
+    <%%= dgettext("haytni", "You have not send any invitation for now.") %>
   </p>
 <%% end %>
 
 <p>
   <.link href={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :new)}>
-    <%%= Haytni.Gettext.dgettext("haytni", "Do you have a friend you want to invite?") %>
+    <%%= dgettext("haytni", "Do you have a friend you want to invite?") %>
   </.link>
 </p>

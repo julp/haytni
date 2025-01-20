@@ -2,7 +2,7 @@
 
 <%= if false do %>
   <%%= if Haytni.plugin_enabled?(@module, Haytni.LockablePlugin) && Haytni.LockablePlugin.last_attempt?(TODO) do %>
-    <p><%%= Haytni.Gettext.dgettext("haytni", "Warning: at the next failed attempt, the account will be locked") %></p>
+    <p><%%= dgettext("haytni", "Warning: at the next failed attempt, the account will be locked") %></p>
   <%% end %>
 <% end %>
 
@@ -13,7 +13,7 @@
   <%%= render <%= [web_module, :Haytni, camelized_scope, "SharedView"] |> Module.concat() |> inspect() %>, "keys.html", changeset: @changeset, f: f, keys: @config.authentication_keys %>
 
   <div class="form-group">
-    <%%= label f, :password, Haytni.Gettext.dgettext("haytni", "Password"), class: "control-label" %>
+    <%%= label f, :password, dgettext("haytni", "Password"), class: "control-label" %>
     <%%= password_input f, :password, class: "form-control", required: "" %>
     <%%= error_tag f, :password %>
   </div>
@@ -21,13 +21,13 @@
   <%%= if Haytni.plugin_enabled?(@module, Haytni.RememberablePlugin) do %>
     <div class="form-group">
       <%%= checkbox f, :remember, hidden_input: false %>
-      <%%= label f, :remember, Haytni.Gettext.dgettext("haytni", "Remember Me?") %>
+      <%%= label f, :remember, dgettext("haytni", "Remember Me?") %>
     </div>
     <br/>
   <%% end %>
 
   <div class="form-group">
-    <%%= submit Haytni.Gettext.dgettext("haytni", "Sign In"), class: "btn btn-primary" %>
+    <%%= submit dgettext("haytni", "Sign In"), class: "btn btn-primary" %>
   </div>
 
   <%%= render <%= [web_module, :Haytni, camelized_scope, "SharedView"] |> Module.concat() |> inspect() %>, "links.html", assigns %>

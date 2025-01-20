@@ -26,7 +26,7 @@ defmodule Haytni.RecoverablePlugin do
       you want by specifying the option `#{inspect(@password_path_key)}` to your YourApp.Haytni.routes/1 call in your router (eg: `YourApp.Haytni.routes(#{@password_path_key}: "/recover")`)
   """
 
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   defstruct [
     reset_password_keys: @default_reset_password_keys,

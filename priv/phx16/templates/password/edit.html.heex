@@ -1,4 +1,4 @@
-<h2><%%= Haytni.Gettext.dgettext("haytni", "Change your password") %></h2>
+<h2><%%= dgettext("haytni", "Change your password") %></h2>
 
 <%%= form_for @changeset, <%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :update), [as: :password, method: :patch], fn f -> %>
 
@@ -6,8 +6,8 @@
   <%%= error_tag f, :reset_password_token %>
 
   <div class="form-group">
-    <%%= label f, :password, Haytni.Gettext.dgettext("haytni", "New password") %><br />
-    <%%= password_input f, :password, autofocus: true, autocomplete: "new-password", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "your new password") %>
+    <%%= label f, :password, dgettext("haytni", "New password") %><br />
+    <%%= password_input f, :password, autofocus: true, autocomplete: "new-password", required: "", placeholder: dgettext("haytni", "your new password") %>
     <%%= error_tag f, :password %>
   </div>
   <small
@@ -16,16 +16,16 @@
     :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
   >
     <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
-    <%%= Haytni.Gettext.dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
+    <%%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
   </small>
 
   <div class="form-group">
-    <%%= label f, :password_confirmation, Haytni.Gettext.dgettext("haytni", "Confirm new password") %><br />
-    <%%= password_input f, :password_confirmation, autocomplete: "off", required: "", placeholder: Haytni.Gettext.dgettext("haytni", "your new password") %>
+    <%%= label f, :password_confirmation, dgettext("haytni", "Confirm new password") %><br />
+    <%%= password_input f, :password_confirmation, autocomplete: "off", required: "", placeholder: dgettext("haytni", "your new password") %>
     <%%= error_tag f, :password_confirmation %>
   </div>
 
   <div class="form-group">
-    <%%= submit Haytni.Gettext.dgettext("haytni", "Change my password") %>
+    <%%= submit dgettext("haytni", "Change my password") %>
   </div>
 <%% end %>

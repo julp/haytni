@@ -3,7 +3,7 @@ defmodule HaytniWeb.Recoverable.PasswordController do
 
   use HaytniWeb, :controller
   use HaytniWeb.Helpers, Haytni.RecoverablePlugin
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   defp render_new(conn, changeset = %Ecto.Changeset{}) do
     conn

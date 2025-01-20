@@ -15,21 +15,21 @@
     required
     type="password"
     field={f[:password]}
-    label={Haytni.Gettext.dgettext("haytni", "Password")}
+    label={dgettext("haytni", "Password")}
   />
   <.input
     type="checkbox"
     field={f[:remember]}
-    label={Haytni.Gettext.dgettext("haytni", "Remember Me?")}
+    label={dgettext("haytni", "Remember Me?")}
     :if={Haytni.plugin_enabled?(@module, Haytni.RememberablePlugin)}
   />
 
   <:actions>
     <.button>
-      <%%= Haytni.Gettext.dgettext("haytni", "Sign In") %>
+      <%%= dgettext("haytni", "Sign In") %>
     </.button>
     <.link href="/" class="btn">
-      <%%= Haytni.Gettext.dgettext("haytni", "Cancel") %>
+      <%%= dgettext("haytni", "Cancel") %>
     </.link>
   </:actions>
 

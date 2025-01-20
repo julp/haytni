@@ -2,7 +2,7 @@
 
 ## ?.?.? (????-??-??)
 
-- :gettext updated to 0.20
+- :gettext updated to 0.26
 - fixed various depreciations:
   + `Mix.Config` => `Config`
   + collecting into a non-empty list
@@ -19,6 +19,17 @@
 - added Rolable plugin to import entire group/role support
 
 Haytni doesn't directly rely on Bamboo anymore. Consequently, you'll need to add it as a dependency to your project (add `{:bamboo, "~> 2.2"}` to the `deps/0` function of your mix.exs file) and modify your mailer from `use Bamboo.Mailer, otp_app: :my_app` to `use Haytni.Mailer, otp_app: :my_app, adapter: Haytni.Mailer.BambooAdapter`. If you prefer, you can replace Bamboo in the same way (for Swoosh or whatever).
+
+Commands to upgrade to comply with gettext 0.26:
+
+```
+# Phoenix < 1.7.0
+find lib/my_app_web/views/ -type f -exec sed -i '' 's/require Haytni.Gettext/use Gettext, backend: Haytni.Gettext/g' {} \;
+find lib/my_app_web/templates/ -type f -exec sed -i '' 's/Haytni.Gettext.dgettext("haytni",/dgettext("haytni",/g' {} \;
+# Phoenix >= 1.7.0
+find lib/my_app_web/controllers/haytni/ -type f -exec sed -i '' 's/require Haytni.Gettext/use Gettext, backend: Haytni.Gettext/g' {} \;
+find lib/my_app_web/controllers/haytni/ -type f -exec sed -i '' 's/Haytni.Gettext.dgettext("haytni",/dgettext("haytni",/g' {} \;
+```
 
 
 ## 0.7.0 (2022-04-10)

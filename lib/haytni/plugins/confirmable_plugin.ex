@@ -39,7 +39,7 @@ defmodule Haytni.ConfirmablePlugin do
     * `haytni_<scope>_reconfirmation_path` (actions: show): default path is `#{inspect(@default_reconfirmation_path)}` (overridable by the option `#{inspect(@reconfirmation_path_key)}`)
   """
 
-  import Haytni.Gettext
+  use Gettext, backend: Haytni.Gettext
 
   defstruct [
     reconfirmable: @default_reconfirmable,
