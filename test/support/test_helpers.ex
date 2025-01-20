@@ -421,7 +421,7 @@ defmodule Haytni.TestHelpers do
   # Borrowed to phoenix (phoenix/installer/test/mix_helper.exs)
   @spec random_string(len :: non_neg_integer) :: String.t
   def random_string(len) do
-    'abcdefghijklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ'
+    ~C'abcdefghijklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ'
     |> Enum.shuffle()
     |> Enum.take(len)
     |> to_string()
