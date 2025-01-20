@@ -12,8 +12,9 @@ defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
   defp put_unless_nil(map, key, value), do: Map.put(map, key, value)
 
   defp to_changeset(invitation, email, config) do
-    params = %{email: email}
-    |> put_unless_nil(:invitation, invitation)
+    params =
+      %{email: email}
+      |> put_unless_nil(:invitation, invitation)
 
     %HaytniTest.User{}
     |> Ecto.Changeset.cast(params, ~W[invitation email]a)
@@ -35,7 +36,7 @@ defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
     end
 
     test "ensures registration is possible without invitation when invitation_required = false", %{config: config} do
-      assert catch_error(to_changeset(nil, @bad_email, %{config | invitation_required: false}))
+      assert {:ok, %HaytniTest.User{}} = to_changeset(nil, @bad_email, %{config | invitation_required: false})
     end
 
     test "ensures registration is not possible without invitation when invitation_required = true", %{config: config} do
@@ -71,11 +72,11 @@ defmodule Haytni.Invitable.ValidateCreateRegistrationTest do
     end
 
     test "ensures registration is possible with an invitation when required (invitation_required = true)", %{config: config} do
-      assert catch_error(to_changeset(@code, @bad_email, %{config | email_matching_invitation: false}))
+      assert {:ok, %HaytniTest.User{}} = to_changeset(@code, @bad_email, %{config | email_matching_invitation: false})
     end
 
     test "ensures registration is possible with an invitation when required and email address matches (invitation_required = true + email_matching_invitation = true)", %{config: config} do
-      assert catch_error(to_changeset(@code, @email, %{config | email_matching_invitation: true}))
+      assert {:ok, %HaytniTest.User{}} = to_changeset(@code, @email, %{config | email_matching_invitation: true})
     end
 
     test "ensures registration is not possible with an invitation when required and email address does not match (invitation_required = true + email_matching_invitation = true)", %{config: config} do
