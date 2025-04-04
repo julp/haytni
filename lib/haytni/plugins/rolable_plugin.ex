@@ -13,7 +13,7 @@ defmodule Haytni.RolablePlugin do
   In your Haytni stack, add:
 
   ```elixir
-  stack #{__MODULE__}
+  stack #{inspect(__MODULE__)}
   ```
 
   To manage roles, add, in your router:
@@ -259,7 +259,7 @@ defmodule Haytni.RolablePlugin do
   end
 
   @doc ~S"""
-  Lists all avaible roles from a stack.
+  Lists all available roles from a stack.
   """
   @spec list_roles(module :: module) :: roles
   def list_roles(module)
