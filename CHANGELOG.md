@@ -27,8 +27,8 @@ Commands to upgrade to comply with gettext 0.26:
 find lib/my_app_web/views/ -type f -exec sed -i '' 's/require Haytni.Gettext/use Gettext, backend: Haytni.Gettext/g' {} \;
 find lib/my_app_web/templates/ -type f -exec sed -i '' 's/Haytni.Gettext.dgettext("haytni",/dgettext("haytni",/g' {} \;
 # Phoenix >= 1.7.0
-find lib/my_app_web/controllers/haytni/ -type f -exec sed -i '' 's/require Haytni.Gettext/use Gettext, backend: Haytni.Gettext/g' {} \;
-find lib/my_app_web/controllers/haytni/ -type f -exec sed -i '' 's/Haytni.Gettext.dgettext("haytni",/dgettext("haytni",/g' {} \;
+find lib/my_app_web/controllers/haytni/ lib/my_app_web/emails/haytni/ -type f -exec sed -i '' 's/require Haytni.Gettext/use Gettext, backend: Haytni.Gettext/g' {} \;
+find lib/my_app_web/controllers/haytni/ lib/my_app_web/emails/haytni/ -type f -exec sed -i '' 's/Haytni.Gettext.dgettext("haytni",/dgettext("haytni",/g' {} \;
 ```
 
 
