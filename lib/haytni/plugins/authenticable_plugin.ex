@@ -96,19 +96,9 @@ defmodule Haytni.AuthenticablePlugin do
 
   @impl Haytni.Plugin
   def files_to_install(_base_path, web_path, scope, timestamp) do
-    if Haytni.Helpers.phoenix17?() do
-      [
-        {:eex, "phx17/views/session_html.ex", Path.join([web_path, "controllers", "haytni", scope, "session_html.ex"])},
-        {:eex, "phx17/templates/session/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "session_html", "new.html.heex"])},
-      ]
-    # TODO: remove this when dropping support for Phoenix < 1.7
-    else
-      [
-        {:eex, "phx16/views/session_view.ex", Path.join([web_path, "views", "haytni", scope, "session_view.ex"])},
-        {:eex, "phx16/templates/session/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "session", "new.html.heex"])},
-      ]
-    end ++ [
-      # migration
+    [
+      {:eex, "phx17/views/session_html.ex", Path.join([web_path, "controllers", "haytni", scope, "session_html.ex"])},
+      {:eex, "phx17/templates/session/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "session_html", "new.html.heex"])},
       {:eex, "migrations/0-authenticable_changes.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_authenticable_#{scope}_changes.exs"])},
     ]
   end

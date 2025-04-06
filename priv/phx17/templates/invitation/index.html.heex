@@ -1,35 +1,41 @@
-<%%= if Enum.any?(@invitations) do %>
-  <:table rows={@invitations}>
-    <:col :let={invitation} label={dgettext("haytni", "Sent at")}>
-      <%%= invitation.sent_at %>
-    </:col>
-    <:col :let={invitation} label={dgettext("haytni", "Sent to")}>
-      <%%= invitation.sent_to %>
-    </:col>
-    <:col :let={invitation} label={dgettext("haytni", "Accepted at")}>
-      <%%= if is_nil(invitation.accepted_at), do: "-", else: invitation.accepted_at %>
-    </:col>
-    <:col :let={invitation} label={dgettext("haytni", "Accepted by")}>
-      <%%= if is_nil(invitation.accepted_by), do: "-", else: invitation.accepted_by %>
-    </:col>
-    <:action :let={invitation} label={dgettext("haytni", "Sent to")}>
-      <.link
-        href={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :delete, invitation)}
-        method="delete"
-        :if={is_nil(invitation.accepted_by)}
-      >
-        <%%= dgettext("haytni", "Revoke") %>
-      </.link>
-    </:action>
-  </:table>
-<%% else %>
-  <p>
-    <%%= dgettext("haytni", "You have not send any invitation for now.") %>
-  </p>
-<%% end %>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+<Layouts.app flash={@flash}>
+<% end %>
+  <%%= if Enum.any?(@invitations) do %>
+    <.table rows={@invitations}>
+      <:col :let={invitation} label={dgettext("haytni", "Sent at")}>
+        <%%= invitation.sent_at %>
+      </:col>
+      <:col :let={invitation} label={dgettext("haytni", "Sent to")}>
+        <%%= invitation.sent_to %>
+      </:col>
+      <:col :let={invitation} label={dgettext("haytni", "Accepted at")}>
+        <%%= if is_nil(invitation.accepted_at), do: "-", else: invitation.accepted_at %>
+      </:col>
+      <:col :let={invitation} label={dgettext("haytni", "Accepted by")}>
+        <%%= if is_nil(invitation.accepted_by), do: "-", else: invitation.accepted_by %>
+      </:col>
+      <:action :let={invitation} label={dgettext("haytni", "Sent to")}>
+        <.link
+          href={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :delete, invitation)}
+          method="delete"
+          :if={is_nil(invitation.accepted_by)}
+        >
+          <%%= dgettext("haytni", "Revoke") %>
+        </.link>
+      </:action>
+    </.table>
+  <%% else %>
+    <p>
+      <%%= dgettext("haytni", "You have not send any invitation for now.") %>
+    </p>
+  <%% end %>
 
-<p>
-  <.link href={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :new)}>
-    <%%= dgettext("haytni", "Do you have a friend you want to invite?") %>
-  </.link>
-</p>
+  <p>
+    <.link href={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :new)}>
+      <%%= dgettext("haytni", "Do you have a friend you want to invite?") %>
+    </.link>
+  </p>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+</Layouts.app>
+<% end %>

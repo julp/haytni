@@ -42,11 +42,11 @@ defmodule Haytni.MixProject do
     [
       {:gettext, "~> 0.20"},
       {:ecto_sql, "~> 3.7"},
-      {:phoenix, "~> 1.6"},
+      {:phoenix, "~> 1.7"},
       {:phoenix_view, "~> 2.0"},
       {:phoenix_ecto, "~> 4.5"},
-      {:phoenix_html, "~> 4.1", override: true},
       {:phoenix_html_helpers, "~> 1.0"},
+      {:phoenix_html, "~> 4.1", override: true},
       {:ex_doc, "~> 0.25", only: :dev, runtime: false},
       # jason is "optional" to phoenix and bamboo
       {:jason, "~> 1.2"},

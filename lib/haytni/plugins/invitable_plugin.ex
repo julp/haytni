@@ -68,28 +68,14 @@ defmodule Haytni.InvitablePlugin do
 
   @impl Haytni.Plugin
   def files_to_install(_base_path, web_path, scope, timestamp) do
-    if Haytni.Helpers.phoenix17?() do
-      [
-        # HTML
-        {:eex, "phx17/views/invitation_html.ex", Path.join([web_path, "controllers", "haytni", scope, "invitation_html.ex"])},
-        {:eex, "phx17/templates/invitation/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "invitation", "new.html.heex"])},
-        # email
-        {:eex, "phx17/views/email/invitable_emails.ex", Path.join([web_path, "emails", "haytni", scope, "invitable_emails.ex"])},
-        {:eex, "phx17/templates/email/invitable/invitation.html.heex", Path.join([web_path, "emails", "haytni", scope, "invitable_html", "invitation.html.heex"])},
-        {:eex, "phx17/templates/email/invitable/invitation.text.eex", Path.join([web_path, "emails", "haytni", scope, "invitable_text", "invitation.text.eex"])},
-      ]
-    # TODO: remove this when dropping support for Phoenix < 1.7
-    else
-      [
-        # HTML
-        {:eex, "phx16/views/invitation_view.ex", Path.join([web_path, "views", "haytni", scope, "invitation_view.ex"])},
-        {:eex, "phx16/templates/invitation/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "invitation", "new.html.heex"])},
-        # email
-        {:eex, "phx16/views/email/invitable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "invitable_view.ex"])},
-        {:eex, "phx16/templates/email/invitable/invitation.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "invitable", "invitation.text.eex"])},
-        {:eex, "phx16/templates/email/invitable/invitation.html.heex", Path.join([web_path, "templates", "haytni", scope, "email", "invitable", "invitation.html.heex"])},
-      ]
-    end ++ [
+    [
+      # HTML
+      {:eex, "phx17/views/invitation_html.ex", Path.join([web_path, "controllers", "haytni", scope, "invitation_html.ex"])},
+      {:eex, "phx17/templates/invitation/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "invitation_html", "new.html.heex"])},
+      # email
+      {:eex, "phx17/views/email/invitable_emails.ex", Path.join([web_path, "emails", "haytni", scope, "invitable_emails.ex"])},
+      {:eex, "phx17/templates/email/invitable/invitation.html.heex", Path.join([web_path, "emails", "haytni", scope, "invitable_html", "invitation.html.heex"])},
+      {:eex, "phx17/templates/email/invitable/invitation.text.eex", Path.join([web_path, "emails", "haytni", scope, "invitable_text", "invitation.text.eex"])},
       # migration
       {:eex, "migrations/0-invitable_creation.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_invitable_#{scope}_creation.exs"])},
     ]

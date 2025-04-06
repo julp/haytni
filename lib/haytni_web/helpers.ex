@@ -17,6 +17,7 @@ defmodule HaytniWeb.Helpers do
         _ ->
           Module.concat([module.web_module(), :Haytni, view_suffix])
       end
+
     conn
     |> Phoenix.Controller.put_view(view_module)
   end
@@ -32,21 +33,21 @@ defmodule HaytniWeb.Helpers do
   end
 
   defmacro __using__(options) do
-    suffix = if Haytni.Helpers.phoenix17?(), do: "HTML", else: "View"
-    quote bind_quoted: [options: options, suffix: suffix] do
+    quote bind_quoted: [options: options] do
       view_suffix =
         __MODULE__
         |> Module.split()
         |> List.last()
         |> Phoenix.Naming.unsuffix("Controller")
-        |> Kernel.<>(suffix)
+        |> Kernel.<>("HTML")
 
-      {plugin, extra_args} = case options do
-        {plugin, :with_current_user} ->
-          {plugin, [quote(do: conn.assigns[module.scoped_assign()])]}
-        plugin when is_atom(plugin) ->
-          {plugin, []}
-      end
+      {plugin, extra_args} =
+        case options do
+          {plugin, :with_current_user} ->
+            {plugin, [quote(do: conn.assigns[module.scoped_assign()])]}
+          plugin when is_atom(plugin) ->
+            {plugin, []}
+        end
 
       def action(conn, _) do
         module = Haytni.fetch_module_from_conn!(conn)

@@ -91,28 +91,14 @@ defmodule Haytni.LockablePlugin do
 
   @impl Haytni.Plugin
   def files_to_install(_base_path, web_path, scope, timestamp) do
-    if Haytni.Helpers.phoenix17?() do
-      [
-        # HTML
-        {:eex, "phx17/views/unlock_html.ex", Path.join([web_path, "controllers", "haytni", scope, "unlock_html.ex"])},
-        {:eex, "phx17/templates/unlock/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "unlock_html", "new.html.heex"])},
-        # email
-        {:eex, "phx17/views/email/lockable_emails.ex", Path.join([web_path, "emails", "haytni", scope, "lockable_emails.ex"])},
-        {:eex, "phx17/templates/email/lockable/unlock_instructions.html.heex", Path.join([web_path, "emails", "haytni", scope, "lockable_html", "unlock_instructions.html.heex"])},
-        {:eex, "phx17/templates/email/lockable/unlock_instructions.text.eex", Path.join([web_path, "emails", "haytni", scope, "lockable_text", "unlock_instructions.text.eex"])},
-      ]
-    # TODO: remove this when dropping support for Phoenix < 1.7
-    else
-      [
-        # HTML
-        {:eex, "phx16/views/unlock_view.ex", Path.join([web_path, "views", "haytni", scope, "unlock_view.ex"])},
-        {:eex, "phx16/templates/unlock/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "unlock", "new.html.heex"])},
-        # email
-        {:eex, "phx16/views/email/lockable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "lockable_view.ex"])},
-        {:eex, "phx16/templates/email/lockable/unlock_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "lockable", "unlock_instructions.text.eex"])},
-        {:eex, "phx16/templates/email/lockable/unlock_instructions.html.heex", Path.join([web_path, "templates", "haytni", scope, "email", "lockable", "unlock_instructions.html.heex"])},
-      ]
-    end ++ [
+    [
+      # HTML
+      {:eex, "phx17/views/unlock_html.ex", Path.join([web_path, "controllers", "haytni", scope, "unlock_html.ex"])},
+      {:eex, "phx17/templates/unlock/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "unlock_html", "new.html.heex"])},
+      # email
+      {:eex, "phx17/views/email/lockable_emails.ex", Path.join([web_path, "emails", "haytni", scope, "lockable_emails.ex"])},
+      {:eex, "phx17/templates/email/lockable/unlock_instructions.html.heex", Path.join([web_path, "emails", "haytni", scope, "lockable_html", "unlock_instructions.html.heex"])},
+      {:eex, "phx17/templates/email/lockable/unlock_instructions.text.eex", Path.join([web_path, "emails", "haytni", scope, "lockable_text", "unlock_instructions.text.eex"])},
       # migration
       {:eex, "migrations/0-lockable_changes.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_lockable_#{scope}_changes.exs"])},
     ]

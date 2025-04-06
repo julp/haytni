@@ -11,14 +11,14 @@ defmodule Haytni.Rememberable.OnSuccessfulAuthentificationTest do
   Example:
 
       iex> #{__MODULE__}.session_params_with_rememberme(%{"email" => "foo@bar.com", "password" => "azerty"})
-      %{"session" => %{"email" => "foo@bar.com", "password" => "azerty", "remember" => "checked"}}
+      %{"session" => %{"email" => "foo@bar.com", "password" => "azerty", "remember" => "true"}}
   """
   end
   @spec session_params_with_rememberme(attrs :: Haytni.params) :: Haytni.params
   defp session_params_with_rememberme(attrs \\ %{}) do
     attrs
     |> session_params_without_rememberme()
-    |> put_in(~W[session remember], "checked")
+    |> put_in(~W[session remember], "true")
   end
 
   describe "Haytni.RememberablePlugin.on_successful_authentication/6 (callback)" do

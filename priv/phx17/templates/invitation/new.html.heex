@@ -1,29 +1,34 @@
-<.simple_form
-  :let={f}
-  for={@changeset}
-  action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :create)}
-  as={:invitation}
->
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+<Layouts.app flash={@flash}>
+<% end %>
+  <.simple_form
+    :let={f}
+    for={@changeset}
+    action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_invitation_path(@conn, :create)}
+    as={:invitation}
+  >
 
-  <p :if={f.errors[:base]}>
-    <%%= elem(f.errors[:base], 0) %>
-  </p>
+    <p :if={f.errors[:base]}>
+      <%%= elem(f.errors[:base], 0) %>
+    </p>
 
-  <.input
-    required
-    type="email"
-    field={f[:sent_to]}
-    label={dgettext("haytni", "Email")}
-    placeholder={dgettext("haytni", "email address of your friend")}
-  />
+    <.input
+      required
+      type="email"
+      field={f[:sent_to]}
+      label={dgettext("haytni", "Email")}
+      placeholder={dgettext("haytni", "email address of your friend")}
+    />
 
-  <:actions>
-    <.button>
-      <%%= dgettext("haytni", "Invite") %>
-    </.button>
-    <.link href="/" class="btn">
-      <%%= dgettext("haytni", "Cancel") %>
-    </.link>
-  </:actions>
-
-</.simple_form>
+    <:actions>
+      <.button>
+        <%%= dgettext("haytni", "Invite") %>
+      </.button>
+      <.link href="/" class="btn">
+        <%%= dgettext("haytni", "Cancel") %>
+      </.link>
+    </:actions>
+  </.simple_form>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+</Layouts.app>
+<% end %>

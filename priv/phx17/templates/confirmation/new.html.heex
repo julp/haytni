@@ -1,20 +1,33 @@
-<h2><%%= dgettext("haytni", "Resend confirmation instructions") %></h2>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+<Layouts.app flash={@flash}>
+<% end %>
+  <h2><%%= dgettext("haytni", "Resend confirmation instructions") %></h2>
 
-<.simple_form
-  :let={f}
-  for={@changeset}
-  action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_confirmation_path(@conn, :create)}
-  as={:confirmation}
->
+  <.simple_form
+    :let={f}
+    for={@changeset}
+    action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_confirmation_path(@conn, :create)}
+    as={:confirmation}
+  >
 
-  <%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.keys(%{changeset: @changeset, f: f, keys: @config.confirmation_keys}) %>
+    <<%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.keys
+      f={f}
+      changeset={@changeset}
+      keys={@config.confirmation_keys}
+    />
 
-  <:actions>
-    <.button>
-      <%%= dgettext("haytni", "Resend confirmation instructions") %>
-    </.button>
-  </:actions>
+    <:actions>
+      <.button>
+        <%%= dgettext("haytni", "Resend confirmation instructions") %>
+      </.button>
+    </:actions>
 
-  <%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.links(assigns) %>
+    <<%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.links
+      conn={@conn}
+      module={@module}
+    />
 
-</.simple_form>
+  </.simple_form>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+</Layouts.app>
+<% end %>

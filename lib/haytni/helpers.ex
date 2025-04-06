@@ -195,12 +195,12 @@ defmodule Haytni.Helpers do
     )
   end
 
-  @doc false
-  def phoenix17? do
+  def phx_version_cmp(min) do
     :phoenix
     |> Application.spec(:vsn)
     |> to_string()
-    |> Version.match?("~> 1.7-rc")
+    |> Version.compare(min)
+    |> Kernel.!=(:lt) # <=> in ~W[eq gt]a
   end
 
   @doc ~S"""

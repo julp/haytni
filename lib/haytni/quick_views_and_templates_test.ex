@@ -29,8 +29,8 @@ defmodule Haytni.QuickViewsAndTemplatesTest do
 
       _content =
         module
-        |> view_module(SessionView) # TODO: SessionHTML for Phoenix >= 1.7
-        |> Phoenix.View.render_to_string("new.html", conn: conn, config: config, module: module, changeset: Haytni.AuthenticablePlugin.session_changeset(config))
+        |> view_module(SessionHTML)
+        |> Phoenix.Template.render_to_string("new", "html", conn: conn, config: config, module: module, changeset: Haytni.AuthenticablePlugin.session_changeset(config))
     end
 
     if Haytni.plugin_enabled?(module, Haytni.RegisterablePlugin) do
@@ -38,8 +38,8 @@ defmodule Haytni.QuickViewsAndTemplatesTest do
 
       _content =
         module
-        |> view_module(RegistrationView)
-        |> Phoenix.View.render_to_string("new.html", conn: conn, config: config, module: module, changeset: Haytni.change_user(module))
+        |> view_module(RegistrationHTML)
+        |> Phoenix.Template.render_to_string("new", "html", conn: conn, config: config, module: module, changeset: Haytni.change_user(module))
     end
 
     if Haytni.plugin_enabled?(module, Haytni.LockablePlugin) do
@@ -47,8 +47,8 @@ defmodule Haytni.QuickViewsAndTemplatesTest do
 
       _content =
         module
-        |> view_module(UnlockView)
-        |> Phoenix.View.render_to_string("new.html", conn: conn, config: config, module: module, changeset: Haytni.LockablePlugin.unlock_request_changeset(config))
+        |> view_module(UnlockHTML)
+        |> Phoenix.Template.render_to_string("new", "html", conn: conn, config: config, module: module, changeset: Haytni.LockablePlugin.unlock_request_changeset(config))
 
       %Haytni.Mail{} = Haytni.LockableEmail.unlock_instructions_email(user, "the unlock token", module, config)
     end
@@ -58,8 +58,8 @@ defmodule Haytni.QuickViewsAndTemplatesTest do
 
       _content =
         module
-        |> view_module(PasswordView)
-        |> Phoenix.View.render_to_string("new.html", conn: conn, config: config, module: module, changeset: Haytni.RecoverablePlugin.recovering_changeset(config))
+        |> view_module(PasswordHTML)
+        |> Phoenix.Template.render_to_string("new", "html", conn: conn, config: config, module: module, changeset: Haytni.RecoverablePlugin.recovering_changeset(config))
 
       %Haytni.Mail{} = Haytni.RecoverableEmail.reset_password_email(user, "the reset password token", module, config)
     end
@@ -69,8 +69,8 @@ defmodule Haytni.QuickViewsAndTemplatesTest do
 
       _content =
         module
-        |> view_module(ConfirmationView)
-        |> Phoenix.View.render_to_string("new.html", conn: conn, config: config, module: module, changeset: Haytni.ConfirmablePlugin.confirmation_request_changeset(config))
+        |> view_module(ConfirmationHTML)
+        |> Phoenix.Template.render_to_string("new", "html", conn: conn, config: config, module: module, changeset: Haytni.ConfirmablePlugin.confirmation_request_changeset(config))
 
       %Haytni.Mail{} = Haytni.ConfirmableEmail.confirmation_email(user, "the confirmation token", module, config)
       %Haytni.Mail{} = Haytni.ConfirmableEmail.reconfirmation_email(user, "my new email address", "the reconfirmation token", module, config)
@@ -83,8 +83,8 @@ defmodule Haytni.QuickViewsAndTemplatesTest do
 
       _content =
         module
-        |> view_module(InvitationView)
-        |> Phoenix.View.render_to_string("new.html", conn: conn, config: config, module: module, changeset: Haytni.InvitablePlugin.invitation_to_changeset(invitation, config))
+        |> view_module(InvitationHTML)
+        |> Phoenix.Template.render_to_string("new", "html", conn: conn, config: config, module: module, changeset: Haytni.InvitablePlugin.invitation_to_changeset(invitation, config))
 
       %Haytni.Mail{} = Haytni.InvitableEmail.invitation_email(user, invitation, module, config)
     end

@@ -1,49 +1,54 @@
-<h2><%%= dgettext("haytni", "Change your password") %></h2>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+<Layouts.app flash={@flash}>
+<% end %>
+  <h2><%%= dgettext("haytni", "Change your password") %></h2>
 
-<.simple_form
-  :let={f}
-  for={@changeset}
-  action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :update)}
-  as={:password}
-  method="patch"
->
-
-  <.input
-    type="hidden"
-    field={f[:reset_password_token]}
-  />
-
-  <.input
-    required
-    autofocus
-    type="password"
-    field={f[:password]}
-    autocomplete="new-password"
-    label={dgettext("haytni", "New password")}
-    placeholder={dgettext("haytni", "your new password")}
-  />
-  <small
-    id="passwordHelpBlock"
-    class="form-text text-muted"
-    :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
+  <.simple_form
+    :let={f}
+    for={@changeset}
+    action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :update)}
+    as={:password}
+    method="patch"
   >
-    <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
-    <%%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
-  </small>
 
-  <.input
-    required
-    type="password"
-    autocomplete="off"
-    field={f[:password_confirmation]}
-    label={dgettext("haytni", "Confirm new password")}
-    placeholder={dgettext("haytni", "your new password")}
-  />
+    <.input
+      type="hidden"
+      field={f[:reset_password_token]}
+    />
 
-  <:actions>
-    <.button>
-      <%%= dgettext("haytni", "Change my password") %>
-    </.button>
-  </:actions>
+    <.input
+      required
+      autofocus
+      type="password"
+      field={f[:password]}
+      autocomplete="new-password"
+      label={dgettext("haytni", "New password")}
+      placeholder={dgettext("haytni", "your new password")}
+    />
+    <small
+      id="passwordHelpBlock"
+      class="form-text text-muted"
+      :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
+    >
+      <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
+      <%%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
+    </small>
 
-</.simple_form>
+    <.input
+      required
+      type="password"
+      autocomplete="off"
+      field={f[:password_confirmation]}
+      label={dgettext("haytni", "Confirm new password")}
+      placeholder={dgettext("haytni", "your new password")}
+    />
+
+    <:actions>
+      <.button>
+        <%%= dgettext("haytni", "Change my password") %>
+      </.button>
+    </:actions>
+  </.simple_form>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+</Layouts.app>
+<% end %>

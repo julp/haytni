@@ -47,7 +47,7 @@ defmodule Haytni.Registerable.RegistrationUpdateControllerTest do
         |> patch(Routes.haytni_user_registration_path(conn, :update), password_params(@password, password: new_password))
 
       assert Phoenix.ConnTest.redirected_to(new_conn) == Routes.haytni_user_registration_path(conn, :edit)
-      assert get_flash(new_conn, :info) == HaytniWeb.Registerable.RegistrationController.successful_edition_message()
+      assert Phoenix.Flash.get(new_conn.assigns.flash, :info) == HaytniWeb.Registerable.RegistrationController.successful_edition_message()
       assert [updated_user] = HaytniTest.Users.list_users()
       assert updated_user.id == user.id
       assert Haytni.AuthenticablePlugin.valid_password?(updated_user, new_password, @stack.fetch_config(Haytni.AuthenticablePlugin))

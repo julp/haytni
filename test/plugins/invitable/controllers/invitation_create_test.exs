@@ -44,7 +44,7 @@ defmodule Haytni.Invitable.InvitationCreateControllerTest do
 
       assert new_conn.halted
       assert Phoenix.ConnTest.redirected_to(new_conn) == Routes.haytni_user_invitation_path(conn, :new)
-      assert Phoenix.ConnTest.get_flash(new_conn, :info) == HaytniWeb.Invitable.InvitationController.invitation_sent_message()
+      assert Phoenix.Flash.get(new_conn.assigns.flash, :info) == HaytniWeb.Invitable.InvitationController.invitation_sent_message()
     end
   end
 end

@@ -1,65 +1,74 @@
-<%%= if Haytni.plugin_enabled?(@module, Haytni.InvitablePlugin) and @module.fetch_config(Haytni.InvitablePlugin).invitation_required and is_nil(@changeset.params["code"]) do %>
-  <div class="error">
-    <p><%%= Haytni.InvitablePlugin.invitation_required_message() %></p>
-  </div>
-<%% else %>
-  <.simple_form
-    :let={f}
-    for={@changeset}
-    action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :create)}
-    as={:registration}
-  >
-    <p :if={f.errors[:base]}>
-      <%%= elem(f.errors[:base], 0) %>
-    </p>
-
-    <.input
-      required
-      type="email"
-      field={f[:email]}
-      label={dgettext("haytni", "Email")}
-      placeholder={dgettext("haytni", "your email")}
-    />
-    <.input
-      required
-      type="email"
-      field={f[:email_confirmation]}
-      label={dgettext("haytni", "Confirm email")}
-      placeholder={dgettext("haytni", "your email")}
-    />
-    <.input
-      required
-      type="password"
-      field={f[:password]}
-      label={dgettext("haytni", "Password")}
-      placeholder={dgettext("haytni", "your password")}
-    />
-    <small
-      id="passwordHelpBlock"
-      class="form-text text-muted"
-      :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+<Layouts.app flash={@flash}>
+<% end %>
+  <%%= if Haytni.plugin_enabled?(@module, Haytni.InvitablePlugin) and @module.fetch_config(Haytni.InvitablePlugin).invitation_required and is_nil(@changeset.params["code"]) do %>
+    <div class="error">
+      <p><%%= Haytni.InvitablePlugin.invitation_required_message() %></p>
+    </div>
+  <%% else %>
+    <.simple_form
+      :let={f}
+      for={@changeset}
+      action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :create)}
+      as={:registration}
     >
-      <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
-      <%%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
-    </small>
-    <.input
-      required
-      type="password"
-      field={f[:password_confirmation]}
-      label={dgettext("haytni", "Confirm password")}
-      placeholder={dgettext("haytni", "your password")}
+      <p :if={f.errors[:base]}>
+        <%%= elem(f.errors[:base], 0) %>
+      </p>
+
+      <.input
+        required
+        type="email"
+        field={f[:email]}
+        label={dgettext("haytni", "Email")}
+        placeholder={dgettext("haytni", "your email")}
+      />
+      <.input
+        required
+        type="email"
+        field={f[:email_confirmation]}
+        label={dgettext("haytni", "Confirm email")}
+        placeholder={dgettext("haytni", "your email")}
+      />
+      <.input
+        required
+        type="password"
+        field={f[:password]}
+        label={dgettext("haytni", "Password")}
+        placeholder={dgettext("haytni", "your password")}
+      />
+      <small
+        id="passwordHelpBlock"
+        class="form-text text-muted"
+        :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
+      >
+        <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
+        <%%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
+      </small>
+      <.input
+        required
+        type="password"
+        field={f[:password_confirmation]}
+        label={dgettext("haytni", "Confirm password")}
+        placeholder={dgettext("haytni", "your password")}
+      />
+
+      <:actions>
+        <.button>
+          <%%= dgettext("haytni", "Sign up") %>
+        </.button>
+        <.link href="/" class="btn">
+          <%%= dgettext("haytni", "Cancel") %>
+        </.link>
+      </:actions>
+
+    </.simple_form>
+
+    <<%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.links
+      conn={@conn}
+      module={@module}
     />
-
-    <:actions>
-      <.button>
-        <%%= dgettext("haytni", "Sign up") %>
-      </.button>
-      <.link href="/" class="btn">
-        <%%= dgettext("haytni", "Cancel") %>
-      </.link>
-    </:actions>
-
-  </.simple_form>
-
-  <%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.links(assigns) %>
-<%% end %>
+  <%% end %>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+</Layouts.app>
+<% end %>

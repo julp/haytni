@@ -1,120 +1,25 @@
-<.simple_form
-  :let={f}
-  for={@email_changeset}
-  action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :update)}
-  as={:email}
->
-  <.input
-    type="hidden"
-    name="action"
-    field={f[:action]}
-    value="update_email"
-  />
-  <.input
-    required
-    type="email"
-    field={f[:email]}
-    label={dgettext("haytni", "Email")}
-    placeholder={dgettext("haytni", "your email")}
-  />
-  <.input
-    required
-    type="password"
-    name="current_password"
-    field={f[:current_password]}
-    label={dgettext("haytni", "Current password")}
-    placeholder={dgettext("haytni", "your current password")}
-  />
-  <:actions>
-    <.button>
-      <%%= dgettext("haytni", "Update") %>
-    </.button>
-    <.link href="/" class="btn">
-      <%%= dgettext("haytni", "Cancel") %>
-    </.link>
-  </:actions>
-</.simple_form>
-
-<.simple_form
-  :let={f}
-  for={@password_changeset}
-  action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :update)}
-  as={:password}
->
-  <.input
-    type="hidden"
-    name="action"
-    field={f[:action]}
-    value="update_password"
-  />
-  <.input
-    required
-    type="password"
-    field={f[:password]}
-    label={dgettext("haytni", "New password")}
-    placeholder={dgettext("haytni", "your new password")}
-  />
-  <small
-    id="passwordHelpBlock"
-    class="form-text text-muted"
-    :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
-  >
-    <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
-    <%%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
-  </small>
-  <.input
-    required
-    type="password"
-    field={f[:password_confirmation]}
-    label={dgettext("haytni", "Confirm new password")}
-    placeholder={dgettext("haytni", "your new password")}
-  />
-  <.input
-    required
-    type="password"
-    name="current_password"
-    field={f[:current_password]}
-    label={dgettext("haytni", "Current password")}
-    placeholder={dgettext("haytni", "your current password")}
-  />
-  <:actions>
-    <.button>
-      <%%= dgettext("haytni", "Update") %>
-    </.button>
-    <.link href="/" class="btn">
-      <%%= dgettext("haytni", "Cancel") %>
-    </.link>
-  </:actions>
-</.simple_form>
-
-<.simple_form
-  :let={f}
-  for={@changeset}
-  action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :update)}
-  as={:registration}
->
-  <%% _ = f %><%%# remove this line (used to silent a warning) %>
-
-  <%%# set up your own fields here %>
-
-  <:actions>
-    <.button>
-      <%%= dgettext("haytni", "Update") %>
-    </.button>
-    <.link href="/" class="btn">
-      <%%= dgettext("haytni", "Cancel") %>
-    </.link>
-  </:actions>
-</.simple_form>
-
-<%%= if @config.with_delete do %>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+<Layouts.app flash={@flash}>
+<% end %>
   <.simple_form
     :let={f}
-    for={@deletion_changeset}
-    action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :delete)}
-    as={:deletion}
-    method="delete"
+    for={@email_changeset}
+    action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :update)}
+    as={:email}
   >
+    <.input
+      type="hidden"
+      name="action"
+      field={f[:action]}
+      value="update_email"
+    />
+    <.input
+      required
+      type="email"
+      field={f[:email]}
+      label={dgettext("haytni", "Email")}
+      placeholder={dgettext("haytni", "your email")}
+    />
     <.input
       required
       type="password"
@@ -123,16 +28,117 @@
       label={dgettext("haytni", "Current password")}
       placeholder={dgettext("haytni", "your current password")}
     />
-    <.input
-      required
-      type="checkbox"
-      field={f[:accept_deletion]}
-      label={dgettext("haytni", "I'm sure I want to delete my account and I understand the operation can't be reverted")}
-    />
     <:actions>
-      <.button class="danger">
-        <%%= dgettext("haytni", "Delete") %>
+      <.button>
+        <%%= dgettext("haytni", "Update") %>
       </.button>
+      <.link href="/" class="btn">
+        <%%= dgettext("haytni", "Cancel") %>
+      </.link>
     </:actions>
   </.simple_form>
-<%% end %>
+
+  <.simple_form
+    :let={f}
+    for={@password_changeset}
+    action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :update)}
+    as={:password}
+  >
+    <.input
+      type="hidden"
+      name="action"
+      field={f[:action]}
+      value="update_password"
+    />
+    <.input
+      required
+      type="password"
+      field={f[:password]}
+      label={dgettext("haytni", "New password")}
+      placeholder={dgettext("haytni", "your new password")}
+    />
+    <small
+      id="passwordHelpBlock"
+      class="form-text text-muted"
+      :if={Haytni.plugin_enabled?(@module, Haytni.PasswordPolicyPlugin)}
+    >
+      <%% config = @module.fetch_config(Haytni.PasswordPolicyPlugin) %>
+      <%%= dgettext("haytni", "Your password must be %{minimum_password_length}-%{maximum_password_length} characters long.", minimum_password_length: config.password_length.first, maximum_password_length: config.password_length.last) %>
+    </small>
+    <.input
+      required
+      type="password"
+      field={f[:password_confirmation]}
+      label={dgettext("haytni", "Confirm new password")}
+      placeholder={dgettext("haytni", "your new password")}
+    />
+    <.input
+      required
+      type="password"
+      name="current_password"
+      field={f[:current_password]}
+      label={dgettext("haytni", "Current password")}
+      placeholder={dgettext("haytni", "your current password")}
+    />
+    <:actions>
+      <.button>
+        <%%= dgettext("haytni", "Update") %>
+      </.button>
+      <.link href="/" class="btn">
+        <%%= dgettext("haytni", "Cancel") %>
+      </.link>
+    </:actions>
+  </.simple_form>
+
+  <.simple_form
+    :let={f}
+    for={@changeset}
+    action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :update)}
+    as={:registration}
+  >
+    <%% _ = f %><%%# remove this line (used to silent a warning) %>
+
+    <%%# set up your own fields here %>
+
+    <:actions>
+      <.button>
+        <%%= dgettext("haytni", "Update") %>
+      </.button>
+      <.link href="/" class="btn">
+        <%%= dgettext("haytni", "Cancel") %>
+      </.link>
+    </:actions>
+  </.simple_form>
+
+  <%%= if @config.with_delete do %>
+    <.simple_form
+      :let={f}
+      for={@deletion_changeset}
+      action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_registration_path(@conn, :delete)}
+      as={:deletion}
+      method="delete"
+    >
+      <.input
+        required
+        type="password"
+        name="current_password"
+        field={f[:current_password]}
+        label={dgettext("haytni", "Current password")}
+        placeholder={dgettext("haytni", "your current password")}
+      />
+      <.input
+        required
+        type="checkbox"
+        field={f[:accept_deletion]}
+        label={dgettext("haytni", "I'm sure I want to delete my account and I understand the operation can't be reverted")}
+      />
+      <:actions>
+        <.button class="danger">
+          <%%= dgettext("haytni", "Delete") %>
+        </.button>
+      </:actions>
+    </.simple_form>
+  <%% end %>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+</Layouts.app>
+<% end %>

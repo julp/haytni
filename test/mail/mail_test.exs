@@ -1,27 +1,27 @@
-defmodule HaytniTestWeb.Haytni.Email.TestView do
+defmodule HaytniTestWeb.Haytni.TestEmails do
   def my_template_subject(_assigns) do
     "[SUBJECT] global"
   end
 
-  def render("my_template.html", _assigns) do
+  def my_template_html(_assigns) do
     "[HTML] global"
   end
 
-  def render("my_template.text", _assigns) do
+  def my_template_text(_assigns) do
     "[TEXT] global"
   end
 end
 
-defmodule HaytniTestWeb.Haytni.User.Email.TestView do
+defmodule HaytniTestWeb.Haytni.User.TestEmails do
   def my_template_subject(_assigns) do
     "[SUBJECT] scoped"
   end
 
-  def render("my_template.html", _assigns) do
+  def my_template_html(_assigns) do
     "[HTML] scoped"
   end
 
-  def render("my_template.text", _assigns) do
+  def my_template_text(_assigns) do
     "[TEXT] scoped"
   end
 end
@@ -33,7 +33,7 @@ defmodule Hayni.MailTest do
   ]
 
   describe "Hayni.Mail" do
-    @view HaytniTestWeb.Haytni.User.Email.TestView
+    @view HaytniTestWeb.Haytni.User.TestEmails
     @template "my_template"
     @expected_text "[TEXT] scoped"
     @expected_html "[HTML] scoped"

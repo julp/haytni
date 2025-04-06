@@ -38,6 +38,6 @@ defmodule Haytni.Confirmable.ReconfirmationControllerTest do
 
     assert conn.halted
     assert redirected_to(conn) == Routes.haytni_user_registration_path(conn, :edit)
-    assert get_flash(conn, :info) == HaytniWeb.Confirmable.ReconfirmationController.address_updated_message()
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) == HaytniWeb.Confirmable.ReconfirmationController.address_updated_message()
   end
 end

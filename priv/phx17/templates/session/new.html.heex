@@ -1,38 +1,51 @@
-<.simple_form
-  :let={f}
-  for={@changeset}
-  action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_session_path(@conn, :create)}
-  as={:session}
->
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+<Layouts.app flash={@flash}>
+<% end %>
+  <.simple_form
+    :let={f}
+    for={@changeset}
+    action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_session_path(@conn, :create)}
+    as={:session}
+  >
 
-  <p :if={f.errors[:base]}>
-    <%%= elem(f.errors[:base], 0) %>
-  </p>
+    <p :if={f.errors[:base]}>
+      <%%= elem(f.errors[:base], 0) %>
+    </p>
 
-  <%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.keys(%{changeset: @changeset, f: f, keys: @config.authentication_keys}) %>
+    <<%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.keys
+      f={f}
+      changeset={@changeset}
+      keys={@config.authentication_keys}
+    />
 
-  <.input
-    required
-    type="password"
-    field={f[:password]}
-    label={dgettext("haytni", "Password")}
+    <.input
+      required
+      type="password"
+      field={f[:password]}
+      label={dgettext("haytni", "Password")}
+    />
+    <.input
+      type="checkbox"
+      field={f[:remember]}
+      label={dgettext("haytni", "Remember Me?")}
+      :if={Haytni.plugin_enabled?(@module, Haytni.RememberablePlugin)}
+    />
+
+    <:actions>
+      <.button>
+        <%%= dgettext("haytni", "Sign In") %>
+      </.button>
+      <.link href="/" class="btn">
+        <%%= dgettext("haytni", "Cancel") %>
+      </.link>
+    </:actions>
+
+  </.simple_form>
+
+  <<%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.links
+    conn={@conn}
+    module={@module}
   />
-  <.input
-    type="checkbox"
-    field={f[:remember]}
-    label={dgettext("haytni", "Remember Me?")}
-    :if={Haytni.plugin_enabled?(@module, Haytni.RememberablePlugin)}
-  />
-
-  <:actions>
-    <.button>
-      <%%= dgettext("haytni", "Sign In") %>
-    </.button>
-    <.link href="/" class="btn">
-      <%%= dgettext("haytni", "Cancel") %>
-    </.link>
-  </:actions>
-
-</.simple_form>
-
-<%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.links(assigns) %>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+</Layouts.app>
+<% end %>

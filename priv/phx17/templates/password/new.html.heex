@@ -1,20 +1,33 @@
-<h2><%%= dgettext("haytni", "Forgot your password?") %></h2>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+<Layouts.app flash={@flash}>
+<% end %>
+  <h2><%%= dgettext("haytni", "Forgot your password?") %></h2>
 
-<.simple_form
-  :let={f}
-  for={@changeset}
-  action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :create)}
-  as={:password}
->
+  <.simple_form
+    :let={f}
+    for={@changeset}
+    action={<%= inspect(web_module) %>.Router.Helpers.haytni_<%= scope %>_password_path(@conn, :create)}
+    as={:password}
+  >
 
-  <%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.keys(%{changeset: @changeset, f: f, keys: @config.reset_password_keys}) %>
+    <<%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.keys
+      f={f}
+      changeset={@changeset}
+      keys={@config.reset_password_keys}
+    />
 
-  <:actions>
-    <.button>
-      <%%= dgettext("haytni", "Send me reset password instructions") %>
-    </.button>
-  </:actions>
+    <:actions>
+      <.button>
+        <%%= dgettext("haytni", "Send me reset password instructions") %>
+      </.button>
+    </:actions>
 
-  <%%= <%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.links(assigns) %>
+    <<%= [web_module, :Haytni, camelized_scope, "SharedHTML"] |> Module.concat() |> inspect() %>.links
+      conn={@conn}
+      module={@module}
+    />
 
-</.simple_form>
+  </.simple_form>
+<%= if Haytni.Helpers.phx_version_cmp("1.8.0-rc") do %>
+</Layouts.app>
+<% end %>

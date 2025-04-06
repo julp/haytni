@@ -118,20 +118,11 @@ defmodule Haytni.RegisterablePlugin do
 
   @impl Haytni.Plugin
   def files_to_install(_base_path, web_path, scope, _timestamp) do
-    if Haytni.Helpers.phoenix17?() do
-      [
-        {:eex, "phx17/views/registration_html.ex", Path.join([web_path, "controllers", "haytni", scope, "registration_html.ex"])},
-        {:eex, "phx17/templates/registration/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "registration_html", "new.html.heex"])},
-        {:eex, "phx17/templates/registration/edit.html.heex", Path.join([web_path, "controllers", "haytni", scope, "registration_html", "edit.html.heex"])},
-      ]
-    # TODO: remove this when dropping support for Phoenix < 1.7
-    else
-      [
-        {:eex, "phx16/views/registration_view.ex", Path.join([web_path, "views", "haytni", scope, "registration_view.ex"])},
-        {:eex, "phx16/templates/registration/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "registration", "new.html.heex"])},
-        {:eex, "phx16/templates/registration/edit.html.heex", Path.join([web_path, "templates", "haytni", scope, "registration", "edit.html.heex"])},
-      ]
-    end
+    [
+      {:eex, "phx17/views/registration_html.ex", Path.join([web_path, "controllers", "haytni", scope, "registration_html.ex"])},
+      {:eex, "phx17/templates/registration/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "registration_html", "new.html.heex"])},
+      {:eex, "phx17/templates/registration/edit.html.heex", Path.join([web_path, "controllers", "haytni", scope, "registration_html", "edit.html.heex"])},
+    ]
   end
 
   @impl Haytni.Plugin

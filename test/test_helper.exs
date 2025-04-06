@@ -14,7 +14,7 @@ binding = [
 ]
 {:ok, _pid} = HaytniTest.Application.start(:unused, :unused)
 
-phoenix_view_root = Path.join([__DIR__, "..", "priv", "phx16", "views"])
+phoenix_view_root = Path.join([__DIR__, "..", "priv", "phx17", "views"])
 migration_root = Path.join([__DIR__, "..", "priv", "migrations"])
 
 migration_root
@@ -30,12 +30,14 @@ migration_root
   end
 )
 
-{output, 0} = case :os.type() do
-  {:unix, _family} ->
-    System.cmd("find", [phoenix_view_root, "-type", "f"])
-  {:win32, _family} ->
-    System.cmd("dir", [phoenix_view_root, "/b"])
-end
+{output, 0} =
+  case :os.type() do
+    {:unix, _family} ->
+      System.cmd("find", [phoenix_view_root, "-type", "f"])
+    {:win32, _family} ->
+      System.cmd("dir", [phoenix_view_root, "/b"])
+  end
+
 output
 |> String.split("\n", trim: true)
 |> Stream.map(&String.trim/1)
@@ -61,7 +63,11 @@ binding = [
   table: HaytniTestWeb.HaytniAdmin.schema().__schema__(:source),
 ]
 
-~W[0-tokens_creation.exs 0-lockable_changes.exs 0-last_seen_changes.exs]
+~W[
+  0-tokens_creation.exs
+  0-lockable_changes.exs
+  0-last_seen_changes.exs
+]
 |> Enum.reduce(
   42,
   fn migration, acc ->
@@ -72,9 +78,9 @@ binding = [
 )
 
 # A scoped view (HaytniTestWeb.Haytni.Admin.SessionView)
-Haytni.TestHelpers.onfly_module_from_eex(Path.join(phoenix_view_root, "session_view.ex"), binding)
+Haytni.TestHelpers.onfly_module_from_eex(Path.join(phoenix_view_root, "session_html.ex"), binding)
 # Simulate a shared view (HaytniTestWeb.Haytni.UnlockView)
-Haytni.TestHelpers.onfly_module_from_eex(Path.join(phoenix_view_root, "unlock_view.ex"), binding |> Keyword.put(:scope, nil) |> Keyword.put(:camelized_scope, nil))
+Haytni.TestHelpers.onfly_module_from_eex(Path.join(phoenix_view_root, "unlock_html.ex"), binding |> Keyword.put(:scope, nil) |> Keyword.put(:camelized_scope, nil))
 
 Process.flag(:trap_exit, true)
 Ecto.Adapters.SQL.Sandbox.mode(HaytniTest.Repo, :manual)

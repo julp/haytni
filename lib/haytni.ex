@@ -300,21 +300,11 @@ defmodule Haytni do
   """
   @spec shared_files_to_install(base_path :: String.t, web_path :: String.t, scope :: String.t, timestamp :: String.t) :: [{:eex | :text, String.t, String.t}]
   def shared_files_to_install(base_path, web_path, scope, timestamp) do
-    if Haytni.Helpers.phoenix17?() do
-      [
-        {:eex, "phx17/views/shared_html.ex", Path.join([web_path, "controllers", "haytni", scope, "shared_html.ex"])},
-        {:eex, "phx17/templates/shared/keys.html.heex", Path.join([web_path, "controllers", "haytni", scope, "shared_html", "keys.html.heex"])},
-        {:eex, "phx17/templates/shared/links.html.heex", Path.join([web_path, "controllers", "haytni", scope, "shared_html", "links.html.heex"])},
-        {:eex, "phx17/templates/shared/message.html.heex", Path.join([web_path, "controllers", "haytni", scope, "shared_html", "message.html.heex"])},
-      ]
-    else
-      [
-        {:eex, "phx16/views/shared_view.ex", Path.join([web_path, "views", "haytni", scope, "shared_view.ex"])},
-        {:eex, "phx16/templates/shared/keys.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "keys.html.heex"])},
-        {:eex, "phx16/templates/shared/links.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "links.html.heex"])},
-        {:eex, "phx16/templates/shared/message.html.heex", Path.join([web_path, "templates", "haytni", scope, "shared", "message.html.heex"])},
-      ]
-    end ++ [
+    [
+      {:eex, "phx17/views/shared_html.ex", Path.join([web_path, "controllers", "haytni", scope, "shared_html.ex"])},
+      {:eex, "phx17/templates/shared/keys.html.heex", Path.join([web_path, "controllers", "haytni", scope, "shared_html", "keys.html.heex"])},
+      {:eex, "phx17/templates/shared/links.html.heex", Path.join([web_path, "controllers", "haytni", scope, "shared_html", "links.html.heex"])},
+      {:eex, "phx17/templates/shared/message.html.heex", Path.join([web_path, "controllers", "haytni", scope, "shared_html", "message.html.heex"])},
       {:eex, "haytni.ex", Path.join([base_path, "haytni.ex"])},
       # migration
       {:eex, "migrations/0-tokens_creation.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_#{scope}_tokens_creation.exs"])},

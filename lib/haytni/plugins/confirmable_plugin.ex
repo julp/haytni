@@ -65,37 +65,18 @@ defmodule Haytni.ConfirmablePlugin do
 
   @impl Haytni.Plugin
   def files_to_install(_base_path, web_path, scope, timestamp) do
-    if Haytni.Helpers.phoenix17?() do
-      [
-        # HTML
-        {:eex, "phx17/views/confirmation_html.ex", Path.join([web_path, "controllers", "haytni", scope, "confirmation_html.ex"])},
-        {:eex, "phx17/templates/confirmation/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "confirmation_html", "new.html.heex"])},
-        # email
-        {:eex, "phx17/views/email/confirmable_emails.ex", Path.join([web_path, "emails", "haytni", scope, "confirmable_emails.ex"])},
-        {:eex, "phx17/templates/email/confirmable/email_changed.html.heex", Path.join([web_path, "emails", "haytni", scope, "confirmable_html", "email_changed.html.heex"])},
-        {:eex, "phx17/templates/email/confirmable/confirmation_instructions.html.heex", Path.join([web_path, "emails", "haytni", scope, "confirmable_html", "confirmation_instructions.html.heex"])},
-        {:eex, "phx17/templates/email/confirmable/reconfirmation_instructions.html.heex", Path.join([web_path, "emails", "haytni", scope, "confirmable_html", "reconfirmation_instructions.html.heex"])},
-        {:eex, "phx17/templates/email/confirmable/email_changed.text.eex", Path.join([web_path, "emails", "haytni", scope, "confirmable_text", "email_changed.text.eex"])},
-        {:eex, "phx17/templates/email/confirmable/confirmation_instructions.text.eex", Path.join([web_path, "emails", "haytni", scope, "confirmable_text", "confirmation_instructions.text.eex"])},
-        {:eex, "phx17/templates/email/confirmable/reconfirmation_instructions.text.eex", Path.join([web_path, "emails", "haytni", scope, "confirmable_text", "reconfirmation_instructions.text.eex"])},
-      ]
-    # TODO: remove this when dropping support for Phoenix < 1.7
-    else
-      [
-        # HTML
-        {:eex, "phx16/views/confirmation_view.ex", Path.join([web_path, "views", "haytni", scope, "confirmation_view.ex"])},
-        {:eex, "phx16/templates/confirmation/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "new.html.heex"])},
-        #{:text, "phx16/templates/confirmation/show.html.heex", Path.join([web_path, "templates", "haytni", scope, "confirmation", "show.html.heex"])},
-        # email
-        {:eex, "phx16/views/email/confirmable_view.ex", Path.join([web_path, "views", "haytni", scope, "email", "confirmable_view.ex"])},
-        {:eex, "phx16/templates/email/confirmable/email_changed.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "email_changed.text.eex"])},
-        {:eex, "phx16/templates/email/confirmable/email_changed.html.heex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "email_changed.html.heex"])},
-        {:eex, "phx16/templates/email/confirmable/confirmation_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "confirmation_instructions.text.eex"])},
-        {:eex, "phx16/templates/email/confirmable/confirmation_instructions.html.heex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "confirmation_instructions.html.heex"])},
-        {:eex, "phx16/templates/email/confirmable/reconfirmation_instructions.text.eex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "reconfirmation_instructions.text.eex"])},
-        {:eex, "phx16/templates/email/confirmable/reconfirmation_instructions.html.heex", Path.join([web_path, "templates", "haytni", scope, "email", "confirmable", "reconfirmation_instructions.html.heex"])},
-      ]
-    end ++ [
+    [
+      # HTML
+      {:eex, "phx17/views/confirmation_html.ex", Path.join([web_path, "controllers", "haytni", scope, "confirmation_html.ex"])},
+      {:eex, "phx17/templates/confirmation/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "confirmation_html", "new.html.heex"])},
+      # email
+      {:eex, "phx17/views/email/confirmable_emails.ex", Path.join([web_path, "emails", "haytni", scope, "confirmable_emails.ex"])},
+      {:eex, "phx17/templates/email/confirmable/email_changed.html.heex", Path.join([web_path, "emails", "haytni", scope, "confirmable_html", "email_changed.html.heex"])},
+      {:eex, "phx17/templates/email/confirmable/email_changed.text.eex", Path.join([web_path, "emails", "haytni", scope, "confirmable_text", "email_changed.text.eex"])},
+      {:eex, "phx17/templates/email/confirmable/confirmation_instructions.html.heex", Path.join([web_path, "emails", "haytni", scope, "confirmable_html", "confirmation_instructions.html.heex"])},
+      {:eex, "phx17/templates/email/confirmable/reconfirmation_instructions.html.heex", Path.join([web_path, "emails", "haytni", scope, "confirmable_html", "reconfirmation_instructions.html.heex"])},
+      {:eex, "phx17/templates/email/confirmable/confirmation_instructions.text.eex", Path.join([web_path, "emails", "haytni", scope, "confirmable_text", "confirmation_instructions.text.eex"])},
+      {:eex, "phx17/templates/email/confirmable/reconfirmation_instructions.text.eex", Path.join([web_path, "emails", "haytni", scope, "confirmable_text", "reconfirmation_instructions.text.eex"])},
       # migration
       {:eex, "migrations/0-confirmable_changes.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_confirmable_#{scope}_changes.exs"])},
     ]

@@ -130,27 +130,13 @@ defmodule Haytni.RolablePlugin do
 
   @impl Haytni.Plugin
   def files_to_install(_base_path, web_path, scope, timestamp) do
-    if Haytni.Helpers.phoenix17?() do
-      [
-        # HTML
-        {:eex, "phx17/views/role_html.ex", Path.join([web_path, "controllers", "haytni", scope, "role_html.ex"])},
-        {:eex, "phx17/templates/role/_form.html.heex", Path.join([web_path, "controllers", "haytni", scope, "role_html", "_form.html.heex"])},
-        {:eex, "phx17/templates/role/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "role_html", "new.html.heex"])},
-        {:eex, "phx17/templates/role/edit.html.heex", Path.join([web_path, "controllers", "haytni", scope, "role_html", "edit.html.heex"])},
-        {:eex, "phx17/templates/role/index.html.heex", Path.join([web_path, "controllers", "haytni", scope, "role_html", "index.html.heex"])},
-      ]
-    # TODO: remove this when dropping support for Phoenix < 1.7
-    else
-      [
-        # HTML
-        {:eex, "phx16/views/role_view.ex", Path.join([web_path, "views", "haytni", scope, "role_view.ex"])},
-        {:eex, "phx16/templates/role/_form.html.heex", Path.join([web_path, "templates", "haytni", scope, "role", "_form.html.heex"])},
-        {:eex, "phx16/templates/role/new.html.heex", Path.join([web_path, "templates", "haytni", scope, "role", "new.html.heex"])},
-        {:eex, "phx16/templates/role/edit.html.heex", Path.join([web_path, "templates", "haytni", scope, "role", "edit.html.heex"])},
-        {:eex, "phx16/templates/role/index.html.heex", Path.join([web_path, "templates", "haytni", scope, "role", "index.html.heex"])},
-      ]
-    end ++ [
-      # migration
+    [
+      # HTML
+      {:eex, "phx17/views/role_html.ex", Path.join([web_path, "controllers", "haytni", scope, "role_html.ex"])},
+      {:eex, "phx17/templates/role/_form.html.heex", Path.join([web_path, "controllers", "haytni", scope, "role_html", "_form.html.heex"])},
+      {:eex, "phx17/templates/role/new.html.heex", Path.join([web_path, "controllers", "haytni", scope, "role_html", "new.html.heex"])},
+      {:eex, "phx17/templates/role/edit.html.heex", Path.join([web_path, "controllers", "haytni", scope, "role_html", "edit.html.heex"])},
+      {:eex, "phx17/templates/role/index.html.heex", Path.join([web_path, "controllers", "haytni", scope, "role_html", "index.html.heex"])},
       {:eex, "migrations/0-rolable_changes.exs", Path.join([web_path, "..", "..", "priv", "repo", "migrations", "#{timestamp}_haytni_rolable_#{scope}_changes.exs"])},
     ]
   end
